@@ -1,0 +1,11 @@
+/.idea/
+/.vscode/
+/.phpunit.result.cache
+/.phpunit.cache/
+/var/
+/vendor/
+/public/bundles/
+/node_modules/
+/playwright-report/
+/test-results/
+/report/
