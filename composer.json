@@ -61,7 +61,7 @@
     "cs:check": "php-cs-fixer fix --dry-run --diff --verbose",
     "cs:fix": "php-cs-fixer fix --verbose",
     "stan": "phpstan analyse",
-    "test": "phpunit",
+    "test": "vendor/bin/simple-phpunit",
     "pipeline:local:full": [
       "@lint",
       "@cs:check",
