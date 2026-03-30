@@ -1,0 +1,4 @@
+twig:
+  file_name_pattern: '*.twig'
+  globals:
+    accessing_product_name: '%accessing.product_name%'
