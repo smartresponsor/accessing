@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+final class AccessingResetPasswordControllerTest extends WebTestCase
+{
+    public function testResetPasswordRequestPageIsSuccessful(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/reset-password');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Reset password');
+    }
+
+    public function testResetPasswordCheckEmailPageIsSuccessful(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/reset-password/check-email');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Reset request received');
+    }
+
+    public function testInvalidResetTokenRedirectsToRequestPage(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/reset-password/reset/invalid-token');
+
+        self::assertResponseRedirects('/reset-password');
+    }
+}
