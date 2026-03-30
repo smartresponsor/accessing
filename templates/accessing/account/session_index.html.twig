@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · Sessions{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="h4 mb-0">Account sessions</h1>
+                <span class="badge text-bg-secondary">Latest 50</span>
+            </div>
+
+            {% if sessions is empty %}
+                <div class="alert alert-secondary mb-0">No account sessions recorded yet.</div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Account</th>
+                                <th>Session</th>
+                                <th>Last seen</th>
+                                <th>Trusted</th>
+                                <th>Revoked</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in sessions %}
+                                <tr>
+                                    <td>{{ session.account.email }}</td>
+                                    <td><code>{{ session.sessionIdentifier|slice(0, 16) }}…</code></td>
+                                    <td>{{ session.lastSeenAt|date('Y-m-d H:i:s') }}</td>
+                                    <td>{{ session.trusted ? 'Yes' : 'No' }}</td>
+                                    <td>{{ session.revokedAt ? session.revokedAt|date('Y-m-d H:i:s') : 'No' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
