@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · Two-factor authentication{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Two-factor authentication</h1>
+                    <p class="text-secondary">Enter the code from your authenticator application to continue.</p>
+
+                    {% if authenticationError is defined and authenticationError %}
+                        <div class="alert alert-danger">
+                            {{ authenticationError|trans(authenticationErrorData ?? {}, 'SchebTwoFactorBundle') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path(checkPathUrl ?? '2fa_login_check') }}">
+                        <div class="mb-3">
+                            <label class="form-label" for="auth-code">Authentication code</label>
+                            <input id="auth-code" class="form-control" type="text" name="_auth_code" inputmode="numeric" autocomplete="one-time-code" autofocus>
+                        </div>
+
+                        {% if isCsrfProtectionEnabled ?? true %}
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        {% endif %}
+
+                        {% if displayTrustedOption ?? false %}
+                            <div class="form-check mb-3">
+                                <input id="trusted" class="form-check-input" type="checkbox" name="_trusted">
+                                <label class="form-check-label" for="trusted">Trust this device</label>
+                            </div>
+                        {% endif %}
+
+                        <button class="btn btn-primary w-100" type="submit">Verify code</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
