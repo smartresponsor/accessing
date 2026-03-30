@@ -1,0 +1,12 @@
+framework:
+  csrf_protection: true
+  http_method_override: false
+  handle_all_throwables: true
+  form: true
+  session:
+    cookie_secure: auto
+    cookie_samesite: lax
+  validation:
+    email_validation_mode: html5
+  router:
+    utf8: true
