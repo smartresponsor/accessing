@@ -6,9 +6,15 @@ services:
     autowire: true
     autoconfigure: true
 
-  App\\:
+  App\:
     resource: '../src/'
     exclude:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Kernel.php'
+
+  App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
+  App\ServiceInterface\AccountSession\AccessingAccountSessionManagerInterface: '@App\Service\AccountSession\AccessingAccountSessionManager'
+  App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
+  App\ServiceInterface\Verification\AccessingVerificationChallengeManagerInterface: '@App\Service\Verification\AccessingVerificationChallengeManager'
+  App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface: '@App\Service\Verification\AccessingEmailVerificationService'

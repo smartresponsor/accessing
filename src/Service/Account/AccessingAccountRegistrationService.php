@@ -8,6 +8,8 @@ use App\Dto\AccountRegistrationRequest;
 use App\Entity\Account;
 use App\Repository\AccountRepository;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
+use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
+use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
@@ -15,6 +17,8 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
     public function __construct(
         private readonly AccountRepository $accountRepository,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly AccessingEmailVerificationServiceInterface $emailVerificationService,
+        private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ) {
     }
 
@@ -23,10 +27,18 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
         $account = (new Account())
             ->setEmail($request->email)
             ->setDisplayName($request->displayName)
-            ->setPhoneNumber($request->phoneNumber)
-            ->setPasswordHash($this->userPasswordHasher->hashPassword(new Account(), $request->plainPassword));
+            ->setPhoneNumber($request->phoneNumber);
+
+        $account->setPasswordHash($this->userPasswordHasher->hashPassword($account, $request->plainPassword));
 
         $this->accountRepository->save($account, true);
+
+        $challenge = $this->emailVerificationService->issueChallenge($account);
+
+        $this->securityEventRecorder->record('account.registered', $account, [
+            'email' => $account->getEmail(),
+            'challengeId' => $challenge->getId(),
+        ]);
 
         return $account;
     }
