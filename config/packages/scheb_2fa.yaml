@@ -8,3 +8,4 @@ scheb_two_factor:
     server_name: '%accessing.product_name%'
     issuer: '%accessing.product_name%'
     leeway: 0
+    template: security/2fa_form.html.twig
