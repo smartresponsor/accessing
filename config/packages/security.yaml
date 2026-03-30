@@ -1,0 +1,40 @@
+security:
+  password_hashers:
+    Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface: 'auto'
+
+  providers:
+    accessing_account_provider:
+      entity:
+        class: App\\Entity\\Account
+        property: email
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    main:
+      lazy: true
+      provider: accessing_account_provider
+      form_login:
+        login_path: accessing_login
+        check_path: accessing_login
+        enable_csrf: true
+        username_parameter: email
+        password_parameter: password
+        default_target_path: accessing_dashboard
+      logout:
+        path: accessing_logout
+        target: accessing_home
+
+  access_control:
+    - { path: ^/dashboard, roles: ROLE_USER }
+
+when@test:
+  security:
+    password_hashers:
+      Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface:
+        algorithm: auto
+        cost: 4
+        time_cost: 3
+        memory_cost: 10
