@@ -32,13 +32,16 @@ security:
         target: accessing_home
 
   access_control:
-    - { path: ^/2fa, roles: PUBLIC_ACCESS }
+    - { path: ^/logout, roles: PUBLIC_ACCESS }
+    - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
     - { path: ^/login, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/reset-password, roles: PUBLIC_ACCESS }
     - { path: ^/verification/email/, roles: PUBLIC_ACCESS }
     - { path: ^/dashboard, roles: ROLE_USER }
     - { path: ^/sessions, roles: ROLE_USER }
     - { path: ^/security-events, roles: ROLE_USER }
+    - { path: ^/second-factor, roles: ROLE_USER }
 
 when@test:
   security:
