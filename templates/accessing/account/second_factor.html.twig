@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · Second factor{% endblock %}
+
+{% block body %}
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-3">Second factor</h1>
+            <p class="text-secondary">TOTP setup for the current signed-in account.</p>
+
+            <dl class="row mb-4">
+                <dt class="col-sm-4">Account</dt>
+                <dd class="col-sm-8">{{ account.email }}</dd>
+                <dt class="col-sm-4">Enabled</dt>
+                <dd class="col-sm-8">{{ account.secondFactorEnabled ? 'Yes' : 'No' }}</dd>
+                <dt class="col-sm-4">Secret</dt>
+                <dd class="col-sm-8"><code>{{ account.totpSecret ?: 'Not prepared' }}</code></dd>
+            </dl>
+
+            <label class="form-label" for="provisioning-uri">Provisioning URI</label>
+            <textarea id="provisioning-uri" class="form-control mb-4" rows="4" readonly>{{ provisioning_uri }}</textarea>
+
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" action="{{ path('accessing_second_factor_enable') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('accessing_second_factor_enable') }}">
+                    <button class="btn btn-primary" type="submit">Enable second factor</button>
+                </form>
+                <form method="post" action="{{ path('accessing_second_factor_disable') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('accessing_second_factor_disable') }}">
+                    <button class="btn btn-outline-danger" type="submit">Disable second factor</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
