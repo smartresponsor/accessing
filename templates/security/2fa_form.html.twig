@@ -16,7 +16,7 @@
                         </div>
                     {% endif %}
 
-                    <form method="post" action="{{ path(checkPathUrl ?? '2fa_login_check') }}">
+                    <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute ?? '2fa_login_check') }}">
                         <div class="mb-3">
                             <label class="form-label" for="auth-code">Authentication code</label>
                             <input id="auth-code" class="form-control" type="text" name="{{ authCodeParameterName ?? '_auth_code' }}" inputmode="numeric" autocomplete="one-time-code" autofocus>
@@ -35,6 +35,12 @@
 
                         <button class="btn btn-primary w-100" type="submit">Verify code</button>
                     </form>
+
+                    {% if logoutPath is defined and logoutPath %}
+                        <div class="mt-3 text-center">
+                            <a class="link-secondary" href="{{ logoutPath }}">Cancel and sign out</a>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
