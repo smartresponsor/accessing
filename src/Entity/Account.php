@@ -7,13 +7,16 @@ namespace App\Entity;
 use App\Repository\AccountRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
 #[ORM\Table(name: 'accessing_account')]
 #[ORM\UniqueConstraint(name: 'uniq_accessing_account_email', columns: ['email'])]
-class Account implements UserInterface, PasswordAuthenticatedUserInterface
+class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -37,6 +40,9 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $phoneNumber = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $totpSecret = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $emailVerifiedAt = null;
@@ -159,6 +165,19 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): self
+    {
+        $this->totpSecret = $totpSecret !== null ? trim($totpSecret) : null;
+        $this->touch();
+
+        return $this;
+    }
+
     public function getEmailVerifiedAt(): ?\DateTimeImmutable
     {
         return $this->emailVerifiedAt;
@@ -196,6 +215,23 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface
         $this->touch();
 
         return $this;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->secondFactorEnabled && null !== $this->totpSecret && '' !== $this->totpSecret;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->email;
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        return $this->isTotpAuthenticationEnabled()
+            ? new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
+            : null;
     }
 
     public function isLocked(): bool

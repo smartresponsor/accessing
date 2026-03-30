@@ -1,11 +1,11 @@
 security:
   password_hashers:
-    Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface: 'auto'
+    Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
   providers:
     accessing_account_provider:
       entity:
-        class: App\\Entity\\Account
+        class: App\Entity\Account
         property: email
 
   firewalls:
@@ -23,17 +23,27 @@ security:
         username_parameter: email
         password_parameter: password
         default_target_path: accessing_dashboard
+      two_factor:
+        auth_form_path: 2fa_login
+        check_path: 2fa_login_check
+        default_target_path: accessing_dashboard
       logout:
         path: accessing_logout
         target: accessing_home
 
   access_control:
+    - { path: ^/2fa, roles: PUBLIC_ACCESS }
+    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/verification/email/, roles: PUBLIC_ACCESS }
     - { path: ^/dashboard, roles: ROLE_USER }
+    - { path: ^/sessions, roles: ROLE_USER }
+    - { path: ^/security-events, roles: ROLE_USER }
 
 when@test:
   security:
     password_hashers:
-      Symfony\\Component\\Security\\Core\\User\\PasswordAuthenticatedUserInterface:
+      Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
         algorithm: auto
         cost: 4
         time_cost: 3
