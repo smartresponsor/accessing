@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · New password{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">New password</h1>
+                    {{ form_start(reset_form) }}
+                        {{ form_row(reset_form.plainPassword) }}
+                        {{ form_row(reset_form.submit) }}
+                    {{ form_end(reset_form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
