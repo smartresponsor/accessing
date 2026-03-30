@@ -19,16 +19,16 @@
                     <form method="post" action="{{ path(checkPathUrl ?? '2fa_login_check') }}">
                         <div class="mb-3">
                             <label class="form-label" for="auth-code">Authentication code</label>
-                            <input id="auth-code" class="form-control" type="text" name="_auth_code" inputmode="numeric" autocomplete="one-time-code" autofocus>
+                            <input id="auth-code" class="form-control" type="text" name="{{ authCodeParameterName ?? '_auth_code' }}" inputmode="numeric" autocomplete="one-time-code" autofocus>
                         </div>
 
-                        {% if isCsrfProtectionEnabled ?? true %}
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        {% if isCsrfProtectionEnabled ?? false %}
+                            <input type="hidden" name="{{ csrfParameterName ?? '_csrf_token' }}" value="{{ csrf_token(csrfTokenId ?? 'two_factor') }}">
                         {% endif %}
 
                         {% if displayTrustedOption ?? false %}
                             <div class="form-check mb-3">
-                                <input id="trusted" class="form-check-input" type="checkbox" name="_trusted">
+                                <input id="trusted" class="form-check-input" type="checkbox" name="{{ trustedParameterName ?? '_trusted' }}">
                                 <label class="form-check-label" for="trusted">Trust this device</label>
                             </div>
                         {% endif %}
