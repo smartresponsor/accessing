@@ -9,6 +9,7 @@ use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class AccessingEmailVerificationController extends AbstractController
 {
@@ -23,9 +24,22 @@ final class AccessingEmailVerificationController extends AbstractController
             return $this->redirectToRoute('accessing_login');
         }
 
+        if (null !== $account->getEmailVerifiedAt()) {
+            $this->addFlash('success', 'Email is already verified for the current account.');
+
+            return $this->redirectToRoute('accessing_dashboard');
+        }
+
         $challenge = $emailVerificationService->issueChallenge($account);
 
-        $this->addFlash('info', sprintf('Email verification challenge created. Demo token: %s', $challenge->getToken()));
+        $this->addFlash('info', sprintf(
+            'Email verification preview link: %s',
+            $this->generateUrl(
+                'accessing_email_verification_confirm',
+                ['token' => $challenge->getToken()],
+                UrlGeneratorInterface::ABSOLUTE_URL,
+            )
+        ));
 
         return $this->redirectToRoute('accessing_dashboard');
     }
