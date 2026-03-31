@@ -1,0 +1,4 @@
+when@prod:
+  framework:
+    router:
+      default_uri: '%env(APP_DEFAULT_URI)%'
