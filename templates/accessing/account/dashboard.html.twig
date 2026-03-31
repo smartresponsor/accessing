@@ -14,7 +14,7 @@
                             No authenticated account is available in the current request context.
                         </div>
                     {% else %}
-                        <dl class="row mb-0">
+                        <dl class="row mb-4">
                             <dt class="col-sm-4">Email</dt>
                             <dd class="col-sm-8">{{ account.email }}</dd>
                             <dt class="col-sm-4">Display name</dt>
@@ -30,6 +30,13 @@
                             <dt class="col-sm-4">Failed logins</dt>
                             <dd class="col-sm-8">{{ account.failedLoginCount }}</dd>
                         </dl>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="btn btn-outline-primary" href="{{ path('accessing_second_factor') }}">Second factor</a>
+                            <a class="btn btn-outline-primary" href="{{ path('accessing_account_session_index') }}">Sessions</a>
+                            <a class="btn btn-outline-primary" href="{{ path('accessing_security_event_index') }}">Security events</a>
+                            <a class="btn btn-outline-primary" href="{{ path('accessing_email_verification_request') }}">Verify email</a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -37,12 +44,13 @@
         <div class="col-lg-4">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
-                    <h2 class="h5">Next product steps</h2>
+                    <h2 class="h5">Current security surface</h2>
                     <ul class="mb-0 text-secondary">
-                        <li>registration DTO + form</li>
-                        <li>email verification flow</li>
-                        <li>TOTP enrollment and recovery</li>
-                        <li>security event audit views</li>
+                        <li>form login</li>
+                        <li>email verification</li>
+                        <li>TOTP enrollment</li>
+                        <li>reset password</li>
+                        <li>session and event audit views</li>
                     </ul>
                 </div>
             </div>
