@@ -7,16 +7,21 @@ namespace App\Controller;
 use App\Entity\Account;
 use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class AccessingEmailVerificationController extends AbstractController
 {
-    #[Route('/verification/email/request', name: 'accessing_email_verification_request', methods: ['GET'])]
-    public function request(AccessingEmailVerificationServiceInterface $emailVerificationService): Response
+    #[Route('/verification/email/request', name: 'accessing_email_verification_request', methods: ['POST'])]
+    public function request(Request $request, AccessingEmailVerificationServiceInterface $emailVerificationService): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
+
+        if (!$this->isCsrfTokenValid('accessing_email_verification_request', (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
 
         /** @var Account|null $account */
         $account = $this->getUser();
