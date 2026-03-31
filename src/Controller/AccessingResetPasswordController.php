@@ -21,6 +21,8 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 final class AccessingResetPasswordController extends AbstractController
 {
+    private const RESET_PASSWORD_TOKEN_SESSION_KEY = 'accessing_reset_password_token';
+
     #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
@@ -66,19 +68,34 @@ final class AccessingResetPasswordController extends AbstractController
         return $this->render('accessing/reset_password/check_email.html.twig');
     }
 
+    #[Route('/reset-password/reset', name: 'accessing_reset_password_reset_plain', methods: ['GET', 'POST'])]
     #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
     public function reset(
         Request $request,
-        string $token,
         ResetPasswordHelperInterface $resetPasswordHelper,
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
+        ?string $token = null,
     ): Response {
+        $session = $request->getSession();
+
+        if (null !== $token && '' !== trim($token)) {
+            $session->set(self::RESET_PASSWORD_TOKEN_SESSION_KEY, trim($token));
+
+            return $this->redirectToRoute('accessing_reset_password_reset_plain');
+        }
+
+        $token = (string) $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
+        if ('' === $token) {
+            return $this->redirectToRoute('accessing_reset_password_request');
+        }
+
         try {
             /** @var Account $account */
             $account = $resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface) {
+            $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->addFlash('danger', 'Invalid or expired reset token.');
 
             return $this->redirectToRoute('accessing_reset_password_request');
@@ -91,6 +108,7 @@ final class AccessingResetPasswordController extends AbstractController
             $plainPassword = (string) $form->get('plainPassword')->getData();
 
             $resetPasswordHelper->removeResetRequest($token);
+            $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $account->setPasswordHash($userPasswordHasher->hashPassword($account, $plainPassword));
             $entityManager->flush();
 
