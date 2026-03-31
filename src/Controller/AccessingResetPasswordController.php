@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
@@ -47,7 +48,11 @@ final class AccessingResetPasswordController extends AbstractController
 
                     $this->addFlash('info', sprintf(
                         'Owner-oriented preview link: %s',
-                        $this->generateUrl('accessing_reset_password_reset', ['token' => $resetToken->getToken()])
+                        $this->generateUrl(
+                            'accessing_reset_password_reset',
+                            ['token' => $resetToken->getToken()],
+                            UrlGeneratorInterface::ABSOLUTE_URL,
+                        )
                     ));
                 } catch (ResetPasswordExceptionInterface) {
                     $this->addFlash('warning', 'A reset request could not be created right now.');
