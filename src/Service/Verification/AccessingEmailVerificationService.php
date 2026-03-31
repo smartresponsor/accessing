@@ -36,7 +36,7 @@ final class AccessingEmailVerificationService implements AccessingEmailVerificat
     {
         /** @var VerificationChallenge|null $challenge */
         $challenge = $this->entityManager->createQuery(
-            'SELECT challenge, account FROM App\\Entity\\VerificationChallenge challenge JOIN challenge.account account WHERE challenge.token = :token AND challenge.channelType = :channelType AND challenge.completed = false'
+            'SELECT challenge FROM App\Entity\VerificationChallenge challenge JOIN challenge.account account WHERE challenge.token = :token AND challenge.channelType = :channelType AND challenge.completed = false'
         )
             ->setParameter('token', trim($token))
             ->setParameter('channelType', 'email')
