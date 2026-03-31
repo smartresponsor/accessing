@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Account;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,9 +17,16 @@ final class AccessingAccountSessionController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
+        /** @var Account|null $account */
+        $account = $this->getUser();
+        if (!$account instanceof Account) {
+            return $this->redirectToRoute('accessing_login');
+        }
+
         $sessions = $entityManager->createQuery(
-            'SELECT accountSession FROM App\\Entity\\AccountSession accountSession ORDER BY accountSession.lastSeenAt DESC'
+            'SELECT accountSession FROM App\Entity\AccountSession accountSession WHERE accountSession.account = :account ORDER BY accountSession.lastSeenAt DESC'
         )
+            ->setParameter('account', $account)
             ->setMaxResults(50)
             ->getResult();
 
