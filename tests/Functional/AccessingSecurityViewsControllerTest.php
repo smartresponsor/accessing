@@ -16,11 +16,27 @@ final class AccessingSecurityViewsControllerTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
+    public function testSessionsPagePostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/sessions');
+
+        self::assertResponseStatusCodeSame(405);
+    }
+
     public function testSecurityEventsPageRequiresAuthentication(): void
     {
         $client = static::createClient();
         $client->request('GET', '/security-events');
 
         self::assertResponseRedirects('/login');
+    }
+
+    public function testSecurityEventsPagePostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/security-events');
+
+        self::assertResponseStatusCodeSame(405);
     }
 }
