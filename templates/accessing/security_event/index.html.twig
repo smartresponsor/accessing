@@ -19,7 +19,6 @@
                             <tr>
                                 <th>Occurred at</th>
                                 <th>Type</th>
-                                <th>Account</th>
                                 <th>IP</th>
                             </tr>
                         </thead>
@@ -28,7 +27,6 @@
                                 <tr>
                                     <td>{{ event.occurredAt|date('Y-m-d H:i:s') }}</td>
                                     <td><code>{{ event.eventType }}</code></td>
-                                    <td>{{ event.account ? event.account.email : '—' }}</td>
                                     <td>{{ event.ipAddress ?: '—' }}</td>
                                 </tr>
                             {% endfor %}

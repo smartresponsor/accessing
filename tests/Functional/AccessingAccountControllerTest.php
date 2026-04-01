@@ -17,6 +17,14 @@ final class AccessingAccountControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'Account access lifecycle starts here');
     }
 
+    public function testHomePagePostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/');
+
+        self::assertResponseStatusCodeSame(405);
+    }
+
     public function testLoginPageIsSuccessful(): void
     {
         $client = static::createClient();
@@ -32,5 +40,13 @@ final class AccessingAccountControllerTest extends WebTestCase
         $client->request('GET', '/dashboard');
 
         self::assertResponseRedirects('/login');
+    }
+
+    public function testDashboardPostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/dashboard');
+
+        self::assertResponseStatusCodeSame(405);
     }
 }

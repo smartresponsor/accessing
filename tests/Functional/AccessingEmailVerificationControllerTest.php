@@ -24,6 +24,14 @@ final class AccessingEmailVerificationControllerTest extends WebTestCase
         self::assertResponseRedirects('/login');
     }
 
+    public function testEmailVerificationConfirmPostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/verification/email/invalid-token');
+
+        self::assertResponseStatusCodeSame(405);
+    }
+
     public function testInvalidEmailVerificationTokenReturnsNotFound(): void
     {
         $client = static::createClient();
