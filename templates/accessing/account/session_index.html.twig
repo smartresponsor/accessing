@@ -17,7 +17,6 @@
                     <table class="table table-striped align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>Account</th>
                                 <th>Session</th>
                                 <th>Last seen</th>
                                 <th>Trusted</th>
@@ -27,7 +26,6 @@
                         <tbody>
                             {% for session in sessions %}
                                 <tr>
-                                    <td>{{ session.account.email }}</td>
                                     <td><code>{{ session.sessionIdentifier|slice(0, 16) }}…</code></td>
                                     <td>{{ session.lastSeenAt|date('Y-m-d H:i:s') }}</td>
                                     <td>{{ session.trusted ? 'Yes' : 'No' }}</td>
