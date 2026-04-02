@@ -44,4 +44,12 @@ final class AccessingResetPasswordControllerTest extends WebTestCase
         $client->followRedirect();
         self::assertResponseRedirects('/reset-password');
     }
+
+    public function testInvalidResetTokenPostRedirectsThroughPlainResetRoute(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/reset-password/reset/invalid-token');
+
+        self::assertResponseRedirects('/reset-password/reset');
+    }
 }

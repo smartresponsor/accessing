@@ -34,6 +34,14 @@ final class AccessingAccountControllerTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'Sign in');
     }
 
+    public function testLogoutPostIsNotAllowed(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/logout');
+
+        self::assertResponseStatusCodeSame(405);
+    }
+
     public function testDashboardRequiresAuthentication(): void
     {
         $client = static::createClient();
