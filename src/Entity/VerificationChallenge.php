@@ -4,68 +4,50 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\VerificationChallengeRepository;
-use App\ValueObject\VerificationChallengeType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: VerificationChallengeRepository::class)]
-#[ORM\Table(name: 'verification_challenge')]
-#[ORM\Index(name: 'idx_verification_challenge_type_expires', columns: ['challenge_type', 'expires_at'])]
-final class VerificationChallenge
+#[ORM\Entity]
+#[ORM\Table(name: 'accessing_verification_challenge')]
+#[ORM\Index(name: 'idx_accessing_verification_challenge_type', columns: ['channel_type'])]
+#[ORM\Index(name: 'idx_accessing_verification_challenge_expires_at', columns: ['expires_at'])]
+class VerificationChallenge
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'verificationChallenges')]
+    #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Account $account;
+    private ?Account $account = null;
 
-    #[ORM\Column(enumType: VerificationChallengeType::class, length: 32)]
-    private VerificationChallengeType $challengeType;
+    #[ORM\Column(length: 32, name: 'channel_type')]
+    private string $channelType = '';
 
-    #[ORM\Column(length: 180)]
-    private string $destination;
+    #[ORM\Column(length: 32)]
+    private string $token = '';
 
-    #[ORM\Column(length: 64)]
-    private string $codeHash;
-
-    #[ORM\Column(nullable: true, length: 45)]
-    private ?string $requestedByIpAddress = null;
+    #[ORM\Column(length: 255)]
+    private string $target = '';
 
     #[ORM\Column]
-    private \DateTimeImmutable $requestedAt;
+    private bool $completed = false;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'expires_at')]
     private \DateTimeImmutable $expiresAt;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $consumedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
-    private int $attemptCount = 0;
-
-    #[ORM\Column(type: 'json')]
-    private array $metadata = [];
-
-    public function __construct(
-        Account $account,
-        VerificationChallengeType $challengeType,
-        string $destination,
-        string $codeHash,
-        \DateTimeImmutable $expiresAt,
-        ?string $requestedByIpAddress = null,
-        array $metadata = [],
-    ) {
-        $this->account = $account;
-        $this->challengeType = $challengeType;
-        $this->destination = $destination;
-        $this->codeHash = $codeHash;
-        $this->expiresAt = $expiresAt;
-        $this->requestedByIpAddress = $requestedByIpAddress;
-        $this->requestedAt = new \DateTimeImmutable();
-        $this->metadata = $metadata;
+    public function __construct()
+    {
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->expiresAt = $now->modify('+15 minutes');
     }
 
     public function getId(): ?int
@@ -73,39 +55,70 @@ final class VerificationChallenge
         return $this->id;
     }
 
-    public function getAccount(): Account
+    public function getAccount(): ?Account
     {
         return $this->account;
     }
 
-    public function setAccount(Account $account): void
+    public function setAccount(Account $account): self
     {
         $this->account = $account;
+
+        return $this;
     }
 
-    public function getChallengeType(): VerificationChallengeType
+    public function getChannelType(): string
     {
-        return $this->challengeType;
+        return $this->channelType;
     }
 
-    public function getDestination(): string
+    public function setChannelType(string $channelType): self
     {
-        return $this->destination;
+        $this->channelType = trim($channelType);
+
+        return $this;
     }
 
-    public function getCodeHash(): string
+    public function getToken(): string
     {
-        return $this->codeHash;
+        return $this->token;
     }
 
-    public function getRequestedByIpAddress(): ?string
+    public function setToken(string $token): self
     {
-        return $this->requestedByIpAddress;
+        $this->token = trim($token);
+
+        return $this;
     }
 
-    public function getRequestedAt(): \DateTimeImmutable
+    public function getTarget(): string
     {
-        return $this->requestedAt;
+        return $this->target;
+    }
+
+    public function setTarget(string $target): self
+    {
+        $this->target = trim($target);
+
+        return $this;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->completed;
+    }
+
+    public function markCompleted(?\DateTimeImmutable $completedAt = null): self
+    {
+        $this->completed = true;
+        $this->completedAt = $completedAt ?? new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
     }
 
     public function getExpiresAt(): \DateTimeImmutable
@@ -113,38 +126,15 @@ final class VerificationChallenge
         return $this->expiresAt;
     }
 
-    public function getConsumedAt(): ?\DateTimeImmutable
+    public function setExpiresAt(\DateTimeImmutable $expiresAt): self
     {
-        return $this->consumedAt;
+        $this->expiresAt = $expiresAt;
+
+        return $this;
     }
 
-    public function consume(): void
+    public function getCreatedAt(): \DateTimeImmutable
     {
-        $this->consumedAt = new \DateTimeImmutable();
-    }
-
-    public function registerAttempt(): void
-    {
-        ++$this->attemptCount;
-    }
-
-    public function isExpired(): bool
-    {
-        return $this->expiresAt <= new \DateTimeImmutable();
-    }
-
-    public function isActive(): bool
-    {
-        return !$this->isExpired() && $this->consumedAt === null;
-    }
-
-    public function getAttemptCount(): int
-    {
-        return $this->attemptCount;
-    }
-
-    public function getMetadata(): array
-    {
-        return $this->metadata;
+        return $this->createdAt;
     }
 }

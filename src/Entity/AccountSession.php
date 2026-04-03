@@ -4,52 +4,54 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\AccountSessionRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: AccountSessionRepository::class)]
-#[ORM\Table(name: 'account_session')]
-#[ORM\UniqueConstraint(name: 'uniq_account_session_identifier', columns: ['session_identifier'])]
-final class AccountSession
+#[ORM\Entity]
+#[ORM\Table(name: 'accessing_account_session')]
+#[ORM\Index(name: 'idx_accessing_account_session_expires_at', columns: ['expires_at'])]
+#[ORM\Index(name: 'idx_accessing_account_session_revoked_at', columns: ['revoked_at'])]
+class AccountSession
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'accountSessions')]
+    #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Account $account;
+    private ?Account $account = null;
 
-    #[ORM\Column(length: 128)]
-    private string $sessionIdentifier;
+    #[ORM\Column(length: 128, unique: true)]
+    private string $sessionIdentifier = '';
 
-    #[ORM\Column(nullable: true, length: 45)]
+    #[ORM\Column(length: 45, nullable: true)]
     private ?string $ipAddress = null;
 
-    #[ORM\Column(nullable: true, length: 1000)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $userAgent = null;
 
     #[ORM\Column]
     private bool $trusted = false;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'last_seen_at')]
     private \DateTimeImmutable $lastSeenAt;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $invalidatedAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'expires_at')]
+    private \DateTimeImmutable $expiresAt;
 
-    public function __construct(Account $account, string $sessionIdentifier, ?string $ipAddress, ?string $userAgent)
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, name: 'revoked_at')]
+    private ?\DateTimeImmutable $revokedAt = null;
+
+    public function __construct()
     {
-        $this->account = $account;
-        $this->sessionIdentifier = $sessionIdentifier;
-        $this->ipAddress = $ipAddress;
-        $this->userAgent = $userAgent;
-        $this->createdAt = new \DateTimeImmutable();
-        $this->lastSeenAt = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->lastSeenAt = $now;
+        $this->expiresAt = $now->modify('+30 days');
     }
 
     public function getId(): ?int
@@ -57,14 +59,16 @@ final class AccountSession
         return $this->id;
     }
 
-    public function getAccount(): Account
+    public function getAccount(): ?Account
     {
         return $this->account;
     }
 
-    public function setAccount(Account $account): void
+    public function setAccount(Account $account): self
     {
         $this->account = $account;
+
+        return $this;
     }
 
     public function getSessionIdentifier(): string
@@ -72,9 +76,23 @@ final class AccountSession
         return $this->sessionIdentifier;
     }
 
+    public function setSessionIdentifier(string $sessionIdentifier): self
+    {
+        $this->sessionIdentifier = trim($sessionIdentifier);
+
+        return $this;
+    }
+
     public function getIpAddress(): ?string
     {
         return $this->ipAddress;
+    }
+
+    public function setIpAddress(?string $ipAddress): self
+    {
+        $this->ipAddress = $ipAddress;
+
+        return $this;
     }
 
     public function getUserAgent(): ?string
@@ -82,14 +100,23 @@ final class AccountSession
         return $this->userAgent;
     }
 
+    public function setUserAgent(?string $userAgent): self
+    {
+        $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
     public function isTrusted(): bool
     {
         return $this->trusted;
     }
 
-    public function markTrusted(): void
+    public function setTrusted(bool $trusted): self
     {
-        $this->trusted = true;
+        $this->trusted = $trusted;
+
+        return $this;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
@@ -102,23 +129,34 @@ final class AccountSession
         return $this->lastSeenAt;
     }
 
-    public function touch(): void
+    public function touch(?\DateTimeImmutable $lastSeenAt = null): self
     {
-        $this->lastSeenAt = new \DateTimeImmutable();
+        $this->lastSeenAt = $lastSeenAt ?? new \DateTimeImmutable();
+
+        return $this;
     }
 
-    public function getInvalidatedAt(): ?\DateTimeImmutable
+    public function getExpiresAt(): \DateTimeImmutable
     {
-        return $this->invalidatedAt;
+        return $this->expiresAt;
     }
 
-    public function invalidate(): void
+    public function setExpiresAt(\DateTimeImmutable $expiresAt): self
     {
-        $this->invalidatedAt = new \DateTimeImmutable();
+        $this->expiresAt = $expiresAt;
+
+        return $this;
     }
 
-    public function isActive(): bool
+    public function getRevokedAt(): ?\DateTimeImmutable
     {
-        return $this->invalidatedAt === null;
+        return $this->revokedAt;
+    }
+
+    public function revoke(?\DateTimeImmutable $revokedAt = null): self
+    {
+        $this->revokedAt = $revokedAt ?? new \DateTimeImmutable();
+
+        return $this;
     }
 }

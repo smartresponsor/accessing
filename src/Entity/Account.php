@@ -5,88 +5,71 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\AccountRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
-#[ORM\Table(name: 'account')]
-#[ORM\UniqueConstraint(name: 'uniq_account_email_address', columns: ['email_address'])]
-final class Account implements UserInterface, PasswordAuthenticatedUserInterface
+#[ORM\Table(name: 'accessing_account')]
+#[ORM\UniqueConstraint(name: 'uniq_accessing_account_email', columns: ['email'])]
+class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    private string $emailAddress;
+    #[ORM\Column(length: 180, unique: true)]
+    private string $email = '';
 
-    #[ORM\Column(length: 120)]
-    private string $displayName;
+    /**
+     * @var list<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $roles = [];
+
+    #[ORM\Column(length: 255)]
+    private string $passwordHash = '';
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $displayName = null;
 
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $phoneNumber = null;
 
-    /** @var list<string> */
-    #[ORM\Column(type: 'json')]
-    private array $roles = ['ROLE_ACCOUNT'];
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $totpSecret = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $emailVerifiedAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $phoneVerifiedAt = null;
 
     #[ORM\Column]
-    private bool $emailVerified = false;
+    private bool $secondFactorEnabled = false;
 
     #[ORM\Column]
-    private bool $phoneVerified = false;
+    private bool $locked = false;
 
     #[ORM\Column]
-    private int $failedSignInCount = 0;
+    private int $failedLoginCount = 0;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $lockedUntil = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $lastSignInAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $updatedAt;
 
-    #[ORM\Column]
-    private \DateTimeImmutable $registeredAt;
-
-    #[ORM\OneToOne(mappedBy: 'account', targetEntity: Credential::class, cascade: ['persist', 'remove'])]
-    private ?Credential $credential = null;
-
-    #[ORM\OneToOne(mappedBy: 'account', targetEntity: SecondFactor::class, cascade: ['persist', 'remove'])]
-    private ?SecondFactor $secondFactor = null;
-
-    /** @var Collection<int, VerificationChallenge> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: VerificationChallenge::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['requestedAt' => 'DESC'])]
-    private Collection $verificationChallenges;
-
-    /** @var Collection<int, RecoveryCode> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: RecoveryCode::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['createdAt' => 'DESC'])]
-    private Collection $recoveryCodes;
-
-    /** @var Collection<int, SecurityEvent> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: SecurityEvent::class, cascade: ['persist'])]
-    #[ORM\OrderBy(['occurredAt' => 'DESC'])]
-    private Collection $securityEvents;
-
-    /** @var Collection<int, AccountSession> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: AccountSession::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\OrderBy(['lastSeenAt' => 'DESC'])]
-    private Collection $accountSessions;
-
-    public function __construct(string $emailAddress, string $displayName)
+    public function __construct()
     {
-        $this->emailAddress = $emailAddress;
-        $this->displayName = $displayName;
-        $this->registeredAt = new \DateTimeImmutable();
-        $this->verificationChallenges = new ArrayCollection();
-        $this->recoveryCodes = new ArrayCollection();
-        $this->securityEvents = new ArrayCollection();
-        $this->accountSessions = new ArrayCollection();
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
     }
 
     public function getId(): ?int
@@ -94,108 +77,22 @@ final class Account implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getEmailAddress(): string
+    public function getEmail(): string
     {
-        return $this->emailAddress;
+        return $this->email;
     }
 
-    public function changeEmailAddress(string $emailAddress): void
+    public function setEmail(string $email): self
     {
-        $this->emailAddress = $emailAddress;
-        $this->emailVerified = false;
+        $this->email = mb_strtolower(trim($email));
+        $this->touch();
+
+        return $this;
     }
 
-    public function getDisplayName(): string
+    public function getUserIdentifier(): string
     {
-        return $this->displayName;
-    }
-
-    public function changeDisplayName(string $displayName): void
-    {
-        $this->displayName = $displayName;
-    }
-
-    public function getPhoneNumber(): ?string
-    {
-        return $this->phoneNumber;
-    }
-
-    public function changePhoneNumber(?string $phoneNumber): void
-    {
-        $this->phoneNumber = $phoneNumber;
-        $this->phoneVerified = false;
-    }
-
-    public function isEmailVerified(): bool
-    {
-        return $this->emailVerified;
-    }
-
-    public function markEmailVerified(): void
-    {
-        $this->emailVerified = true;
-    }
-
-    public function isPhoneVerified(): bool
-    {
-        return $this->phoneVerified;
-    }
-
-    public function markPhoneVerified(): void
-    {
-        $this->phoneVerified = true;
-    }
-
-    public function getFailedSignInCount(): int
-    {
-        return $this->failedSignInCount;
-    }
-
-    public function registerFailedSignInAttempt(): void
-    {
-        ++$this->failedSignInCount;
-    }
-
-    public function clearFailedSignInAttempts(): void
-    {
-        $this->failedSignInCount = 0;
-    }
-
-    public function getLockedUntil(): ?\DateTimeImmutable
-    {
-        return $this->lockedUntil;
-    }
-
-    public function lockUntil(\DateTimeImmutable $lockedUntil): void
-    {
-        $this->lockedUntil = $lockedUntil;
-    }
-
-    public function unlock(): void
-    {
-        $this->lockedUntil = null;
-        $this->failedSignInCount = 0;
-    }
-
-    public function isLocked(): bool
-    {
-        return $this->lockedUntil instanceof \DateTimeImmutable && $this->lockedUntil > new \DateTimeImmutable();
-    }
-
-    public function getLastSignInAt(): ?\DateTimeImmutable
-    {
-        return $this->lastSignInAt;
-    }
-
-    public function markSuccessfulSignIn(): void
-    {
-        $this->lastSignInAt = new \DateTimeImmutable();
-        $this->failedSignInCount = 0;
-    }
-
-    public function getRegisteredAt(): \DateTimeImmutable
-    {
-        return $this->registeredAt;
+        return $this->email;
     }
 
     /**
@@ -204,7 +101,7 @@ final class Account implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_ACCOUNT';
+        $roles[] = 'ROLE_USER';
 
         return array_values(array_unique($roles));
     }
@@ -212,112 +109,186 @@ final class Account implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @param list<string> $roles
      */
-    public function setRoles(array $roles): void
+    public function setRoles(array $roles): self
     {
         $this->roles = array_values(array_unique($roles));
-    }
+        $this->touch();
 
-    public function getCredential(): ?Credential
-    {
-        return $this->credential;
-    }
-
-    public function setCredential(Credential $credential): void
-    {
-        $this->credential = $credential;
-
-        if ($credential->getAccount() !== $this) {
-            $credential->setAccount($this);
-        }
-    }
-
-    public function getSecondFactor(): ?SecondFactor
-    {
-        return $this->secondFactor;
-    }
-
-    public function setSecondFactor(?SecondFactor $secondFactor): void
-    {
-        $this->secondFactor = $secondFactor;
-
-        if ($secondFactor instanceof SecondFactor && $secondFactor->getAccount() !== $this) {
-            $secondFactor->setAccount($this);
-        }
-    }
-
-    /**
-     * @return Collection<int, VerificationChallenge>
-     */
-    public function getVerificationChallenges(): Collection
-    {
-        return $this->verificationChallenges;
-    }
-
-    public function addVerificationChallenge(VerificationChallenge $verificationChallenge): void
-    {
-        if (!$this->verificationChallenges->contains($verificationChallenge)) {
-            $this->verificationChallenges->add($verificationChallenge);
-            $verificationChallenge->setAccount($this);
-        }
-    }
-
-    /**
-     * @return Collection<int, RecoveryCode>
-     */
-    public function getRecoveryCodes(): Collection
-    {
-        return $this->recoveryCodes;
-    }
-
-    public function addRecoveryCode(RecoveryCode $recoveryCode): void
-    {
-        if (!$this->recoveryCodes->contains($recoveryCode)) {
-            $this->recoveryCodes->add($recoveryCode);
-            $recoveryCode->setAccount($this);
-        }
-    }
-
-    /**
-     * @return Collection<int, SecurityEvent>
-     */
-    public function getSecurityEvents(): Collection
-    {
-        return $this->securityEvents;
-    }
-
-    public function addSecurityEvent(SecurityEvent $securityEvent): void
-    {
-        if (!$this->securityEvents->contains($securityEvent)) {
-            $this->securityEvents->add($securityEvent);
-            $securityEvent->setAccount($this);
-        }
-    }
-
-    /**
-     * @return Collection<int, AccountSession>
-     */
-    public function getAccountSessions(): Collection
-    {
-        return $this->accountSessions;
-    }
-
-    public function addAccountSession(AccountSession $accountSession): void
-    {
-        if (!$this->accountSessions->contains($accountSession)) {
-            $this->accountSessions->add($accountSession);
-            $accountSession->setAccount($this);
-        }
-    }
-
-    public function getUserIdentifier(): string
-    {
-        return $this->emailAddress;
+        return $this;
     }
 
     public function getPassword(): string
     {
-        return $this->credential?->getPasswordHash() ?? '';
+        return $this->passwordHash;
     }
 
-    public function eraseCredentials(): void {}
+    public function getPasswordHash(): string
+    {
+        return $this->passwordHash;
+    }
+
+    public function setPasswordHash(string $passwordHash): self
+    {
+        $this->passwordHash = $passwordHash;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getDisplayName(): ?string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(?string $displayName): self
+    {
+        $this->displayName = $displayName !== null ? trim($displayName) : null;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): self
+    {
+        $this->phoneNumber = $phoneNumber !== null ? trim($phoneNumber) : null;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): self
+    {
+        $this->totpSecret = $totpSecret !== null ? trim($totpSecret) : null;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getEmailVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->emailVerifiedAt;
+    }
+
+    public function markEmailVerified(?\DateTimeImmutable $verifiedAt = null): self
+    {
+        $this->emailVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getPhoneVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->phoneVerifiedAt;
+    }
+
+    public function markPhoneVerified(?\DateTimeImmutable $verifiedAt = null): self
+    {
+        $this->phoneVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
+        $this->touch();
+
+        return $this;
+    }
+
+    public function isSecondFactorEnabled(): bool
+    {
+        return $this->secondFactorEnabled;
+    }
+
+    public function setSecondFactorEnabled(bool $secondFactorEnabled): self
+    {
+        $this->secondFactorEnabled = $secondFactorEnabled;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->secondFactorEnabled && null !== $this->totpSecret && '' !== $this->totpSecret;
+    }
+
+    public function getTotpAuthenticationUsername(): string
+    {
+        return $this->email;
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        return $this->isTotpAuthenticationEnabled()
+            ? new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
+            : null;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function lock(): self
+    {
+        $this->locked = true;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function unlock(): self
+    {
+        $this->locked = false;
+        $this->failedLoginCount = 0;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getFailedLoginCount(): int
+    {
+        return $this->failedLoginCount;
+    }
+
+    public function increaseFailedLoginCount(): self
+    {
+        ++$this->failedLoginCount;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function resetFailedLoginCount(): self
+    {
+        $this->failedLoginCount = 0;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    private function touch(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 }

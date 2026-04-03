@@ -1,53 +1,20 @@
 parameters:
-    accessing.phone_verification_provider: '%env(string:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
-    accessing.account.lock_threshold: 5
-    accessing.account.lock_minutes: 15
-    accessing.verification.code_ttl_minutes: 20
-    accessing.recovery.code_ttl_minutes: 30
-    accessing.session.max_idle_days: 30
+  accessing.product_name: 'Accessing'
 
 services:
-    _defaults:
-        autowire: true
-        autoconfigure: true
-        bind:
-            $appSecret: '%env(APP_SECRET)%'
-            $accessingVerificationCodeTtlMinutes: '%accessing.verification.code_ttl_minutes%'
-            $accessingRecoveryCodeTtlMinutes: '%accessing.recovery.code_ttl_minutes%'
-            $accessingSessionMaxIdleDays: '%accessing.session.max_idle_days%'
-            $accessingAccountLockThreshold: '%accessing.account.lock_threshold%'
-            $accessingAccountLockMinutes: '%accessing.account.lock_minutes%'
-            $accessingSignInLimiter: '@limiter.accessing_sign_in'
+  _defaults:
+    autowire: true
+    autoconfigure: true
 
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
 
-    App\Service\Vendor\AccessingFakePhoneVerificationProviderService:
-        tags: ['accessing.phone_provider']
-
-    App\Service\Vendor\AccessingNullPhoneVerificationProviderService:
-        tags: ['accessing.phone_provider']
-
-    App\Service\Vendor\AccessingPhoneVerificationGatewayService:
-        arguments:
-            $providers: !tagged_iterator accessing.phone_provider
-            $selectedProvider: '%accessing.phone_verification_provider%'
-
-    App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Service\Account\AccessingAccountAuthenticationService'
-    App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
-    App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Service\AccountSession\AccessingAccountSessionService'
-    App\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Service\Credential\AccessingCredentialService'
-    App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Service\Recovery\AccessingRecoveryService'
-    App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Service\SecurityEvent\AccessingSecurityEventService'
-    App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Service\SecondFactor\AccessingSecondFactorService'
-    App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Service\Vendor\AccessingPhoneVerificationGatewayService'
-    App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Service\Verification\AccessingVerificationChallengeService'
-    App\RepositoryInterface\AccountRepositoryInterface: '@App\Repository\AccountRepository'
-    App\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Repository\AccountSessionRepository'
-    App\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Repository\SecurityEventRepository'
-    App\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Repository\VerificationChallengeRepository'
-    Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
+  App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
+  App\ServiceInterface\AccountSession\AccessingAccountSessionManagerInterface: '@App\Service\AccountSession\AccessingAccountSessionManager'
+  App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
+  App\ServiceInterface\Verification\AccessingVerificationChallengeManagerInterface: '@App\Service\Verification\AccessingVerificationChallengeManager'
+  App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface: '@App\Service\Verification\AccessingEmailVerificationService'

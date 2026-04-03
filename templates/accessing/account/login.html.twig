@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · Sign in{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Sign in</h1>
+                    <p class="text-secondary">Baseline form-login entrypoint for the Accessing component.</p>
+
+                    {% if error %}
+                        <div class="alert alert-danger">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label" for="email">Email</label>
+                            <input id="email" class="form-control" type="email" name="email" value="{{ last_username }}" autocomplete="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="password">Password</label>
+                            <input id="password" class="form-control" type="password" name="password" autocomplete="current-password" required>
+                        </div>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <button class="btn btn-primary w-100" type="submit">Continue</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

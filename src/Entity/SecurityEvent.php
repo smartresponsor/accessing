@@ -4,57 +4,41 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Repository\SecurityEventRepository;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: SecurityEventRepository::class)]
-#[ORM\Table(name: 'security_event')]
-#[ORM\Index(name: 'idx_security_event_occurred_at', columns: ['occurred_at'])]
-final class SecurityEvent
+#[ORM\Entity]
+#[ORM\Table(name: 'accessing_security_event')]
+#[ORM\Index(name: 'idx_accessing_security_event_type', columns: ['event_type'])]
+#[ORM\Index(name: 'idx_accessing_security_event_occurred_at', columns: ['occurred_at'])]
+class SecurityEvent
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'securityEvents')]
+    #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?Account $account;
+    private ?Account $account = null;
 
-    #[ORM\Column(enumType: SecurityEventType::class, length: 64)]
-    private SecurityEventType $eventType;
+    #[ORM\Column(length: 64, name: 'event_type')]
+    private string $eventType = '';
 
-    #[ORM\Column(enumType: SecurityEventSeverity::class, length: 16)]
-    private SecurityEventSeverity $severity;
-
-    #[ORM\Column(nullable: true, length: 45)]
-    private ?string $ipAddress = null;
-
-    #[ORM\Column(nullable: true, length: 1000)]
-    private ?string $userAgent = null;
-
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(type: Types::JSON)]
     private array $context = [];
 
-    #[ORM\Column]
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $ipAddress = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $userAgent = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'occurred_at')]
     private \DateTimeImmutable $occurredAt;
 
-    public function __construct(
-        SecurityEventType $eventType,
-        SecurityEventSeverity $severity,
-        ?Account $account = null,
-        ?string $ipAddress = null,
-        ?string $userAgent = null,
-        array $context = [],
-    ) {
-        $this->eventType = $eventType;
-        $this->severity = $severity;
-        $this->account = $account;
-        $this->ipAddress = $ipAddress;
-        $this->userAgent = $userAgent;
-        $this->context = $context;
+    public function __construct()
+    {
         $this->occurredAt = new \DateTimeImmutable();
     }
 
@@ -68,29 +52,23 @@ final class SecurityEvent
         return $this->account;
     }
 
-    public function setAccount(?Account $account): void
+    public function setAccount(?Account $account): self
     {
         $this->account = $account;
+
+        return $this;
     }
 
-    public function getEventType(): SecurityEventType
+    public function getEventType(): string
     {
         return $this->eventType;
     }
 
-    public function getSeverity(): SecurityEventSeverity
+    public function setEventType(string $eventType): self
     {
-        return $this->severity;
-    }
+        $this->eventType = trim($eventType);
 
-    public function getIpAddress(): ?string
-    {
-        return $this->ipAddress;
-    }
-
-    public function getUserAgent(): ?string
-    {
-        return $this->userAgent;
+        return $this;
     }
 
     public function getContext(): array
@@ -98,8 +76,46 @@ final class SecurityEvent
         return $this->context;
     }
 
+    public function setContext(array $context): self
+    {
+        $this->context = $context;
+
+        return $this;
+    }
+
+    public function getIpAddress(): ?string
+    {
+        return $this->ipAddress;
+    }
+
+    public function setIpAddress(?string $ipAddress): self
+    {
+        $this->ipAddress = $ipAddress;
+
+        return $this;
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return $this->userAgent;
+    }
+
+    public function setUserAgent(?string $userAgent): self
+    {
+        $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
     public function getOccurredAt(): \DateTimeImmutable
     {
         return $this->occurredAt;
+    }
+
+    public function setOccurredAt(\DateTimeImmutable $occurredAt): self
+    {
+        $this->occurredAt = $occurredAt;
+
+        return $this;
     }
 }

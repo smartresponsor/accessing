@@ -1,33 +1,39 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Security Events | {{ accessing_product_name }}{% endblock %}
+{% block title %}{{ accessing_product_name }} · Security events{% endblock %}
 
 {% block body %}
-    <h1 class="h4 mb-3">Security events</h1>
     <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <table class="table table-striped mb-0">
-                <thead>
-                <tr>
-                    <th>Event</th>
-                    <th>Severity</th>
-                    <th>Occurred</th>
-                    <th>Context</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for event in events %}
-                    <tr>
-                        <td>{{ event.eventType.value }}</td>
-                        <td>{{ event.severity.value }}</td>
-                        <td>{{ event.occurredAt|date('Y-m-d H:i') }}</td>
-                        <td><code class="small">{{ event.context|json_encode }}</code></td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="4" class="text-body-secondary">No events recorded.</td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="h4 mb-0">Security events</h1>
+                <span class="badge text-bg-secondary">Latest 50</span>
+            </div>
+
+            {% if events is empty %}
+                <div class="alert alert-secondary mb-0">No security events recorded yet.</div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Occurred at</th>
+                                <th>Type</th>
+                                <th>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>{{ event.occurredAt|date('Y-m-d H:i:s') }}</td>
+                                    <td><code>{{ event.eventType }}</code></td>
+                                    <td>{{ event.ipAddress ?: '—' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

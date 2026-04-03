@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ accessing_product_name }} · Check reset request{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-3">Reset request received</h1>
+                    <p class="text-secondary">If the account exists, a reset link has been prepared.</p>
+                    <p class="mb-0 text-secondary">In the current owner-oriented flow, the preview link is exposed through flash messages for manual testing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

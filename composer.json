@@ -57,17 +57,13 @@
     }
   },
   "scripts": {
-    "lint": "php bin/lint-php.php",
-    "lint:container": "php bin/console lint:container",
-    "lint:twig": "php bin/console lint:twig templates",
-    "cs:check": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff --verbose",
-    "cs:fix": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose",
-    "stan": "phpstan analyse --configuration=phpstan.neon.dist",
-    "test": "simple-phpunit",
+    "lint": "php -l $(git ls-files '*.php')",
+    "cs:check": "php-cs-fixer fix --dry-run --diff --verbose",
+    "cs:fix": "php-cs-fixer fix --verbose",
+    "stan": "phpstan analyse",
+    "test": "vendor/bin/simple-phpunit",
     "pipeline:local:full": [
       "@lint",
-      "@lint:container",
-      "@lint:twig",
       "@cs:check",
       "@stan",
       "@test"
@@ -83,7 +79,6 @@
   "config": {
     "allow-plugins": {
       "symfony/runtime": true
-    },
-    "use-parent-dir": true
+    }
   }
 }

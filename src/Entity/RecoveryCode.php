@@ -4,38 +4,34 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'recovery_code')]
-final class RecoveryCode
+#[ORM\Table(name: 'accessing_recovery_code')]
+#[ORM\Index(name: 'idx_accessing_recovery_code_consumed_at', columns: ['consumed_at'])]
+class RecoveryCode
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'recoveryCodes')]
+    #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Account $account;
+    private ?Account $account = null;
 
-    #[ORM\Column(length: 64)]
-    private string $codeHash;
+    #[ORM\Column(length: 255, name: 'code_hash')]
+    private string $codeHash = '';
 
-    #[ORM\Column(length: 32)]
-    private string $displayLabel;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, name: 'consumed_at')]
+    private ?\DateTimeImmutable $consumedAt = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $usedAt = null;
-
-    public function __construct(Account $account, string $codeHash, string $displayLabel)
+    public function __construct()
     {
-        $this->account = $account;
-        $this->codeHash = $codeHash;
-        $this->displayLabel = $displayLabel;
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -44,14 +40,16 @@ final class RecoveryCode
         return $this->id;
     }
 
-    public function getAccount(): Account
+    public function getAccount(): ?Account
     {
         return $this->account;
     }
 
-    public function setAccount(Account $account): void
+    public function setAccount(Account $account): self
     {
         $this->account = $account;
+
+        return $this;
     }
 
     public function getCodeHash(): string
@@ -59,28 +57,27 @@ final class RecoveryCode
         return $this->codeHash;
     }
 
-    public function getDisplayLabel(): string
+    public function setCodeHash(string $codeHash): self
     {
-        return $this->displayLabel;
+        $this->codeHash = trim($codeHash);
+
+        return $this;
+    }
+
+    public function getConsumedAt(): ?\DateTimeImmutable
+    {
+        return $this->consumedAt;
+    }
+
+    public function consume(?\DateTimeImmutable $consumedAt = null): self
+    {
+        $this->consumedAt = $consumedAt ?? new \DateTimeImmutable();
+
+        return $this;
     }
 
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
-    }
-
-    public function getUsedAt(): ?\DateTimeImmutable
-    {
-        return $this->usedAt;
-    }
-
-    public function markUsed(): void
-    {
-        $this->usedAt = new \DateTimeImmutable();
-    }
-
-    public function isUsed(): bool
-    {
-        return $this->usedAt instanceof \DateTimeImmutable;
     }
 }
