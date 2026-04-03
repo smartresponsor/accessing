@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Second Factor Challenge | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-3">Second factor challenge</h1>
+                    <p class="text-body-secondary mb-4">Enter the current authenticator code or one of your saved recovery codes for {{ account.emailAddress }}.</p>
+                    {{ form_start(form) }}
+                        {{ form_row(form.code) }}
+                        <button class="btn btn-primary">Verify second factor</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

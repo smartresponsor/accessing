@@ -1,0 +1,10 @@
+twig:
+    file_name_pattern: '*.twig'
+    form_themes:
+        - 'bootstrap_5_layout.html.twig'
+    globals:
+        accessing_product_name: 'Accessing'
+
+when@test:
+    twig:
+        strict_variables: true

@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Security Events | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <h1 class="h4 mb-3">Security events</h1>
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Severity</th>
+                    <th>Occurred</th>
+                    <th>Context</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.eventType.value }}</td>
+                        <td>{{ event.severity.value }}</td>
+                        <td>{{ event.occurredAt|date('Y-m-d H:i') }}</td>
+                        <td><code class="small">{{ event.context|json_encode }}</code></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-body-secondary">No events recorded.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

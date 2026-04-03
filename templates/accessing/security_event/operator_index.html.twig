@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Operator Security Events | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="mb-3">
+        <a href="{{ path('accessing_operator_accounts') }}" class="text-decoration-none">Back to operator accounts</a>
+    </div>
+    <h1 class="h4 mb-3">Global security events</h1>
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Event</th>
+                    <th>Severity</th>
+                    <th>Occurred</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.account ? event.account.emailAddress : 'Unknown' }}</td>
+                        <td>{{ event.eventType.value }}</td>
+                        <td>{{ event.severity.value }}</td>
+                        <td>{{ event.occurredAt|date('Y-m-d H:i') }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-body-secondary">No global security events recorded.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

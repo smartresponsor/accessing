@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Operator Account Detail | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="mb-4">
+        <a href="{{ path('accessing_operator_accounts') }}" class="text-decoration-none">Back to accounts</a>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4">{{ account.emailAddress }}</h1>
+                    <table class="table mb-0">
+                        <tbody>
+                        <tr><th>Display name</th><td>{{ account.displayName }}</td></tr>
+                        <tr><th>Email verified</th><td>{{ account.emailVerified ? 'Yes' : 'No' }}</td></tr>
+                        <tr><th>Phone verified</th><td>{{ account.phoneVerified ? 'Yes' : 'No' }}</td></tr>
+                        <tr><th>Second factor</th><td>{{ account.secondFactor and account.secondFactor.enabled ? 'Enabled' : 'Disabled' }}</td></tr>
+                        <tr><th>Sessions</th><td>{{ account.accountSessions|length }}</td></tr>
+                        <tr><th>Recovery codes</th><td>{{ account.recoveryCodes|length }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Recent security events</h2>
+                    <ul class="list-group list-group-flush">
+                        {% for event in events %}
+                            <li class="list-group-item px-0">
+                                <div class="fw-semibold">{{ event.eventType.value }}</div>
+                                <div class="small text-body-secondary">{{ event.occurredAt|date('Y-m-d H:i') }} · {{ event.severity.value }}</div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item px-0 text-body-secondary">No security events for this account.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

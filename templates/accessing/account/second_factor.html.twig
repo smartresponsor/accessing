@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Second Factor | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4">TOTP second factor</h1>
+                    <p class="text-body-secondary">Use a TOTP authenticator app. Recovery codes are generated when enrollment is confirmed.</p>
+                    {% if enabled %}
+                        <div class="alert alert-success">Second factor is enabled for this account.</div>
+                        {% if showRecoveryCodes %}
+                            <div class="alert alert-warning">
+                                <div class="fw-semibold mb-2">Save these recovery codes now</div>
+                                <ul class="mb-0">
+                                    {% for recoveryCode in enrollment.recoveryCodes %}
+                                        <li><code>{{ recoveryCode }}</code></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        <form method="post" action="{{ path('accessing_second_factor_disable') }}">
+                            <button class="btn btn-outline-danger">Disable second factor</button>
+                        </form>
+                    {% elseif enrollment %}
+                        <div class="mb-3">
+                            <div class="small text-body-secondary">Provisioning URI</div>
+                            <code class="small">{{ enrollment.provisioningUri }}</code>
+                        </div>
+                        <div class="mb-3">
+                            <div class="small text-body-secondary">Secret</div>
+                            <code>{{ enrollment.secret }}</code>
+                        </div>
+                        {{ form_start(form) }}
+                            {{ form_row(form.code) }}
+                            <button class="btn btn-primary">Enable second factor</button>
+                        {{ form_end(form) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

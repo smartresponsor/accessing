@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sessions | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h4 mb-1">Tracked sessions</h1>
+            <p class="text-body-secondary mb-0">Visibility into account session activity and one-click invalidation for other active sessions.</p>
+        </div>
+        <form method="post" action="{{ path('accessing_sessions_invalidate_others') }}">
+            <button class="btn btn-outline-danger">Invalidate other sessions</button>
+        </form>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead>
+                <tr>
+                    <th>Session</th>
+                    <th>Created</th>
+                    <th>Last seen</th>
+                    <th>State</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for session in account.accountSessions %}
+                    <tr>
+                        <td>
+                            <div>{{ session.ipAddress ?: 'Unknown IP' }}</div>
+                            <div class="small text-body-secondary">{{ session.userAgent ?: 'Unknown agent' }}</div>
+                        </td>
+                        <td>{{ session.createdAt|date('Y-m-d H:i') }}</td>
+                        <td>{{ session.lastSeenAt|date('Y-m-d H:i') }}</td>
+                        <td>{{ session.active ? 'Active' : 'Invalidated' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-body-secondary">No tracked sessions found.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

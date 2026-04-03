@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\ServiceInterface\Recovery;
+
+use App\Dto\AccessingIssuedChallengeDto;
+use Symfony\Component\HttpFoundation\Request;
+
+interface AccessingRecoveryServiceInterface
+{
+    public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessingIssuedChallengeDto;
+
+    public function resetPassword(string $emailAddress, string $code, string $newPassword): bool;
+}

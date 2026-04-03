@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Account Overview | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 mb-1">Account overview</h1>
+            <p class="text-body-secondary mb-0">Registration, trust, recovery, and active session state for {{ account.emailAddress }}.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ path('accessing_account_password') }}">Change password</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body"><div class="text-body-secondary small">Email</div><div class="fw-semibold">{{ account.emailVerified ? 'Verified' : 'Pending' }}</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body"><div class="text-body-secondary small">Phone</div><div class="fw-semibold">{{ account.phoneVerified ? 'Verified' : 'Pending' }}</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body"><div class="text-body-secondary small">Second factor</div><div class="fw-semibold">{{ account.secondFactor and account.secondFactor.enabled ? 'Enabled' : 'Disabled' }}</div></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100"><div class="card-body"><div class="text-body-secondary small">Current lock state</div><div class="fw-semibold">{{ account.locked ? 'Locked' : 'Open' }}</div></div></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Lifecycle status</h2>
+                    <table class="table mb-0">
+                        <tbody>
+                        <tr><th scope="row">Display name</th><td>{{ account.displayName }}</td></tr>
+                        <tr><th scope="row">Registered</th><td>{{ account.registeredAt|date('Y-m-d H:i') }}</td></tr>
+                        <tr><th scope="row">Last sign in</th><td>{{ account.lastSignInAt ? account.lastSignInAt|date('Y-m-d H:i') : 'Never' }}</td></tr>
+                        <tr><th scope="row">Phone number</th><td>{{ account.phoneNumber ?: 'Not provided' }}</td></tr>
+                        <tr><th scope="row">Recovery codes</th><td>{{ account.recoveryCodes|length }}</td></tr>
+                        <tr><th scope="row">Tracked sessions</th><td>{{ account.accountSessions|length }}</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Recent security events</h2>
+                    <ul class="list-group list-group-flush">
+                        {% for event in events %}
+                            <li class="list-group-item px-0">
+                                <div class="fw-semibold">{{ event.eventType.value }}</div>
+                                <div class="small text-body-secondary">{{ event.occurredAt|date('Y-m-d H:i') }}{% if event.ipAddress %} from {{ event.ipAddress }}{% endif %}</div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item px-0 text-body-secondary">No security events recorded yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

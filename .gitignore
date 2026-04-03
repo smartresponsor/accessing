@@ -2,6 +2,7 @@
 /.vscode/
 /.phpunit.result.cache
 /.phpunit.cache/
+/.php-cs-fixer.cache
 /var/
 /vendor/
 /public/bundles/
@@ -9,3 +10,4 @@
 /playwright-report/
 /test-results/
 /report/
+/config/reference.php

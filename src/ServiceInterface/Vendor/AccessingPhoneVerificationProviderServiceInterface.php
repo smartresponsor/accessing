@@ -1,0 +1,12 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\ServiceInterface\Vendor;
+
+interface AccessingPhoneVerificationProviderServiceInterface
+{
+    public function supports(string $providerName): bool;
+
+    public function sendVerificationMessage(string $phoneNumber, string $message): void;
+}

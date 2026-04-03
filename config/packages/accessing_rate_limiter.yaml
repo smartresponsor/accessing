@@ -1,0 +1,10 @@
+framework:
+    rate_limiter:
+        accessing_sign_in:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
+        accessing_verification:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'

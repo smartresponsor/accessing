@@ -1,0 +1,10 @@
+parameters:
+    paths:
+        - src
+        - tests
+    level: 5
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        -
+            identifier: property.unusedType
+            path: src/Entity/*

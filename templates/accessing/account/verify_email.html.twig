@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Verify Email | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4">Verify email ownership</h1>
+                    <p class="text-body-secondary">Confirm {{ account.emailAddress }} with the most recent email verification code.</p>
+                    {{ form_start(form) }}
+                        {{ form_row(form.code) }}
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary">Complete email verification</button>
+                    {{ form_end(form) }}
+                            <form method="post" action="{{ path('accessing_verify_email_resend') }}">
+                                <button class="btn btn-outline-secondary" type="submit">Resend code</button>
+                            </form>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

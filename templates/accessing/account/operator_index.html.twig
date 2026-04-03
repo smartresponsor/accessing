@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Operator Accounts | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h4 mb-1">Operator account view</h1>
+            <p class="text-body-secondary mb-0">Support-facing visibility into account trust posture.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ path('accessing_operator_security_events') }}">Global security events</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Verification</th>
+                    <th>Second factor</th>
+                    <th>Last sign in</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for account in accounts %}
+                    <tr onclick="location.href='{{ path('accessing_operator_account_detail', {id: account.id}) }}'" style="cursor:pointer">
+                        <td>{{ account.emailAddress }}</td>
+                        <td>{{ account.emailVerified ? 'Email ok' : 'Email pending' }} / {{ account.phoneVerified ? 'Phone ok' : 'Phone pending' }}</td>
+                        <td>{{ account.secondFactor and account.secondFactor.enabled ? 'Enabled' : 'Disabled' }}</td>
+                        <td>{{ account.lastSignInAt ? account.lastSignInAt|date('Y-m-d H:i') : 'Never' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-body-secondary">No accounts available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

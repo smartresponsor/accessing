@@ -1,0 +1,26 @@
+security:
+    password_hashers:
+        App\Entity\Account:
+            algorithm: auto
+
+    providers:
+        accessing_account_provider:
+            entity:
+                class: App\Entity\Account
+                property: emailAddress
+
+    role_hierarchy:
+        ROLE_SUPPORT: ROLE_ACCOUNT
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        main:
+            lazy: true
+            provider: accessing_account_provider
+
+    access_control:
+        - { path: ^/operator, roles: ROLE_SUPPORT }
+        - { path: ^/(overview|sessions|security-events|verify|second-factor|account/password), roles: ROLE_ACCOUNT }

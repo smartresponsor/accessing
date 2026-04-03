@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reset Password | {{ accessing_product_name }}{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h1 class="h4">Reset password</h1>
+                    {{ form_start(form) }}
+                        {{ form_row(form.emailAddress) }}
+                        {{ form_row(form.code) }}
+                        {{ form_row(form.newPassword) }}
+                        <button class="btn btn-primary">Complete password recovery</button>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
