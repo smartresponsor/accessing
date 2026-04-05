@@ -21,7 +21,7 @@ final class AccessingEmailVerificationControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('POST', '/verification/email/request');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testEmailVerificationConfirmPostIsNotAllowed(): void

@@ -13,7 +13,7 @@ final class AccessingSecondFactorControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('GET', '/second-factor');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testSecondFactorPagePostIsNotAllowed(): void
@@ -29,7 +29,7 @@ final class AccessingSecondFactorControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('POST', '/second-factor/enable');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testSecondFactorDisableRequiresAuthentication(): void
@@ -37,7 +37,7 @@ final class AccessingSecondFactorControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('POST', '/second-factor/disable');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testSecondFactorEnableGetIsNotAllowed(): void

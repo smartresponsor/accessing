@@ -13,6 +13,6 @@ final class AccessingAccountSessionControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('GET', '/sessions');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 }

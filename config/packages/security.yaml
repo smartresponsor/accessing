@@ -19,6 +19,7 @@ security:
     main:
       lazy: true
       provider: accessing_account_provider
+      entry_point: App\Security\AccessingAuthenticationEntryPoint
       form_login:
         login_path: accessing_login
         check_path: accessing_login

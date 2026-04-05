@@ -13,6 +13,6 @@ final class AccessingSecurityEventControllerTest extends WebTestCase
         $client = static::createClient();
         $client->request('GET', '/security-events');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 }
