@@ -18,7 +18,7 @@ class AccountSession
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'accountSessions')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Account $account = null;
 
@@ -46,12 +46,23 @@ class AccountSession
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, name: 'revoked_at')]
     private ?\DateTimeImmutable $revokedAt = null;
 
-    public function __construct()
+    public function __construct(?Account $account = null, ?string $sessionIdentifier = null, ?string $ipAddress = null, ?string $userAgent = null)
     {
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
         $this->lastSeenAt = $now;
         $this->expiresAt = $now->modify('+30 days');
+
+        if ($account !== null) {
+            $this->setAccount($account);
+        }
+
+        if ($sessionIdentifier !== null) {
+            $this->setSessionIdentifier($sessionIdentifier);
+        }
+
+        $this->ipAddress = $ipAddress;
+        $this->userAgent = $userAgent;
     }
 
     public function getId(): ?int
@@ -153,10 +164,25 @@ class AccountSession
         return $this->revokedAt;
     }
 
+    public function getInvalidatedAt(): ?\DateTimeImmutable
+    {
+        return $this->revokedAt;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->revokedAt === null && $this->expiresAt > new \DateTimeImmutable();
+    }
+
     public function revoke(?\DateTimeImmutable $revokedAt = null): self
     {
         $this->revokedAt = $revokedAt ?? new \DateTimeImmutable();
 
         return $this;
+    }
+
+    public function invalidate(?\DateTimeImmutable $invalidatedAt = null): self
+    {
+        return $this->revoke($invalidatedAt);
     }
 }

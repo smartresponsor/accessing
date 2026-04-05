@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\ValueObject\VerificationChallengeType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,14 +19,14 @@ class VerificationChallenge
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'verificationChallenges')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Account $account = null;
 
     #[ORM\Column(length: 32, name: 'channel_type')]
     private string $channelType = '';
 
-    #[ORM\Column(length: 32)]
+    #[ORM\Column(length: 255)]
     private string $token = '';
 
     #[ORM\Column(length: 255)]
@@ -43,11 +44,37 @@ class VerificationChallenge
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
     private \DateTimeImmutable $createdAt;
 
-    public function __construct()
-    {
+    private ?string $requestedIpAddress = null;
+    private int $attemptCount = 0;
+
+    public function __construct(
+        ?Account $account = null,
+        VerificationChallengeType|string|null $challengeType = null,
+        ?string $target = null,
+        ?string $token = null,
+        ?\DateTimeImmutable $expiresAt = null,
+        ?string $requestedIpAddress = null,
+    ) {
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
-        $this->expiresAt = $now->modify('+15 minutes');
+        $this->expiresAt = $expiresAt ?? $now->modify('+15 minutes');
+        $this->requestedIpAddress = $requestedIpAddress;
+
+        if ($account !== null) {
+            $this->setAccount($account);
+        }
+
+        if ($challengeType !== null) {
+            $this->setChallengeType($challengeType);
+        }
+
+        if ($target !== null) {
+            $this->setTarget($target);
+        }
+
+        if ($token !== null) {
+            $this->setToken($token);
+        }
     }
 
     public function getId(): ?int
@@ -67,6 +94,28 @@ class VerificationChallenge
         return $this;
     }
 
+    public function getChallengeType(): VerificationChallengeType
+    {
+        return match ($this->channelType) {
+            'email', 'email_verification' => VerificationChallengeType::EmailVerification,
+            'phone', 'phone_verification' => VerificationChallengeType::PhoneVerification,
+            default => VerificationChallengeType::PasswordRecovery,
+        };
+    }
+
+    public function setChallengeType(VerificationChallengeType|string $challengeType): self
+    {
+        $value = $challengeType instanceof VerificationChallengeType ? $challengeType->value : trim($challengeType);
+        $this->channelType = match ($value) {
+            VerificationChallengeType::EmailVerification->value, 'email' => 'email',
+            VerificationChallengeType::PhoneVerification->value, 'phone' => 'phone',
+            VerificationChallengeType::PasswordRecovery->value, 'recovery', 'password_recovery' => 'recovery',
+            default => $value,
+        };
+
+        return $this;
+    }
+
     public function getChannelType(): string
     {
         return $this->channelType;
@@ -74,9 +123,7 @@ class VerificationChallenge
 
     public function setChannelType(string $channelType): self
     {
-        $this->channelType = trim($channelType);
-
-        return $this;
+        return $this->setChallengeType($channelType);
     }
 
     public function getToken(): string
@@ -89,6 +136,11 @@ class VerificationChallenge
         $this->token = trim($token);
 
         return $this;
+    }
+
+    public function getCodeHash(): string
+    {
+        return $this->token;
     }
 
     public function getTarget(): string
@@ -106,6 +158,16 @@ class VerificationChallenge
     public function isCompleted(): bool
     {
         return $this->completed;
+    }
+
+    public function getConsumedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
+    }
+
+    public function consume(?\DateTimeImmutable $consumedAt = null): self
+    {
+        return $this->markCompleted($consumedAt);
     }
 
     public function markCompleted(?\DateTimeImmutable $completedAt = null): self
@@ -136,5 +198,22 @@ class VerificationChallenge
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getRequestedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getRequestedIpAddress(): ?string
+    {
+        return $this->requestedIpAddress;
+    }
+
+    public function registerAttempt(): self
+    {
+        ++$this->attemptCount;
+
+        return $this;
     }
 }

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\AccountRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
@@ -26,9 +28,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     #[ORM\Column(length: 180, unique: true)]
     private string $email = '';
 
-    /**
-     * @var list<string>
-     */
+    /** @var list<string> */
     #[ORM\Column(type: Types::JSON)]
     private array $roles = [];
 
@@ -59,17 +59,49 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     #[ORM\Column]
     private int $failedLoginCount = 0;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lockedUntil = null;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
-    public function __construct()
+    #[ORM\OneToOne(mappedBy: 'account', targetEntity: Credential::class, cascade: ['persist', 'remove'])]
+    private ?Credential $credential = null;
+
+    #[ORM\OneToOne(mappedBy: 'account', targetEntity: SecondFactor::class, cascade: ['persist', 'remove'])]
+    private ?SecondFactor $secondFactor = null;
+
+    /** @var Collection<int, RecoveryCode> */
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: RecoveryCode::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $recoveryCodes;
+
+    /** @var Collection<int, VerificationChallenge> */
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: VerificationChallenge::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $verificationChallenges;
+
+    /** @var Collection<int, AccountSession> */
+    #[ORM\OneToMany(mappedBy: 'account', targetEntity: AccountSession::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $accountSessions;
+
+    public function __construct(?string $email = null, ?string $displayName = null)
     {
         $now = new \DateTimeImmutable();
         $this->createdAt = $now;
         $this->updatedAt = $now;
+        $this->recoveryCodes = new ArrayCollection();
+        $this->verificationChallenges = new ArrayCollection();
+        $this->accountSessions = new ArrayCollection();
+
+        if ($email !== null) {
+            $this->setEmail($email);
+        }
+
+        if ($displayName !== null) {
+            $this->setDisplayName($displayName);
+        }
     }
 
     public function getId(): ?int
@@ -80,6 +112,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function getEmailAddress(): string
+    {
+        return $this->getEmail();
     }
 
     public function setEmail(string $email): self
@@ -95,20 +132,17 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         return $this->email;
     }
 
-    /**
-     * @return list<string>
-     */
+    /** @return list<string> */
     public function getRoles(): array
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
+        $roles[] = 'ROLE_ACCOUNT';
 
         return array_values(array_unique($roles));
     }
 
-    /**
-     * @param list<string> $roles
-     */
+    /** @param list<string> $roles */
     public function setRoles(array $roles): self
     {
         $this->roles = array_values(array_unique($roles));
@@ -165,6 +199,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         return $this;
     }
 
+    public function changePhoneNumber(?string $phoneNumber): self
+    {
+        return $this->setPhoneNumber($phoneNumber);
+    }
+
     public function getTotpSecret(): ?string
     {
         return $this->totpSecret;
@@ -181,6 +220,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     public function getEmailVerifiedAt(): ?\DateTimeImmutable
     {
         return $this->emailVerifiedAt;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerifiedAt instanceof \DateTimeImmutable;
     }
 
     public function markEmailVerified(?\DateTimeImmutable $verifiedAt = null): self
@@ -217,9 +261,29 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         return $this;
     }
 
+    public function getSecondFactor(): ?SecondFactor
+    {
+        return $this->secondFactor;
+    }
+
+    public function setSecondFactor(?SecondFactor $secondFactor): self
+    {
+        $this->secondFactor = $secondFactor;
+        $this->secondFactorEnabled = $secondFactor?->isEnabled() ?? false;
+
+        if ($secondFactor !== null && $secondFactor->getAccount() !== $this) {
+            $secondFactor->setAccount($this);
+        }
+
+        $this->touch();
+
+        return $this;
+    }
+
     public function isTotpAuthenticationEnabled(): bool
     {
-        return $this->secondFactorEnabled && null !== $this->totpSecret && '' !== $this->totpSecret;
+        return ($this->secondFactor?->isEnabled() ?? false)
+            || ($this->secondFactorEnabled && $this->totpSecret !== null && $this->totpSecret !== '');
     }
 
     public function getTotpAuthenticationUsername(): string
@@ -229,14 +293,97 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
 
     public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
     {
-        return $this->isTotpAuthenticationEnabled()
-            ? new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
+        $secret = $this->secondFactor?->getSecret() ?? $this->totpSecret;
+
+        return $this->isTotpAuthenticationEnabled() && $secret !== null && $secret !== ''
+            ? new TotpConfiguration($secret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
             : null;
+    }
+
+    public function getCredential(): ?Credential
+    {
+        return $this->credential;
+    }
+
+    public function setCredential(?Credential $credential): self
+    {
+        $this->credential = $credential;
+
+        if ($credential !== null && $credential->getAccount() !== $this) {
+            $credential->setAccount($this);
+        }
+
+        $this->touch();
+
+        return $this;
+    }
+
+    /** @return Collection<int, RecoveryCode> */
+    public function getRecoveryCodes(): Collection
+    {
+        return $this->recoveryCodes;
+    }
+
+    public function addRecoveryCode(RecoveryCode $recoveryCode): self
+    {
+        if (!$this->recoveryCodes->contains($recoveryCode)) {
+            $this->recoveryCodes->add($recoveryCode);
+            $recoveryCode->setAccount($this);
+        }
+
+        $this->touch();
+
+        return $this;
+    }
+
+    /** @return Collection<int, VerificationChallenge> */
+    public function getVerificationChallenges(): Collection
+    {
+        return $this->verificationChallenges;
+    }
+
+    public function addVerificationChallenge(VerificationChallenge $verificationChallenge): self
+    {
+        if (!$this->verificationChallenges->contains($verificationChallenge)) {
+            $this->verificationChallenges->add($verificationChallenge);
+            $verificationChallenge->setAccount($this);
+        }
+
+        $this->touch();
+
+        return $this;
+    }
+
+    /** @return Collection<int, AccountSession> */
+    public function getAccountSessions(): Collection
+    {
+        return $this->accountSessions;
+    }
+
+    public function addAccountSession(AccountSession $accountSession): self
+    {
+        if (!$this->accountSessions->contains($accountSession)) {
+            $this->accountSessions->add($accountSession);
+            $accountSession->setAccount($this);
+        }
+
+        $this->touch();
+
+        return $this;
     }
 
     public function isLocked(): bool
     {
+        if ($this->lockedUntil instanceof \DateTimeImmutable && $this->lockedUntil <= new \DateTimeImmutable()) {
+            $this->unlock();
+        }
+
         return $this->locked;
+    }
+
+    public function getLockedUntil(): ?\DateTimeImmutable
+    {
+        return $this->lockedUntil;
     }
 
     public function lock(): self
@@ -247,9 +394,19 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         return $this;
     }
 
+    public function lockUntil(\DateTimeImmutable $lockedUntil): self
+    {
+        $this->locked = true;
+        $this->lockedUntil = $lockedUntil;
+        $this->touch();
+
+        return $this;
+    }
+
     public function unlock(): self
     {
         $this->locked = false;
+        $this->lockedUntil = null;
         $this->failedLoginCount = 0;
         $this->touch();
 
@@ -257,6 +414,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     }
 
     public function getFailedLoginCount(): int
+    {
+        return $this->failedLoginCount;
+    }
+
+    public function getFailedSignInCount(): int
     {
         return $this->failedLoginCount;
     }
@@ -269,9 +431,24 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         return $this;
     }
 
+    public function registerFailedSignInAttempt(): self
+    {
+        return $this->increaseFailedLoginCount();
+    }
+
     public function resetFailedLoginCount(): self
     {
         $this->failedLoginCount = 0;
+        $this->touch();
+
+        return $this;
+    }
+
+    public function markSuccessfulSignIn(): self
+    {
+        $this->failedLoginCount = 0;
+        $this->locked = false;
+        $this->lockedUntil = null;
         $this->touch();
 
         return $this;

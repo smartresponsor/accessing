@@ -34,13 +34,17 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
     {
         return $this->createQueryBuilder('challenge')
             ->andWhere('challenge.account = :account')
-            ->andWhere('challenge.challengeType = :challengeType')
-            ->andWhere('challenge.consumedAt IS NULL')
+            ->andWhere('challenge.channelType = :channelType')
+            ->andWhere('challenge.completed = false')
             ->andWhere('challenge.expiresAt > :now')
             ->setParameter('account', $account)
-            ->setParameter('challengeType', $challengeType)
+            ->setParameter('channelType', match ($challengeType) {
+                VerificationChallengeType::EmailVerification => 'email',
+                VerificationChallengeType::PhoneVerification => 'phone',
+                VerificationChallengeType::PasswordRecovery => 'recovery',
+            })
             ->setParameter('now', new \DateTimeImmutable())
-            ->orderBy('challenge.requestedAt', 'DESC')
+            ->orderBy('challenge.createdAt', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -49,7 +53,7 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
     public function findExpiredActiveChallenges(\DateTimeImmutable $before): array
     {
         return $this->createQueryBuilder('challenge')
-            ->andWhere('challenge.consumedAt IS NULL')
+            ->andWhere('challenge.completed = false')
             ->andWhere('challenge.expiresAt <= :before')
             ->setParameter('before', $before)
             ->orderBy('challenge.expiresAt', 'ASC')
@@ -61,7 +65,7 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->delete(VerificationChallenge::class, 'challenge')
-            ->andWhere('(challenge.consumedAt IS NOT NULL AND challenge.consumedAt <= :before) OR challenge.expiresAt <= :before')
+            ->andWhere('(challenge.completedAt IS NOT NULL AND challenge.completedAt <= :before) OR challenge.expiresAt <= :before')
             ->setParameter('before', $before)
             ->getQuery()
             ->execute();

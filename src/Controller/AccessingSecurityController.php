@@ -36,14 +36,8 @@ final class AccessingSecurityController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $result = $accountRegistrationService->register(
-                    $form->getData()->displayName,
-                    $form->getData()->emailAddress,
-                    $form->getData()->plainPassword,
-                    $request,
-                );
+                $accountRegistrationService->register($form->getData());
                 $this->addFlash('success', 'Registration complete. Verify your email address to finish activation.');
-                $this->addDemoCodeFlash('Email verification code', $result['emailChallenge']->plainCode);
 
                 return $this->redirectToRoute('accessing_sign_in');
             } catch (\DomainException $exception) {

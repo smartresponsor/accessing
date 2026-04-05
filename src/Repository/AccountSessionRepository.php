@@ -38,7 +38,7 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
     {
         return $this->createQueryBuilder('accountSession')
             ->andWhere('accountSession.account = :account')
-            ->andWhere('accountSession.invalidatedAt IS NULL')
+            ->andWhere('accountSession.revokedAt IS NULL')
             ->setParameter('account', $account)
             ->orderBy('accountSession.lastSeenAt', 'DESC')
             ->getQuery()
@@ -49,9 +49,9 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->update(AccountSession::class, 'accountSession')
-            ->set('accountSession.invalidatedAt', ':now')
+            ->set('accountSession.revokedAt', ':now')
             ->where('accountSession.account = :account')
-            ->andWhere('accountSession.invalidatedAt IS NULL')
+            ->andWhere('accountSession.revokedAt IS NULL')
             ->andWhere('accountSession.sessionIdentifier != :keepSessionIdentifier')
             ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('account', $account)
@@ -64,8 +64,8 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
     {
         return $this->getEntityManager()->createQueryBuilder()
             ->delete(AccountSession::class, 'accountSession')
-            ->where('accountSession.invalidatedAt IS NOT NULL')
-            ->andWhere('accountSession.invalidatedAt <= :before')
+            ->where('accountSession.revokedAt IS NOT NULL')
+            ->andWhere('accountSession.revokedAt <= :before')
             ->setParameter('before', $before)
             ->getQuery()
             ->execute();

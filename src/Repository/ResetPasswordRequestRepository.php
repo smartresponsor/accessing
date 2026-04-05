@@ -25,6 +25,6 @@ final class ResetPasswordRequestRepository extends ServiceEntityRepository imple
 
     public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequestInterface
     {
-        return new ResetPasswordRequest($user, $expiresAt, $selector, $hashedToken);
+        return new ResetPasswordRequest($user instanceof \App\Entity\Account ? $user : throw new \InvalidArgumentException('Expected Account user.'), $expiresAt, $selector, $hashedToken);
     }
 }

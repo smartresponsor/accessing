@@ -7,7 +7,6 @@ namespace App\Repository;
 use App\Entity\Account;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * @extends ServiceEntityRepository<Account>
@@ -39,11 +38,26 @@ final class AccountRepository extends ServiceEntityRepository
 
     public function findOneByEmail(string $email): ?Account
     {
+        return $this->findOneByEmailAddress($email);
+    }
+
+    public function findOneByEmailAddress(string $emailAddress): ?Account
+    {
         return $this->createQueryBuilder('account')
             ->andWhere('LOWER(account.email) = :email')
-            ->setParameter('email', mb_strtolower(trim($email)))
+            ->setParameter('email', mb_strtolower(trim($emailAddress)))
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /** @return list<Account> */
+    public function findRecentAccounts(int $limit = 50): array
+    {
+        return $this->createQueryBuilder('account')
+            ->orderBy('account.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 }

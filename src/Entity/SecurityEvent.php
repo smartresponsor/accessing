@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\ValueObject\SecurityEventSeverity;
+use App\ValueObject\SecurityEventType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,9 +39,28 @@ class SecurityEvent
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'occurred_at')]
     private \DateTimeImmutable $occurredAt;
 
-    public function __construct()
-    {
+    public function __construct(
+        SecurityEventType|string|null $eventType = null,
+        SecurityEventSeverity|string|null $severity = null,
+        ?Account $account = null,
+        ?string $ipAddress = null,
+        ?string $userAgent = null,
+        array $context = [],
+    ) {
         $this->occurredAt = new \DateTimeImmutable();
+        $this->context = $context;
+
+        if ($eventType !== null) {
+            $this->setEventType($eventType);
+        }
+
+        if ($severity !== null) {
+            $this->setSeverity($severity);
+        }
+
+        $this->account = $account;
+        $this->ipAddress = $ipAddress;
+        $this->userAgent = $userAgent;
     }
 
     public function getId(): ?int
@@ -59,14 +80,14 @@ class SecurityEvent
         return $this;
     }
 
-    public function getEventType(): string
+    public function getEventType(): SecurityEventType
     {
-        return $this->eventType;
+        return SecurityEventType::tryFrom($this->eventType) ?? SecurityEventType::SignInFailed;
     }
 
-    public function setEventType(string $eventType): self
+    public function setEventType(SecurityEventType|string $eventType): self
     {
-        $this->eventType = trim($eventType);
+        $this->eventType = trim($eventType instanceof SecurityEventType ? $eventType->value : $eventType);
 
         return $this;
     }
@@ -79,6 +100,24 @@ class SecurityEvent
     public function setContext(array $context): self
     {
         $this->context = $context;
+
+        return $this;
+    }
+
+    public function getSeverity(): SecurityEventSeverity
+    {
+        $severity = $this->context['severity'] ?? null;
+
+        return match (true) {
+            $severity instanceof SecurityEventSeverity => $severity,
+            is_string($severity) && SecurityEventSeverity::tryFrom($severity) instanceof SecurityEventSeverity => SecurityEventSeverity::from($severity),
+            default => SecurityEventSeverity::Info,
+        };
+    }
+
+    public function setSeverity(SecurityEventSeverity|string $severity): self
+    {
+        $this->context['severity'] = $severity instanceof SecurityEventSeverity ? $severity->value : trim($severity);
 
         return $this;
     }

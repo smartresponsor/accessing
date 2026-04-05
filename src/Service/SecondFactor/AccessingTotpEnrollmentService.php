@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Service\SecondFactor;
 
 use App\Entity\Account;
+use App\ServiceInterface\SecondFactor\AccessingTotpEnrollmentInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class AccessingTotpEnrollmentService
+final class AccessingTotpEnrollmentService implements AccessingTotpEnrollmentInterface
 {
     private const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 

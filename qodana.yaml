@@ -1,0 +1,14 @@
+linter: qodana-php
+version: "1.0"
+
+exclude:
+  - name: All
+    paths:
+      - vendor
+      - .git
+      - var
+      - node_modules
+      - public/build
+      - coverage
+      - build
+      - dist

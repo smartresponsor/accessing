@@ -17,7 +17,7 @@ class RecoveryCode
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Account::class)]
+    #[ORM\ManyToOne(targetEntity: Account::class, inversedBy: 'recoveryCodes')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Account $account = null;
 
@@ -30,9 +30,20 @@ class RecoveryCode
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
     private \DateTimeImmutable $createdAt;
 
-    public function __construct()
+    private ?string $lastFourCharacters = null;
+
+    public function __construct(?Account $account = null, ?string $codeHash = null, ?string $lastFourCharacters = null)
     {
         $this->createdAt = new \DateTimeImmutable();
+        $this->lastFourCharacters = $lastFourCharacters;
+
+        if ($account !== null) {
+            $this->setAccount($account);
+        }
+
+        if ($codeHash !== null) {
+            $this->setCodeHash($codeHash);
+        }
     }
 
     public function getId(): ?int
@@ -69,11 +80,30 @@ class RecoveryCode
         return $this->consumedAt;
     }
 
+    public function isUsed(): bool
+    {
+        return $this->consumedAt instanceof \DateTimeImmutable;
+    }
+
     public function consume(?\DateTimeImmutable $consumedAt = null): self
     {
         $this->consumedAt = $consumedAt ?? new \DateTimeImmutable();
 
         return $this;
+    }
+
+    public function markUsed(?\DateTimeImmutable $usedAt = null): self
+    {
+        return $this->consume($usedAt);
+    }
+
+    public function getLastFourCharacters(): string
+    {
+        if ($this->lastFourCharacters !== null && $this->lastFourCharacters !== '') {
+            return $this->lastFourCharacters;
+        }
+
+        return strtoupper(substr($this->codeHash, -4));
     }
 
     public function getCreatedAt(): \DateTimeImmutable

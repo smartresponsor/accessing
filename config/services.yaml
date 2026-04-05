@@ -5,6 +5,13 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
+    bind:
+      $appSecret: '%env(APP_SECRET)%'
+      $accessingSessionMaxIdleDays: 30
+      $accessingVerificationCodeTtlMinutes: 15
+      $accessingRecoveryCodeTtlMinutes: 30
+      $accessingAccountLockThreshold: 5
+      $accessingAccountLockMinutes: 15
 
   App\:
     resource: '../src/'
@@ -13,8 +20,32 @@ services:
       - '../src/Entity/'
       - '../src/Kernel.php'
 
+  Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
+
+  App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Service\Account\AccessingAccountAuthenticationService'
   App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
+  App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Service\AccountSession\AccessingAccountSessionService'
   App\ServiceInterface\AccountSession\AccessingAccountSessionManagerInterface: '@App\Service\AccountSession\AccessingAccountSessionManager'
+  App\ServiceInterface\AccountSession\AccessingAccountSessionViewProviderInterface: '@App\Service\AccountSession\AccessingDoctrineAccountSessionViewProviderService'
+  App\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Service\Credential\AccessingCredentialService'
+  App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Service\Recovery\AccessingRecoveryService'
+  App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Service\SecondFactor\AccessingSecondFactorService'
+  App\ServiceInterface\SecondFactor\AccessingTotpEnrollmentInterface: '@App\Service\SecondFactor\AccessingTotpEnrollmentService'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
+  App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Service\SecurityEvent\AccessingSecurityEventService'
+  App\ServiceInterface\SecurityEvent\AccessingSecurityEventViewProviderInterface: '@App\Service\SecurityEvent\AccessingDoctrineSecurityEventViewProviderService'
+  App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Service\Vendor\AccessingPhoneVerificationGatewayService'
   App\ServiceInterface\Verification\AccessingVerificationChallengeManagerInterface: '@App\Service\Verification\AccessingVerificationChallengeManager'
+  App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Service\Verification\AccessingVerificationChallengeService'
   App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface: '@App\Service\Verification\AccessingEmailVerificationService'
+
+  App\Service\Vendor\AccessingPhoneVerificationGatewayService:
+    arguments:
+      $providers: !tagged_iterator 'app.accessing.phone_provider'
+      $selectedProvider: '%env(default:fake:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
+
+  App\Service\Vendor\AccessingFakePhoneVerificationProviderService:
+    tags: ['app.accessing.phone_provider']
+
+  App\Service\Vendor\AccessingNullPhoneVerificationProviderService:
+    tags: ['app.accessing.phone_provider']
