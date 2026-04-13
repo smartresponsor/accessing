@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingSecondFactorControllerTest extends WebTestCase
+final class AccessingSecondFactorRoutesTest extends WebTestCase
 {
     public function testSecondFactorPageRequiresAuthentication(): void
     {

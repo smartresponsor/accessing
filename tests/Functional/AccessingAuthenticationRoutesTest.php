@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingAccountControllerTest extends WebTestCase
+final class AccessingAuthenticationRoutesTest extends WebTestCase
 {
     public function testHomePageRedirectsGuestToSignIn(): void
     {
