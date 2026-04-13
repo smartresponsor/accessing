@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingSecurityEventControllerTest extends WebTestCase
+final class AccessingSecurityEventRoutesTest extends WebTestCase
 {
     public function testSecurityEventsRequireAuthentication(): void
     {

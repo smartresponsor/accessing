@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingRegistrationControllerTest extends WebTestCase
+final class AccessingRegistrationRoutesTest extends WebTestCase
 {
     public function testRegisterPageIsSuccessful(): void
     {

@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingResetPasswordControllerTest extends WebTestCase
+final class AccessingResetPasswordRoutesTest extends WebTestCase
 {
     public function testResetPasswordRequestPageIsSuccessful(): void
     {
