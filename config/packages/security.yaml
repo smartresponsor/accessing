@@ -34,7 +34,6 @@ security:
     - { path: ^/register, roles: PUBLIC_ACCESS }
     - { path: ^/recover, roles: PUBLIC_ACCESS }
     - { path: ^/reset-password, roles: PUBLIC_ACCESS }
-    - { path: ^/verification/email/, roles: PUBLIC_ACCESS }
     - { path: ^/overview, roles: ROLE_ACCOUNT }
     - { path: ^/sessions, roles: ROLE_ACCOUNT }
     - { path: ^/security-events, roles: ROLE_ACCOUNT }

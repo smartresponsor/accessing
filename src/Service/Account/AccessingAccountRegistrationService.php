@@ -9,7 +9,7 @@ use App\Entity\Account;
 use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface;
+use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
@@ -17,7 +17,7 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
     public function __construct(
         private readonly AccountRepositoryInterface $accountRepository,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
-        private readonly AccessingEmailVerificationServiceInterface $emailVerificationService,
+        private readonly AccessingVerificationChallengeServiceInterface $verificationChallengeService,
         private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ) {
     }
@@ -33,7 +33,7 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
 
         $this->accountRepository->save($account, true);
 
-        $challenge = $this->emailVerificationService->issueChallenge($account);
+        $challenge = $this->verificationChallengeService->issueEmailVerification($account);
 
         $this->securityEventRecorder->record('account.registered', $account, [
             'email' => $account->getEmail(),
