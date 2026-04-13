@@ -30,7 +30,6 @@ services:
   App\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Service\Credential\AccessingCredentialService'
   App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Service\Recovery\AccessingRecoveryService'
   App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Service\SecondFactor\AccessingSecondFactorService'
-  App\ServiceInterface\SecondFactor\AccessingTotpEnrollmentInterface: '@App\Service\SecondFactor\AccessingTotpEnrollmentService'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Service\SecurityEvent\AccessingSecurityEventService'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventViewProviderInterface: '@App\Service\SecurityEvent\AccessingDoctrineSecurityEventViewProviderService'
