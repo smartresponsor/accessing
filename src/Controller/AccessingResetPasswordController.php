@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\Account;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +27,7 @@ final class AccessingResetPasswordController extends AbstractController
     #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
-        AccountRepository $accountRepository,
+        AccountRepositoryInterface $accountRepository,
         ResetPasswordHelperInterface $resetPasswordHelper,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ): Response {
@@ -36,7 +36,7 @@ final class AccessingResetPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $email = (string) $form->get('email')->getData();
-            $account = $accountRepository->findOneByEmail($email);
+            $account = $accountRepository->findOneByEmailAddress($email);
 
             if ($account instanceof Account) {
                 try {

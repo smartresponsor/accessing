@@ -38,6 +38,10 @@ services:
   App\ServiceInterface\Verification\AccessingVerificationChallengeManagerInterface: '@App\Service\Verification\AccessingVerificationChallengeManager'
   App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Service\Verification\AccessingVerificationChallengeService'
   App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface: '@App\Service\Verification\AccessingEmailVerificationService'
+  App\RepositoryInterface\AccountRepositoryInterface: '@App\Repository\AccountRepository'
+  App\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Repository\AccountSessionRepository'
+  App\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Repository\SecurityEventRepository'
+  App\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Repository\VerificationChallengeRepository'
 
   App\Service\Vendor\AccessingPhoneVerificationGatewayService:
     arguments:

@@ -6,7 +6,7 @@ namespace App\Service\Account;
 
 use App\Dto\AccountRegistrationRequest;
 use App\Entity\Account;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 final class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
 {
     public function __construct(
-        private readonly AccountRepository $accountRepository,
+        private readonly AccountRepositoryInterface $accountRepository,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly AccessingEmailVerificationServiceInterface $emailVerificationService,
         private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,

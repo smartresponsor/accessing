@@ -10,7 +10,7 @@ use App\Form\AccountSignInFormType;
 use App\Form\RecoveryRequestFormType;
 use App\Form\RecoveryResetFormType;
 use App\Form\VerificationCodeFormType;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
@@ -90,7 +90,7 @@ final class AccessingSecurityController extends AbstractController
     #[Route('/sign-in/second-factor', name: 'accessing_sign_in_second_factor', methods: ['GET', 'POST'])]
     public function secondFactorChallenge(
         Request $request,
-        AccountRepository $accountRepository,
+        AccountRepositoryInterface $accountRepository,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
         AccessingSecondFactorServiceInterface $secondFactorService,
     ): Response {
@@ -100,7 +100,7 @@ final class AccessingSecurityController extends AbstractController
             return $this->redirectToRoute('accessing_sign_in');
         }
 
-        $account = $accountRepository->find($pendingAccountId);
+        $account = $accountRepository->findById($pendingAccountId);
 
         if (!$account instanceof Account) {
             $accountAuthenticationService->clearPendingSecondFactor($request->getSession());

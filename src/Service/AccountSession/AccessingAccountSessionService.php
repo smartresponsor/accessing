@@ -6,7 +6,7 @@ namespace App\Service\AccountSession;
 
 use App\Entity\Account;
 use App\Entity\AccountSession;
-use App\Repository\AccountSessionRepository;
+use App\RepositoryInterface\AccountSessionRepositoryInterface;
 use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\ValueObject\SecurityEventSeverity;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 final readonly class AccessingAccountSessionService implements AccessingAccountSessionServiceInterface
 {
     public function __construct(
-        private AccountSessionRepository $accountSessionRepository,
+        private AccountSessionRepositoryInterface $accountSessionRepository,
         private EntityManagerInterface $entityManager,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private int $accessingSessionMaxIdleDays,

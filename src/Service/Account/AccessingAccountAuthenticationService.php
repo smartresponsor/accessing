@@ -6,7 +6,7 @@ namespace App\Service\Account;
 
 use App\Dto\AccessingSignInResultDto;
 use App\Entity\Account;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
 use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
@@ -26,7 +26,7 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
     private const string FirewallName = 'main';
 
     public function __construct(
-        private AccountRepository $accountRepository,
+        private AccountRepositoryInterface $accountRepository,
         private AccessingCredentialServiceInterface $credentialService,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private AccessingAccountSessionServiceInterface $accountSessionService,

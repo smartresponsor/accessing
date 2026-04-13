@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Repository\AccountRepository;
-use App\Repository\SecurityEventRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
+use App\RepositoryInterface\SecurityEventRepositoryInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,8 +16,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class AccessingAccountDiagnosticsCommand extends Command
 {
     public function __construct(
-        private readonly AccountRepository $accountRepository,
-        private readonly SecurityEventRepository $securityEventRepository,
+        private readonly AccountRepositoryInterface $accountRepository,
+        private readonly SecurityEventRepositoryInterface $securityEventRepository,
     ) {
         parent::__construct();
     }

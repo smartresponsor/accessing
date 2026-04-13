@@ -7,7 +7,7 @@ namespace App\Service\Verification;
 use App\Dto\AccessingIssuedChallengeDto;
 use App\Entity\Account;
 use App\Entity\VerificationChallenge;
-use App\Repository\VerificationChallengeRepository;
+use App\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
 use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Mime\Email;
 final readonly class AccessingVerificationChallengeService implements AccessingVerificationChallengeServiceInterface
 {
     public function __construct(
-        private VerificationChallengeRepository $verificationChallengeRepository,
+        private VerificationChallengeRepositoryInterface $verificationChallengeRepository,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private AccessingPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private MailerInterface $mailer,

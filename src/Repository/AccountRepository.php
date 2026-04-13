@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Account;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Account>
  */
-final class AccountRepository extends ServiceEntityRepository
+final class AccountRepository extends ServiceEntityRepository implements AccountRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
@@ -39,6 +40,13 @@ final class AccountRepository extends ServiceEntityRepository
     public function findOneByEmail(string $email): ?Account
     {
         return $this->findOneByEmailAddress($email);
+    }
+
+    public function findById(int $id): ?Account
+    {
+        $account = $this->find($id);
+
+        return $account instanceof Account ? $account : null;
     }
 
     public function findOneByEmailAddress(string $emailAddress): ?Account

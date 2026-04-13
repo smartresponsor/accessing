@@ -8,7 +8,7 @@ use App\Entity\Account;
 use App\Form\PasswordChangeFormType;
 use App\Form\PhoneVerificationRequestFormType;
 use App\Form\VerificationCodeFormType;
-use App\Repository\SecurityEventRepository;
+use App\RepositoryInterface\SecurityEventRepositoryInterface;
 use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class AccessingController extends AbstractController
 {
     #[Route('/', name: 'accessing_home', methods: ['GET'])]
-    public function home(SecurityEventRepository $securityEventRepository): Response
+    public function home(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         if (!$this->getUser() instanceof Account) {
             return $this->redirectToRoute('accessing_sign_in');
@@ -36,7 +36,7 @@ final class AccessingController extends AbstractController
 
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/overview', name: 'accessing_overview', methods: ['GET'])]
-    public function overview(SecurityEventRepository $securityEventRepository): Response
+    public function overview(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         return $this->render('accessing/account/overview.html.twig', [
             'account' => $this->requireAccount(),
@@ -207,7 +207,7 @@ final class AccessingController extends AbstractController
 
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/security-events', name: 'accessing_security_events', methods: ['GET'])]
-    public function securityEvents(SecurityEventRepository $securityEventRepository): Response
+    public function securityEvents(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         $account = $this->requireAccount();
 
