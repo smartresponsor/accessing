@@ -50,6 +50,7 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
+    #[Route('/login', name: 'accessing_login', methods: ['GET', 'POST'])]
     #[Route('/sign-in', name: 'accessing_sign_in', methods: ['GET', 'POST'])]
     public function signIn(
         Request $request,

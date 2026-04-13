@@ -8,14 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AccessingAuthenticationEntryPointTest extends WebTestCase
 {
-    public function testDashboardRedirectsGuestToCanonicalSignInAndStoresTargetPath(): void
+    public function testOverviewRedirectsGuestToCanonicalSignInAndStoresTargetPath(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/dashboard');
+        $client->request('GET', '/overview');
 
         self::assertResponseRedirects('/sign-in');
         self::assertSame(
-            'http://localhost/dashboard',
+            'http://localhost/overview',
             $client->getRequest()->getSession()->get('_security.main.target_path'),
         );
     }

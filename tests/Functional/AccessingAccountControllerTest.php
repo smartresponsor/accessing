@@ -8,13 +8,12 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AccessingAccountControllerTest extends WebTestCase
 {
-    public function testHomePageIsSuccessful(): void
+    public function testHomePageRedirectsGuestToSignIn(): void
     {
         $client = static::createClient();
         $client->request('GET', '/');
 
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Account access lifecycle starts here');
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testHomePagePostIsNotAllowed(): void
@@ -25,35 +24,35 @@ final class AccessingAccountControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(405);
     }
 
-    public function testLoginPageIsSuccessful(): void
+    public function testSignInPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/login');
+        $client->request('GET', '/sign-in');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Sign in');
     }
 
-    public function testLogoutPostIsNotAllowed(): void
+    public function testSignOutGetIsNotAllowed(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/logout');
+        $client->request('GET', '/sign-out');
 
         self::assertResponseStatusCodeSame(405);
     }
 
-    public function testDashboardRequiresAuthentication(): void
+    public function testOverviewRequiresAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/dashboard');
+        $client->request('GET', '/overview');
 
-        self::assertResponseRedirects('/login');
+        self::assertResponseRedirects('/sign-in');
     }
 
-    public function testDashboardPostIsNotAllowed(): void
+    public function testOverviewPostIsNotAllowed(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/dashboard');
+        $client->request('POST', '/overview');
 
         self::assertResponseStatusCodeSame(405);
     }
