@@ -7,6 +7,7 @@ namespace App\Service\Verification;
 use App\Dto\AccessingIssuedChallengeDto;
 use App\Entity\Account;
 use App\Entity\VerificationChallenge;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
@@ -14,7 +15,6 @@ use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInter
 use App\ValueObject\SecurityEventSeverity;
 use App\ValueObject\SecurityEventType;
 use App\ValueObject\VerificationChallengeType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -23,10 +23,10 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
 {
     public function __construct(
         private VerificationChallengeRepositoryInterface $verificationChallengeRepository,
+        private AccountRepositoryInterface $accountRepository,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private AccessingPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private MailerInterface $mailer,
-        private EntityManagerInterface $entityManager,
         private string $appSecret,
         private int $accessingVerificationCodeTtlMinutes,
         private int $accessingRecoveryCodeTtlMinutes,
@@ -89,7 +89,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             ['destination' => $phoneNumber],
         );
 
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         return $issuedChallenge;
     }
@@ -132,7 +132,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         }
 
         $account->markEmailVerified();
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         $this->securityEventService->record(SecurityEventType::EmailVerified, SecurityEventSeverity::Info, $account);
 
@@ -146,7 +146,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         }
 
         $account->markPhoneVerified();
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         $this->securityEventService->record(SecurityEventType::PhoneVerified, SecurityEventSeverity::Info, $account);
 
@@ -200,13 +200,13 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         $verificationChallenge->registerAttempt();
 
         if (!hash_equals($verificationChallenge->getCodeHash(), $this->hashCode(trim($code)))) {
-            $this->entityManager->flush();
+            $this->verificationChallengeRepository->save($verificationChallenge, true);
 
             return false;
         }
 
         $verificationChallenge->consume();
-        $this->entityManager->flush();
+        $this->verificationChallengeRepository->save($verificationChallenge, true);
 
         return true;
     }

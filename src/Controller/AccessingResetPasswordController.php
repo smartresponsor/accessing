@@ -9,7 +9,6 @@ use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
 use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,7 +78,7 @@ final class AccessingResetPasswordController extends AbstractController
         Request $request,
         ResetPasswordHelperInterface $resetPasswordHelper,
         UserPasswordHasherInterface $userPasswordHasher,
-        EntityManagerInterface $entityManager,
+        AccountRepositoryInterface $accountRepository,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
         ?string $token = null,
     ): Response {
@@ -115,7 +114,7 @@ final class AccessingResetPasswordController extends AbstractController
             $resetPasswordHelper->removeResetRequest($token);
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $account->setPasswordHash($userPasswordHasher->hashPassword($account, $plainPassword));
-            $entityManager->flush();
+            $accountRepository->save($account, true);
 
             $securityEventRecorder->record('reset_password.completed', $account, [
                 'email' => $account->getEmail(),

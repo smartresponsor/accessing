@@ -11,7 +11,6 @@ use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\ValueObject\SecurityEventSeverity;
 use App\ValueObject\SecurityEventType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -19,7 +18,6 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
 {
     public function __construct(
         private AccountSessionRepositoryInterface $accountSessionRepository,
-        private EntityManagerInterface $entityManager,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private int $accessingSessionMaxIdleDays,
     ) {}
@@ -43,7 +41,7 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
         }
 
         $accountSession->touch();
-        $this->entityManager->flush();
+        $this->accountSessionRepository->save($accountSession, true);
 
         $this->securityEventService->record(
             SecurityEventType::SessionRegistered,
@@ -60,7 +58,7 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
 
         if ($accountSession instanceof AccountSession && $accountSession->getAccount() === $account) {
             $accountSession->invalidate();
-            $this->entityManager->flush();
+            $this->accountSessionRepository->save($accountSession, true);
         }
     }
 
