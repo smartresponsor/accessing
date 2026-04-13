@@ -6,30 +6,43 @@
     <div class="card shadow-sm">
         <div class="card-body p-4">
             <h1 class="h4 mb-3">Second factor</h1>
-            <p class="text-secondary">TOTP setup for the current signed-in account.</p>
+            <p class="text-secondary">Configure and confirm TOTP for your account.</p>
 
             <dl class="row mb-4">
                 <dt class="col-sm-4">Account</dt>
-                <dd class="col-sm-8">{{ account.email }}</dd>
+                <dd class="col-sm-8">{{ account.emailAddress }}</dd>
                 <dt class="col-sm-4">Enabled</dt>
-                <dd class="col-sm-8">{{ account.secondFactorEnabled ? 'Yes' : 'No' }}</dd>
+                <dd class="col-sm-8">{{ enabled ? 'Yes' : 'No' }}</dd>
                 <dt class="col-sm-4">Secret</dt>
-                <dd class="col-sm-8"><code>{{ account.totpSecret ?: 'Not prepared' }}</code></dd>
+                <dd class="col-sm-8"><code>{{ enrollment ? enrollment.secret : (account.secondFactor ? account.secondFactor.secret : 'Not prepared') }}</code></dd>
             </dl>
 
             <label class="form-label" for="provisioning-uri">Provisioning URI</label>
-            <textarea id="provisioning-uri" class="form-control mb-4" rows="4" readonly>{{ provisioning_uri }}</textarea>
+            <textarea id="provisioning-uri" class="form-control mb-4" rows="4" readonly>{{ enrollment ? enrollment.provisioningUri : 'Enrollment already enabled.' }}</textarea>
 
-            <div class="d-flex flex-wrap gap-2">
-                <form method="post" action="{{ path('accessing_second_factor_enable') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('accessing_second_factor_enable') }}">
+            {% if not enabled %}
+                {{ form_start(form) }}
+                    {{ form_row(form.code, { label: 'Authenticator code' }) }}
                     <button class="btn btn-primary" type="submit">Enable second factor</button>
-                </form>
+                {{ form_end(form) }}
+            {% endif %}
+
+            {% if showRecoveryCodes and enrollment and enrollment.recoveryCodes is not empty %}
+                <div class="alert alert-warning mt-4 mb-3">
+                    Save these recovery codes now. They are shown only once.
+                </div>
+                <ul class="list-group mb-4">
+                    {% for recoveryCode in enrollment.recoveryCodes %}
+                        <li class="list-group-item"><code>{{ recoveryCode }}</code></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% if enabled %}
                 <form method="post" action="{{ path('accessing_second_factor_disable') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('accessing_second_factor_disable') }}">
                     <button class="btn btn-outline-danger" type="submit">Disable second factor</button>
                 </form>
-            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
