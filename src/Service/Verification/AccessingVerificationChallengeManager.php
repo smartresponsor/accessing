@@ -26,6 +26,29 @@ final class AccessingVerificationChallengeManager implements AccessingVerificati
         return $this->createChallenge($account, 'phone', $phoneNumber);
     }
 
+    public function findActiveByToken(string $token, string $channelType): ?VerificationChallenge
+    {
+        /** @var VerificationChallenge|null $challenge */
+        $challenge = $this->entityManager->createQuery(
+            'SELECT challenge FROM App\Entity\VerificationChallenge challenge WHERE challenge.token = :token AND challenge.channelType = :channelType AND challenge.completed = false'
+        )
+            ->setParameter('token', trim($token))
+            ->setParameter('channelType', $channelType)
+            ->setMaxResults(1)
+            ->getOneOrNullResult();
+
+        return $challenge instanceof VerificationChallenge ? $challenge : null;
+    }
+
+    public function save(VerificationChallenge $challenge, bool $flush = false): void
+    {
+        $this->entityManager->persist($challenge);
+
+        if ($flush) {
+            $this->entityManager->flush();
+        }
+    }
+
     private function createChallenge(Account $account, string $channelType, string $target): VerificationChallenge
     {
         $challenge = (new VerificationChallenge())
@@ -34,8 +57,7 @@ final class AccessingVerificationChallengeManager implements AccessingVerificati
             ->setTarget($target)
             ->setToken($this->generateToken());
 
-        $this->entityManager->persist($challenge);
-        $this->entityManager->flush();
+        $this->save($challenge, true);
 
         return $challenge;
     }

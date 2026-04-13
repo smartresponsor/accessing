@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Account;
-use App\Service\SecondFactor\AccessingTotpEnrollmentService;
+use App\ServiceInterface\SecondFactor\AccessingTotpEnrollmentInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AccessingSecondFactorController extends AbstractController
 {
     #[Route('/second-factor', name: 'accessing_second_factor', methods: ['GET'])]
-    public function index(AccessingTotpEnrollmentService $totpEnrollmentService): Response
+    public function index(AccessingTotpEnrollmentInterface $totpEnrollmentService): Response
     {
         $this->denyAccessUnlessGranted('ROLE_USER');
 
@@ -37,7 +37,7 @@ final class AccessingSecondFactorController extends AbstractController
     #[Route('/second-factor/enable', name: 'accessing_second_factor_enable', methods: ['POST'])]
     public function enable(
         Request $request,
-        AccessingTotpEnrollmentService $totpEnrollmentService,
+        AccessingTotpEnrollmentInterface $totpEnrollmentService,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ): RedirectResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
@@ -62,7 +62,7 @@ final class AccessingSecondFactorController extends AbstractController
     #[Route('/second-factor/disable', name: 'accessing_second_factor_disable', methods: ['POST'])]
     public function disable(
         Request $request,
-        AccessingTotpEnrollmentService $totpEnrollmentService,
+        AccessingTotpEnrollmentInterface $totpEnrollmentService,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ): RedirectResponse {
         $this->denyAccessUnlessGranted('ROLE_USER');
