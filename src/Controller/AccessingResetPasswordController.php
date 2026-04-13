@@ -128,7 +128,7 @@ final class AccessingResetPasswordController extends AbstractController
 
             $this->addFlash('success', 'Password changed successfully.');
 
-            return $this->redirectToRoute('accessing_login');
+            return $this->redirectToRoute('accessing_sign_in');
         }
 
         return $this->render('accessing/reset_password/reset.html.twig', [
