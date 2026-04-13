@@ -25,7 +25,7 @@ final class AccessingDemoFixtures extends Fixture
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
-            ->setRoles(['ROLE_USER'])
+            ->setRoles(['ROLE_ACCOUNT'])
             ->setSecondFactorEnabled(true)
             ->setPasswordHash($this->userPasswordHasher->hashPassword(new Account(), 'AccessingDemo123!'));
         $account->markEmailVerified();
