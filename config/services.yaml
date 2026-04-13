@@ -25,19 +25,17 @@ services:
   App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Service\Account\AccessingAccountAuthenticationService'
   App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
   App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Service\AccountSession\AccessingAccountSessionService'
-  App\ServiceInterface\AccountSession\AccessingAccountSessionManagerInterface: '@App\Service\AccountSession\AccessingAccountSessionManager'
-  App\ServiceInterface\AccountSession\AccessingAccountSessionViewProviderInterface: '@App\Service\AccountSession\AccessingDoctrineAccountSessionViewProviderService'
   App\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Service\Credential\AccessingCredentialService'
   App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Service\Recovery\AccessingRecoveryService'
   App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Service\SecondFactor\AccessingSecondFactorService'
-  App\ServiceInterface\SecondFactor\AccessingTotpEnrollmentInterface: '@App\Service\SecondFactor\AccessingTotpEnrollmentService'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
   App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Service\SecurityEvent\AccessingSecurityEventService'
-  App\ServiceInterface\SecurityEvent\AccessingSecurityEventViewProviderInterface: '@App\Service\SecurityEvent\AccessingDoctrineSecurityEventViewProviderService'
   App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Service\Vendor\AccessingPhoneVerificationGatewayService'
-  App\ServiceInterface\Verification\AccessingVerificationChallengeManagerInterface: '@App\Service\Verification\AccessingVerificationChallengeManager'
   App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Service\Verification\AccessingVerificationChallengeService'
-  App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface: '@App\Service\Verification\AccessingEmailVerificationService'
+  App\RepositoryInterface\AccountRepositoryInterface: '@App\Repository\AccountRepository'
+  App\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Repository\AccountSessionRepository'
+  App\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Repository\SecurityEventRepository'
+  App\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Repository\VerificationChallengeRepository'
 
   App\Service\Vendor\AccessingPhoneVerificationGatewayService:
     arguments:

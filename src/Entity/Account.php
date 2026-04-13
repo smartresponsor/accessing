@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Entity;
@@ -136,7 +136,6 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     public function getRoles(): array
     {
         $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
         $roles[] = 'ROLE_ACCOUNT';
 
         return array_values(array_unique($roles));

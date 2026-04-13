@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -7,9 +7,8 @@ namespace App\Controller;
 use App\Entity\Account;
 use App\Form\ChangePasswordFormType;
 use App\Form\ResetPasswordRequestFormType;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,10 +23,13 @@ final class AccessingResetPasswordController extends AbstractController
 {
     private const RESET_PASSWORD_TOKEN_SESSION_KEY = 'accessing_reset_password_token';
 
+    /**
+     * Accept a password reset request and issue a reset token when account exists.
+     */
     #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
-        AccountRepository $accountRepository,
+        AccountRepositoryInterface $accountRepository,
         ResetPasswordHelperInterface $resetPasswordHelper,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ): Response {
@@ -36,7 +38,7 @@ final class AccessingResetPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $email = (string) $form->get('email')->getData();
-            $account = $accountRepository->findOneByEmail($email);
+            $account = $accountRepository->findOneByEmailAddress($email);
 
             if ($account instanceof Account) {
                 try {
@@ -73,13 +75,16 @@ final class AccessingResetPasswordController extends AbstractController
         return $this->render('accessing/reset_password/check_email.html.twig');
     }
 
+    /**
+     * Validate a reset token and update account password when submitted data is valid.
+     */
     #[Route('/reset-password/reset', name: 'accessing_reset_password_reset_plain', methods: ['GET', 'POST'])]
     #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
     public function reset(
         Request $request,
         ResetPasswordHelperInterface $resetPasswordHelper,
         UserPasswordHasherInterface $userPasswordHasher,
-        EntityManagerInterface $entityManager,
+        AccountRepositoryInterface $accountRepository,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
         ?string $token = null,
     ): Response {
@@ -115,7 +120,7 @@ final class AccessingResetPasswordController extends AbstractController
             $resetPasswordHelper->removeResetRequest($token);
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $account->setPasswordHash($userPasswordHasher->hashPassword($account, $plainPassword));
-            $entityManager->flush();
+            $accountRepository->save($account, true);
 
             $securityEventRecorder->record('reset_password.completed', $account, [
                 'email' => $account->getEmail(),
@@ -123,7 +128,7 @@ final class AccessingResetPasswordController extends AbstractController
 
             $this->addFlash('success', 'Password changed successfully.');
 
-            return $this->redirectToRoute('accessing_login');
+            return $this->redirectToRoute('accessing_sign_in');
         }
 
         return $this->render('accessing/reset_password/reset.html.twig', [

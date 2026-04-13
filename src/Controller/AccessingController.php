@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -8,7 +8,7 @@ use App\Entity\Account;
 use App\Form\PasswordChangeFormType;
 use App\Form\PhoneVerificationRequestFormType;
 use App\Form\VerificationCodeFormType;
-use App\Repository\SecurityEventRepository;
+use App\RepositoryInterface\SecurityEventRepositoryInterface;
 use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
@@ -21,8 +21,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AccessingController extends AbstractController
 {
+    use AccessingDemoCodeFlashTrait;
+
+    /**
+     * Render home entrypoint for signed-in accounts and redirect guests to sign-in.
+     */
     #[Route('/', name: 'accessing_home', methods: ['GET'])]
-    public function home(SecurityEventRepository $securityEventRepository): Response
+    public function home(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         if (!$this->getUser() instanceof Account) {
             return $this->redirectToRoute('accessing_sign_in');
@@ -34,9 +39,12 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Render account overview with recent security events.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/overview', name: 'accessing_overview', methods: ['GET'])]
-    public function overview(SecurityEventRepository $securityEventRepository): Response
+    public function overview(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         return $this->render('accessing/account/overview.html.twig', [
             'account' => $this->requireAccount(),
@@ -44,6 +52,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Verify account email ownership using a challenge code.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/verify/email', name: 'accessing_verify_email', methods: ['GET', 'POST'])]
     public function verifyEmail(
@@ -70,6 +81,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Issue a fresh email verification challenge.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/verify/email/resend', name: 'accessing_verify_email_resend', methods: ['POST'])]
     public function resendEmailVerification(
@@ -84,6 +98,9 @@ final class AccessingController extends AbstractController
         return $this->redirectToRoute('accessing_verify_email');
     }
 
+    /**
+     * Start phone verification challenge issuance.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/verify/phone', name: 'accessing_verify_phone', methods: ['GET', 'POST'])]
     public function requestPhoneVerification(
@@ -108,6 +125,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Confirm phone verification with challenge code.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/verify/phone/confirm', name: 'accessing_verify_phone_confirm', methods: ['GET', 'POST'])]
     public function confirmPhoneVerification(
@@ -134,6 +154,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Render and process second-factor enrollment confirmation.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/second-factor', name: 'accessing_second_factor', methods: ['GET', 'POST'])]
     public function secondFactor(
@@ -173,6 +196,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Disable second-factor enrollment and recovery codes.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/second-factor/disable', name: 'accessing_second_factor_disable', methods: ['POST'])]
     public function disableSecondFactor(
@@ -184,6 +210,9 @@ final class AccessingController extends AbstractController
         return $this->redirectToRoute('accessing_second_factor');
     }
 
+    /**
+     * Render session management page.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/sessions', name: 'accessing_sessions', methods: ['GET'])]
     public function sessions(): Response
@@ -193,6 +222,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Invalidate all active sessions except current one.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/sessions/others/invalidate', name: 'accessing_sessions_invalidate_others', methods: ['POST'])]
     public function invalidateOtherSessions(
@@ -205,9 +237,12 @@ final class AccessingController extends AbstractController
         return $this->redirectToRoute('accessing_sessions');
     }
 
+    /**
+     * Render recent security events for current account.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/security-events', name: 'accessing_security_events', methods: ['GET'])]
-    public function securityEvents(SecurityEventRepository $securityEventRepository): Response
+    public function securityEvents(SecurityEventRepositoryInterface $securityEventRepository): Response
     {
         $account = $this->requireAccount();
 
@@ -217,6 +252,9 @@ final class AccessingController extends AbstractController
         ]);
     }
 
+    /**
+     * Change account password after current-password verification.
+     */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/account/password', name: 'accessing_account_password', methods: ['GET', 'POST'])]
     public function password(
@@ -257,12 +295,4 @@ final class AccessingController extends AbstractController
         return $account;
     }
 
-    private function addDemoCodeFlash(string $label, string $code): void
-    {
-        if ($this->getParameter('kernel.environment') === 'prod') {
-            return;
-        }
-
-        $this->addFlash('secondary', sprintf('%s: %s', $label, $code));
-    }
 }

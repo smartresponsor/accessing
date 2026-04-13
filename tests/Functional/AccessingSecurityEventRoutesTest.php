@@ -1,12 +1,12 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingSecurityEventControllerTest extends WebTestCase
+final class AccessingSecurityEventRoutesTest extends WebTestCase
 {
     public function testSecurityEventsRequireAuthentication(): void
     {

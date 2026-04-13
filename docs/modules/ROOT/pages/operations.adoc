@@ -1,0 +1,24 @@
+= Operations
+
+== Runtime Checks
+
+Use the local quality gates as an operational baseline:
+
+[source,bash]
+----
+php -l src/Entity/Account.php
+php bin/console lint:container
+composer stan
+composer test
+----
+
+== Typical Maintenance Tasks
+
+* Run diagnostics and maintenance commands under `src/Command` via `php bin/console`.
+* Regenerate fixtures for demo scenarios before product walkthroughs.
+* Review session and security event flows using the management UI.
+
+== Observability Notes
+
+* Prefer structured logs via Monolog configuration under `config/packages`.
+* Keep security events auditable through `SecurityEvent` flows.

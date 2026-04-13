@@ -1,23 +1,23 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Service\Account;
 
 use App\Dto\AccountRegistrationRequest;
 use App\Entity\Account;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use App\ServiceInterface\Verification\AccessingEmailVerificationServiceInterface;
+use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
 {
     public function __construct(
-        private readonly AccountRepository $accountRepository,
+        private readonly AccountRepositoryInterface $accountRepository,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
-        private readonly AccessingEmailVerificationServiceInterface $emailVerificationService,
+        private readonly AccessingVerificationChallengeServiceInterface $verificationChallengeService,
         private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ) {
     }
@@ -33,7 +33,7 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
 
         $this->accountRepository->save($account, true);
 
-        $challenge = $this->emailVerificationService->issueChallenge($account);
+        $challenge = $this->verificationChallengeService->issueEmailVerification($account);
 
         $this->securityEventRecorder->record('account.registered', $account, [
             'email' => $account->getEmail(),

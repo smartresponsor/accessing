@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -10,7 +10,7 @@ use App\Form\AccountSignInFormType;
 use App\Form\RecoveryRequestFormType;
 use App\Form\RecoveryResetFormType;
 use App\Form\VerificationCodeFormType;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
 use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
@@ -22,6 +22,11 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AccessingSecurityController extends AbstractController
 {
+    use AccessingDemoCodeFlashTrait;
+
+    /**
+     * Render and process account registration.
+     */
     #[Route('/register', name: 'accessing_register', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
@@ -50,6 +55,9 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * Render and process canonical sign-in.
+     */
     #[Route('/sign-in', name: 'accessing_sign_in', methods: ['GET', 'POST'])]
     public function signIn(
         Request $request,
@@ -87,10 +95,13 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * Complete second-factor challenge for a pending sign-in attempt.
+     */
     #[Route('/sign-in/second-factor', name: 'accessing_sign_in_second_factor', methods: ['GET', 'POST'])]
     public function secondFactorChallenge(
         Request $request,
-        AccountRepository $accountRepository,
+        AccountRepositoryInterface $accountRepository,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
         AccessingSecondFactorServiceInterface $secondFactorService,
     ): Response {
@@ -100,7 +111,7 @@ final class AccessingSecurityController extends AbstractController
             return $this->redirectToRoute('accessing_sign_in');
         }
 
-        $account = $accountRepository->find($pendingAccountId);
+        $account = $accountRepository->findById($pendingAccountId);
 
         if (!$account instanceof Account) {
             $accountAuthenticationService->clearPendingSecondFactor($request->getSession());
@@ -128,6 +139,9 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * Sign out current account and invalidate current session.
+     */
     #[Route('/sign-out', name: 'accessing_sign_out', methods: ['POST'])]
     public function signOut(
         Request $request,
@@ -141,6 +155,9 @@ final class AccessingSecurityController extends AbstractController
         return $this->redirectToRoute('accessing_sign_in');
     }
 
+    /**
+     * Request password recovery challenge by email address.
+     */
     #[Route('/recover/request', name: 'accessing_recover_request', methods: ['GET', 'POST'])]
     public function requestRecovery(
         Request $request,
@@ -165,6 +182,9 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
+    /**
+     * Reset password using recovery code and email address.
+     */
     #[Route('/recover/reset', name: 'accessing_recover_reset', methods: ['GET', 'POST'])]
     public function resetRecovery(
         Request $request,
@@ -192,12 +212,4 @@ final class AccessingSecurityController extends AbstractController
         ]);
     }
 
-    private function addDemoCodeFlash(string $label, string $code): void
-    {
-        if ($this->getParameter('kernel.environment') === 'prod') {
-            return;
-        }
-
-        $this->addFlash('secondary', sprintf('%s: %s', $label, $code));
-    }
 }

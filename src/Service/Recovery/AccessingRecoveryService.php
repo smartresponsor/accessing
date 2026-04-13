@@ -1,11 +1,11 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Service\Recovery;
 
 use App\Dto\AccessingIssuedChallengeDto;
-use App\Repository\AccountRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class AccessingRecoveryService implements AccessingRecoveryServiceInterface
 {
     public function __construct(
-        private AccountRepository $accountRepository,
+        private AccountRepositoryInterface $accountRepository,
         private AccessingVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessingCredentialServiceInterface $credentialService,
         private AccessingSecurityEventServiceInterface $securityEventService,

@@ -1,0 +1,14 @@
+= API
+
+This repository supports API-oriented documentation as generated artifacts in future slices.
+
+== Current State
+
+* Core API behavior is represented by HTTP controllers and Symfony routes.
+* OpenAPI/Nelmio-compatible documentation can be produced as generated output rather than hand-maintained narrative duplication.
+
+== Planned Producer Contract
+
+* Keep narrative intent in Antora pages.
+* Keep machine-generated API reference as build artifacts.
+* Keep GitHub-facing docs concise and task-focused.
