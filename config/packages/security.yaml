@@ -20,35 +20,24 @@ security:
       lazy: true
       provider: accessing_account_provider
       entry_point: App\Security\AccessingAuthenticationEntryPoint
-      form_login:
-        login_path: accessing_login
-        check_path: accessing_login
-        enable_csrf: true
-        username_parameter: email
-        password_parameter: password
-        default_target_path: accessing_overview
       two_factor:
         auth_form_path: 2fa_login
         check_path: 2fa_login_check
         default_target_path: accessing_overview
         enable_csrf: true
         csrf_token_id: two_factor
-      logout:
-        path: accessing_logout
-        target: accessing_home
 
   access_control:
     - { path: ^/operator, roles: ROLE_SUPPORT }
-    - { path: ^/logout, roles: PUBLIC_ACCESS }
     - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
-    - { path: ^/login, roles: PUBLIC_ACCESS }
+    - { path: ^/sign-in, roles: PUBLIC_ACCESS }
     - { path: ^/register, roles: PUBLIC_ACCESS }
+    - { path: ^/recover, roles: PUBLIC_ACCESS }
     - { path: ^/reset-password, roles: PUBLIC_ACCESS }
-    - { path: ^/verification/email/, roles: PUBLIC_ACCESS }
-    - { path: ^/dashboard, roles: ROLE_USER }
-    - { path: ^/sessions, roles: ROLE_USER }
-    - { path: ^/security-events, roles: ROLE_USER }
-    - { path: ^/second-factor, roles: ROLE_USER }
+    - { path: ^/overview, roles: ROLE_ACCOUNT }
+    - { path: ^/sessions, roles: ROLE_ACCOUNT }
+    - { path: ^/security-events, roles: ROLE_ACCOUNT }
+    - { path: ^/second-factor, roles: ROLE_ACCOUNT }
 
 when@test:
   security:

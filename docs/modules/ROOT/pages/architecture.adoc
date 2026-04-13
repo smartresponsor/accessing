@@ -1,0 +1,22 @@
+= Architecture
+
+Accessing is a single Symfony 8 application with one canonical root namespace: `App\\` mapped to `src/`.
+
+== Structural Rules
+
+* No alternative root namespaces.
+* No domain wrapper roots (for example `/src/Domain/`).
+* Service implementations live in `src/Service/*`.
+* Service contracts live in mirrored `src/ServiceInterface/*`.
+
+== Product Center
+
+* Workspace: Accessing
+* Core entity: Account
+* Supporting entities: Credential, VerificationChallenge, SecondFactor, RecoveryCode, SecurityEvent, AccountSession
+
+== Layering Expectations
+
+* Controllers remain thin and delegate behavior.
+* Business flows live in services and contract-backed collaborators.
+* Repository and infrastructure code own persistence concerns.

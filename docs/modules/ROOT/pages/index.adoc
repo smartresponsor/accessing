@@ -1,0 +1,21 @@
+= Accessing Documentation
+:description: Documentation producer surface for the Accessing Symfony workspace.
+
+This component provides the account access lifecycle for the ecosystem.
+
+== Scope
+
+Accessing owns registration, sign-in, verification, second factor, recovery, session tracking, and security events for `Account`.
+
+== Documentation Roles
+
+* Narrative docs: architecture and flow intent in this Antora content module.
+* GitHub-facing docs: quickstart and contributor context in root repository files.
+* Future generated docs: API and report artifacts produced by CI/tooling.
+
+== Entry Points
+
+* xref:architecture.adoc[Architecture]
+* xref:install.adoc[Install]
+* xref:operations.adoc[Operations]
+* xref:api.adoc[API]

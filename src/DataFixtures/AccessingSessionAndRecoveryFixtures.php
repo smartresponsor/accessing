@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\DataFixtures;
@@ -23,7 +23,7 @@ final class AccessingSessionAndRecoveryFixtures extends Fixture
         $account = (new Account())
             ->setEmail('session-demo@smartresponsor.local')
             ->setDisplayName('Accessing Session Demo')
-            ->setRoles(['ROLE_USER'])
+            ->setRoles(['ROLE_ACCOUNT'])
             ->setPasswordHash($this->userPasswordHasher->hashPassword(new Account(), 'AccessingSession123!'));
         $account->markEmailVerified();
 

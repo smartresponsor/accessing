@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Tests\Functional;
@@ -8,14 +8,14 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AccessingAuthenticationEntryPointTest extends WebTestCase
 {
-    public function testDashboardRedirectsGuestToCanonicalSignInAndStoresTargetPath(): void
+    public function testOverviewRedirectsGuestToCanonicalSignInAndStoresTargetPath(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/dashboard');
+        $client->request('GET', '/overview');
 
         self::assertResponseRedirects('/sign-in');
         self::assertSame(
-            'http://localhost/dashboard',
+            'http://localhost/overview',
             $client->getRequest()->getSession()->get('_security.main.target_path'),
         );
     }

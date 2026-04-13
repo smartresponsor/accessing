@@ -1,10 +1,10 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Repository\SecurityEventRepository;
+use App\RepositoryInterface\SecurityEventRepositoryInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class AccessingReportSecurityCommand extends Command
 {
     public function __construct(
-        private readonly SecurityEventRepository $securityEventRepository,
+        private readonly SecurityEventRepositoryInterface $securityEventRepository,
     ) {
         parent::__construct();
     }

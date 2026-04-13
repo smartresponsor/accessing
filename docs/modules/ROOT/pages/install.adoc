@@ -1,0 +1,28 @@
+= Install
+
+== Requirements
+
+* PHP 8.4
+* Composer
+* PostgreSQL (user data)
+* SQLite (application data where configured)
+
+== Local Setup
+
+[source,bash]
+----
+composer install
+cp .env .env.local
+php bin/console doctrine:database:create --if-not-exists
+php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console doctrine:fixtures:load --no-interaction
+symfony server:start
+----
+
+== Verification
+
+[source,bash]
+----
+php -l public/index.php
+php bin/console about
+----

@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Service\Verification;
@@ -7,14 +7,14 @@ namespace App\Service\Verification;
 use App\Dto\AccessingIssuedChallengeDto;
 use App\Entity\Account;
 use App\Entity\VerificationChallenge;
-use App\Repository\VerificationChallengeRepository;
+use App\RepositoryInterface\AccountRepositoryInterface;
+use App\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
 use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use App\ValueObject\SecurityEventSeverity;
 use App\ValueObject\SecurityEventType;
 use App\ValueObject\VerificationChallengeType;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -22,16 +22,19 @@ use Symfony\Component\Mime\Email;
 final readonly class AccessingVerificationChallengeService implements AccessingVerificationChallengeServiceInterface
 {
     public function __construct(
-        private VerificationChallengeRepository $verificationChallengeRepository,
+        private VerificationChallengeRepositoryInterface $verificationChallengeRepository,
+        private AccountRepositoryInterface $accountRepository,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private AccessingPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private MailerInterface $mailer,
-        private EntityManagerInterface $entityManager,
         private string $appSecret,
         private int $accessingVerificationCodeTtlMinutes,
         private int $accessingRecoveryCodeTtlMinutes,
     ) {}
 
+    /**
+     * Issue a fresh email verification challenge and dispatch notification.
+     */
     public function issueEmailVerification(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
@@ -64,6 +67,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return $issuedChallenge;
     }
 
+    /**
+     * Issue a phone verification challenge for the supplied phone number.
+     */
     public function issuePhoneVerification(Account $account, string $phoneNumber, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $account->changePhoneNumber($phoneNumber);
@@ -89,11 +95,14 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             ['destination' => $phoneNumber],
         );
 
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         return $issuedChallenge;
     }
 
+    /**
+     * Issue a password recovery challenge for the account.
+     */
     public function issuePasswordRecovery(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
@@ -125,6 +134,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return $issuedChallenge;
     }
 
+    /**
+     * Complete email verification when a valid challenge code is provided.
+     */
     public function completeEmailVerification(Account $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::EmailVerification, $code)) {
@@ -132,13 +144,16 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         }
 
         $account->markEmailVerified();
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         $this->securityEventService->record(SecurityEventType::EmailVerified, SecurityEventSeverity::Info, $account);
 
         return true;
     }
 
+    /**
+     * Complete phone verification when a valid challenge code is provided.
+     */
     public function completePhoneVerification(Account $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::PhoneVerification, $code)) {
@@ -146,18 +161,24 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         }
 
         $account->markPhoneVerified();
-        $this->entityManager->flush();
+        $this->accountRepository->save($account, true);
 
         $this->securityEventService->record(SecurityEventType::PhoneVerified, SecurityEventSeverity::Info, $account);
 
         return true;
     }
 
+    /**
+     * Consume password recovery challenge with a one-time code.
+     */
     public function consumePasswordRecovery(Account $account, string $code): bool
     {
         return $this->consumeChallenge($account, VerificationChallengeType::PasswordRecovery, $code);
     }
 
+    /**
+     * Clean up expired and stale verification challenges.
+     */
     public function cleanupExpiredChallenges(): int
     {
         return $this->verificationChallengeRepository->cleanupExpiredConsumedBefore(
@@ -200,13 +221,13 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         $verificationChallenge->registerAttempt();
 
         if (!hash_equals($verificationChallenge->getCodeHash(), $this->hashCode(trim($code)))) {
-            $this->entityManager->flush();
+            $this->verificationChallengeRepository->save($verificationChallenge, true);
 
             return false;
         }
 
         $verificationChallenge->consume();
-        $this->entityManager->flush();
+        $this->verificationChallengeRepository->save($verificationChallenge, true);
 
         return true;
     }

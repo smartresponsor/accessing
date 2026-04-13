@@ -1,5 +1,5 @@
 <?php
-
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\DataFixtures;
@@ -25,7 +25,7 @@ final class AccessingDemoFixtures extends Fixture
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
-            ->setRoles(['ROLE_USER'])
+            ->setRoles(['ROLE_ACCOUNT'])
             ->setSecondFactorEnabled(true)
             ->setPasswordHash($this->userPasswordHasher->hashPassword(new Account(), 'AccessingDemo123!'));
         $account->markEmailVerified();
