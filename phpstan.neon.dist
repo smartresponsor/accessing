@@ -1,10 +1,9 @@
 parameters:
+    level: 0
     paths:
         - src
         - tests
-    level: 5
-    treatPhpDocTypesAsCertain: false
-    ignoreErrors:
-        -
-            identifier: property.unusedType
-            path: src/Entity/*
+    bootstrapFiles:
+        - phpstan.bootstrap.php
+    phpVersion: 80400
+    tmpDir: var/smartresponsor-tagging/phpstan
