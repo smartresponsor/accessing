@@ -12,6 +12,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AccessingAccountSessionController extends AbstractController
 {
+    /**
+     * Render the latest sessions for the authenticated account.
+     */
     #[Route('/sessions', name: 'accessing_account_session_index', methods: ['GET'])]
     public function __invoke(AccessingAccountSessionViewProviderInterface $accountSessionViewProvider): Response
     {

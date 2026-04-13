@@ -12,6 +12,9 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class AccessingSecurityEventController extends AbstractController
 {
+    /**
+     * Render the latest security events for the authenticated account.
+     */
     #[Route('/security-events', name: 'accessing_security_event_index', methods: ['GET'])]
     public function __invoke(AccessingSecurityEventViewProviderInterface $securityEventViewProvider): Response
     {

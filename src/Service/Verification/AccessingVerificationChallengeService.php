@@ -32,6 +32,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         private int $accessingRecoveryCodeTtlMinutes,
     ) {}
 
+    /**
+     * Issue a fresh email verification challenge and dispatch notification.
+     */
     public function issueEmailVerification(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
@@ -64,6 +67,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return $issuedChallenge;
     }
 
+    /**
+     * Issue a phone verification challenge for the supplied phone number.
+     */
     public function issuePhoneVerification(Account $account, string $phoneNumber, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $account->changePhoneNumber($phoneNumber);
@@ -94,6 +100,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return $issuedChallenge;
     }
 
+    /**
+     * Issue a password recovery challenge for the account.
+     */
     public function issuePasswordRecovery(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
@@ -125,6 +134,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return $issuedChallenge;
     }
 
+    /**
+     * Complete email verification when a valid challenge code is provided.
+     */
     public function completeEmailVerification(Account $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::EmailVerification, $code)) {
@@ -139,6 +151,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return true;
     }
 
+    /**
+     * Complete phone verification when a valid challenge code is provided.
+     */
     public function completePhoneVerification(Account $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::PhoneVerification, $code)) {
@@ -153,11 +168,17 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return true;
     }
 
+    /**
+     * Consume password recovery challenge with a one-time code.
+     */
     public function consumePasswordRecovery(Account $account, string $code): bool
     {
         return $this->consumeChallenge($account, VerificationChallengeType::PasswordRecovery, $code);
     }
 
+    /**
+     * Clean up expired and stale verification challenges.
+     */
     public function cleanupExpiredChallenges(): int
     {
         return $this->verificationChallengeRepository->cleanupExpiredConsumedBefore(

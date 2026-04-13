@@ -22,6 +22,9 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
         private int $accessingSessionMaxIdleDays,
     ) {}
 
+    /**
+     * Ensure the current request session is registered and marked as active.
+     */
     public function registerSession(Account $account, Request $request): void
     {
         $session = $request->getSession();
@@ -52,6 +55,9 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
         );
     }
 
+    /**
+     * Invalidate the currently active session for the account when it belongs to the same account.
+     */
     public function invalidateCurrentSession(Account $account, SessionInterface $session): void
     {
         $accountSession = $this->accountSessionRepository->findOneBySessionIdentifier($session->getId());
@@ -62,11 +68,17 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
         }
     }
 
+    /**
+     * Invalidate all active sessions except the current one.
+     */
     public function invalidateOtherSessions(Account $account, SessionInterface $session): int
     {
         return $this->accountSessionRepository->invalidateOtherActiveSessions($account, $session->getId());
     }
 
+    /**
+     * Remove invalidated sessions older than configured retention.
+     */
     public function cleanupSessions(): int
     {
         return $this->accountSessionRepository->cleanupInvalidatedBefore(

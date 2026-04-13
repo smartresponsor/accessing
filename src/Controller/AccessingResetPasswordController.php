@@ -23,6 +23,9 @@ final class AccessingResetPasswordController extends AbstractController
 {
     private const RESET_PASSWORD_TOKEN_SESSION_KEY = 'accessing_reset_password_token';
 
+    /**
+     * Accept a password reset request and issue a reset token when account exists.
+     */
     #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
@@ -72,6 +75,9 @@ final class AccessingResetPasswordController extends AbstractController
         return $this->render('accessing/reset_password/check_email.html.twig');
     }
 
+    /**
+     * Validate a reset token and update account password when submitted data is valid.
+     */
     #[Route('/reset-password/reset', name: 'accessing_reset_password_reset_plain', methods: ['GET', 'POST'])]
     #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
     public function reset(
