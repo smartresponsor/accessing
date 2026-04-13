@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-final class AccessingSecurityViewsControllerTest extends WebTestCase
+final class AccessingSessionAndSecurityRoutesTest extends WebTestCase
 {
     public function testSessionsPageRequiresAuthentication(): void
     {
