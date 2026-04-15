@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -12,19 +13,19 @@ use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-final class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
+final readonly class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
 {
     public function __construct(
-        private readonly AccountRepositoryInterface $accountRepository,
-        private readonly UserPasswordHasherInterface $userPasswordHasher,
-        private readonly AccessingVerificationChallengeServiceInterface $verificationChallengeService,
-        private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,
+        private AccountRepositoryInterface $accountRepository,
+        private UserPasswordHasherInterface $userPasswordHasher,
+        private AccessingVerificationChallengeServiceInterface $verificationChallengeService,
+        private AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ) {
     }
 
     public function register(AccountRegistrationRequest $request): Account
     {
-        $account = (new Account())
+        $account = new Account()
             ->setEmail($request->email)
             ->setDisplayName($request->displayName)
             ->setPhoneNumber($request->phoneNumber);
@@ -37,7 +38,7 @@ final class AccessingAccountRegistrationService implements AccessingAccountRegis
 
         $this->securityEventRecorder->record('account.registered', $account, [
             'email' => $account->getEmail(),
-            'challengeId' => $challenge->getId(),
+            'challengeId' => $challenge->challenge->getId(),
         ]);
 
         return $account;

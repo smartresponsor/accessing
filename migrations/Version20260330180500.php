@@ -9,6 +9,7 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20260330180500 extends AbstractMigration
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function getDescription(): string
     {
         return 'Create Accessing account session and reset password request tables.';
@@ -29,6 +30,7 @@ final class Version20260330180500 extends AbstractMigration
         $this->addSql('ALTER TABLE accessing_reset_password_request ADD CONSTRAINT FK_C89A6A619B6B5FBA FOREIGN KEY (account_id) REFERENCES accessing_account (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE accessing_account_session DROP CONSTRAINT FK_B5B768E39B6B5FBA');

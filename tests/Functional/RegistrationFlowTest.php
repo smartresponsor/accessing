@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -20,14 +21,16 @@ final class RegistrationFlowTest extends WebTestCase
         $metadata = $entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->dropSchema($metadata);
         $schemaTool->createSchema($metadata);
+        $entityManager->clear();
+        $entityManager->close();
         self::ensureKernelShutdown();
 
         $client = static::createClient();
         $crawler = $client->request('GET', '/register');
 
-        $client->submit($crawler->selectButton('Register')->form([
+        $client->submit($crawler->selectButton('Create account')->form([
             'account_registration_form[displayName]' => 'Functional Tester',
-            'account_registration_form[emailAddress]' => 'functional@accessing.local',
+            'account_registration_form[email]' => 'functional@accessing.local',
             'account_registration_form[plainPassword]' => 'functional-pass-123',
         ]));
 

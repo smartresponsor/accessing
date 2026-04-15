@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -31,21 +32,29 @@ final class SecurityEventRepository extends ServiceEntityRepository implements S
 
     public function findRecentEvents(int $limit = 50): array
     {
-        return $this->createQueryBuilder('securityEvent')
+        $query = $this->createQueryBuilder('securityEvent')
             ->orderBy('securityEvent.occurredAt', 'DESC')
             ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<SecurityEvent> $results */
+        $results = $query->getResult();
+
+        return $results;
     }
 
     public function findRecentEventsForAccount(Account $account, int $limit = 50): array
     {
-        return $this->createQueryBuilder('securityEvent')
+        $query = $this->createQueryBuilder('securityEvent')
             ->andWhere('securityEvent.account = :account')
             ->setParameter('account', $account)
             ->orderBy('securityEvent.occurredAt', 'DESC')
             ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+        /** @var list<SecurityEvent> $results */
+        $results = $query->getResult();
+
+        return $results;
     }
 }

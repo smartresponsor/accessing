@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -14,6 +15,7 @@ use App\ValueObject\SecurityEventSeverity;
 use App\ValueObject\SecurityEventType;
 use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
+use Random\RandomException;
 
 final readonly class AccessingSecondFactorService implements AccessingSecondFactorServiceInterface
 {
@@ -21,7 +23,8 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
         private EntityManagerInterface $entityManager,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private string $appSecret,
-    ) {}
+    ) {
+    }
 
     public function beginEnrollment(Account $account): AccessingSecondFactorEnrollmentDto
     {
@@ -29,7 +32,8 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
 
         if (!$secondFactor instanceof SecondFactor) {
             $totp = TOTP::create();
-            $totp->setLabel($account->getEmailAddress());
+            $label = $this->nonEmptyLabel($account->getEmailAddress());
+            $totp->setLabel($label);
             $totp->setIssuer('Accessing');
 
             $secondFactor = new SecondFactor($account, $totp->getSecret(), $account->getEmailAddress());
@@ -40,13 +44,18 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
             return new AccessingSecondFactorEnrollmentDto($totp->getSecret(), $totp->getProvisioningUri());
         }
 
-        $totp = TOTP::create($secondFactor->getSecret());
-        $totp->setLabel($account->getEmailAddress());
+        $secret = $this->nonEmptySecret($secondFactor->getSecret());
+        $totp = TOTP::create($secret);
+        $label = $this->nonEmptyLabel($account->getEmailAddress());
+        $totp->setLabel($label);
         $totp->setIssuer('Accessing');
 
         return new AccessingSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri());
     }
 
+    /**
+     * @throws RandomException
+     */
     public function confirmEnrollment(Account $account, string $code): ?AccessingSecondFactorEnrollmentDto
     {
         $secondFactor = $account->getSecondFactor();
@@ -55,9 +64,11 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
             return null;
         }
 
-        $totp = TOTP::create($secondFactor->getSecret());
+        $secret = $this->nonEmptySecret($secondFactor->getSecret());
+        $totp = TOTP::create($secret);
+        $normalizedVerificationCode = trim($code);
 
-        if (!$totp->verify(trim($code))) {
+        if ('' === $normalizedVerificationCode || !$totp->verify($normalizedVerificationCode)) {
             return null;
         }
 
@@ -87,7 +98,7 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
             $account,
         );
 
-        $totp->setLabel($account->getEmailAddress());
+        $totp->setLabel($this->nonEmptyLabel($account->getEmailAddress()));
         $totp->setIssuer('Accessing');
 
         return new AccessingSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
@@ -102,9 +113,10 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
         }
 
         $normalizedCode = strtoupper(trim(str_replace([' ', '-'], '', $code)));
-        $totp = TOTP::create($secondFactor->getSecret());
+        $secret = $this->nonEmptySecret($secondFactor->getSecret());
+        $totp = TOTP::create($secret);
 
-        if ($totp->verify($normalizedCode)) {
+        if ('' !== $normalizedCode && $totp->verify($normalizedCode)) {
             $secondFactor->markUsed();
             $this->entityManager->flush();
 
@@ -159,5 +171,21 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
     private function hashRecoveryCode(string $code): string
     {
         return hash_hmac('sha256', $code, $this->appSecret);
+    }
+
+    /** @return non-empty-string */
+    private function nonEmptySecret(string $secret): string
+    {
+        $normalizedSecret = trim($secret);
+
+        return '' !== $normalizedSecret ? $normalizedSecret : 'ACCESSING-DEFAULT-SECRET';
+    }
+
+    /** @return non-empty-string */
+    private function nonEmptyLabel(string $label): string
+    {
+        $normalizedLabel = trim($label);
+
+        return '' !== $normalizedLabel ? $normalizedLabel : 'accessing';
     }
 }

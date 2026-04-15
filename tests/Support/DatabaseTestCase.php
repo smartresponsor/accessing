@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -20,11 +21,27 @@ abstract class DatabaseTestCase extends KernelTestCase
         $metadata = $entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool = new SchemaTool($entityManager);
 
-        if ($metadata !== []) {
+        if ([] !== $metadata) {
             $schemaTool->dropSchema($metadata);
             $schemaTool->createSchema($metadata);
         }
 
         return $entityManager;
+    }
+
+    protected function tearDown(): void
+    {
+        $container = static::getContainer();
+
+        if ($container->has(EntityManagerInterface::class)) {
+            /** @var EntityManagerInterface $entityManager */
+            $entityManager = $container->get(EntityManagerInterface::class);
+            $entityManager->clear();
+            $entityManager->close();
+        }
+
+        self::ensureKernelShutdown();
+
+        parent::tearDown();
     }
 }

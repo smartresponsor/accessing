@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -22,23 +23,27 @@ class SecurityEvent
 
     #[ORM\ManyToOne(targetEntity: Account::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?Account $account = null;
+    private ?Account $account;
 
-    #[ORM\Column(length: 64, name: 'event_type')]
+    #[ORM\Column(name: 'event_type', length: 64)]
     private string $eventType = '';
 
+    /** @var array<string, scalar|array<array-key, mixed>|null> */
     #[ORM\Column(type: Types::JSON)]
-    private array $context = [];
+    private array $context;
 
     #[ORM\Column(length: 45, nullable: true)]
-    private ?string $ipAddress = null;
+    private ?string $ipAddress;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $userAgent = null;
+    private ?string $userAgent;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'occurred_at')]
+    #[ORM\Column(name: 'occurred_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $occurredAt;
 
+    /**
+     * @param array<string, scalar|array<array-key, mixed>|null> $context
+     */
     public function __construct(
         SecurityEventType|string|null $eventType = null,
         SecurityEventSeverity|string|null $severity = null,
@@ -50,11 +55,11 @@ class SecurityEvent
         $this->occurredAt = new \DateTimeImmutable();
         $this->context = $context;
 
-        if ($eventType !== null) {
+        if (null !== $eventType) {
             $this->setEventType($eventType);
         }
 
-        if ($severity !== null) {
+        if (null !== $severity) {
             $this->setSeverity($severity);
         }
 
@@ -92,11 +97,13 @@ class SecurityEvent
         return $this;
     }
 
+    /** @return array<string, scalar|array<array-key, mixed>|null> */
     public function getContext(): array
     {
         return $this->context;
     }
 
+    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
     public function setContext(array $context): self
     {
         $this->context = $context;
@@ -108,11 +115,9 @@ class SecurityEvent
     {
         $severity = $this->context['severity'] ?? null;
 
-        return match (true) {
-            $severity instanceof SecurityEventSeverity => $severity,
-            is_string($severity) && SecurityEventSeverity::tryFrom($severity) instanceof SecurityEventSeverity => SecurityEventSeverity::from($severity),
-            default => SecurityEventSeverity::Info,
-        };
+        return is_string($severity) && SecurityEventSeverity::tryFrom($severity) instanceof SecurityEventSeverity
+            ? SecurityEventSeverity::from($severity)
+            : SecurityEventSeverity::Info;
     }
 
     public function setSeverity(SecurityEventSeverity|string $severity): self
@@ -149,12 +154,5 @@ class SecurityEvent
     public function getOccurredAt(): \DateTimeImmutable
     {
         return $this->occurredAt;
-    }
-
-    public function setOccurredAt(\DateTimeImmutable $occurredAt): self
-    {
-        $this->occurredAt = $occurredAt;
-
-        return $this;
     }
 }

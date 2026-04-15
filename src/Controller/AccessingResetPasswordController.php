@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -10,7 +11,6 @@ use App\Form\ResetPasswordRequestFormType;
 use App\RepositoryInterface\AccountRepositoryInterface;
 use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -21,7 +21,15 @@ use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 final class AccessingResetPasswordController extends AbstractController
 {
-    private const RESET_PASSWORD_TOKEN_SESSION_KEY = 'accessing_reset_password_token';
+    private const string RESET_PASSWORD_TOKEN_SESSION_KEY = 'accessing_reset_password_token';
+
+    public function __construct(
+        private readonly ResetPasswordHelperInterface $resetPasswordHelper,
+        private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly AccountRepositoryInterface $accountRepository,
+        private readonly AccessingSecurityEventRecorderInterface $securityEventRecorder,
+    ) {
+    }
 
     /**
      * Accept a password reset request and issue a reset token when account exists.
@@ -37,7 +45,8 @@ final class AccessingResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $email = (string) $form->get('email')->getData();
+            $emailData = $form->get('email')->getData();
+            $email = is_string($emailData) ? $emailData : '';
             $account = $accountRepository->findOneByEmailAddress($email);
 
             if ($account instanceof Account) {
@@ -82,10 +91,6 @@ final class AccessingResetPasswordController extends AbstractController
     #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
     public function reset(
         Request $request,
-        ResetPasswordHelperInterface $resetPasswordHelper,
-        UserPasswordHasherInterface $userPasswordHasher,
-        AccountRepositoryInterface $accountRepository,
-        AccessingSecurityEventRecorderInterface $securityEventRecorder,
         ?string $token = null,
     ): Response {
         $session = $request->getSession();
@@ -96,14 +101,15 @@ final class AccessingResetPasswordController extends AbstractController
             return $this->redirectToRoute('accessing_reset_password_reset_plain');
         }
 
-        $token = (string) $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
+        $tokenData = $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
+        $token = is_string($tokenData) ? $tokenData : '';
         if ('' === $token) {
             return $this->redirectToRoute('accessing_reset_password_request');
         }
 
         try {
             /** @var Account $account */
-            $account = $resetPasswordHelper->validateTokenAndFetchUser($token);
+            $account = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface) {
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->addFlash('danger', 'Invalid or expired reset token.');
@@ -115,14 +121,15 @@ final class AccessingResetPasswordController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = (string) $form->get('plainPassword')->getData();
+            $plainPasswordData = $form->get('plainPassword')->getData();
+            $plainPassword = is_string($plainPasswordData) ? $plainPasswordData : '';
 
-            $resetPasswordHelper->removeResetRequest($token);
+            $this->resetPasswordHelper->removeResetRequest($token);
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
-            $account->setPasswordHash($userPasswordHasher->hashPassword($account, $plainPassword));
-            $accountRepository->save($account, true);
+            $account->setPasswordHash($this->userPasswordHasher->hashPassword($account, $plainPassword));
+            $this->accountRepository->save($account, true);
 
-            $securityEventRecorder->record('reset_password.completed', $account, [
+            $this->securityEventRecorder->record('reset_password.completed', $account, [
                 'email' => $account->getEmail(),
             ]);
 

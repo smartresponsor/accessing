@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -51,21 +52,26 @@ final class AccountRepository extends ServiceEntityRepository implements Account
 
     public function findOneByEmailAddress(string $emailAddress): ?Account
     {
-        return $this->createQueryBuilder('account')
+        $account = $this->createQueryBuilder('account')
             ->andWhere('LOWER(account.email) = :email')
             ->setParameter('email', mb_strtolower(trim($emailAddress)))
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+
+        return $account instanceof Account ? $account : null;
     }
 
     /** @return list<Account> */
     public function findRecentAccounts(int $limit = 50): array
     {
-        return $this->createQueryBuilder('account')
+        /** @var list<Account> $accounts */
+        $accounts = $this->createQueryBuilder('account')
             ->orderBy('account.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+
+        return $accounts;
     }
 }

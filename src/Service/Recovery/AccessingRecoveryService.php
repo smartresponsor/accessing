@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -22,14 +23,15 @@ final readonly class AccessingRecoveryService implements AccessingRecoveryServic
         private AccessingVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessingCredentialServiceInterface $credentialService,
         private AccessingSecurityEventServiceInterface $securityEventService,
-    ) {}
+    ) {
+    }
 
     public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessingIssuedChallengeDto
     {
         $normalizedEmailAddress = new EmailAddress($emailAddress);
         $account = $this->accountRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
-        if ($account === null) {
+        if (null === $account) {
             return null;
         }
 
@@ -41,7 +43,7 @@ final readonly class AccessingRecoveryService implements AccessingRecoveryServic
         $normalizedEmailAddress = new EmailAddress($emailAddress);
         $account = $this->accountRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
-        if ($account === null) {
+        if (null === $account) {
             return false;
         }
 
@@ -57,7 +59,6 @@ final readonly class AccessingRecoveryService implements AccessingRecoveryServic
             SecurityEventType::RecoveryCompleted,
             SecurityEventSeverity::Warning,
             $account,
-            null,
         );
 
         return true;

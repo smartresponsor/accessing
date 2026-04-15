@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -27,6 +28,7 @@ final class AccessingDemoResetCommand extends Command
         parent::__construct();
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -40,7 +42,7 @@ final class AccessingDemoResetCommand extends Command
         $loader->addFixture($this->accessingDemoFixtures);
 
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
-        $executor->execute($loader->getFixtures(), append: false);
+        $executor->execute($loader->getFixtures());
 
         $io->success('Accessing demo database has been rebuilt and repopulated.');
 

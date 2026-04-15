@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 interface AccessingSecurityEventServiceInterface
 {
+    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
     public function record(
         SecurityEventType $eventType,
         SecurityEventSeverity $severity,

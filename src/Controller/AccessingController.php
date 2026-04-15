@@ -1,9 +1,13 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Dto\PasswordChangeDto;
+use App\Dto\PhoneVerificationRequestDto;
+use App\Dto\VerificationCodeDto;
 use App\Entity\Account;
 use App\Form\PasswordChangeFormType;
 use App\Form\PhoneVerificationRequestFormType;
@@ -66,7 +70,10 @@ final class AccessingController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($verificationChallengeService->completeEmailVerification($account, $form->getData()->code)) {
+            /** @var VerificationCodeDto $data */
+            $data = $form->getData();
+
+            if ($verificationChallengeService->completeEmailVerification($account, $data->code)) {
                 $this->addFlash('success', 'Email verification completed.');
 
                 return $this->redirectToRoute('accessing_overview');
@@ -112,7 +119,9 @@ final class AccessingController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $issuedChallenge = $verificationChallengeService->issuePhoneVerification($account, $form->getData()->phoneNumber, $request);
+            /** @var PhoneVerificationRequestDto $data */
+            $data = $form->getData();
+            $issuedChallenge = $verificationChallengeService->issuePhoneVerification($account, $data->phoneNumber, $request);
             $this->addFlash('info', 'Phone verification code sent.');
             $this->addDemoCodeFlash('Phone verification code', $issuedChallenge->plainCode);
 
@@ -139,7 +148,10 @@ final class AccessingController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($verificationChallengeService->completePhoneVerification($account, $form->getData()->code)) {
+            /** @var VerificationCodeDto $data */
+            $data = $form->getData();
+
+            if ($verificationChallengeService->completePhoneVerification($account, $data->code)) {
                 $this->addFlash('success', 'Phone verification completed.');
 
                 return $this->redirectToRoute('accessing_overview');
@@ -169,9 +181,11 @@ final class AccessingController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $confirmedEnrollment = $secondFactorService->confirmEnrollment($account, $form->getData()->code);
+            /** @var VerificationCodeDto $data */
+            $data = $form->getData();
+            $confirmedEnrollment = $secondFactorService->confirmEnrollment($account, $data->code);
 
-            if ($confirmedEnrollment !== null) {
+            if (null !== $confirmedEnrollment) {
                 $this->addFlash('success', 'Second factor is now enabled.');
                 $this->addFlash('warning', 'Save the recovery codes shown on the page now. They will not be shown again.');
 
@@ -266,6 +280,7 @@ final class AccessingController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var PasswordChangeDto $data */
             $data = $form->getData();
 
             if (!$credentialService->verifyPassword($account, $data->currentPassword)) {
@@ -294,5 +309,4 @@ final class AccessingController extends AbstractController
 
         return $account;
     }
-
 }

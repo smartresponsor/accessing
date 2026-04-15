@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -21,27 +22,27 @@ class RecoveryCode
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Account $account = null;
 
-    #[ORM\Column(length: 255, name: 'code_hash')]
+    #[ORM\Column(name: 'code_hash', length: 255)]
     private string $codeHash = '';
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, name: 'consumed_at')]
+    #[ORM\Column(name: 'consumed_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $consumedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
-    private ?string $lastFourCharacters = null;
+    private ?string $lastFourCharacters;
 
     public function __construct(?Account $account = null, ?string $codeHash = null, ?string $lastFourCharacters = null)
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->lastFourCharacters = $lastFourCharacters;
 
-        if ($account !== null) {
+        if (null !== $account) {
             $this->setAccount($account);
         }
 
-        if ($codeHash !== null) {
+        if (null !== $codeHash) {
             $this->setCodeHash($codeHash);
         }
     }
@@ -99,7 +100,7 @@ class RecoveryCode
 
     public function getLastFourCharacters(): string
     {
-        if ($this->lastFourCharacters !== null && $this->lastFourCharacters !== '') {
+        if (null !== $this->lastFourCharacters && '' !== $this->lastFourCharacters) {
             return $this->lastFourCharacters;
         }
 

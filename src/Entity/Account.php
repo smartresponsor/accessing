@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -68,22 +69,22 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
-    #[ORM\OneToOne(mappedBy: 'account', targetEntity: Credential::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: Credential::class, mappedBy: 'account', cascade: ['persist', 'remove'])]
     private ?Credential $credential = null;
 
-    #[ORM\OneToOne(mappedBy: 'account', targetEntity: SecondFactor::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: SecondFactor::class, mappedBy: 'account', cascade: ['persist', 'remove'])]
     private ?SecondFactor $secondFactor = null;
 
     /** @var Collection<int, RecoveryCode> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: RecoveryCode::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: RecoveryCode::class, mappedBy: 'account', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $recoveryCodes;
 
     /** @var Collection<int, VerificationChallenge> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: VerificationChallenge::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: VerificationChallenge::class, mappedBy: 'account', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $verificationChallenges;
 
     /** @var Collection<int, AccountSession> */
-    #[ORM\OneToMany(mappedBy: 'account', targetEntity: AccountSession::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: AccountSession::class, mappedBy: 'account', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $accountSessions;
 
     public function __construct(?string $email = null, ?string $displayName = null)
@@ -95,11 +96,11 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         $this->verificationChallenges = new ArrayCollection();
         $this->accountSessions = new ArrayCollection();
 
-        if ($email !== null) {
+        if (null !== $email) {
             $this->setEmail($email);
         }
 
-        if ($displayName !== null) {
+        if (null !== $displayName) {
             $this->setDisplayName($displayName);
         }
     }
@@ -129,7 +130,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
 
     public function getUserIdentifier(): string
     {
-        return $this->email;
+        return '' !== $this->email ? $this->email : 'account';
     }
 
     /** @return list<string> */
@@ -179,7 +180,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
 
     public function setDisplayName(?string $displayName): self
     {
-        $this->displayName = $displayName !== null ? trim($displayName) : null;
+        $this->displayName = null !== $displayName ? trim($displayName) : null;
         $this->touch();
 
         return $this;
@@ -192,7 +193,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
 
     public function setPhoneNumber(?string $phoneNumber): self
     {
-        $this->phoneNumber = $phoneNumber !== null ? trim($phoneNumber) : null;
+        $this->phoneNumber = null !== $phoneNumber ? trim($phoneNumber) : null;
         $this->touch();
 
         return $this;
@@ -210,7 +211,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
 
     public function setTotpSecret(?string $totpSecret): self
     {
-        $this->totpSecret = $totpSecret !== null ? trim($totpSecret) : null;
+        $this->totpSecret = null !== $totpSecret ? trim($totpSecret) : null;
         $this->touch();
 
         return $this;
@@ -270,7 +271,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
         $this->secondFactor = $secondFactor;
         $this->secondFactorEnabled = $secondFactor?->isEnabled() ?? false;
 
-        if ($secondFactor !== null && $secondFactor->getAccount() !== $this) {
+        if (null !== $secondFactor && $secondFactor->getAccount() !== $this) {
             $secondFactor->setAccount($this);
         }
 
@@ -282,7 +283,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     public function isTotpAuthenticationEnabled(): bool
     {
         return ($this->secondFactor?->isEnabled() ?? false)
-            || ($this->secondFactorEnabled && $this->totpSecret !== null && $this->totpSecret !== '');
+            || ($this->secondFactorEnabled && null !== $this->totpSecret && '' !== $this->totpSecret);
     }
 
     public function getTotpAuthenticationUsername(): string
@@ -294,7 +295,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     {
         $secret = $this->secondFactor?->getSecret() ?? $this->totpSecret;
 
-        return $this->isTotpAuthenticationEnabled() && $secret !== null && $secret !== ''
+        return $this->isTotpAuthenticationEnabled() && null !== $secret && '' !== $secret
             ? new TotpConfiguration($secret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
             : null;
     }
@@ -308,7 +309,7 @@ class Account implements UserInterface, PasswordAuthenticatedUserInterface, TwoF
     {
         $this->credential = $credential;
 
-        if ($credential !== null && $credential->getAccount() !== $this) {
+        if (null !== $credential && $credential->getAccount() !== $this) {
             $credential->setAccount($this);
         }
 

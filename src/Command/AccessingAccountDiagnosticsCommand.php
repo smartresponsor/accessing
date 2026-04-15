@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -22,6 +23,7 @@ final class AccessingAccountDiagnosticsCommand extends Command
         parent::__construct();
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -30,9 +32,9 @@ final class AccessingAccountDiagnosticsCommand extends Command
         $io->definitionList(
             ['Accounts', (string) count($accounts)],
             ['Recently tracked security events', (string) count($this->securityEventRepository->findRecentEvents(25))],
-            ['Locked accounts', (string) count(array_filter($accounts, static fn($account) => $account->isLocked()))],
-            ['Email verified accounts', (string) count(array_filter($accounts, static fn($account) => $account->isEmailVerified()))],
-            ['Second factor enabled accounts', (string) count(array_filter($accounts, static fn($account) => $account->getSecondFactor()?->isEnabled() ?? false))],
+            ['Locked accounts', (string) count(array_filter($accounts, static fn ($account) => $account->isLocked()))],
+            ['Email verified accounts', (string) count(array_filter($accounts, static fn ($account) => $account->isEmailVerified()))],
+            ['Second factor enabled accounts', (string) count(array_filter($accounts, static fn ($account) => $account->getSecondFactor()?->isEnabled() ?? false))],
         );
 
         return Command::SUCCESS;

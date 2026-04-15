@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -23,7 +24,7 @@ class VerificationChallenge
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Account $account = null;
 
-    #[ORM\Column(length: 32, name: 'channel_type')]
+    #[ORM\Column(name: 'channel_type', length: 32)]
     private string $channelType = '';
 
     #[ORM\Column(length: 255)]
@@ -38,15 +39,18 @@ class VerificationChallenge
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $completedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'expires_at')]
+    #[ORM\Column(name: 'expires_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $expiresAt;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
-    private ?string $requestedIpAddress = null;
+    private ?string $requestedIpAddress;
     private int $attemptCount = 0;
 
+    /**
+     * @throws \DateMalformedStringException
+     */
     public function __construct(
         ?Account $account = null,
         VerificationChallengeType|string|null $challengeType = null,
@@ -60,19 +64,19 @@ class VerificationChallenge
         $this->expiresAt = $expiresAt ?? $now->modify('+15 minutes');
         $this->requestedIpAddress = $requestedIpAddress;
 
-        if ($account !== null) {
+        if (null !== $account) {
             $this->setAccount($account);
         }
 
-        if ($challengeType !== null) {
+        if (null !== $challengeType) {
             $this->setChallengeType($challengeType);
         }
 
-        if ($target !== null) {
+        if (null !== $target) {
             $this->setTarget($target);
         }
 
-        if ($token !== null) {
+        if (null !== $token) {
             $this->setToken($token);
         }
     }

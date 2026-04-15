@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -9,5 +10,6 @@ use App\Entity\SecurityEvent;
 
 interface AccessingSecurityEventRecorderInterface
 {
+    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
     public function record(string $eventType, ?Account $account = null, array $context = []): SecurityEvent;
 }

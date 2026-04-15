@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -15,11 +16,15 @@ final readonly class AccessingCredentialService implements AccessingCredentialSe
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
         private EntityManagerInterface $entityManager,
-    ) {}
+    ) {
+    }
 
     public function createCredential(Account $account, string $plainPassword): Credential
     {
-        $credential = new Credential($account, $this->passwordHasher->hashPassword($account, $plainPassword));
+        $passwordHash = $this->passwordHasher->hashPassword($account, $plainPassword);
+        $account->setPasswordHash($passwordHash);
+
+        $credential = new Credential($account, $passwordHash);
         $account->setCredential($credential);
         $this->entityManager->persist($credential);
 
@@ -40,7 +45,9 @@ final readonly class AccessingCredentialService implements AccessingCredentialSe
             $credential = $this->createCredential($account, $plainPassword);
         }
 
-        $credential->updatePasswordHash($this->passwordHasher->hashPassword($account, $plainPassword));
+        $passwordHash = $this->passwordHasher->hashPassword($account, $plainPassword);
+        $account->setPasswordHash($passwordHash);
+        $credential->updatePasswordHash($passwordHash);
         $this->entityManager->persist($credential);
         $this->entityManager->flush();
     }

@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -15,13 +16,15 @@ final class VerificationChallengeServiceTest extends DatabaseTestCase
     {
         $entityManager = $this->refreshDatabase();
         $account = new Account('integration@accessing.local', 'Integration Account');
+        /** @var AccessingCredentialServiceInterface $credentialService */
         $credentialService = static::getContainer()->get(AccessingCredentialServiceInterface::class);
         $credentialService->createCredential($account, 'integration-pass-123');
         $entityManager->persist($account);
         $entityManager->flush();
 
+        /** @var AccessingVerificationChallengeServiceInterface $verificationChallengeService */
         $verificationChallengeService = static::getContainer()->get(AccessingVerificationChallengeServiceInterface::class);
-        $issuedChallenge = $verificationChallengeService->issueEmailVerification($account);
+        $issuedChallenge = $verificationChallengeService->issueEmailVerification($account, null);
 
         self::assertNotSame('', $issuedChallenge->plainCode);
         self::assertFalse($account->isEmailVerified());

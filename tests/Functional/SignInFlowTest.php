@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -23,6 +24,7 @@ final class SignInFlowTest extends WebTestCase
         $schemaTool->createSchema($metadata);
         $account = new Account('signin@accessing.local', 'Sign In Tester');
         $account->markEmailVerified();
+        /** @var AccessingCredentialServiceInterface $credentialService */
         $credentialService = static::getContainer()->get(AccessingCredentialServiceInterface::class);
         $credentialService->createCredential($account, 'signin-pass-123');
         $entityManager->persist($account);

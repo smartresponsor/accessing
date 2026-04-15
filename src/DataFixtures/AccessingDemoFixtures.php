@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -21,7 +22,7 @@ final class AccessingDemoFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $account = (new Account())
+        $account = new Account()
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
@@ -32,24 +33,24 @@ final class AccessingDemoFixtures extends Fixture
 
         $manager->persist($account);
 
-        $emailChallenge = (new VerificationChallenge())
+        $emailChallenge = new VerificationChallenge()
             ->setAccount($account)
             ->setChannelType('email')
             ->setTarget($account->getEmail())
             ->setToken('demo-email-token');
         $emailChallenge->markCompleted();
 
-        $phoneChallenge = (new VerificationChallenge())
+        $phoneChallenge = new VerificationChallenge()
             ->setAccount($account)
             ->setChannelType('phone')
             ->setTarget((string) $account->getPhoneNumber())
             ->setToken('demo-phone-token');
 
-        $recoveryCode = (new RecoveryCode())
+        $recoveryCode = new RecoveryCode()
             ->setAccount($account)
             ->setCodeHash(hash('sha256', 'DEMO-RECOVERY-CODE-1'));
 
-        $securityEvent = (new SecurityEvent())
+        $securityEvent = new SecurityEvent()
             ->setAccount($account)
             ->setEventType('account.registered')
             ->setContext([

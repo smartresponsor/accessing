@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -10,19 +11,20 @@ use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-final class AccessingSecurityEventRecorder implements AccessingSecurityEventRecorderInterface
+final readonly class AccessingSecurityEventRecorder implements AccessingSecurityEventRecorderInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly RequestStack $requestStack,
+        private EntityManagerInterface $entityManager,
+        private RequestStack $requestStack,
     ) {
     }
 
+    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
     public function record(string $eventType, ?Account $account = null, array $context = []): SecurityEvent
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        $securityEvent = (new SecurityEvent())
+        $securityEvent = new SecurityEvent()
             ->setEventType($eventType)
             ->setAccount($account)
             ->setContext($context)

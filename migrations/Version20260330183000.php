@@ -9,6 +9,7 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20260330183000 extends AbstractMigration
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function getDescription(): string
     {
         return 'Add TOTP secret column to the Accessing account table.';
@@ -19,6 +20,7 @@ final class Version20260330183000 extends AbstractMigration
         $this->addSql('ALTER TABLE accessing_account ADD totp_secret VARCHAR(255) DEFAULT NULL');
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE accessing_account DROP totp_secret');

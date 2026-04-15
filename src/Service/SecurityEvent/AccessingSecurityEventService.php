@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -16,8 +17,10 @@ final readonly class AccessingSecurityEventService implements AccessingSecurityE
 {
     public function __construct(
         private SecurityEventRepositoryInterface $securityEventRepository,
-    ) {}
+    ) {
+    }
 
+    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
     public function record(
         SecurityEventType $eventType,
         SecurityEventSeverity $severity,

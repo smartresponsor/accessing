@@ -1,13 +1,33 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class AccessingResetPasswordRoutesTest extends WebTestCase
 {
+    private function prepareSchema(): void
+    {
+        self::bootKernel();
+
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $schemaTool = new SchemaTool($entityManager);
+        $metadata = $entityManager->getMetadataFactory()->getAllMetadata();
+
+        if ([] !== $metadata) {
+            $schemaTool->dropSchema($metadata);
+            $schemaTool->createSchema($metadata);
+        }
+
+        self::ensureKernelShutdown();
+    }
+
     public function testResetPasswordRequestPageIsSuccessful(): void
     {
         $client = static::createClient();
@@ -36,6 +56,8 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
 
     public function testInvalidResetTokenRedirectsThroughPlainResetRoute(): void
     {
+        $this->prepareSchema();
+
         $client = static::createClient();
         $client->request('GET', '/reset-password/reset/invalid-token');
 
@@ -47,6 +69,8 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
 
     public function testInvalidResetTokenPostRedirectsThroughPlainResetRoute(): void
     {
+        $this->prepareSchema();
+
         $client = static::createClient();
         $client->request('POST', '/reset-password/reset/invalid-token');
 

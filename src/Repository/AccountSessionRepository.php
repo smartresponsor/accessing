@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -31,23 +32,29 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
 
     public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccountSession
     {
-        return $this->findOneBy(['sessionIdentifier' => $sessionIdentifier]);
+        $accountSession = $this->findOneBy(['sessionIdentifier' => $sessionIdentifier]);
+
+        return $accountSession instanceof AccountSession ? $accountSession : null;
     }
 
     public function findActiveForAccount(Account $account): array
     {
-        return $this->createQueryBuilder('accountSession')
+        /** @var list<AccountSession> $results */
+        $results = $this->createQueryBuilder('accountSession')
             ->andWhere('accountSession.account = :account')
             ->andWhere('accountSession.revokedAt IS NULL')
             ->setParameter('account', $account)
             ->orderBy('accountSession.lastSeenAt', 'DESC')
             ->getQuery()
             ->getResult();
+
+        return $results;
     }
 
     public function invalidateOtherActiveSessions(Account $account, string $keepSessionIdentifier): int
     {
-        return $this->getEntityManager()->createQueryBuilder()
+        /** @var int $updatedCount */
+        $updatedCount = $this->getEntityManager()->createQueryBuilder()
             ->update(AccountSession::class, 'accountSession')
             ->set('accountSession.revokedAt', ':now')
             ->where('accountSession.account = :account')
@@ -58,16 +65,21 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
             ->setParameter('keepSessionIdentifier', $keepSessionIdentifier)
             ->getQuery()
             ->execute();
+
+        return $updatedCount;
     }
 
     public function cleanupInvalidatedBefore(\DateTimeImmutable $before): int
     {
-        return $this->getEntityManager()->createQueryBuilder()
+        /** @var int $deletedCount */
+        $deletedCount = $this->getEntityManager()->createQueryBuilder()
             ->delete(AccountSession::class, 'accountSession')
             ->where('accountSession.revokedAt IS NOT NULL')
             ->andWhere('accountSession.revokedAt <= :before')
             ->setParameter('before', $before)
             ->getQuery()
             ->execute();
+
+        return $deletedCount;
     }
 }

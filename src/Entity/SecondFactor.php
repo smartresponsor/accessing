@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -107,6 +108,6 @@ final class SecondFactor
 
     public function isEnabled(): bool
     {
-        return $this->confirmedAt instanceof \DateTimeImmutable && $this->revokedAt === null;
+        return $this->confirmedAt instanceof \DateTimeImmutable && null === $this->revokedAt;
     }
 }

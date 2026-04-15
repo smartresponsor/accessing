@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -15,6 +16,8 @@ final class ChangePasswordFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        parent::buildForm($builder, $options);
+
         $builder
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
@@ -29,6 +32,8 @@ final class ChangePasswordFormType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver): void
     {
+        parent::configureOptions($resolver);
+
         $resolver->setDefaults([
             'csrf_protection' => true,
         ]);

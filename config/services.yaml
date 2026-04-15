@@ -1,5 +1,6 @@
 parameters:
   accessing.product_name: 'Accessing'
+  accessing.phone_verification_provider.default: 'fake'
 
 services:
   _defaults:
@@ -12,6 +13,7 @@ services:
       $accessingRecoveryCodeTtlMinutes: 30
       $accessingAccountLockThreshold: 5
       $accessingAccountLockMinutes: 15
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
 
   App\:
     resource: '../src/'
@@ -40,7 +42,7 @@ services:
   App\Service\Vendor\AccessingPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
-      $selectedProvider: '%env(default:fake:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
+      $selectedProvider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
 
   App\Service\Vendor\AccessingFakePhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']

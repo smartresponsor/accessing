@@ -9,6 +9,7 @@ use Doctrine\Migrations\AbstractMigration;
 
 final class Version20260330174000 extends AbstractMigration
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function getDescription(): string
     {
         return 'Create initial Accessing account, verification, recovery, and security event tables.';
@@ -37,6 +38,7 @@ final class Version20260330174000 extends AbstractMigration
         $this->addSql('ALTER TABLE accessing_recovery_code ADD CONSTRAINT FK_C330E4C89B6B5FBA FOREIGN KEY (account_id) REFERENCES accessing_account (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE accessing_security_event DROP CONSTRAINT FK_336C8ED99B6B5FBA');

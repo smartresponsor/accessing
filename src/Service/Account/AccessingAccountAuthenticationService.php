@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -22,8 +23,8 @@ use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 final readonly class AccessingAccountAuthenticationService implements AccessingAccountAuthenticationServiceInterface
 {
-    public const string PendingSecondFactorSessionKey = 'accessing.pending_second_factor_account_id';
-    private const string FirewallName = 'main';
+    public const string PENDING_SECOND_FACTOR_SESSION_KEY = 'accessing.pending_second_factor_account_id';
+    private const string FIREWALL_NAME = 'main';
 
     public function __construct(
         private AccountRepositoryInterface $accountRepository,
@@ -34,14 +35,18 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
         private RateLimiterFactory $accessingSignInLimiter,
         private int $accessingAccountLockThreshold,
         private int $accessingAccountLockMinutes,
-    ) {}
+    ) {
+    }
 
+    /**
+     * @throws \DateMalformedStringException
+     */
     public function attemptPasswordSignIn(string $emailAddress, string $plainPassword, Request $request): AccessingSignInResultDto
     {
         $normalizedEmailAddress = new EmailAddress($emailAddress);
         $limiter = $this->accessingSignInLimiter->create(sprintf('%s|%s', $normalizedEmailAddress, $request->getClientIp() ?? 'unknown'));
 
-        if (!$limiter->consume(1)->isAccepted()) {
+        if (!$limiter->consume()->isAccepted()) {
             return AccessingSignInResultDto::failed('Too many sign-in attempts. Please wait before trying again.');
         }
 
@@ -98,7 +103,7 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
         }
 
         if ($account->getSecondFactor()?->isEnabled()) {
-            $request->getSession()->set(self::PendingSecondFactorSessionKey, $account->getId());
+            $request->getSession()->set(self::PENDING_SECOND_FACTOR_SESSION_KEY, $account->getId());
             $this->securityEventService->record(
                 SecurityEventType::SecondFactorChallenged,
                 SecurityEventSeverity::Info,
@@ -141,14 +146,14 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
 
     public function getPendingSecondFactorAccountId(SessionInterface $session): ?int
     {
-        $pendingAccountId = $session->get(self::PendingSecondFactorSessionKey);
+        $pendingAccountId = $session->get(self::PENDING_SECOND_FACTOR_SESSION_KEY);
 
         return is_int($pendingAccountId) ? $pendingAccountId : null;
     }
 
     public function clearPendingSecondFactor(SessionInterface $session): void
     {
-        $session->remove(self::PendingSecondFactorSessionKey);
+        $session->remove(self::PENDING_SECOND_FACTOR_SESSION_KEY);
     }
 
     private function signIn(Account $account, Request $request): void
@@ -161,9 +166,9 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
         $account->unlock();
         $this->accountRepository->save($account, true);
 
-        $token = new PostAuthenticationToken($account, self::FirewallName, $account->getRoles());
+        $token = new PostAuthenticationToken($account, self::FIREWALL_NAME, $account->getRoles());
         $this->tokenStorage->setToken($token);
-        $session->set('_security_' . self::FirewallName, serialize($token));
+        $session->set('_security_'.self::FIREWALL_NAME, serialize($token));
 
         $this->accountSessionService->registerSession($account, $request);
         $this->securityEventService->record(

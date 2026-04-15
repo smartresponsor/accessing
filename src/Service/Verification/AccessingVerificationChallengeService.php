@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -15,7 +16,9 @@ use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInter
 use App\ValueObject\SecurityEventSeverity;
 use App\ValueObject\SecurityEventType;
 use App\ValueObject\VerificationChallengeType;
+use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
@@ -30,10 +33,15 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         private string $appSecret,
         private int $accessingVerificationCodeTtlMinutes,
         private int $accessingRecoveryCodeTtlMinutes,
-    ) {}
+    ) {
+    }
 
     /**
      * Issue a fresh email verification challenge and dispatch notification.
+     *
+     * @throws \DateMalformedStringException
+     * @throws RandomException
+     * @throws TransportExceptionInterface
      */
     public function issueEmailVerification(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
@@ -45,7 +53,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             $this->accessingVerificationCodeTtlMinutes,
         );
 
-        $this->mailer->send((new Email())
+        $this->mailer->send(new Email()
             ->from('no-reply@accessing.local')
             ->to($account->getEmailAddress())
             ->subject('Accessing email verification code')
@@ -69,6 +77,9 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
 
     /**
      * Issue a phone verification challenge for the supplied phone number.
+     *
+     * @throws \DateMalformedStringException
+     * @throws RandomException
      */
     public function issuePhoneVerification(Account $account, string $phoneNumber, ?Request $request = null): AccessingIssuedChallengeDto
     {
@@ -102,6 +113,10 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
 
     /**
      * Issue a password recovery challenge for the account.
+     *
+     * @throws \DateMalformedStringException
+     * @throws RandomException
+     * @throws TransportExceptionInterface
      */
     public function issuePasswordRecovery(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
@@ -113,7 +128,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             $this->accessingRecoveryCodeTtlMinutes,
         );
 
-        $this->mailer->send((new Email())
+        $this->mailer->send(new Email()
             ->from('no-reply@accessing.local')
             ->to($account->getEmailAddress())
             ->subject('Accessing password recovery code')
@@ -186,6 +201,10 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         );
     }
 
+    /**
+     * @throws \DateMalformedStringException
+     * @throws RandomException
+     */
     private function issueChallenge(
         Account $account,
         VerificationChallengeType $challengeType,

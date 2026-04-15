@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -26,26 +27,29 @@ class AccountSession
     private string $sessionIdentifier = '';
 
     #[ORM\Column(length: 45, nullable: true)]
-    private ?string $ipAddress = null;
+    private ?string $ipAddress;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $userAgent = null;
+    private ?string $userAgent;
 
     #[ORM\Column]
     private bool $trusted = false;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'created_at')]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'last_seen_at')]
+    #[ORM\Column(name: 'last_seen_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $lastSeenAt;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, name: 'expires_at')]
+    #[ORM\Column(name: 'expires_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $expiresAt;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, name: 'revoked_at')]
+    #[ORM\Column(name: 'revoked_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $revokedAt = null;
 
+    /**
+     * @throws \DateMalformedStringException
+     */
     public function __construct(?Account $account = null, ?string $sessionIdentifier = null, ?string $ipAddress = null, ?string $userAgent = null)
     {
         $now = new \DateTimeImmutable();
@@ -53,11 +57,11 @@ class AccountSession
         $this->lastSeenAt = $now;
         $this->expiresAt = $now->modify('+30 days');
 
-        if ($account !== null) {
+        if (null !== $account) {
             $this->setAccount($account);
         }
 
-        if ($sessionIdentifier !== null) {
+        if (null !== $sessionIdentifier) {
             $this->setSessionIdentifier($sessionIdentifier);
         }
 
@@ -171,7 +175,7 @@ class AccountSession
 
     public function isActive(): bool
     {
-        return $this->revokedAt === null && $this->expiresAt > new \DateTimeImmutable();
+        return null === $this->revokedAt && $this->expiresAt > new \DateTimeImmutable();
     }
 
     public function revoke(?\DateTimeImmutable $revokedAt = null): self

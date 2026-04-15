@@ -12,6 +12,7 @@ use Doctrine\Migrations\AbstractMigration;
  */
 final class Version20260328000431 extends AbstractMigration
 {
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function getDescription(): string
     {
         return '';
@@ -39,6 +40,7 @@ final class Version20260328000431 extends AbstractMigration
         $this->addSql('CREATE INDEX idx_verification_challenge_type_expires ON verification_challenge (challenge_type, expires_at)');
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs

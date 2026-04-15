@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -20,7 +21,8 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
         private AccountSessionRepositoryInterface $accountSessionRepository,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private int $accessingSessionMaxIdleDays,
-    ) {}
+    ) {
+    }
 
     /**
      * Ensure the current request session is registered and marked as active.
@@ -78,6 +80,8 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
 
     /**
      * Remove invalidated sessions older than configured retention.
+     *
+     * @throws \DateMalformedStringException
      */
     public function cleanupSessions(): int
     {

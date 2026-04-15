@@ -1,9 +1,15 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Dto\AccountRegistrationRequest;
+use App\Dto\AccountSignInRequestDto;
+use App\Dto\RecoveryRequestDto;
+use App\Dto\RecoveryResetDto;
+use App\Dto\VerificationCodeDto;
 use App\Entity\Account;
 use App\Form\AccountRegistrationFormType;
 use App\Form\AccountSignInFormType;
@@ -40,8 +46,11 @@ final class AccessingSecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var AccountRegistrationRequest $data */
+            $data = $form->getData();
+
             try {
-                $accountRegistrationService->register($form->getData());
+                $accountRegistrationService->register($data);
                 $this->addFlash('success', 'Registration complete. Verify your email address to finish activation.');
 
                 return $this->redirectToRoute('accessing_sign_in');
@@ -71,9 +80,11 @@ final class AccessingSecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var AccountSignInRequestDto $data */
+            $data = $form->getData();
             $result = $accountAuthenticationService->attemptPasswordSignIn(
-                $form->getData()->emailAddress,
-                $form->getData()->plainPassword,
+                $data->emailAddress,
+                $data->plainPassword,
                 $request,
             );
 
@@ -107,7 +118,7 @@ final class AccessingSecurityController extends AbstractController
     ): Response {
         $pendingAccountId = $accountAuthenticationService->getPendingSecondFactorAccountId($request->getSession());
 
-        if ($pendingAccountId === null) {
+        if (null === $pendingAccountId) {
             return $this->redirectToRoute('accessing_sign_in');
         }
 
@@ -123,7 +134,10 @@ final class AccessingSecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($secondFactorService->verifyChallenge($account, $form->getData()->code)) {
+            /** @var VerificationCodeDto $data */
+            $data = $form->getData();
+
+            if ($secondFactorService->verifyChallenge($account, $data->code)) {
                 $accountAuthenticationService->completePendingSecondFactor($account, $request);
                 $this->addFlash('success', 'Signed in successfully.');
 
@@ -167,10 +181,12 @@ final class AccessingSecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $issuedChallenge = $recoveryService->requestPasswordRecovery($form->getData()->emailAddress, $request);
+            /** @var RecoveryRequestDto $data */
+            $data = $form->getData();
+            $issuedChallenge = $recoveryService->requestPasswordRecovery($data->emailAddress, $request);
             $this->addFlash('info', 'If an account exists, a password recovery code has been issued.');
 
-            if ($issuedChallenge !== null) {
+            if (null !== $issuedChallenge) {
                 $this->addDemoCodeFlash('Password recovery code', $issuedChallenge->plainCode);
             }
 
@@ -194,10 +210,13 @@ final class AccessingSecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var RecoveryResetDto $data */
+            $data = $form->getData();
+
             if ($recoveryService->resetPassword(
-                $form->getData()->emailAddress,
-                $form->getData()->code,
-                $form->getData()->newPassword,
+                $data->emailAddress,
+                $data->code,
+                $data->newPassword,
             )) {
                 $this->addFlash('success', 'Password recovery completed. You can now sign in.');
 
@@ -211,5 +230,4 @@ final class AccessingSecurityController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 }

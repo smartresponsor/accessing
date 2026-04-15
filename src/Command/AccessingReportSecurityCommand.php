@@ -1,4 +1,5 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
@@ -20,12 +21,13 @@ final class AccessingReportSecurityCommand extends Command
         parent::__construct();
     }
 
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $rows = [];
 
-        foreach ($this->securityEventRepository->findRecentEvents(50) as $event) {
+        foreach ($this->securityEventRepository->findRecentEvents() as $event) {
             $rows[] = [
                 $event->getOccurredAt()->format('Y-m-d H:i:s'),
                 $event->getAccount()?->getEmailAddress() ?? 'unknown',
