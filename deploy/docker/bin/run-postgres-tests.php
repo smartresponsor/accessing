@@ -142,7 +142,7 @@ function wait_pg(string $databaseUrl, int $timeoutSeconds): void
     }
 
     $deadline = time() + $timeoutSeconds;
-    $lastMessage = null;
+    $lastMessage = 'unknown connection error';
 
     do {
         try {
@@ -167,7 +167,7 @@ function wait_pg(string $databaseUrl, int $timeoutSeconds): void
         }
     } while (time() < $deadline);
 
-    fwrite(STDERR, 'PostgreSQL test runtime is not ready: ' . ($lastMessage ?? 'unknown connection error') . "\n");
+    fwrite(STDERR, 'PostgreSQL test runtime is not ready: ' . $lastMessage . "\n");
     fwrite(STDERR, "Start it with: docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env up -d postgres\n");
     exit(1);
 }

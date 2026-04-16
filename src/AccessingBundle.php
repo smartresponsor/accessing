@@ -18,6 +18,6 @@ final class AccessingBundle extends Bundle
 {
     public function getContainerExtension(): ExtensionInterface
     {
-        return new AccessingExtension();
+        return parent::getContainerExtension() ?? new AccessingExtension();
     }
 }

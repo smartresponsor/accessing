@@ -16,6 +16,8 @@ final class AccessingExtension extends Extension
 {
     /**
      * @param array<int, array<string, mixed>> $configs
+     *
+     * @throws \Exception when the component service configuration cannot be loaded
      */
     public function load(array $configs, ContainerBuilder $container): void
     {
