@@ -16,6 +16,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(name: 'accessing:demo:reset', description: 'Rebuild the schema and load demo fixtures for Accessing.')]
 final class AccessingDemoResetCommand extends Command
@@ -23,6 +24,7 @@ final class AccessingDemoResetCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AccessingDemoFixtures $accessingDemoFixtures,
+        #[Autowire(service: 'doctrine.fixtures.loader')]
         private readonly SymfonyFixturesLoader $fixturesLoader,
     ) {
         parent::__construct();

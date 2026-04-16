@@ -1,0 +1,13 @@
+= Accessing Demo Reset Fixtures Loader Autowire
+
+This patch keeps the demo reset command enabled and binds its `SymfonyFixturesLoader` constructor argument explicitly to the Symfony service id:
+
+----
+doctrine.fixtures.loader
+----
+
+== Reason
+
+The central App dev composition can install `doctrine/doctrine-fixtures-bundle`, but the loader service is exposed as `doctrine.fixtures.loader`, not as an autowirable class-id matching `Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader`.
+
+The command therefore needs an explicit argument binding rather than a global App alias.

@@ -1,0 +1,26 @@
+parameters:
+  accessing.recovery_code_ttl_minutes: '%env(int:default:30:ACCESSING_RECOVERY_CODE_TTL_MINUTES)%'
+  accessing.verification_code_ttl_minutes: '%env(int:default:10:ACCESSING_VERIFICATION_CODE_TTL_MINUTES)%'
+  accessing.session_max_idle_days: '%env(int:default:30:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    bind:
+      int $accessingRecoveryCodeTtlMinutes: '%accessing.recovery_code_ttl_minutes%'
+      int $accessingVerificationCodeTtlMinutes: '%accessing.verification_code_ttl_minutes%'
+      string $appSecret: '%env(APP_SECRET)%'
+      int $accessingSessionMaxIdleDays: '%accessing.session_max_idle_days%'
+
+  # Symfony-native component export surface.
+  # The host application may import this file from the component root.
+  App\:
+    resource: '../../src/'
+    exclude:
+      - '../../src/Kernel.php'
+      - '../../src/DependencyInjection/'
+      - '../../src/Entity/'
+      - '../../src/Tests/'
+  App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
+    alias: App\Service\Vendor\AccessingFakePhoneVerificationProviderService
