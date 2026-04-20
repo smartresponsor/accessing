@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Tests\Unit;
+namespace App\Accessing\Tests\Unit;
 
-use App\ValueObject\EmailAddress;
+use App\Accessing\ValueObject\EmailAddress;
 use PHPUnit\Framework\TestCase;
 
 final class EmailAddressTest extends TestCase

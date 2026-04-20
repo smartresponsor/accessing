@@ -2,7 +2,7 @@
 <?php
 declare(strict_types=1);
 
-use App\Kernel;
+use App\Accessing\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';

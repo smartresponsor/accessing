@@ -30,7 +30,7 @@ services:
     environment:
       APP_ENV: test
       APP_DEBUG: "1"
-      KERNEL_CLASS: App\\Kernel
+      KERNEL_CLASS: App\Accessing\\Kernel
       DATABASE_URL: "pgsql://${ACCESSING_POSTGRES_USER:-app}:${ACCESSING_POSTGRES_PASSWORD:-app}@postgres:5432/${ACCESSING_POSTGRES_DB:-accessing_test}?serverVersion=17&charset=utf8"
       MAILER_DSN: null://null
       ACCESSING_PHONE_VERIFICATION_PROVIDER: fake

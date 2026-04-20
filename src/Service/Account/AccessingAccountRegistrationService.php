@@ -3,14 +3,14 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Account;
+namespace App\Accessing\Service\Account;
 
-use App\Dto\AccountRegistrationRequest;
-use App\Entity\Account;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
+use App\Accessing\Dto\AccountRegistrationRequest;
+use App\Accessing\Entity\Account;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
+use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface

@@ -3,16 +3,16 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\SecondFactor;
+namespace App\Accessing\Service\SecondFactor;
 
-use App\Dto\AccessingSecondFactorEnrollmentDto;
-use App\Entity\Account;
-use App\Entity\RecoveryCode;
-use App\Entity\SecondFactor;
-use App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\Dto\AccessingSecondFactorEnrollmentDto;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\RecoveryCode;
+use App\Accessing\Entity\SecondFactor;
+use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
 use Random\RandomException;

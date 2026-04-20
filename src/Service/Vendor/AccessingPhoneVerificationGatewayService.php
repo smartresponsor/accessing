@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Vendor;
+namespace App\Accessing\Service\Vendor;
 
-use App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
+use App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
 
 final readonly class AccessingPhoneVerificationGatewayService implements AccessingPhoneVerificationProviderServiceInterface
 {
@@ -14,7 +15,8 @@ final readonly class AccessingPhoneVerificationGatewayService implements Accessi
     public function __construct(
         private iterable $providers,
         private string $selectedProvider,
-    ) {}
+    ) {
+    }
 
     public function supports(string $providerName): bool
     {

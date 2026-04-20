@@ -3,15 +3,15 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\AccountSession;
+namespace App\Accessing\Service\AccountSession;
 
-use App\Entity\Account;
-use App\Entity\AccountSession;
-use App\RepositoryInterface\AccountSessionRepositoryInterface;
-use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccountSession;
+use App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface;
+use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 

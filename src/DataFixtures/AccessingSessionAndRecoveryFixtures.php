@@ -3,11 +3,11 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\DataFixtures;
+namespace App\Accessing\DataFixtures;
 
-use App\Entity\Account;
-use App\Entity\AccountSession;
-use App\Entity\ResetPasswordRequest;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccountSession;
+use App\Accessing\Entity\ResetPasswordRequest;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;

@@ -3,11 +3,11 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Credential;
+namespace App\Accessing\Service\Credential;
 
-use App\Entity\Account;
-use App\Entity\Credential;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\Credential;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 

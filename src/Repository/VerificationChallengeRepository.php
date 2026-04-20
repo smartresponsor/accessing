@@ -3,12 +3,12 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Accessing\Repository;
 
-use App\Entity\Account;
-use App\Entity\VerificationChallenge;
-use App\RepositoryInterface\VerificationChallengeRepositoryInterface;
-use App\ValueObject\VerificationChallengeType;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface;
+use App\Accessing\ValueObject\VerificationChallengeType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

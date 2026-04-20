@@ -3,17 +3,17 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Recovery;
+namespace App\Accessing\Service\Recovery;
 
-use App\Dto\AccessingIssuedChallengeDto;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
-use App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
-use App\ValueObject\EmailAddress;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\Dto\AccessingIssuedChallengeDto;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
+use App\Accessing\ValueObject\EmailAddress;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class AccessingRecoveryService implements AccessingRecoveryServiceInterface

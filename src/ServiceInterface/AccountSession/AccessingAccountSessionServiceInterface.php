@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\ServiceInterface\AccountSession;
+namespace App\Accessing\ServiceInterface\AccountSession;
 
-use App\Entity\Account;
+use App\Accessing\Entity\Account;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 

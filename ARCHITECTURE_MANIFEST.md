@@ -1,7 +1,7 @@
 # Accessing Architecture Manifest
 
 Mandatory structure rules:
-- single root namespace App\ mapped to src/
+- single root namespace App\Accessing\ mapped to src/
 - no Smartresponsor\ or any alternative root namespace in code
 - no /src/Domain/
 - no repository or component wrapper folders such as /src/Accessing/ or /src/Account/

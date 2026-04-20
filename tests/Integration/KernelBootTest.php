@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Tests\Integration;
+namespace App\Accessing\Tests\Integration;
 
-use App\Kernel;
+use App\Accessing\Kernel;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 final class KernelBootTest extends KernelTestCase

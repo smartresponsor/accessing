@@ -26,7 +26,7 @@ Use Account as the core domain term.
 Do not drift into User, Identity, Principal, Profile, Auth, Authorization, or Access as the main entity unless there is a very explicit and local reason.
 
 Architectural canon inside the boundary:
-- one Symfony root code tree: App\ => src/
+- one Symfony root code tree: App\Accessing\ => src/
 - no /Domain/
 - no repository-named or component-named wrapper folders in src/
 - service implementations only in src/Service/...

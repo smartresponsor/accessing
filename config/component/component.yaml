@@ -23,7 +23,7 @@ component:
     entities_as_transport_contracts: false
 
   symfony_bundle:
-    class: App\AccessingBundle
-    extension: App\DependencyInjection\AccessingExtension
+    class: App\Accessing\AccessingBundle
+    extension: App\Accessing\DependencyInjection\AccessingExtension
     services_loaded_by_extension: config/component/services.yaml
     routes_import_required_by_host: config/component/routes.yaml

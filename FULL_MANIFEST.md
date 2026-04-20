@@ -5,7 +5,7 @@ Core domain entity: Account
 Package name: smartresponsor/accessing
 
 Accessing is a single Symfony 8 application brick responsible for the account access lifecycle across the ecosystem.
-It must remain a single-root Symfony-oriented application with App\ => src/ and no alternative root namespaces.
+It must remain a single-root Symfony-oriented application with App\Accessing\ => src/ and no alternative root namespaces.
 
 Core product capabilities:
 - account registration

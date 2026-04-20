@@ -15,12 +15,12 @@ services:
 
   # Symfony-native component export surface.
   # The host application may import this file from the component root.
-  App\:
+  App\Accessing\:
     resource: '../../src/'
     exclude:
       - '../../src/Kernel.php'
       - '../../src/DependencyInjection/'
       - '../../src/Entity/'
       - '../../src/Tests/'
-  App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
-    alias: App\Service\Vendor\AccessingFakePhoneVerificationProviderService
+  App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
+    alias: App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService

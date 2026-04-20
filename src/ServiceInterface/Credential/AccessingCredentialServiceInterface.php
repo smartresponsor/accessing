@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\ServiceInterface\Credential;
+namespace App\Accessing\ServiceInterface\Credential;
 
-use App\Entity\Account;
-use App\Entity\Credential;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\Credential;
 
 interface AccessingCredentialServiceInterface
 {

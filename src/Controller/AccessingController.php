@@ -3,20 +3,20 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Accessing\Controller;
 
-use App\Dto\PasswordChangeDto;
-use App\Dto\PhoneVerificationRequestDto;
-use App\Dto\VerificationCodeDto;
-use App\Entity\Account;
-use App\Form\PasswordChangeFormType;
-use App\Form\PhoneVerificationRequestFormType;
-use App\Form\VerificationCodeFormType;
-use App\RepositoryInterface\SecurityEventRepositoryInterface;
-use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
-use App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
-use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
+use App\Accessing\Dto\PasswordChangeDto;
+use App\Accessing\Dto\PhoneVerificationRequestDto;
+use App\Accessing\Dto\VerificationCodeDto;
+use App\Accessing\Entity\Account;
+use App\Accessing\Form\PasswordChangeFormType;
+use App\Accessing\Form\PhoneVerificationRequestFormType;
+use App\Accessing\Form\VerificationCodeFormType;
+use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
+use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
+use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

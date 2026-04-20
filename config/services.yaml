@@ -15,7 +15,7 @@ services:
       $accessingAccountLockMinutes: 15
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
 
-  App\:
+  App\Accessing\:
     resource: '../src/'
     exclude:
       - '../src/DependencyInjection/'
@@ -24,28 +24,28 @@ services:
 
   Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
 
-  App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Service\Account\AccessingAccountAuthenticationService'
-  App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Service\Account\AccessingAccountRegistrationService'
-  App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Service\AccountSession\AccessingAccountSessionService'
-  App\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Service\Credential\AccessingCredentialService'
-  App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Service\Recovery\AccessingRecoveryService'
-  App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Service\SecondFactor\AccessingSecondFactorService'
-  App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Service\SecurityEvent\AccessingSecurityEventRecorder'
-  App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Service\SecurityEvent\AccessingSecurityEventService'
-  App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Service\Vendor\AccessingPhoneVerificationGatewayService'
-  App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Service\Verification\AccessingVerificationChallengeService'
-  App\RepositoryInterface\AccountRepositoryInterface: '@App\Repository\AccountRepository'
-  App\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Repository\AccountSessionRepository'
-  App\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Repository\SecurityEventRepository'
-  App\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Repository\VerificationChallengeRepository'
+  App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountAuthenticationService'
+  App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountRegistrationService'
+  App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Accessing\Service\AccountSession\AccessingAccountSessionService'
+  App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessingCredentialService'
+  App\Accessing\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessingRecoveryService'
+  App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessingSecondFactorService'
+  App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Accessing\Service\SecurityEvent\AccessingSecurityEventRecorder'
+  App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessingSecurityEventService'
+  App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService'
+  App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessingVerificationChallengeService'
+  App\Accessing\RepositoryInterface\AccountRepositoryInterface: '@App\Accessing\Repository\AccountRepository'
+  App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Accessing\Repository\AccountSessionRepository'
+  App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Accessing\Repository\SecurityEventRepository'
+  App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Accessing\Repository\VerificationChallengeRepository'
 
-  App\Service\Vendor\AccessingPhoneVerificationGatewayService:
+  App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
       $selectedProvider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
 
-  App\Service\Vendor\AccessingFakePhoneVerificationProviderService:
+  App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
 
-  App\Service\Vendor\AccessingNullPhoneVerificationProviderService:
+  App\Accessing\Service\Vendor\AccessingNullPhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']

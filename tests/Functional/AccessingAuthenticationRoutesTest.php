@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace App\Accessing\Tests\Functional;
 
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Routing\RouterInterface;
 
 final class AccessingAuthenticationRoutesTest extends WebTestCase
 {

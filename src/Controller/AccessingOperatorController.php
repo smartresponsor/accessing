@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Accessing\Controller;
 
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\RepositoryInterface\SecurityEventRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -31,7 +32,7 @@ final class AccessingOperatorController extends AbstractController
     ): Response {
         $account = $accountRepository->findById($id);
 
-        if ($account === null) {
+        if (null === $account) {
             throw $this->createNotFoundException();
         }
 

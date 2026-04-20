@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Accessing;
 
-use App\DependencyInjection\AccessingExtension;
+use App\Accessing\DependencyInjection\AccessingExtension;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

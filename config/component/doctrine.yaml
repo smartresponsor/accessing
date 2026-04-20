@@ -7,5 +7,5 @@ doctrine:
         type: attribute
         is_bundle: false
         dir: '%kernel.project_dir%/vendor/accessing/access/src/Entity'
-        prefix: 'App\Entity'
+        prefix: 'App\Accessing\Entity'
         alias: Accessing

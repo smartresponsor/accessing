@@ -3,11 +3,11 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Repository;
+namespace App\Accessing\Repository;
 
-use App\Entity\Account;
-use App\Entity\AccountSession;
-use App\RepositoryInterface\AccountSessionRepositoryInterface;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccountSession;
+use App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

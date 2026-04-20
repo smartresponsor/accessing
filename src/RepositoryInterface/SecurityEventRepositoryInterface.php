@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\RepositoryInterface;
+namespace App\Accessing\RepositoryInterface;
 
-use App\Entity\Account;
-use App\Entity\SecurityEvent;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\SecurityEvent;
 
 interface SecurityEventRepositoryInterface
 {

@@ -3,10 +3,10 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Accessing\Entity;
 
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

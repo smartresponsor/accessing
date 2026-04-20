@@ -3,24 +3,24 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Accessing\Controller;
 
-use App\Dto\AccountRegistrationRequest;
-use App\Dto\AccountSignInRequestDto;
-use App\Dto\RecoveryRequestDto;
-use App\Dto\RecoveryResetDto;
-use App\Dto\VerificationCodeDto;
-use App\Entity\Account;
-use App\Form\AccountRegistrationFormType;
-use App\Form\AccountSignInFormType;
-use App\Form\RecoveryRequestFormType;
-use App\Form\RecoveryResetFormType;
-use App\Form\VerificationCodeFormType;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
-use App\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
-use App\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
-use App\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
+use App\Accessing\Dto\AccountRegistrationRequest;
+use App\Accessing\Dto\AccountSignInRequestDto;
+use App\Accessing\Dto\RecoveryRequestDto;
+use App\Accessing\Dto\RecoveryResetDto;
+use App\Accessing\Dto\VerificationCodeDto;
+use App\Accessing\Entity\Account;
+use App\Accessing\Form\AccountRegistrationFormType;
+use App\Accessing\Form\AccountSignInFormType;
+use App\Accessing\Form\RecoveryRequestFormType;
+use App\Accessing\Form\RecoveryResetFormType;
+use App\Accessing\Form\VerificationCodeFormType;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
+use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

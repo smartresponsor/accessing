@@ -3,12 +3,12 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\DataFixtures;
+namespace App\Accessing\DataFixtures;
 
-use App\Entity\Account;
-use App\Entity\RecoveryCode;
-use App\Entity\SecurityEvent;
-use App\Entity\VerificationChallenge;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\RecoveryCode;
+use App\Accessing\Entity\SecurityEvent;
+use App\Accessing\Entity\VerificationChallenge;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;

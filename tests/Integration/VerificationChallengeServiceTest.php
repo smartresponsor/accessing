@@ -3,12 +3,12 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Tests\Integration;
+namespace App\Accessing\Tests\Integration;
 
-use App\Entity\Account;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
-use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
-use App\Tests\Support\DatabaseTestCase;
+use App\Accessing\Entity\Account;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
+use App\Accessing\Tests\Support\DatabaseTestCase;
 
 final class VerificationChallengeServiceTest extends DatabaseTestCase
 {

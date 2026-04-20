@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\ServiceInterface\Account;
+namespace App\Accessing\ServiceInterface\Account;
 
-use App\Dto\AccessingSignInResultDto;
-use App\Entity\Account;
+use App\Accessing\Dto\AccessingSignInResultDto;
+use App\Accessing\Entity\Account;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 

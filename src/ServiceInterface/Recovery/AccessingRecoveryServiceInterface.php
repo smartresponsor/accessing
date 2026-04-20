@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\ServiceInterface\Recovery;
+namespace App\Accessing\ServiceInterface\Recovery;
 
-use App\Dto\AccessingIssuedChallengeDto;
+use App\Accessing\Dto\AccessingIssuedChallengeDto;
 use Symfony\Component\HttpFoundation\Request;
 
 interface AccessingRecoveryServiceInterface

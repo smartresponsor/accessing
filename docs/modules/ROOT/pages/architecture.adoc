@@ -1,6 +1,6 @@
 = Architecture
 
-Accessing is a single Symfony 8 application with one canonical root namespace: `App\\` mapped to `src/`.
+Accessing is a single Symfony 8 application with one canonical root namespace: `App\\Accessing\\` mapped to `src/`.
 
 == Structural Rules
 

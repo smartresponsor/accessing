@@ -1,14 +1,15 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Accessing\Controller;
 
 trait AccessingDemoCodeFlashTrait
 {
     private function addDemoCodeFlash(string $label, string $code): void
     {
-        if ($this->getParameter('kernel.environment') === 'prod') {
+        if ('prod' === $this->getParameter('kernel.environment')) {
             return;
         }
 

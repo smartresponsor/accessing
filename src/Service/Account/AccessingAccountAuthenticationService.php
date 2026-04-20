@@ -3,18 +3,18 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Account;
+namespace App\Accessing\Service\Account;
 
-use App\Dto\AccessingSignInResultDto;
-use App\Entity\Account;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
-use App\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ValueObject\EmailAddress;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\Dto\AccessingSignInResultDto;
+use App\Accessing\Entity\Account;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ValueObject\EmailAddress;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;

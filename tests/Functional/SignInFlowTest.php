@@ -3,10 +3,10 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Tests\Functional;
+namespace App\Accessing\Tests\Functional;
 
-use App\Entity\Account;
-use App\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\Entity\Account;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;

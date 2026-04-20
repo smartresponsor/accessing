@@ -3,13 +3,13 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Accessing\Controller;
 
-use App\Entity\Account;
-use App\Form\ChangePasswordFormType;
-use App\Form\ResetPasswordRequestFormType;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
+use App\Accessing\Entity\Account;
+use App\Accessing\Form\ChangePasswordFormType;
+use App\Accessing\Form\ResetPasswordRequestFormType;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

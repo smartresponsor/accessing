@@ -3,14 +3,14 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\SecurityEvent;
+namespace App\Accessing\Service\SecurityEvent;
 
-use App\Entity\Account;
-use App\Entity\SecurityEvent;
-use App\RepositoryInterface\SecurityEventRepositoryInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\SecurityEvent;
+use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class AccessingSecurityEventService implements AccessingSecurityEventServiceInterface

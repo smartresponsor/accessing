@@ -3,19 +3,19 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Service\Verification;
+namespace App\Accessing\Service\Verification;
 
-use App\Dto\AccessingIssuedChallengeDto;
-use App\Entity\Account;
-use App\Entity\VerificationChallenge;
-use App\RepositoryInterface\AccountRepositoryInterface;
-use App\RepositoryInterface\VerificationChallengeRepositoryInterface;
-use App\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
-use App\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
-use App\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
-use App\ValueObject\SecurityEventSeverity;
-use App\ValueObject\SecurityEventType;
-use App\ValueObject\VerificationChallengeType;
+use App\Accessing\Dto\AccessingIssuedChallengeDto;
+use App\Accessing\Entity\Account;
+use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
+use App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
+use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
+use App\Accessing\ValueObject\SecurityEventSeverity;
+use App\Accessing\ValueObject\SecurityEventType;
+use App\Accessing\ValueObject\VerificationChallengeType;
 use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;

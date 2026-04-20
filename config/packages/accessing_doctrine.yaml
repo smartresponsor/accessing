@@ -9,7 +9,7 @@ doctrine:
             App:
                 type: attribute
                 dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'App\Entity'
+                prefix: 'App\Accessing\Entity'
                 alias: App
 
 when@test:

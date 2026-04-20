@@ -1,10 +1,11 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Dto;
+namespace App\Accessing\Dto;
 
-use App\Entity\Account;
+use App\Accessing\Entity\Account;
 
 final readonly class AccessingSignInResultDto
 {
@@ -13,7 +14,8 @@ final readonly class AccessingSignInResultDto
         public bool $requiresSecondFactor,
         public ?Account $account,
         public string $message,
-    ) {}
+    ) {
+    }
 
     public static function authenticated(Account $account): self
     {

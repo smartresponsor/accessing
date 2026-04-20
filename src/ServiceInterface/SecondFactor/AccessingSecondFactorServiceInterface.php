@@ -1,11 +1,12 @@
 <?php
+
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\ServiceInterface\SecondFactor;
+namespace App\Accessing\ServiceInterface\SecondFactor;
 
-use App\Dto\AccessingSecondFactorEnrollmentDto;
-use App\Entity\Account;
+use App\Accessing\Dto\AccessingSecondFactorEnrollmentDto;
+use App\Accessing\Entity\Account;
 
 interface AccessingSecondFactorServiceInterface
 {
