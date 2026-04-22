@@ -1,4 +1,4 @@
-security:
+﻿security:
   password_hashers:
     Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
@@ -26,18 +26,6 @@ security:
         default_target_path: accessing_overview
         enable_csrf: true
         csrf_token_id: two_factor
-
-  access_control:
-    - { path: ^/operator, roles: ROLE_SUPPORT }
-    - { path: ^/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
-    - { path: ^/sign-in, roles: PUBLIC_ACCESS }
-    - { path: ^/register, roles: PUBLIC_ACCESS }
-    - { path: ^/recover, roles: PUBLIC_ACCESS }
-    - { path: ^/reset-password, roles: PUBLIC_ACCESS }
-    - { path: ^/overview, roles: ROLE_ACCOUNT }
-    - { path: ^/sessions, roles: ROLE_ACCOUNT }
-    - { path: ^/security-events, roles: ROLE_ACCOUNT }
-    - { path: ^/second-factor, roles: ROLE_ACCOUNT }
 
 when@test:
   security:

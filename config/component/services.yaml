@@ -1,7 +1,10 @@
 parameters:
-  accessing.recovery_code_ttl_minutes: '%env(int:default:30:ACCESSING_RECOVERY_CODE_TTL_MINUTES)%'
-  accessing.verification_code_ttl_minutes: '%env(int:default:10:ACCESSING_VERIFICATION_CODE_TTL_MINUTES)%'
-  accessing.session_max_idle_days: '%env(int:default:30:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
+  accessing.recovery_code_ttl_minutes.default: 30
+  accessing.recovery_code_ttl_minutes: '%env(int:default:accessing.recovery_code_ttl_minutes.default:ACCESSING_RECOVERY_CODE_TTL_MINUTES)%'
+  accessing.verification_code_ttl_minutes.default: 10
+  accessing.verification_code_ttl_minutes: '%env(int:default:accessing.verification_code_ttl_minutes.default:ACCESSING_VERIFICATION_CODE_TTL_MINUTES)%'
+  accessing.session_max_idle_days.default: 30
+  accessing.session_max_idle_days: '%env(int:default:accessing.session_max_idle_days.default:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
 
 services:
   _defaults:
@@ -12,6 +15,9 @@ services:
       int $accessingVerificationCodeTtlMinutes: '%accessing.verification_code_ttl_minutes%'
       string $appSecret: '%env(APP_SECRET)%'
       int $accessingSessionMaxIdleDays: '%accessing.session_max_idle_days%'
+      int $accessingAccountLockThreshold: 5
+      int $accessingAccountLockMinutes: 15
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
 
   # Symfony-native component export surface.
   # The host application may import this file from the component root.
