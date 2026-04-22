@@ -11,6 +11,7 @@ use App\Accessing\Entity\VerificationChallenge;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
+use App\Accessing\ServiceInterface\SecurityNotification\AccessingSecurityNotificationServiceInterface;
 use App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use App\Accessing\ValueObject\SecurityEventSeverity;
@@ -19,8 +20,6 @@ use App\Accessing\ValueObject\VerificationChallengeType;
 use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
 
 final readonly class AccessingVerificationChallengeService implements AccessingVerificationChallengeServiceInterface
 {
@@ -29,7 +28,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         private AccountRepositoryInterface $accountRepository,
         private AccessingSecurityEventServiceInterface $securityEventService,
         private AccessingPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
-        private MailerInterface $mailer,
+        private AccessingSecurityNotificationServiceInterface $securityNotificationService,
         private string $appSecret,
         private int $accessingVerificationCodeTtlMinutes,
         private int $accessingRecoveryCodeTtlMinutes,
@@ -53,16 +52,11 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             $this->accessingVerificationCodeTtlMinutes,
         );
 
-        $this->mailer->send(new Email()
-            ->from('no-reply@accessing.local')
-            ->to($account->getEmailAddress())
-            ->subject('Accessing email verification code')
-            ->text(sprintf(
-                "Hello %s,\n\nYour Accessing email verification code is %s.\n\nThis code will expire in %d minutes.",
-                $account->getDisplayName(),
-                $issuedChallenge->plainCode,
-                $this->accessingVerificationCodeTtlMinutes,
-            )));
+        $this->securityNotificationService->sendEmailVerificationCode(
+            $account,
+            $issuedChallenge->plainCode,
+            $this->accessingVerificationCodeTtlMinutes,
+        );
 
         $this->securityEventService->record(
             SecurityEventType::EmailVerificationRequested,
@@ -128,16 +122,11 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
             $this->accessingRecoveryCodeTtlMinutes,
         );
 
-        $this->mailer->send(new Email()
-            ->from('no-reply@accessing.local')
-            ->to($account->getEmailAddress())
-            ->subject('Accessing password recovery code')
-            ->text(sprintf(
-                "Hello %s,\n\nYour Accessing password recovery code is %s.\n\nThis code will expire in %d minutes.",
-                $account->getDisplayName(),
-                $issuedChallenge->plainCode,
-                $this->accessingRecoveryCodeTtlMinutes,
-            )));
+        $this->securityNotificationService->sendPasswordRecoveryCode(
+            $account,
+            $issuedChallenge->plainCode,
+            $this->accessingRecoveryCodeTtlMinutes,
+        );
 
         $this->securityEventService->record(
             SecurityEventType::RecoveryRequested,

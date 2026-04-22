@@ -31,16 +31,16 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
     public function testResetPasswordRequestPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/reset-password');
+        $client->request('GET', '/forgot-password');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Reset password');
+        self::assertSelectorTextContains('h1', 'Forgot password');
     }
 
     public function testResetPasswordCheckEmailPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/reset-password/check-email');
+        $client->request('GET', '/forgot-password/check-email');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Reset request received');
@@ -49,7 +49,7 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
     public function testResetPasswordCheckEmailPostIsNotAllowed(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/reset-password/check-email');
+        $client->request('POST', '/forgot-password/check-email');
 
         self::assertResponseStatusCodeSame(405);
     }
@@ -59,12 +59,12 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
         $this->prepareSchema();
 
         $client = static::createClient();
-        $client->request('GET', '/reset-password/reset/invalid-token');
+        $client->request('GET', '/forgot-password/reset/invalid-token');
 
-        self::assertResponseRedirects('/reset-password/reset');
+        self::assertResponseRedirects('/forgot-password/reset');
 
         $client->followRedirect();
-        self::assertResponseRedirects('/reset-password');
+        self::assertResponseRedirects('/forgot-password');
     }
 
     public function testInvalidResetTokenPostRedirectsThroughPlainResetRoute(): void
@@ -72,8 +72,8 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
         $this->prepareSchema();
 
         $client = static::createClient();
-        $client->request('POST', '/reset-password/reset/invalid-token');
+        $client->request('POST', '/forgot-password/reset/invalid-token');
 
-        self::assertResponseRedirects('/reset-password/reset');
+        self::assertResponseRedirects('/forgot-password/reset');
     }
 }

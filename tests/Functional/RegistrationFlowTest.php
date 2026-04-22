@@ -26,9 +26,9 @@ final class RegistrationFlowTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $crawler = $client->request('GET', '/register');
+        $crawler = $client->request('GET', '/sign-up');
 
-        $client->submit($crawler->selectButton('Create account')->form([
+        $client->submit($crawler->selectButton('Sign up')->form([
             'account_registration_form[displayName]' => 'Functional Tester',
             'account_registration_form[email]' => 'functional@accessing.local',
             'account_registration_form[plainPassword]' => 'functional-pass-123',

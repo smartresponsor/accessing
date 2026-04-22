@@ -12,16 +12,16 @@ final class AccessingResetPasswordSessionFlowTest extends WebTestCase
     public function testResetPasswordPlainRouteRedirectsWhenNoSessionTokenExists(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/reset-password/reset');
+        $client->request('GET', '/forgot-password/reset');
 
-        self::assertResponseRedirects('/reset-password');
+        self::assertResponseRedirects('/forgot-password');
     }
 
     public function testResetPasswordPlainRoutePostRedirectsWhenNoSessionTokenExists(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/reset-password/reset');
+        $client->request('POST', '/forgot-password/reset');
 
-        self::assertResponseRedirects('/reset-password');
+        self::assertResponseRedirects('/forgot-password');
     }
 }

@@ -42,6 +42,9 @@ final class AccessingAuthenticationRoutesTest extends WebTestCase
         $routeCollection = $router->getRouteCollection();
 
         self::assertSame('/sign-in', $routeCollection->get('accessing_sign_in')?->getPath());
+        self::assertSame('/sign-up', $routeCollection->get('accessing_sign_up')?->getPath());
+        self::assertSame('/forgot-password', $routeCollection->get('accessing_forgot_password')?->getPath());
+        self::assertSame('/recover', $routeCollection->get('accessing_recover')?->getPath());
         self::assertSame('/sign-out', $routeCollection->get('accessing_sign_out')?->getPath());
         self::assertSame('/overview', $routeCollection->get('accessing_overview')?->getPath());
     }

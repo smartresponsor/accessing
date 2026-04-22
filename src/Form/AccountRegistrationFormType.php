@@ -31,7 +31,7 @@ final class AccountRegistrationFormType extends AbstractType
                 'required' => false,
             ])
             ->add('submit', SubmitType::class, [
-                'label' => 'Create account',
+                'label' => 'Sign up',
             ]);
     }
 

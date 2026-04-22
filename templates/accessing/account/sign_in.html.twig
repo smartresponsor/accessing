@@ -14,7 +14,11 @@
                         {{ form_row(form.plainPassword) }}
                         <div class="d-flex justify-content-between align-items-center">
                             <button class="btn btn-primary">Sign in</button>
-                            <a href="{{ path('accessing_recover_request') }}">Recover access</a>
+                            <div class="d-flex gap-3">
+                                <a href="{{ path('accessing_sign_up') }}">Sign up</a>
+                                <a href="{{ path('accessing_forgot_password') }}">Forgot password?</a>
+                                <a href="{{ path('accessing_recover') }}">Recover account</a>
+                            </div>
                         </div>
                     {{ form_end(form) }}
                 </div>

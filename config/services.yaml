@@ -1,5 +1,6 @@
 parameters:
   accessing.product_name: 'Accessing'
+  accessing.mailer_sender.default: 'no-reply@accessing.local'
   accessing.phone_verification_provider.default: 'fake'
 
 services:
@@ -13,7 +14,13 @@ services:
       $accessingRecoveryCodeTtlMinutes: 30
       $accessingAccountLockThreshold: 5
       $accessingAccountLockMinutes: 15
+      $accessingProductName: '%accessing.product_name%'
+      $accessingMailerSender: '%env(default:accessing.mailer_sender.default:ACCESSING_MAILER_SENDER)%'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignUpLimiter: '@limiter.accessing_sign_up'
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingRecoveryLimiter: '@limiter.accessing_recovery'
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingForgotPasswordLimiter: '@limiter.accessing_forgot_password'
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingVerificationResendLimiter: '@limiter.accessing_verification_resend'
 
   App\Accessing\:
     resource: '../src/'
@@ -32,6 +39,7 @@ services:
   App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessingSecondFactorService'
   App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Accessing\Service\SecurityEvent\AccessingSecurityEventRecorder'
   App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessingSecurityEventService'
+  App\Accessing\ServiceInterface\SecurityNotification\AccessingSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessingSecurityNotificationService'
   App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService'
   App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessingVerificationChallengeService'
   App\Accessing\RepositoryInterface\AccountRepositoryInterface: '@App\Accessing\Repository\AccountRepository'

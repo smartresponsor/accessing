@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -34,12 +35,13 @@ final class AccessingResetPasswordController extends AbstractController
     /**
      * Accept a password reset request and issue a reset token when account exists.
      */
-    #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password', name: 'accessing_forgot_password', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
         AccountRepositoryInterface $accountRepository,
         ResetPasswordHelperInterface $resetPasswordHelper,
         AccessingSecurityEventRecorderInterface $securityEventRecorder,
+        RateLimiterFactory $accessingForgotPasswordLimiter,
     ): Response {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
@@ -47,6 +49,13 @@ final class AccessingResetPasswordController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $emailData = $form->get('email')->getData();
             $email = is_string($emailData) ? $emailData : '';
+            $limiter = $accessingForgotPasswordLimiter->create(sprintf('%s|%s', strtolower(trim($email)), $request->getClientIp() ?? 'unknown'));
+
+            if (!$limiter->consume()->isAccepted()) {
+                $this->addFlash('danger', 'Too many forgot-password requests. Please wait before trying again.');
+
+                return $this->redirectToRoute('accessing_forgot_password');
+            }
             $account = $accountRepository->findOneByEmailAddress($email);
 
             if ($account instanceof Account) {
@@ -60,7 +69,7 @@ final class AccessingResetPasswordController extends AbstractController
                     $this->addFlash('info', sprintf(
                         'Owner-oriented preview link: %s',
                         $this->generateUrl(
-                            'accessing_reset_password_reset',
+                            'accessing_forgot_password_reset',
                             ['token' => $resetToken->getToken()],
                             UrlGeneratorInterface::ABSOLUTE_URL,
                         )
@@ -70,7 +79,7 @@ final class AccessingResetPasswordController extends AbstractController
                 }
             }
 
-            return $this->redirectToRoute('accessing_reset_password_check_email');
+            return $this->redirectToRoute('accessing_forgot_password_check_email');
         }
 
         return $this->render('accessing/reset_password/request.html.twig', [
@@ -78,7 +87,7 @@ final class AccessingResetPasswordController extends AbstractController
         ]);
     }
 
-    #[Route('/reset-password/check-email', name: 'accessing_reset_password_check_email', methods: ['GET'])]
+    #[Route('/forgot-password/check-email', name: 'accessing_forgot_password_check_email', methods: ['GET'])]
     public function checkEmail(): Response
     {
         return $this->render('accessing/reset_password/check_email.html.twig');
@@ -87,8 +96,8 @@ final class AccessingResetPasswordController extends AbstractController
     /**
      * Validate a reset token and update account password when submitted data is valid.
      */
-    #[Route('/reset-password/reset', name: 'accessing_reset_password_reset_plain', methods: ['GET', 'POST'])]
-    #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password/reset', name: 'accessing_forgot_password_reset_plain', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password/reset/{token}', name: 'accessing_forgot_password_reset', methods: ['GET', 'POST'])]
     public function reset(
         Request $request,
         ?string $token = null,
@@ -98,13 +107,13 @@ final class AccessingResetPasswordController extends AbstractController
         if (null !== $token && '' !== trim($token)) {
             $session->set(self::RESET_PASSWORD_TOKEN_SESSION_KEY, trim($token));
 
-            return $this->redirectToRoute('accessing_reset_password_reset_plain');
+            return $this->redirectToRoute('accessing_forgot_password_reset_plain');
         }
 
         $tokenData = $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
         $token = is_string($tokenData) ? $tokenData : '';
         if ('' === $token) {
-            return $this->redirectToRoute('accessing_reset_password_request');
+            return $this->redirectToRoute('accessing_forgot_password');
         }
 
         try {
@@ -114,7 +123,7 @@ final class AccessingResetPasswordController extends AbstractController
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->addFlash('danger', 'Invalid or expired reset token.');
 
-            return $this->redirectToRoute('accessing_reset_password_request');
+            return $this->redirectToRoute('accessing_forgot_password');
         }
 
         $form = $this->createForm(ChangePasswordFormType::class);

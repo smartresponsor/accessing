@@ -20,6 +20,7 @@ use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeSe
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -96,8 +97,17 @@ final class AccessingController extends AbstractController
     public function resendEmailVerification(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
+        RateLimiterFactory $accessingVerificationResendLimiter,
     ): Response {
         $account = $this->requireAccount();
+        $limiter = $accessingVerificationResendLimiter->create(sprintf('%d|%s', $account->getId() ?? 0, $request->getClientIp() ?? 'unknown'));
+
+        if (!$limiter->consume()->isAccepted()) {
+            $this->addFlash('danger', 'Too many verification resend requests. Please wait before trying again.');
+
+            return $this->redirectToRoute('accessing_verify_email');
+        }
+
         $issuedChallenge = $verificationChallengeService->issueEmailVerification($account, $request);
         $this->addFlash('info', 'A fresh email verification code has been issued.');
         $this->addDemoCodeFlash('Email verification code', $issuedChallenge->plainCode);
@@ -113,6 +123,7 @@ final class AccessingController extends AbstractController
     public function requestPhoneVerification(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
+        RateLimiterFactory $accessingVerificationResendLimiter,
     ): Response {
         $account = $this->requireAccount();
         $form = $this->createForm(PhoneVerificationRequestFormType::class);
@@ -121,6 +132,14 @@ final class AccessingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var PhoneVerificationRequestDto $data */
             $data = $form->getData();
+            $limiter = $accessingVerificationResendLimiter->create(sprintf('%d|%s|%s', $account->getId() ?? 0, trim($data->phoneNumber), $request->getClientIp() ?? 'unknown'));
+
+            if (!$limiter->consume()->isAccepted()) {
+                $this->addFlash('danger', 'Too many phone verification requests. Please wait before trying again.');
+
+                return $this->redirectToRoute('accessing_verify_phone');
+            }
+
             $issuedChallenge = $verificationChallengeService->issuePhoneVerification($account, $data->phoneNumber, $request);
             $this->addFlash('info', 'Phone verification code sent.');
             $this->addDemoCodeFlash('Phone verification code', $issuedChallenge->plainCode);

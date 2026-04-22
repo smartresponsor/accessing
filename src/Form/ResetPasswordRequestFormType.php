@@ -19,7 +19,7 @@ final class ResetPasswordRequestFormType extends AbstractType
         $builder
             ->add('email', EmailType::class)
             ->add('submit', SubmitType::class, [
-                'label' => 'Request reset link',
+                'label' => 'Send reset link',
             ]);
     }
 }

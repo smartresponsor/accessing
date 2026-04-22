@@ -24,6 +24,7 @@ use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInte
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class AccessingSecurityController extends AbstractController
@@ -33,10 +34,11 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Render and process account registration.
      */
-    #[Route('/register', name: 'accessing_register', methods: ['GET', 'POST'])]
+    #[Route('/sign-up', name: 'accessing_sign_up', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
         AccessingAccountRegistrationServiceInterface $accountRegistrationService,
+        RateLimiterFactory $accessingSignUpLimiter,
     ): Response {
         if ($this->getUser() instanceof Account) {
             return $this->redirectToRoute('accessing_overview');
@@ -49,6 +51,14 @@ final class AccessingSecurityController extends AbstractController
             /** @var AccountRegistrationRequest $data */
             $data = $form->getData();
 
+            $limiter = $accessingSignUpLimiter->create(sprintf('%s|%s', strtolower(trim($data->email)), $request->getClientIp() ?? 'unknown'));
+
+            if (!$limiter->consume()->isAccepted()) {
+                $this->addFlash('danger', 'Too many sign-up attempts. Please wait before trying again.');
+
+                return $this->redirectToRoute('accessing_sign_up');
+            }
+
             try {
                 $accountRegistrationService->register($data);
                 $this->addFlash('success', 'Registration complete. Verify your email address to finish activation.');
@@ -59,7 +69,7 @@ final class AccessingSecurityController extends AbstractController
             }
         }
 
-        return $this->render('accessing/account/register.html.twig', [
+        return $this->render('accessing/account/sign_up.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -172,10 +182,11 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Request password recovery challenge by email address.
      */
-    #[Route('/recover/request', name: 'accessing_recover_request', methods: ['GET', 'POST'])]
+    #[Route('/recover', name: 'accessing_recover', methods: ['GET', 'POST'])]
     public function requestRecovery(
         Request $request,
         AccessingRecoveryServiceInterface $recoveryService,
+        RateLimiterFactory $accessingRecoveryLimiter,
     ): Response {
         $form = $this->createForm(RecoveryRequestFormType::class);
         $form->handleRequest($request);
@@ -183,6 +194,13 @@ final class AccessingSecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var RecoveryRequestDto $data */
             $data = $form->getData();
+            $limiter = $accessingRecoveryLimiter->create(sprintf('%s|%s', strtolower(trim($data->emailAddress)), $request->getClientIp() ?? 'unknown'));
+
+            if (!$limiter->consume()->isAccepted()) {
+                $this->addFlash('danger', 'Too many recovery requests. Please wait before trying again.');
+
+                return $this->redirectToRoute('accessing_recover');
+            }
             $issuedChallenge = $recoveryService->requestPasswordRecovery($data->emailAddress, $request);
             $this->addFlash('info', 'If an account exists, a password recovery code has been issued.');
 
@@ -193,7 +211,7 @@ final class AccessingSecurityController extends AbstractController
             return $this->redirectToRoute('accessing_recover_reset');
         }
 
-        return $this->render('accessing/account/recover_request.html.twig', [
+        return $this->render('accessing/account/recover.html.twig', [
             'form' => $form->createView(),
         ]);
     }

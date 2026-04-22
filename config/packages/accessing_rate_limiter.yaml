@@ -4,7 +4,23 @@ framework:
             policy: sliding_window
             limit: 5
             interval: '15 minutes'
+        accessing_sign_up:
+            policy: sliding_window
+            limit: 5
+            interval: '60 minutes'
+        accessing_recovery:
+            policy: sliding_window
+            limit: 5
+            interval: '30 minutes'
+        accessing_forgot_password:
+            policy: sliding_window
+            limit: 5
+            interval: '30 minutes'
         accessing_verification:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        accessing_verification_resend:
+            policy: sliding_window
+            limit: 5
+            interval: '30 minutes'

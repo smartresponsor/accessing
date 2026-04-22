@@ -1,13 +1,44 @@
+# Composer
+/vendor/
+/report/
+composer.lock
+
+# Logs and caches
+/var/logs/
+/var/cache/
+/var/sessions/
+/build/
+/coverage/
+/allure-results/
+/allure-report/
+/var/
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+
+# IDE and editors
 /.idea/
 /.vscode/
-/.phpunit.result.cache
-/.phpunit.cache/
-/.php-cs-fixer.cache
-/var/
-/vendor/
-/public/bundles/
+*.iml
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker overrides
+/.docker/
+/docker-compose.override.yml
+
+# Docs and frontend output
+/docs/site/
 /node_modules/
-/playwright-report/
+**/node_modules/
 /test-results/
-/report/
-/config/reference.php
+/playwright-report/
+
+# AI
+/Domain/Ai/agent-trigger/worker/.dev.vars
+/Domain/Ai/agent-trigger/worker/.dev.vars.*
+!/Domain/Ai/agent-trigger/worker/.dev.vars.example
