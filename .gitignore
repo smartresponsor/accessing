@@ -22,7 +22,7 @@ composer.lock
 /.vscode/
 *.iml
 *.zip
-/.php-cs-fixer.cache/
+.php-cs-fixer.cache
 
 # OS files
 .DS_Store
