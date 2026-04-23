@@ -5,12 +5,12 @@ declare(strict_types=1);
 
 namespace App\Accessing\Dto;
 
-use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 
 final readonly class AccessingIssuedChallengeDto
 {
     public function __construct(
-        public VerificationChallenge $challenge,
+        public AccessVerificationChallengeEntity $challenge,
         public string $plainCode,
     ) {
     }

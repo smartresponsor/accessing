@@ -5,20 +5,20 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 
 interface AccountRepositoryInterface
 {
-    public function save(Account $account, bool $flush = false): void;
+    public function save(AccessAccountEntity $account, bool $flush = false): void;
 
-    public function remove(Account $account, bool $flush = false): void;
+    public function remove(AccessAccountEntity $account, bool $flush = false): void;
 
-    public function findById(int $id): ?Account;
+    public function findById(int $id): ?AccessAccountEntity;
 
-    public function findOneByEmailAddress(string $emailAddress): ?Account;
+    public function findOneByEmailAddress(string $emailAddress): ?AccessAccountEntity;
 
     /**
-     * @return list<Account>
+     * @return list<AccessAccountEntity>
      */
     public function findRecentAccounts(int $limit = 20): array;
 }

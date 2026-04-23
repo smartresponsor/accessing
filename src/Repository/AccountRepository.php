@@ -5,22 +5,22 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Account>
+ * @extends ServiceEntityRepository<AccessAccountEntity>
  */
 final class AccountRepository extends ServiceEntityRepository implements AccountRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Account::class);
+        parent::__construct($registry, AccessAccountEntity::class);
     }
 
-    public function save(Account $account, bool $flush = false): void
+    public function save(AccessAccountEntity $account, bool $flush = false): void
     {
         $this->getEntityManager()->persist($account);
 
@@ -29,7 +29,7 @@ final class AccountRepository extends ServiceEntityRepository implements Account
         }
     }
 
-    public function remove(Account $account, bool $flush = false): void
+    public function remove(AccessAccountEntity $account, bool $flush = false): void
     {
         $this->getEntityManager()->remove($account);
 
@@ -38,19 +38,19 @@ final class AccountRepository extends ServiceEntityRepository implements Account
         }
     }
 
-    public function findOneByEmail(string $email): ?Account
+    public function findOneByEmail(string $email): ?AccessAccountEntity
     {
         return $this->findOneByEmailAddress($email);
     }
 
-    public function findById(int $id): ?Account
+    public function findById(int $id): ?AccessAccountEntity
     {
         $account = $this->find($id);
 
-        return $account instanceof Account ? $account : null;
+        return $account instanceof AccessAccountEntity ? $account : null;
     }
 
-    public function findOneByEmailAddress(string $emailAddress): ?Account
+    public function findOneByEmailAddress(string $emailAddress): ?AccessAccountEntity
     {
         $account = $this->createQueryBuilder('account')
             ->andWhere('LOWER(account.email) = :email')
@@ -59,13 +59,13 @@ final class AccountRepository extends ServiceEntityRepository implements Account
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $account instanceof Account ? $account : null;
+        return $account instanceof AccessAccountEntity ? $account : null;
     }
 
-    /** @return list<Account> */
+    /** @return list<AccessAccountEntity> */
     public function findRecentAccounts(int $limit = 50): array
     {
-        /** @var list<Account> $accounts */
+        /** @var list<AccessAccountEntity> $accounts */
         $accounts = $this->createQueryBuilder('account')
             ->orderBy('account.createdAt', 'DESC')
             ->setMaxResults($limit)

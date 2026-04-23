@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Credential;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\Credential;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessCredentialEntity;
 use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -19,29 +19,29 @@ final readonly class AccessingCredentialService implements AccessingCredentialSe
     ) {
     }
 
-    public function createCredential(Account $account, string $plainPassword): Credential
+    public function createCredential(AccessAccountEntity $account, string $plainPassword): AccessCredentialEntity
     {
         $passwordHash = $this->passwordHasher->hashPassword($account, $plainPassword);
         $account->setPasswordHash($passwordHash);
 
-        $credential = new Credential($account, $passwordHash);
+        $credential = new AccessCredentialEntity($account, $passwordHash);
         $account->setCredential($credential);
         $this->entityManager->persist($credential);
 
         return $credential;
     }
 
-    public function verifyPassword(Account $account, string $plainPassword): bool
+    public function verifyPassword(AccessAccountEntity $account, string $plainPassword): bool
     {
-        return $account->getCredential() instanceof Credential
+        return $account->getCredential() instanceof AccessCredentialEntity
             && $this->passwordHasher->isPasswordValid($account, $plainPassword);
     }
 
-    public function changePassword(Account $account, string $plainPassword): void
+    public function changePassword(AccessAccountEntity $account, string $plainPassword): void
     {
         $credential = $account->getCredential();
 
-        if (!$credential instanceof Credential) {
+        if (!$credential instanceof AccessCredentialEntity) {
             $credential = $this->createCredential($account, $plainPassword);
         }
 

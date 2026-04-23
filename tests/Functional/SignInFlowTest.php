@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Functional;
 
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
@@ -22,7 +22,7 @@ final class SignInFlowTest extends WebTestCase
         $metadata = $entityManager->getMetadataFactory()->getAllMetadata();
         $schemaTool->dropSchema($metadata);
         $schemaTool->createSchema($metadata);
-        $account = new Account('signin@accessing.local', 'Sign In Tester');
+        $account = new AccessAccountEntity('signin@accessing.local', 'Sign In Tester');
         $account->markEmailVerified();
         /** @var AccessingCredentialServiceInterface $credentialService */
         $credentialService = static::getContainer()->get(AccessingCredentialServiceInterface::class);

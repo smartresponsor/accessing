@@ -5,14 +5,14 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\Credential;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\Credential;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessCredentialEntity;
 
 interface AccessingCredentialServiceInterface
 {
-    public function createCredential(Account $account, string $plainPassword): Credential;
+    public function createCredential(AccessAccountEntity $account, string $plainPassword): AccessCredentialEntity;
 
-    public function verifyPassword(Account $account, string $plainPassword): bool;
+    public function verifyPassword(AccessAccountEntity $account, string $plainPassword): bool;
 
-    public function changePassword(Account $account, string $plainPassword): void;
+    public function changePassword(AccessAccountEntity $account, string $plainPassword): void;
 }

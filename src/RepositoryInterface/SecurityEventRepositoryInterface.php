@@ -5,20 +5,20 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\SecurityEvent;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessSecurityEventEntity;
 
 interface SecurityEventRepositoryInterface
 {
-    public function save(SecurityEvent $securityEvent, bool $flush = false): void;
+    public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void;
 
     /**
-     * @return list<SecurityEvent>
+     * @return list<AccessSecurityEventEntity>
      */
     public function findRecentEvents(int $limit = 50): array;
 
     /**
-     * @return list<SecurityEvent>
+     * @return list<AccessSecurityEventEntity>
      */
-    public function findRecentEventsForAccount(Account $account, int $limit = 50): array;
+    public function findRecentEventsForAccount(AccessAccountEntity $account, int $limit = 50): array;
 }

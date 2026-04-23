@@ -5,17 +5,17 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\AccountSession;
 
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 interface AccessingAccountSessionServiceInterface
 {
-    public function registerSession(Account $account, Request $request): void;
+    public function registerSession(AccessAccountEntity $account, Request $request): void;
 
-    public function invalidateCurrentSession(Account $account, SessionInterface $session): void;
+    public function invalidateCurrentSession(AccessAccountEntity $account, SessionInterface $session): void;
 
-    public function invalidateOtherSessions(Account $account, SessionInterface $session): int;
+    public function invalidateOtherSessions(AccessAccountEntity $account, SessionInterface $session): int;
 
     public function cleanupSessions(): int;
 }

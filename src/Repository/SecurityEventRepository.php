@@ -5,23 +5,23 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\SecurityEvent;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<SecurityEvent>
+ * @extends ServiceEntityRepository<AccessSecurityEventEntity>
  */
 final class SecurityEventRepository extends ServiceEntityRepository implements SecurityEventRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SecurityEvent::class);
+        parent::__construct($registry, AccessSecurityEventEntity::class);
     }
 
-    public function save(SecurityEvent $securityEvent, bool $flush = false): void
+    public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void
     {
         $this->getEntityManager()->persist($securityEvent);
 
@@ -37,13 +37,13 @@ final class SecurityEventRepository extends ServiceEntityRepository implements S
             ->setMaxResults($limit)
             ->getQuery();
 
-        /** @var list<SecurityEvent> $results */
+        /** @var list<AccessSecurityEventEntity> $results */
         $results = $query->getResult();
 
         return $results;
     }
 
-    public function findRecentEventsForAccount(Account $account, int $limit = 50): array
+    public function findRecentEventsForAccount(AccessAccountEntity $account, int $limit = 50): array
     {
         $query = $this->createQueryBuilder('securityEvent')
             ->andWhere('securityEvent.account = :account')
@@ -52,7 +52,7 @@ final class SecurityEventRepository extends ServiceEntityRepository implements S
             ->setMaxResults($limit)
             ->getQuery();
 
-        /** @var list<SecurityEvent> $results */
+        /** @var list<AccessSecurityEventEntity> $results */
         $results = $query->getResult();
 
         return $results;

@@ -5,21 +5,21 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\AccountSession;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessAccountSessionEntity;
 
 interface AccountSessionRepositoryInterface
 {
-    public function save(AccountSession $accountSession, bool $flush = false): void;
+    public function save(AccessAccountSessionEntity $accountSession, bool $flush = false): void;
 
-    public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccountSession;
+    public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccessAccountSessionEntity;
 
     /**
-     * @return list<AccountSession>
+     * @return list<AccessAccountSessionEntity>
      */
-    public function findActiveForAccount(Account $account): array;
+    public function findActiveForAccount(AccessAccountEntity $account): array;
 
-    public function invalidateOtherActiveSessions(Account $account, string $keepSessionIdentifier): int;
+    public function invalidateOtherActiveSessions(AccessAccountEntity $account, string $keepSessionIdentifier): int;
 
     public function cleanupInvalidatedBefore(\DateTimeImmutable $before): int;
 }

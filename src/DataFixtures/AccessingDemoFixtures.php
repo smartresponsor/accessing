@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 namespace App\Accessing\DataFixtures;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\RecoveryCode;
-use App\Accessing\Entity\SecurityEvent;
-use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessRecoveryCodeEntity;
+use App\Accessing\Entity\AccessSecurityEventEntity;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -22,35 +22,35 @@ final class AccessingDemoFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $account = new Account()
+        $account = new AccessAccountEntity()
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
             ->setRoles(['ROLE_ACCOUNT'])
             ->setSecondFactorEnabled(true)
-            ->setPasswordHash($this->userPasswordHasher->hashPassword(new Account(), 'AccessingDemo123!'));
+            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessAccountEntity(), 'AccessingDemo123!'));
         $account->markEmailVerified();
 
         $manager->persist($account);
 
-        $emailChallenge = new VerificationChallenge()
+        $emailChallenge = new AccessVerificationChallengeEntity()
             ->setAccount($account)
             ->setChannelType('email')
             ->setTarget($account->getEmail())
             ->setToken('demo-email-token');
         $emailChallenge->markCompleted();
 
-        $phoneChallenge = new VerificationChallenge()
+        $phoneChallenge = new AccessVerificationChallengeEntity()
             ->setAccount($account)
             ->setChannelType('phone')
             ->setTarget((string) $account->getPhoneNumber())
             ->setToken('demo-phone-token');
 
-        $recoveryCode = new RecoveryCode()
+        $recoveryCode = new AccessRecoveryCodeEntity()
             ->setAccount($account)
             ->setCodeHash(hash('sha256', 'DEMO-RECOVERY-CODE-1'));
 
-        $securityEvent = new SecurityEvent()
+        $securityEvent = new AccessSecurityEventEntity()
             ->setAccount($account)
             ->setEventType('account.registered')
             ->setContext([

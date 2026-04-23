@@ -5,23 +5,23 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\AccountSession;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessAccountSessionEntity;
 use App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<AccountSession>
+ * @extends ServiceEntityRepository<AccessAccountSessionEntity>
  */
 final class AccountSessionRepository extends ServiceEntityRepository implements AccountSessionRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, AccountSession::class);
+        parent::__construct($registry, AccessAccountSessionEntity::class);
     }
 
-    public function save(AccountSession $accountSession, bool $flush = false): void
+    public function save(AccessAccountSessionEntity $accountSession, bool $flush = false): void
     {
         $this->getEntityManager()->persist($accountSession);
 
@@ -30,16 +30,16 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
         }
     }
 
-    public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccountSession
+    public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccessAccountSessionEntity
     {
         $accountSession = $this->findOneBy(['sessionIdentifier' => $sessionIdentifier]);
 
-        return $accountSession instanceof AccountSession ? $accountSession : null;
+        return $accountSession instanceof AccessAccountSessionEntity ? $accountSession : null;
     }
 
-    public function findActiveForAccount(Account $account): array
+    public function findActiveForAccount(AccessAccountEntity $account): array
     {
-        /** @var list<AccountSession> $results */
+        /** @var list<AccessAccountSessionEntity> $results */
         $results = $this->createQueryBuilder('accountSession')
             ->andWhere('accountSession.account = :account')
             ->andWhere('accountSession.revokedAt IS NULL')
@@ -51,11 +51,11 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
         return $results;
     }
 
-    public function invalidateOtherActiveSessions(Account $account, string $keepSessionIdentifier): int
+    public function invalidateOtherActiveSessions(AccessAccountEntity $account, string $keepSessionIdentifier): int
     {
         /** @var int $updatedCount */
         $updatedCount = $this->getEntityManager()->createQueryBuilder()
-            ->update(AccountSession::class, 'accountSession')
+            ->update(AccessAccountSessionEntity::class, 'accountSession')
             ->set('accountSession.revokedAt', ':now')
             ->where('accountSession.account = :account')
             ->andWhere('accountSession.revokedAt IS NULL')
@@ -73,7 +73,7 @@ final class AccountSessionRepository extends ServiceEntityRepository implements 
     {
         /** @var int $deletedCount */
         $deletedCount = $this->getEntityManager()->createQueryBuilder()
-            ->delete(AccountSession::class, 'accountSession')
+            ->delete(AccessAccountSessionEntity::class, 'accountSession')
             ->where('accountSession.revokedAt IS NOT NULL')
             ->andWhere('accountSession.revokedAt <= :before')
             ->setParameter('before', $before)

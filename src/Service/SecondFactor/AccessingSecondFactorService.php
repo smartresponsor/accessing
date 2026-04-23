@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Service\SecondFactor;
 
 use App\Accessing\Dto\AccessingSecondFactorEnrollmentDto;
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\RecoveryCode;
-use App\Accessing\Entity\SecondFactor;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessRecoveryCodeEntity;
+use App\Accessing\Entity\AccessSecondFactorEntity;
 use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\Accessing\ValueObject\SecurityEventSeverity;
@@ -26,17 +26,17 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
     ) {
     }
 
-    public function beginEnrollment(Account $account): AccessingSecondFactorEnrollmentDto
+    public function beginEnrollment(AccessAccountEntity $account): AccessingSecondFactorEnrollmentDto
     {
         $secondFactor = $account->getSecondFactor();
 
-        if (!$secondFactor instanceof SecondFactor) {
+        if (!$secondFactor instanceof AccessSecondFactorEntity) {
             $totp = TOTP::create();
             $label = $this->nonEmptyLabel($account->getEmailAddress());
             $totp->setLabel($label);
             $totp->setIssuer('Accessing');
 
-            $secondFactor = new SecondFactor($account, $totp->getSecret(), $account->getEmailAddress());
+            $secondFactor = new AccessSecondFactorEntity($account, $totp->getSecret(), $account->getEmailAddress());
             $account->setSecondFactor($secondFactor);
             $this->entityManager->persist($secondFactor);
             $this->entityManager->flush();
@@ -56,11 +56,11 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
     /**
      * @throws RandomException
      */
-    public function confirmEnrollment(Account $account, string $code): ?AccessingSecondFactorEnrollmentDto
+    public function confirmEnrollment(AccessAccountEntity $account, string $code): ?AccessingSecondFactorEnrollmentDto
     {
         $secondFactor = $account->getSecondFactor();
 
-        if (!$secondFactor instanceof SecondFactor) {
+        if (!$secondFactor instanceof AccessSecondFactorEntity) {
             return null;
         }
 
@@ -83,7 +83,7 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
         for ($index = 0; $index < 8; ++$index) {
             $plainRecoveryCode = strtoupper(substr(bin2hex(random_bytes(5)), 0, 10));
             $plainRecoveryCodes[] = $plainRecoveryCode;
-            $account->addRecoveryCode(new RecoveryCode(
+            $account->addRecoveryCode(new AccessRecoveryCodeEntity(
                 $account,
                 $this->hashRecoveryCode($plainRecoveryCode),
                 substr($plainRecoveryCode, -4),
@@ -104,11 +104,11 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
         return new AccessingSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
     }
 
-    public function verifyChallenge(Account $account, string $code): bool
+    public function verifyChallenge(AccessAccountEntity $account, string $code): bool
     {
         $secondFactor = $account->getSecondFactor();
 
-        if (!$secondFactor instanceof SecondFactor || !$secondFactor->isEnabled()) {
+        if (!$secondFactor instanceof AccessSecondFactorEntity || !$secondFactor->isEnabled()) {
             return false;
         }
 
@@ -147,11 +147,11 @@ final readonly class AccessingSecondFactorService implements AccessingSecondFact
         return false;
     }
 
-    public function disableSecondFactor(Account $account): void
+    public function disableSecondFactor(AccessAccountEntity $account): void
     {
         $secondFactor = $account->getSecondFactor();
 
-        if ($secondFactor instanceof SecondFactor) {
+        if ($secondFactor instanceof AccessSecondFactorEntity) {
             $secondFactor->revoke();
         }
 

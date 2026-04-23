@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\AccountSession;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\AccountSession;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessAccountSessionEntity;
 use App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface;
 use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
@@ -27,14 +27,14 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
     /**
      * Ensure the current request session is registered and marked as active.
      */
-    public function registerSession(Account $account, Request $request): void
+    public function registerSession(AccessAccountEntity $account, Request $request): void
     {
         $session = $request->getSession();
         $sessionIdentifier = $session->getId();
         $accountSession = $this->accountSessionRepository->findOneBySessionIdentifier($sessionIdentifier);
 
-        if (!$accountSession instanceof AccountSession) {
-            $accountSession = new AccountSession(
+        if (!$accountSession instanceof AccessAccountSessionEntity) {
+            $accountSession = new AccessAccountSessionEntity(
                 $account,
                 $sessionIdentifier,
                 $request->getClientIp(),
@@ -60,11 +60,11 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
     /**
      * Invalidate the currently active session for the account when it belongs to the same account.
      */
-    public function invalidateCurrentSession(Account $account, SessionInterface $session): void
+    public function invalidateCurrentSession(AccessAccountEntity $account, SessionInterface $session): void
     {
         $accountSession = $this->accountSessionRepository->findOneBySessionIdentifier($session->getId());
 
-        if ($accountSession instanceof AccountSession && $accountSession->getAccount() === $account) {
+        if ($accountSession instanceof AccessAccountSessionEntity && $accountSession->getAccount() === $account) {
             $accountSession->invalidate();
             $this->accountSessionRepository->save($accountSession, true);
         }
@@ -73,7 +73,7 @@ final readonly class AccessingAccountSessionService implements AccessingAccountS
     /**
      * Invalidate all active sessions except the current one.
      */
-    public function invalidateOtherSessions(Account $account, SessionInterface $session): int
+    public function invalidateOtherSessions(AccessAccountEntity $account, SessionInterface $session): int
     {
         return $this->accountSessionRepository->invalidateOtherActiveSessions($account, $session->getId());
     }

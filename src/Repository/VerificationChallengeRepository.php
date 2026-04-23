@@ -5,24 +5,24 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\Accessing\ValueObject\VerificationChallengeType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<VerificationChallenge>
+ * @extends ServiceEntityRepository<AccessVerificationChallengeEntity>
  */
 final class VerificationChallengeRepository extends ServiceEntityRepository implements VerificationChallengeRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, VerificationChallenge::class);
+        parent::__construct($registry, AccessVerificationChallengeEntity::class);
     }
 
-    public function save(VerificationChallenge $verificationChallenge, bool $flush = false): void
+    public function save(AccessVerificationChallengeEntity $verificationChallenge, bool $flush = false): void
     {
         $this->getEntityManager()->persist($verificationChallenge);
 
@@ -31,7 +31,7 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
         }
     }
 
-    public function findLatestActiveForAccount(Account $account, VerificationChallengeType $challengeType): ?VerificationChallenge
+    public function findLatestActiveForAccount(AccessAccountEntity $account, VerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
     {
         $challenge = $this->createQueryBuilder('challenge')
             ->andWhere('challenge.account = :account')
@@ -50,13 +50,13 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
             ->getQuery()
             ->getOneOrNullResult();
 
-        return $challenge instanceof VerificationChallenge ? $challenge : null;
+        return $challenge instanceof AccessVerificationChallengeEntity ? $challenge : null;
     }
 
-    /** @return list<VerificationChallenge> */
+    /** @return list<AccessVerificationChallengeEntity> */
     public function findExpiredActiveChallenges(\DateTimeImmutable $before): array
     {
-        /** @var list<VerificationChallenge> $results */
+        /** @var list<AccessVerificationChallengeEntity> $results */
         $results = $this->createQueryBuilder('challenge')
             ->andWhere('challenge.completed = false')
             ->andWhere('challenge.expiresAt <= :before')
@@ -72,7 +72,7 @@ final class VerificationChallengeRepository extends ServiceEntityRepository impl
     {
         /** @var int $deletedCount */
         $deletedCount = $this->getEntityManager()->createQueryBuilder()
-            ->delete(VerificationChallenge::class, 'challenge')
+            ->delete(AccessVerificationChallengeEntity::class, 'challenge')
             ->andWhere('(challenge.completedAt IS NOT NULL AND challenge.completedAt <= :before) OR challenge.expiresAt <= :before')
             ->setParameter('before', $before)
             ->getQuery()

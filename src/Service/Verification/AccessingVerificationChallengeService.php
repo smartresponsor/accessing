@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Verification;
 
 use App\Accessing\Dto\AccessingIssuedChallengeDto;
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
@@ -42,7 +42,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issueEmailVerification(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
+    public function issueEmailVerification(AccessAccountEntity $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
             $account,
@@ -75,7 +75,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
      * @throws \DateMalformedStringException
      * @throws RandomException
      */
-    public function issuePhoneVerification(Account $account, string $phoneNumber, ?Request $request = null): AccessingIssuedChallengeDto
+    public function issuePhoneVerification(AccessAccountEntity $account, string $phoneNumber, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $account->changePhoneNumber($phoneNumber);
 
@@ -112,7 +112,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issuePasswordRecovery(Account $account, ?Request $request = null): AccessingIssuedChallengeDto
+    public function issuePasswordRecovery(AccessAccountEntity $account, ?Request $request = null): AccessingIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
             $account,
@@ -141,7 +141,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
     /**
      * Complete email verification when a valid challenge code is provided.
      */
-    public function completeEmailVerification(Account $account, string $code): bool
+    public function completeEmailVerification(AccessAccountEntity $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::EmailVerification, $code)) {
             return false;
@@ -158,7 +158,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
     /**
      * Complete phone verification when a valid challenge code is provided.
      */
-    public function completePhoneVerification(Account $account, string $code): bool
+    public function completePhoneVerification(AccessAccountEntity $account, string $code): bool
     {
         if (!$this->consumeChallenge($account, VerificationChallengeType::PhoneVerification, $code)) {
             return false;
@@ -175,7 +175,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
     /**
      * Consume password recovery challenge with a one-time code.
      */
-    public function consumePasswordRecovery(Account $account, string $code): bool
+    public function consumePasswordRecovery(AccessAccountEntity $account, string $code): bool
     {
         return $this->consumeChallenge($account, VerificationChallengeType::PasswordRecovery, $code);
     }
@@ -195,7 +195,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
      * @throws RandomException
      */
     private function issueChallenge(
-        Account $account,
+        AccessAccountEntity $account,
         VerificationChallengeType $challengeType,
         string $destination,
         ?Request $request,
@@ -203,7 +203,7 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
     ): AccessingIssuedChallengeDto {
         $plainCode = (string) random_int(100000, 999999);
 
-        $verificationChallenge = new VerificationChallenge(
+        $verificationChallenge = new AccessVerificationChallengeEntity(
             $account,
             $challengeType,
             $destination,
@@ -218,11 +218,11 @@ final readonly class AccessingVerificationChallengeService implements AccessingV
         return new AccessingIssuedChallengeDto($verificationChallenge, $plainCode);
     }
 
-    private function consumeChallenge(Account $account, VerificationChallengeType $challengeType, string $code): bool
+    private function consumeChallenge(AccessAccountEntity $account, VerificationChallengeType $challengeType, string $code): bool
     {
         $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForAccount($account, $challengeType);
 
-        if (!$verificationChallenge instanceof VerificationChallenge) {
+        if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
             return false;
         }
 

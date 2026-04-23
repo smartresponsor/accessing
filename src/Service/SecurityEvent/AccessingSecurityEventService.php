@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecurityEvent;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\SecurityEvent;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface;
 use App\Accessing\ValueObject\SecurityEventSeverity;
@@ -24,11 +24,11 @@ final readonly class AccessingSecurityEventService implements AccessingSecurityE
     public function record(
         SecurityEventType $eventType,
         SecurityEventSeverity $severity,
-        ?Account $account = null,
+        ?AccessAccountEntity $account = null,
         ?Request $request = null,
         array $context = [],
-    ): SecurityEvent {
-        $securityEvent = new SecurityEvent(
+    ): AccessSecurityEventEntity {
+        $securityEvent = new AccessSecurityEventEntity(
             $eventType,
             $severity,
             $account,

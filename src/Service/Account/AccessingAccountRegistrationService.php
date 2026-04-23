@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Account;
 
 use App\Accessing\Dto\AccountRegistrationRequest;
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
@@ -23,9 +23,9 @@ final readonly class AccessingAccountRegistrationService implements AccessingAcc
     ) {
     }
 
-    public function register(AccountRegistrationRequest $request): Account
+    public function register(AccountRegistrationRequest $request): AccessAccountEntity
     {
-        $account = new Account()
+        $account = new AccessAccountEntity()
             ->setEmail($request->email)
             ->setDisplayName($request->displayName)
             ->setPhoneNumber($request->phoneNumber);

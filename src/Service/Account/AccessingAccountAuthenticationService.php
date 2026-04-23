@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Account;
 
 use App\Accessing\Dto\AccessingSignInResultDto;
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
@@ -52,7 +52,7 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
 
         $account = $this->accountRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
-        if (!$account instanceof Account) {
+        if (!$account instanceof AccessAccountEntity) {
             $this->securityEventService->record(
                 SecurityEventType::SignInFailed,
                 SecurityEventSeverity::Warning,
@@ -119,16 +119,16 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
         return AccessingSignInResultDto::authenticated($account);
     }
 
-    public function completePendingSecondFactor(Account $account, Request $request): void
+    public function completePendingSecondFactor(AccessAccountEntity $account, Request $request): void
     {
         $this->signIn($account, $request);
     }
 
-    public function signOut(?Account $account, Request $request): void
+    public function signOut(?AccessAccountEntity $account, Request $request): void
     {
         $session = $request->getSession();
 
-        if ($account instanceof Account) {
+        if ($account instanceof AccessAccountEntity) {
             $this->accountSessionService->invalidateCurrentSession($account, $session);
             $this->securityEventService->record(
                 SecurityEventType::SessionInvalidated,
@@ -156,7 +156,7 @@ final readonly class AccessingAccountAuthenticationService implements AccessingA
         $session->remove(self::PENDING_SECOND_FACTOR_SESSION_KEY);
     }
 
-    private function signIn(Account $account, Request $request): void
+    private function signIn(AccessAccountEntity $account, Request $request): void
     {
         $session = $request->getSession();
         $session->migrate(true);

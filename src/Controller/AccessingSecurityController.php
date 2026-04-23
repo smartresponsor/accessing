@@ -10,7 +10,7 @@ use App\Accessing\Dto\AccountSignInRequestDto;
 use App\Accessing\Dto\RecoveryRequestDto;
 use App\Accessing\Dto\RecoveryResetDto;
 use App\Accessing\Dto\VerificationCodeDto;
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Form\AccountRegistrationFormType;
 use App\Accessing\Form\AccountSignInFormType;
 use App\Accessing\Form\RecoveryRequestFormType;
@@ -20,12 +20,13 @@ use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessingRecoveryServiceInterface;
+use App\Accessing\ServiceInterface\Rendering\PageResponderInterface;
+use App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\CommerceAttributeEntity\Route;
 
 final class AccessingSecurityController extends AbstractController
 {
@@ -34,13 +35,14 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Render and process account registration.
      */
-    #[Route('/sign-up', name: 'accessing_sign_up', methods: ['GET', 'POST'])]
+    #[Route('/register', name: 'accessing_register', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
         AccessingAccountRegistrationServiceInterface $accountRegistrationService,
-        RateLimiterFactory $accessingSignUpLimiter,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
-        if ($this->getUser() instanceof Account) {
+        if ($this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectToRoute('accessing_overview');
         }
 
@@ -50,14 +52,6 @@ final class AccessingSecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var AccountRegistrationRequest $data */
             $data = $form->getData();
-
-            $limiter = $accessingSignUpLimiter->create(sprintf('%s|%s', strtolower(trim($data->email)), $request->getClientIp() ?? 'unknown'));
-
-            if (!$limiter->consume()->isAccepted()) {
-                $this->addFlash('danger', 'Too many sign-up attempts. Please wait before trying again.');
-
-                return $this->redirectToRoute('accessing_sign_up');
-            }
 
             try {
                 $accountRegistrationService->register($data);
@@ -69,9 +63,7 @@ final class AccessingSecurityController extends AbstractController
             }
         }
 
-        return $this->render('accessing/account/sign_up.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->register($form->createView()));
     }
 
     /**
@@ -81,8 +73,10 @@ final class AccessingSecurityController extends AbstractController
     public function signIn(
         Request $request,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
-        if ($this->getUser() instanceof Account) {
+        if ($this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectToRoute('accessing_overview');
         }
 
@@ -111,9 +105,7 @@ final class AccessingSecurityController extends AbstractController
             $this->addFlash('danger', $result->message);
         }
 
-        return $this->render('accessing/account/sign_in.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->signIn($form->createView()));
     }
 
     /**
@@ -125,6 +117,8 @@ final class AccessingSecurityController extends AbstractController
         AccountRepositoryInterface $accountRepository,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
         AccessingSecondFactorServiceInterface $secondFactorService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $pendingAccountId = $accountAuthenticationService->getPendingSecondFactorAccountId($request->getSession());
 
@@ -134,7 +128,7 @@ final class AccessingSecurityController extends AbstractController
 
         $account = $accountRepository->findById($pendingAccountId);
 
-        if (!$account instanceof Account) {
+        if (!$account instanceof AccessAccountEntity) {
             $accountAuthenticationService->clearPendingSecondFactor($request->getSession());
 
             return $this->redirectToRoute('accessing_sign_in');
@@ -157,10 +151,7 @@ final class AccessingSecurityController extends AbstractController
             $this->addFlash('danger', 'The second factor code was not accepted.');
         }
 
-        return $this->render('accessing/account/second_factor_challenge.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->secondFactorChallenge($account, $form->createView()));
     }
 
     /**
@@ -172,7 +163,7 @@ final class AccessingSecurityController extends AbstractController
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
     ): Response {
         $accountAuthenticationService->signOut(
-            $this->getUser() instanceof Account ? $this->getUser() : null,
+            $this->getUser() instanceof AccessAccountEntity ? $this->getUser() : null,
             $request,
         );
 
@@ -182,11 +173,12 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Request password recovery challenge by email address.
      */
-    #[Route('/recover', name: 'accessing_recover', methods: ['GET', 'POST'])]
+    #[Route('/recover/request', name: 'accessing_recover_request', methods: ['GET', 'POST'])]
     public function requestRecovery(
         Request $request,
         AccessingRecoveryServiceInterface $recoveryService,
-        RateLimiterFactory $accessingRecoveryLimiter,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $form = $this->createForm(RecoveryRequestFormType::class);
         $form->handleRequest($request);
@@ -194,13 +186,6 @@ final class AccessingSecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var RecoveryRequestDto $data */
             $data = $form->getData();
-            $limiter = $accessingRecoveryLimiter->create(sprintf('%s|%s', strtolower(trim($data->emailAddress)), $request->getClientIp() ?? 'unknown'));
-
-            if (!$limiter->consume()->isAccepted()) {
-                $this->addFlash('danger', 'Too many recovery requests. Please wait before trying again.');
-
-                return $this->redirectToRoute('accessing_recover');
-            }
             $issuedChallenge = $recoveryService->requestPasswordRecovery($data->emailAddress, $request);
             $this->addFlash('info', 'If an account exists, a password recovery code has been issued.');
 
@@ -211,9 +196,7 @@ final class AccessingSecurityController extends AbstractController
             return $this->redirectToRoute('accessing_recover_reset');
         }
 
-        return $this->render('accessing/account/recover.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->requestRecovery($form->createView()));
     }
 
     /**
@@ -223,6 +206,8 @@ final class AccessingSecurityController extends AbstractController
     public function resetRecovery(
         Request $request,
         AccessingRecoveryServiceInterface $recoveryService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $form = $this->createForm(RecoveryResetFormType::class);
         $form->handleRequest($request);
@@ -244,8 +229,6 @@ final class AccessingSecurityController extends AbstractController
             $this->addFlash('danger', 'Password recovery failed. Check the email address and recovery code.');
         }
 
-        return $this->render('accessing/account/recover_reset.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->resetRecovery($form->createView()));
     }
 }

@@ -5,15 +5,19 @@ parameters:
   accessing.verification_code_ttl_minutes: '%env(int:default:accessing.verification_code_ttl_minutes.default:ACCESSING_VERIFICATION_CODE_TTL_MINUTES)%'
   accessing.session_max_idle_days.default: 30
   accessing.session_max_idle_days: '%env(int:default:accessing.session_max_idle_days.default:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
+  accessing.product_name: 'Accessing'
+  accessing.mailer_sender: 'no-reply@example.test'
 
 services:
   _defaults:
     autowire: true
     autoconfigure: true
     bind:
+      string $accessingMailerSender: '%accessing.mailer_sender%'
+      string $appSecret: '%env(APP_SECRET)%'
+      string $accessingProductName: '%accessing.product_name%'
       int $accessingRecoveryCodeTtlMinutes: '%accessing.recovery_code_ttl_minutes%'
       int $accessingVerificationCodeTtlMinutes: '%accessing.verification_code_ttl_minutes%'
-      string $appSecret: '%env(APP_SECRET)%'
       int $accessingSessionMaxIdleDays: '%accessing.session_max_idle_days%'
       int $accessingAccountLockThreshold: 5
       int $accessingAccountLockMinutes: 15
@@ -28,5 +32,9 @@ services:
       - '../../src/DependencyInjection/'
       - '../../src/Entity/'
       - '../../src/Tests/'
+  App\Accessing\ServiceInterface\Rendering\PageResponderInterface:
+    alias: App\Accessing\Service\Rendering\TwigPageResponder
+  App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface:
+    alias: App\Accessing\Service\Rendering\PageViewFactory
   App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
     alias: App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService

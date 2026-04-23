@@ -5,18 +5,18 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\Account;
-use App\Accessing\Entity\VerificationChallenge;
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\ValueObject\VerificationChallengeType;
 
 interface VerificationChallengeRepositoryInterface
 {
-    public function save(VerificationChallenge $verificationChallenge, bool $flush = false): void;
+    public function save(AccessVerificationChallengeEntity $verificationChallenge, bool $flush = false): void;
 
-    public function findLatestActiveForAccount(Account $account, VerificationChallengeType $challengeType): ?VerificationChallenge;
+    public function findLatestActiveForAccount(AccessAccountEntity $account, VerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity;
 
     /**
-     * @return list<VerificationChallenge>
+     * @return list<AccessVerificationChallengeEntity>
      */
     public function findExpiredActiveChallenges(\DateTimeImmutable $before): array;
 

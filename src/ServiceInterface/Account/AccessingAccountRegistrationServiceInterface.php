@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Account;
 
 use App\Accessing\Dto\AccountRegistrationRequest;
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 
 interface AccessingAccountRegistrationServiceInterface
 {
-    public function register(AccountRegistrationRequest $request): Account;
+    public function register(AccountRegistrationRequest $request): AccessAccountEntity;
 }

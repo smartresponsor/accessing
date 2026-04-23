@@ -8,21 +8,22 @@ namespace App\Accessing\Controller;
 use App\Accessing\Dto\PasswordChangeDto;
 use App\Accessing\Dto\PhoneVerificationRequestDto;
 use App\Accessing\Dto\VerificationCodeDto;
-use App\Accessing\Entity\Account;
+use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Form\PasswordChangeFormType;
 use App\Accessing\Form\PhoneVerificationRequestFormType;
 use App\Accessing\Form\VerificationCodeFormType;
 use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface;
 use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
+use App\Accessing\ServiceInterface\Rendering\PageResponderInterface;
+use App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Routing\CommerceAttributeEntity\Route;
+use Symfony\Component\Security\Http\CommerceAttributeEntity\IsGranted;
 
 final class AccessingController extends AbstractController
 {
@@ -32,16 +33,21 @@ final class AccessingController extends AbstractController
      * Render home entrypoint for signed-in accounts and redirect guests to sign-in.
      */
     #[Route('/', name: 'accessing_home', methods: ['GET'])]
-    public function home(SecurityEventRepositoryInterface $securityEventRepository): Response
-    {
-        if (!$this->getUser() instanceof Account) {
+    public function home(
+        SecurityEventRepositoryInterface $securityEventRepository,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
+    ): Response {
+        if (!$this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectToRoute('accessing_sign_in');
         }
 
-        return $this->render('accessing/account/overview.html.twig', [
-            'account' => $this->requireAccount(),
-            'events' => $securityEventRepository->findRecentEventsForAccount($this->requireAccount(), 8),
-        ]);
+        $account = $this->requireAccount();
+
+        return $pageResponder->respond($pageViewFactory->home(
+            $account,
+            $securityEventRepository->findRecentEventsForAccount($account, 8),
+        ));
     }
 
     /**
@@ -49,12 +55,17 @@ final class AccessingController extends AbstractController
      */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/overview', name: 'accessing_overview', methods: ['GET'])]
-    public function overview(SecurityEventRepositoryInterface $securityEventRepository): Response
-    {
-        return $this->render('accessing/account/overview.html.twig', [
-            'account' => $this->requireAccount(),
-            'events' => $securityEventRepository->findRecentEventsForAccount($this->requireAccount(), 8),
-        ]);
+    public function overview(
+        SecurityEventRepositoryInterface $securityEventRepository,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
+    ): Response {
+        $account = $this->requireAccount();
+
+        return $pageResponder->respond($pageViewFactory->home(
+            $account,
+            $securityEventRepository->findRecentEventsForAccount($account, 8),
+        ));
     }
 
     /**
@@ -65,6 +76,8 @@ final class AccessingController extends AbstractController
     public function verifyEmail(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
         $form = $this->createForm(VerificationCodeFormType::class);
@@ -83,10 +96,7 @@ final class AccessingController extends AbstractController
             $this->addFlash('danger', 'That email verification code is invalid or expired.');
         }
 
-        return $this->render('accessing/account/verify_email.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->verifyEmail($account, $form->createView()));
     }
 
     /**
@@ -97,17 +107,10 @@ final class AccessingController extends AbstractController
     public function resendEmailVerification(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
-        RateLimiterFactory $accessingVerificationResendLimiter,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
-        $limiter = $accessingVerificationResendLimiter->create(sprintf('%d|%s', $account->getId() ?? 0, $request->getClientIp() ?? 'unknown'));
-
-        if (!$limiter->consume()->isAccepted()) {
-            $this->addFlash('danger', 'Too many verification resend requests. Please wait before trying again.');
-
-            return $this->redirectToRoute('accessing_verify_email');
-        }
-
         $issuedChallenge = $verificationChallengeService->issueEmailVerification($account, $request);
         $this->addFlash('info', 'A fresh email verification code has been issued.');
         $this->addDemoCodeFlash('Email verification code', $issuedChallenge->plainCode);
@@ -123,7 +126,8 @@ final class AccessingController extends AbstractController
     public function requestPhoneVerification(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
-        RateLimiterFactory $accessingVerificationResendLimiter,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
         $form = $this->createForm(PhoneVerificationRequestFormType::class);
@@ -132,14 +136,6 @@ final class AccessingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var PhoneVerificationRequestDto $data */
             $data = $form->getData();
-            $limiter = $accessingVerificationResendLimiter->create(sprintf('%d|%s|%s', $account->getId() ?? 0, trim($data->phoneNumber), $request->getClientIp() ?? 'unknown'));
-
-            if (!$limiter->consume()->isAccepted()) {
-                $this->addFlash('danger', 'Too many phone verification requests. Please wait before trying again.');
-
-                return $this->redirectToRoute('accessing_verify_phone');
-            }
-
             $issuedChallenge = $verificationChallengeService->issuePhoneVerification($account, $data->phoneNumber, $request);
             $this->addFlash('info', 'Phone verification code sent.');
             $this->addDemoCodeFlash('Phone verification code', $issuedChallenge->plainCode);
@@ -147,10 +143,7 @@ final class AccessingController extends AbstractController
             return $this->redirectToRoute('accessing_verify_phone_confirm');
         }
 
-        return $this->render('accessing/account/verify_phone_request.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->requestPhoneVerification($account, $form->createView()));
     }
 
     /**
@@ -161,6 +154,8 @@ final class AccessingController extends AbstractController
     public function confirmPhoneVerification(
         Request $request,
         AccessingVerificationChallengeServiceInterface $verificationChallengeService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
         $form = $this->createForm(VerificationCodeFormType::class);
@@ -179,10 +174,7 @@ final class AccessingController extends AbstractController
             $this->addFlash('danger', 'That phone verification code is invalid or expired.');
         }
 
-        return $this->render('accessing/account/verify_phone_confirm.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->confirmPhoneVerification($account, $form->createView()));
     }
 
     /**
@@ -193,6 +185,8 @@ final class AccessingController extends AbstractController
     public function secondFactor(
         Request $request,
         AccessingSecondFactorServiceInterface $secondFactorService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
         $enrollment = $account->getSecondFactor()?->isEnabled() ? null : $secondFactorService->beginEnrollment($account);
@@ -208,25 +202,25 @@ final class AccessingController extends AbstractController
                 $this->addFlash('success', 'Second factor is now enabled.');
                 $this->addFlash('warning', 'Save the recovery codes shown on the page now. They will not be shown again.');
 
-                return $this->render('accessing/account/second_factor.html.twig', [
-                    'account' => $account,
-                    'form' => $form->createView(),
-                    'enrollment' => $confirmedEnrollment,
-                    'enabled' => true,
-                    'showRecoveryCodes' => true,
-                ]);
+                return $pageResponder->respond($pageViewFactory->secondFactor(
+                    $account,
+                    $form->createView(),
+                    $confirmedEnrollment,
+                    true,
+                    true,
+                ));
             }
 
             $this->addFlash('danger', 'That authenticator code was not accepted.');
         }
 
-        return $this->render('accessing/account/second_factor.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-            'enrollment' => $enrollment,
-            'enabled' => $account->getSecondFactor()?->isEnabled() ?? false,
-            'showRecoveryCodes' => false,
-        ]);
+        return $pageResponder->respond($pageViewFactory->secondFactor(
+            $account,
+            $form->createView(),
+            $enrollment,
+            $account->getSecondFactor()?->isEnabled() ?? false,
+            false,
+        ));
     }
 
     /**
@@ -236,6 +230,8 @@ final class AccessingController extends AbstractController
     #[Route('/second-factor/disable', name: 'accessing_second_factor_disable', methods: ['POST'])]
     public function disableSecondFactor(
         AccessingSecondFactorServiceInterface $secondFactorService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $secondFactorService->disableSecondFactor($this->requireAccount());
         $this->addFlash('info', 'Second factor has been disabled.');
@@ -248,11 +244,11 @@ final class AccessingController extends AbstractController
      */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/sessions', name: 'accessing_sessions', methods: ['GET'])]
-    public function sessions(): Response
-    {
-        return $this->render('accessing/account/sessions.html.twig', [
-            'account' => $this->requireAccount(),
-        ]);
+    public function sessions(
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
+    ): Response {
+        return $pageResponder->respond($pageViewFactory->sessions($this->requireAccount()));
     }
 
     /**
@@ -275,14 +271,14 @@ final class AccessingController extends AbstractController
      */
     #[IsGranted('ROLE_ACCOUNT')]
     #[Route('/security-events', name: 'accessing_security_events', methods: ['GET'])]
-    public function securityEvents(SecurityEventRepositoryInterface $securityEventRepository): Response
-    {
-        $account = $this->requireAccount();
-
-        return $this->render('accessing/security_event/index.html.twig', [
-            'account' => $account,
-            'events' => $securityEventRepository->findRecentEventsForAccount($account),
-        ]);
+    public function securityEvents(
+        SecurityEventRepositoryInterface $securityEventRepository,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
+    ): Response {
+        return $pageResponder->respond($pageViewFactory->securityEvents(
+            $securityEventRepository->findRecentEventsForAccount($this->requireAccount()),
+        ));
     }
 
     /**
@@ -293,6 +289,8 @@ final class AccessingController extends AbstractController
     public function password(
         Request $request,
         AccessingCredentialServiceInterface $credentialService,
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
     ): Response {
         $account = $this->requireAccount();
         $form = $this->createForm(PasswordChangeFormType::class);
@@ -312,17 +310,14 @@ final class AccessingController extends AbstractController
             }
         }
 
-        return $this->render('accessing/account/password.html.twig', [
-            'account' => $account,
-            'form' => $form->createView(),
-        ]);
+        return $pageResponder->respond($pageViewFactory->password($account, $form->createView()));
     }
 
-    private function requireAccount(): Account
+    private function requireAccount(): AccessAccountEntity
     {
         $account = $this->getUser();
 
-        if (!$account instanceof Account) {
+        if (!$account instanceof AccessAccountEntity) {
             throw $this->createAccessDeniedException();
         }
 

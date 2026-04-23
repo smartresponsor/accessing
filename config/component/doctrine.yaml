@@ -2,10 +2,12 @@
 # Entity classes remain component-owned and must not be used as external API contracts.
 doctrine:
   orm:
-    mappings:
-      Accessing:
-        type: attribute
-        is_bundle: false
-        dir: '%kernel.project_dir%/vendor/accessing/access/src/Entity'
-        prefix: 'App\Accessing\Entity'
-        alias: Accessing
+    entity_managers:
+      user_data:
+        mappings:
+          Accessing:
+            type: attribute
+            is_bundle: false
+            dir: '%kernel.project_dir%/vendor/accessing/access/src/Entity'
+            prefix: 'App\Accessing\Entity'
+            alias: Accessing
