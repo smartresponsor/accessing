@@ -35,7 +35,7 @@ final class ChangePasswordFormType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'csrf_protection' => true,
+            'csrf_protection' => false,
         ]);
     }
 }

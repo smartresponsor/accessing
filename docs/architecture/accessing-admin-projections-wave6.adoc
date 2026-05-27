@@ -1,0 +1,30 @@
+= Accessing Wave 6: Safe Account Administration Projections
+
+Accessing remains the owner of authentication, sessions, account state, password handling, 2FA, verification, and reset flows.
+
+Administering may need to display accounts and trigger controlled actions. It must not raw-edit security internals.
+
+== Projection rule
+
+Administering-facing account projections may expose:
+
+* stable subject id, for example `accessing:account:{id}`;
+* account identifier/email;
+* active/locked status;
+* verified status;
+* bootstrap Symfony roles;
+* optional display name.
+
+They must not expose:
+
+* password hashes;
+* TOTP secrets;
+* recovery codes;
+* reset tokens;
+* verification token internals;
+* raw session payloads.
+
+== Controlled actions
+
+Administering can request controlled Accessing actions through the administration service boundary.
+Accessing remains responsible for validating and executing those actions.

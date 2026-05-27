@@ -13,6 +13,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class RecoveryRequestFormType extends AbstractType
 {
+    public function getBlockPrefix(): string
+    {
+        return 'account_recovery_request';
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -25,6 +30,7 @@ final class RecoveryRequestFormType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
+            'csrf_protection' => false,
             'data_class' => RecoveryRequestDto::class,
         ]);
     }

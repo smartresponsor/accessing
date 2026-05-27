@@ -112,5 +112,3 @@ class AccessRecoveryCodeEntity
         return $this->createdAt;
     }
 }
-
-class_alias(AccessRecoveryCodeEntity::class, RecoveryCode::class);

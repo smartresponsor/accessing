@@ -1,0 +1,44 @@
+= Accessing, Rolling, and Administering Orchestration
+
+Accessing is the account, login, logout, password, two-factor, verification, and session owner.
+
+Rolling is the role, permission, ACL, policy decision, approval, delegation, and override owner.
+
+Administering is the EasyAdmin administrative surface that visualizes and orchestrates both sides.
+
+== Accessing Boundary
+
+Accessing may expose the current account context for other components, but it must not own the
+application ACL hierarchy.
+
+Allowed in Accessing:
+
+[source,text]
+----
+account id
+user identifier
+bootstrap Symfony roles
+locked/active state
+email verification state
+second-factor state
+----
+
+Forbidden as Accessing responsibility:
+
+[source,text]
+----
+full permission catalog
+resource grants
+component ACL rules
+admin role editor
+policy decision engine
+----
+
+== Subject Mapping
+
+The stable subject identifier for Rolling is:
+
+[source,text]
+----
+accessing:account:{accountId}
+----

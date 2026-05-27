@@ -7,14 +7,14 @@ namespace App\Accessing\Service\SecurityEvent;
 
 use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
+use App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class AccessingSecurityEventRecorder implements AccessingSecurityEventRecorderInterface
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
+        private SecurityEventRepositoryInterface $securityEventRepository,
         private RequestStack $requestStack,
     ) {
     }
@@ -31,8 +31,7 @@ final readonly class AccessingSecurityEventRecorder implements AccessingSecurity
             ->setIpAddress($request?->getClientIp())
             ->setUserAgent($request?->headers->get('User-Agent'));
 
-        $this->entityManager->persist($securityEvent);
-        $this->entityManager->flush();
+        $this->securityEventRepository->save($securityEvent, true);
 
         return $securityEvent;
     }

@@ -1,0 +1,18 @@
+= Wave 22: Accessing Account Administration Execution Plan
+
+Accessing now publishes a metadata-only execution plan for controlled account-administration hardening.
+
+The plan converts work/readiness metadata into execution-step descriptors that Administering can display.
+
+The plan does not execute account mutations and does not expose sensitive account internals.
+
+Forbidden payloads:
+
+* password hashes
+* TOTP secrets
+* recovery codes
+* reset tokens
+* raw session payloads
+* verification internals
+
+Real account administration execution remains inside Accessing-owned services.

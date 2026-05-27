@@ -1,0 +1,17 @@
+= Accessing Remediation Plan Wave 20
+
+Wave 20 adds a safe remediation plan provider for controlled account administration readiness.
+
+Accessing remains the only authentication, login, logout, session, password, and second-factor owner.
+Administering may display the remediation plan but must not edit Accessing security internals directly.
+
+== Current checks
+
+* controlled-action execution mode
+* persistent audit readiness
+* ready capabilities
+* pending executable mutations
+
+== Safety
+
+The remediation plan must not expose password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads, or verification internals.

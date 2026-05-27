@@ -1,0 +1,26 @@
+= Wave 18: Accessing Administration Readiness Report
+
+Accessing now exposes a safe readiness report for Administering account administration surfaces.
+
+== Contents
+
+The report includes:
+
+* controlled account action descriptors;
+* risk level metadata;
+* reason requirement metadata;
+* controlled-action audit summary.
+
+The report must not include:
+
+* password hashes;
+* TOTP secrets;
+* recovery codes;
+* reset tokens;
+* raw session payloads;
+* verification internals.
+
+== Ownership
+
+Accessing remains the authentication, session, and account-security owner.
+Administering may display this readiness report but must not own Accessing account security internals.

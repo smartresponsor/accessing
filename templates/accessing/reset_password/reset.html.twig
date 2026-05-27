@@ -8,10 +8,13 @@
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h1 class="h4 mb-3">New password</h1>
-                    {{ form_start(reset_form) }}
-                        {{ form_row(reset_form.plainPassword) }}
-                        {{ form_row(reset_form.submit) }}
-                    {{ form_end(reset_form) }}
+                    <p class="text-secondary">Set a fresh password to complete the recovery flow.</p>
+
+                    {{ form_start(form, { action: path('accessing_forgot_password_reset_plain') }) }}
+                        {{ form_row(form.plainPassword.first) }}
+                        {{ form_row(form.plainPassword.second) }}
+                        <button class="btn btn-primary" type="submit">Reset password</button>
+                    {{ form_end(form) }}
                 </div>
             </div>
         </div>

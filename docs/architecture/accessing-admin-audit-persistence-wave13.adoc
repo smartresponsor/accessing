@@ -1,0 +1,24 @@
+= Accessing Admin Audit Persistence - Wave 13
+
+Accessing now has a Doctrine-backed audit recorder for controlled account administration actions.
+
+The audit record is Accessing-owned because Accessing owns account/session/security internals. Administering may request an action and keep its own request record, but Accessing records the execution result independently.
+
+Allowed audit metadata:
+
+* action key
+* account reference
+* requested-by subject
+* result status
+* safe message
+* safe context
+* created timestamp
+
+Forbidden data:
+
+* password hash
+* TOTP secret
+* recovery codes
+* reset tokens
+* raw session payload
+* verification internals

@@ -1,0 +1,14 @@
+= Accessing Subject Identity for Rolling
+
+Accessing is the authentication/session/account owner. Rolling is the authorization/ACL owner.
+
+The stable bridge between them is the Accessing current account context. Rolling should identify users with the subject identifier shape:
+
+[source,text]
+----
+accessing:account:{id}
+----
+
+Accessing may expose account id, user identifier, display name, bootstrap Symfony roles, lock state, email verification state, and second-factor state. It must not own dynamic application permissions or ACL hierarchy.
+
+Administering uses this context for display and delegates permission decisions to Rolling.

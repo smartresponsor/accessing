@@ -46,5 +46,3 @@ class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
         return $this->account;
     }
 }
-
-class_alias(AccessResetPasswordRequestEntity::class, ResetPasswordRequest::class);

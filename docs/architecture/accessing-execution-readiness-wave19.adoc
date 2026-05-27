@@ -1,0 +1,9 @@
+= Wave 19: Account Action Execution Readiness
+
+Accessing now exposes a metadata-only execution-readiness report for controlled account administration actions.
+
+The report identifies safe capabilities that already exist, including action catalog, request validation, controlled bridge, Doctrine-backed audit recording, and safe audit projections.
+
+It also identifies pending executable mutations such as lock account, unlock account, session termination, and 2FA reset request workflows.
+
+Administering may show this report, but Accessing continues to own authentication, sessions, account state, and all security internals.

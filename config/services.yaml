@@ -2,6 +2,7 @@ parameters:
   accessing.product_name: 'Accessing'
   accessing.mailer_sender.default: 'no-reply@accessing.local'
   accessing.phone_verification_provider.default: 'fake'
+  accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
 
 services:
   _defaults:
@@ -22,15 +23,19 @@ services:
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingForgotPasswordLimiter: '@limiter.accessing_forgot_password'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingVerificationResendLimiter: '@limiter.accessing_verification_resend'
 
+  _instanceof:
+    App\Administering\ServiceInterface\Config\AdministrationConfigToolServiceInterface:
+      tags: ['administering.config_tool']
+
   App\Accessing\:
     resource: '../src/'
     exclude:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
+      - '../src/Command/AccessingDemoResetCommand.php'
       - '../src/Kernel.php'
 
-  Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
-
+  App\Accessing\ServiceInterface\AccountContext\AccessingCurrentAccountContextProviderInterface: '@App\Accessing\Service\AccountContext\AccessingCurrentAccountContextProvider'
   App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountAuthenticationService'
   App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountRegistrationService'
   App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Accessing\Service\AccountSession\AccessingAccountSessionService'
@@ -47,13 +52,43 @@ services:
   App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Accessing\Repository\SecurityEventRepository'
   App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Accessing\Repository\VerificationChallengeRepository'
 
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\DoctrineAccessingAccountAdministrationService'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationProjectionProviderInterface: '@App\Accessing\Service\Admin\DoctrineAccessingAccountAdministrationProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationActionCatalogInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationActionCatalog'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationBridgeInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationBridge'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditRecorderInterface: '@App\Accessing\Service\Admin\DoctrineAccessingAccountAdministrationAuditRecorder'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRequestValidatorInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationRequestValidator'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Service\Admin\DoctrineAccessingAccountAdministrationAuditProjectionProvider'
+
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionPlanProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationExecutionPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationCapabilityMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationContractMatrixProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationContractMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationHealthReportProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationHealthReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationDiagnosticReportProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationDiagnosticReportProvider'
+
   App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
-      $selectedProvider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
+      $selectedProvider: '%accessing.phone_verification_provider%'
 
   App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
 
   App\Accessing\Service\Vendor\AccessingNullPhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
+
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationReadinessReportProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationReadinessReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionReadinessProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationExecutionReadinessProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRemediationPlanProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationRemediationPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationWorkPlanProviderInterface: '@App\Accessing\Service\Admin\AccessingAccountAdministrationWorkPlanProvider'
+
+  App\Accessing\Service\Config\AccessingEnvironmentConfigService:
+    arguments:
+      $projectDir: '%kernel.project_dir%'
+
+when@dev:
+  services:
+    Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
+    App\Accessing\Command\AccessingDemoResetCommand:
+      arguments:
+        $fixturesLoader: '@doctrine.fixtures.loader'

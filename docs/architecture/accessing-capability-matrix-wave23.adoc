@@ -1,0 +1,34 @@
+= Accessing Capability Matrix - Wave 23
+
+Wave 23 adds a safe capability matrix for Accessing account administration.
+
+== Purpose
+
+Accessing exposes metadata about what account-administration surfaces exist and whether they are executable, blocked or projection-only.
+
+This does not make Administering the owner of account mutations. Administering may display the matrix and request controlled actions through Accessing-owned services.
+
+== Capability categories
+
+* account_action
+* projection
+
+== Safety rules
+
+The matrix may expose:
+
+* action key;
+* label;
+* risk level;
+* execution mode;
+* readiness status;
+* reason/review requirement.
+
+The matrix must not expose:
+
+* password hashes;
+* TOTP secrets;
+* recovery codes;
+* reset tokens;
+* raw session payloads;
+* verification internals.

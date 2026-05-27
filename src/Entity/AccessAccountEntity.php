@@ -69,6 +69,9 @@ class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInt
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $updatedAt;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastSignInAt = null;
+
     #[ORM\OneToOne(targetEntity: AccessCredentialEntity::class, mappedBy: 'account', cascade: ['persist', 'remove'])]
     private ?AccessCredentialEntity $credential = null;
 
@@ -238,6 +241,11 @@ class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInt
     public function getPhoneVerifiedAt(): ?\DateTimeImmutable
     {
         return $this->phoneVerifiedAt;
+    }
+
+    public function isPhoneVerified(): bool
+    {
+        return $this->phoneVerifiedAt instanceof \DateTimeImmutable;
     }
 
     public function markPhoneVerified(?\DateTimeImmutable $verifiedAt = null): self
@@ -449,6 +457,7 @@ class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInt
         $this->failedLoginCount = 0;
         $this->locked = false;
         $this->lockedUntil = null;
+        $this->lastSignInAt = new \DateTimeImmutable();
         $this->touch();
 
         return $this;
@@ -457,6 +466,16 @@ class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInt
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getRegisteredAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getLastSignInAt(): ?\DateTimeImmutable
+    {
+        return $this->lastSignInAt;
     }
 
     public function getUpdatedAt(): \DateTimeImmutable
@@ -469,5 +488,3 @@ class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInt
         $this->updatedAt = new \DateTimeImmutable();
     }
 }
-
-class_alias(AccessAccountEntity::class, Account::class);

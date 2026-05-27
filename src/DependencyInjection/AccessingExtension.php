@@ -26,6 +26,14 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
         unset($configs);
 
         $configDirectory = __DIR__.'/../../config/component';
+        $runtimeConfigFile = $configDirectory.'/runtime.yaml';
+        if (is_file($runtimeConfigFile)) {
+            $runtimeConfig = Yaml::parseFile($runtimeConfigFile);
+            if (is_array($runtimeConfig)) {
+                $this->applyRuntimeParameters($container, $runtimeConfig);
+            }
+        }
+
         $servicesFile = $configDirectory.'/services.yaml';
 
         if (!is_file($servicesFile)) {
@@ -64,5 +72,32 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
         $twig['paths'] = [dirname(__DIR__, 2).'/templates' => null] + ($twig['paths'] ?? []);
 
         $container->prependExtensionConfig('twig', $twig);
+    }
+
+    /**
+     * @param array<string, mixed> $runtimeConfig
+     */
+    private function applyRuntimeParameters(ContainerBuilder $container, array $runtimeConfig): void
+    {
+        $map = [
+            'accessing.mailer_sender' => 'accessing_mailer_sender',
+            'accessing.phone_verification_provider' => 'accessing_phone_verification_provider',
+            'accessing.session_max_idle_days' => 'accessing_session_max_idle_days',
+            'accessing.recovery_code_ttl_minutes' => 'accessing_recovery_code_ttl_minutes',
+            'accessing.verification_code_ttl_minutes' => 'accessing_verification_code_ttl_minutes',
+            'accessing.account_lock_threshold' => 'accessing_account_lock_threshold',
+            'accessing.account_lock_minutes' => 'accessing_account_lock_minutes',
+        ];
+
+        foreach ($map as $parameterName => $runtimeKey) {
+            if (!array_key_exists($runtimeKey, $runtimeConfig)) {
+                continue;
+            }
+
+            $value = $runtimeConfig[$runtimeKey];
+            if (is_scalar($value) || null === $value) {
+                $container->setParameter($parameterName, $value);
+            }
+        }
     }
 }

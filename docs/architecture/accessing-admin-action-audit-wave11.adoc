@@ -1,0 +1,7 @@
+= Accessing Admin Action Audit
+
+Accessing exposes a safe audit DTO for controlled account administration actions initiated by Administering.
+
+The audit event records action key, account reference, requesting subject, result status, safe message, and metadata-only context. It must not include password hashes, TOTP secrets, recovery codes, reset tokens, session payloads, or verification internals.
+
+The bootstrap recorder is intentionally null until the host/system storage wiring is provided. Accessing remains the owner of account/session/security internals; Administering only requests controlled actions through the bridge.

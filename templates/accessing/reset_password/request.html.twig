@@ -9,10 +9,11 @@
                 <div class="card-body p-4">
                     <h1 class="h4 mb-3">Forgot password</h1>
                     <p class="text-secondary">Request a password reset link for an existing account.</p>
-                    {{ form_start(request_form) }}
-                        {{ form_row(request_form.email) }}
-                        {{ form_row(request_form.submit) }}
-                    {{ form_end(request_form) }}
+
+                    {{ form_start(form, { action: path('accessing_forgot_password') }) }}
+                        {{ form_row(form.email) }}
+                        <button class="btn btn-primary" type="submit">Issue recovery code</button>
+                    {{ form_end(form) }}
                 </div>
             </div>
         </div>

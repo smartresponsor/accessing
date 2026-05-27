@@ -156,5 +156,3 @@ class AccessSecurityEventEntity
         return $this->occurredAt;
     }
 }
-
-class_alias(AccessSecurityEventEntity::class, SecurityEvent::class);

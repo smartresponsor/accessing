@@ -23,6 +23,17 @@ final class SecurityEventRepository extends ServiceEntityRepository implements S
 
     public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void
     {
+        $account = $securityEvent->getAccount();
+        if ($account instanceof AccessAccountEntity) {
+            $entityManager = $this->getEntityManager();
+
+            if (null !== $account->getId()) {
+                $securityEvent->setAccount($entityManager->getReference(AccessAccountEntity::class, $account->getId()));
+            } elseif (!$entityManager->contains($account)) {
+                $entityManager->persist($account);
+            }
+        }
+
         $this->getEntityManager()->persist($securityEvent);
 
         if ($flush) {

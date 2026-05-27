@@ -1,0 +1,30 @@
+= Accessing Doctrine Admin Projections Wave 7
+
+Accessing now provides a Doctrine-backed safe account projection provider for Administering.
+
+== Boundary
+
+Accessing still owns:
+
+* account identity
+* authentication
+* login/logout
+* session state
+* password hash
+* 2FA internals
+* recovery codes
+* reset-password internals
+* verification internals
+
+Administering receives only safe projection metadata:
+
+* `accessing:account:{id}` subject id
+* account identifier
+* active/locked state
+* email verification state
+* bootstrap roles
+* display name
+
+== ACL handoff
+
+The projection subject id is the stable identity key that Rolling can use for subject-role assignment and policy decisions. Accessing does not own dynamic ACL.

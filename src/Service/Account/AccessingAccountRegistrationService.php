@@ -9,15 +9,16 @@ use App\Accessing\Dto\AccountRegistrationRequest;
 use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\RepositoryInterface\AccountRepositoryInterface;
 use App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface;
 use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final readonly class AccessingAccountRegistrationService implements AccessingAccountRegistrationServiceInterface
 {
     public function __construct(
         private AccountRepositoryInterface $accountRepository,
-        private UserPasswordHasherInterface $userPasswordHasher,
+        private AccessingCredentialServiceInterface $credentialService,
         private AccessingVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessingSecurityEventRecorderInterface $securityEventRecorder,
     ) {
@@ -30,9 +31,17 @@ final readonly class AccessingAccountRegistrationService implements AccessingAcc
             ->setDisplayName($request->displayName)
             ->setPhoneNumber($request->phoneNumber);
 
-        $account->setPasswordHash($this->userPasswordHasher->hashPassword($account, $request->plainPassword));
+        if (null !== $this->accountRepository->findOneByEmailAddress($account->getEmail())) {
+            throw new \DomainException(sprintf('An account with email "%s" already exists.', $account->getEmail()));
+        }
 
-        $this->accountRepository->save($account, true);
+        $this->credentialService->createCredential($account, $request->plainPassword);
+
+        try {
+            $this->accountRepository->save($account, true);
+        } catch (UniqueConstraintViolationException $exception) {
+            throw new \DomainException(sprintf('An account with email "%s" already exists.', $account->getEmail()), 0, $exception);
+        }
 
         $challenge = $this->verificationChallengeService->issueEmailVerification($account);
 

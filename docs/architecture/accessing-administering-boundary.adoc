@@ -1,0 +1,9 @@
+= Accessing Boundary for Administering Integration
+
+Accessing owns identity, authentication, login/logout, session, password, 2FA, verification, account lock state, and security events.
+
+Accessing must not become the full application ACL owner. Dynamic roles, permissions, ACL hierarchy, policy decisions, approval, delegation, and override logic belong to Rolling.
+
+For Administering integration, Accessing exposes current-account context only. Administering and Rolling may map that account into a policy subject such as `accessing:account:{id}`.
+
+The `roles` field on `AccessAccountEntity` is reserved for Symfony bootstrap/security-shell roles such as `ROLE_ACCOUNT` or `ROLE_ADMIN_BOOTSTRAP`. It is not the canonical application ACL hierarchy.

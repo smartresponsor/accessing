@@ -14,6 +14,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class AccountSignInFormType extends AbstractType
 {
+    public function getBlockPrefix(): string
+    {
+        return 'account_sign_in';
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -28,6 +33,7 @@ final class AccountSignInFormType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
+            'csrf_protection' => false,
             'data_class' => AccountSignInRequestDto::class,
         ]);
     }

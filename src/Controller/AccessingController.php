@@ -22,8 +22,8 @@ use App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeSe
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\CommerceAttributeEntity\Route;
-use Symfony\Component\Security\Http\CommerceAttributeEntity\IsGranted;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class AccessingController extends AbstractController
 {
@@ -42,24 +42,6 @@ final class AccessingController extends AbstractController
             return $this->redirectToRoute('accessing_sign_in');
         }
 
-        $account = $this->requireAccount();
-
-        return $pageResponder->respond($pageViewFactory->home(
-            $account,
-            $securityEventRepository->findRecentEventsForAccount($account, 8),
-        ));
-    }
-
-    /**
-     * Render account overview with recent security events.
-     */
-    #[IsGranted('ROLE_ACCOUNT')]
-    #[Route('/overview', name: 'accessing_overview', methods: ['GET'])]
-    public function overview(
-        SecurityEventRepositoryInterface $securityEventRepository,
-        PageViewFactoryInterface $pageViewFactory,
-        PageResponderInterface $pageResponder,
-    ): Response {
         $account = $this->requireAccount();
 
         return $pageResponder->respond($pageViewFactory->home(
@@ -90,7 +72,7 @@ final class AccessingController extends AbstractController
             if ($verificationChallengeService->completeEmailVerification($account, $data->code)) {
                 $this->addFlash('success', 'Email verification completed.');
 
-                return $this->redirectToRoute('accessing_overview');
+                return $this->redirectToRoute('accessing_home');
             }
 
             $this->addFlash('danger', 'That email verification code is invalid or expired.');
@@ -168,7 +150,7 @@ final class AccessingController extends AbstractController
             if ($verificationChallengeService->completePhoneVerification($account, $data->code)) {
                 $this->addFlash('success', 'Phone verification completed.');
 
-                return $this->redirectToRoute('accessing_overview');
+                return $this->redirectToRoute('accessing_home');
             }
 
             $this->addFlash('danger', 'That phone verification code is invalid or expired.');
@@ -306,7 +288,7 @@ final class AccessingController extends AbstractController
                 $credentialService->changePassword($account, $data->newPassword);
                 $this->addFlash('success', 'Password updated.');
 
-                return $this->redirectToRoute('accessing_overview');
+                return $this->redirectToRoute('accessing_home');
             }
         }
 

@@ -1,0 +1,27 @@
+= Accessing Controlled Admin Actions
+
+Accessing remains the owner of account identity, login/logout, session, password, 2FA, verification, reset-password, and security events.
+
+Administering may request controlled account actions through `AccessingAccountAdministrationServiceInterface`, but it must not raw-edit Accessing internals.
+
+== Allowed action classes
+
+* lock account
+* unlock account
+* terminate session
+* request 2FA reset
+* view security events
+
+== Forbidden direct edits
+
+* password hash
+* TOTP secret
+* recovery codes
+* raw session payload
+* verification internals
+* reset-password token internals
+
+== Authorization
+
+Accessing does not decide dynamic admin permissions.
+Administering asks Rolling for authorization before invoking Accessing account actions.

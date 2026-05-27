@@ -12,9 +12,18 @@
                 <a class="navbar-brand" href="{{ path('accessing_home') }}">{{ accessing_product_name }}</a>
                 <div class="navbar-nav ms-auto gap-2">
                     <a class="nav-link" href="{{ path('accessing_home') }}">Home</a>
-                    <a class="nav-link" href="{{ path('accessing_sign_in') }}">Sign in</a>
-                    <a class="nav-link" href="{{ path('accessing_sign_up') }}">Sign up</a>
-                    <a class="nav-link" href="{{ path('accessing_overview') }}">Overview</a>
+                    {% if app.user %}
+                        <a class="nav-link" href="{{ path('accessing_home') }}">Main</a>
+                        <form method="post" action="{{ path('accessing_switch_account') }}" class="d-inline-flex align-items-center m-0">
+                            <button type="submit" class="nav-link btn btn-link text-white text-decoration-none px-0">Switch account</button>
+                        </form>
+                        <form method="post" action="{{ path('accessing_sign_out') }}" class="d-inline-flex align-items-center m-0">
+                            <button type="submit" class="nav-link btn btn-link text-white text-decoration-none px-0">Sign out</button>
+                        </form>
+                    {% else %}
+                        <a class="nav-link" href="{{ path('accessing_sign_in') }}">Sign in</a>
+                        <a class="nav-link" href="{{ path('accessing_sign_up') }}">Sign up</a>
+                    {% endif %}
                 </div>
             </div>
         </nav>

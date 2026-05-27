@@ -9,6 +9,7 @@ component:
   export_contract:
     services: config/component/services.yaml
     routes: config/component/routes.yaml
+    config_tools: config/component/config_tools.yaml
     api_platform: config/component/api_platform.yaml
     doctrine: config/component/doctrine.yaml
     messenger: config/component/messenger.yaml

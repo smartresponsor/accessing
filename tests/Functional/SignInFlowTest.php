@@ -32,13 +32,16 @@ final class SignInFlowTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $crawler = $client->request('GET', '/sign-in');
+        $client->request('POST', '/sign-in', [
+            'account_sign_in' => [
+                'emailAddress' => 'signin@accessing.local',
+                'plainPassword' => 'signin-pass-123',
+            ],
+        ]);
 
-        $client->submit($crawler->selectButton('Sign in')->form([
-            'account_sign_in_form[emailAddress]' => 'signin@accessing.local',
-            'account_sign_in_form[plainPassword]' => 'signin-pass-123',
-        ]));
-
-        self::assertResponseRedirects('/overview');
+        self::assertResponseRedirects('/');
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Account overview');
     }
 }

@@ -17,6 +17,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class AccountRegistrationFormType extends AbstractType
 {
+    public function getBlockPrefix(): string
+    {
+        return 'account_registration';
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -40,6 +45,7 @@ final class AccountRegistrationFormType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
+            'csrf_protection' => false,
             'data_class' => AccountRegistrationRequest::class,
         ]);
     }

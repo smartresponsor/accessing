@@ -1,0 +1,13 @@
+= Wave 26: Accessing Account Administration Diagnostics
+
+Accessing now exposes a safe diagnostic issue register for its account-administration surface.
+
+The diagnostic provider derives issues from Accessing-owned health checks and only emits metadata suitable for Administering visualization.
+
+== Forbidden payloads
+
+Diagnostics must never include password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads, verification internals, or decrypted credentials.
+
+== Ownership
+
+Accessing remains the owner of authentication, login, logout, sessions, account lock state, and controlled account-action execution.

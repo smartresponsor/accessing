@@ -139,6 +139,11 @@ class AccessAccountSessionEntity
         return $this->createdAt;
     }
 
+    public function getIssuedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
     public function getLastSeenAt(): \DateTimeImmutable
     {
         return $this->lastSeenAt;
@@ -190,5 +195,3 @@ class AccessAccountSessionEntity
         return $this->revoke($invalidatedAt);
     }
 }
-
-class_alias(AccessAccountSessionEntity::class, AccountSession::class);

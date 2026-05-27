@@ -11,8 +11,8 @@ use App\Accessing\ServiceInterface\Rendering\PageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\CommerceAttributeEntity\Route;
-use Symfony\Component\Security\Http\CommerceAttributeEntity\IsGranted;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_SUPPORT')]
 #[Route('/operator', name: 'accessing_operator_')]

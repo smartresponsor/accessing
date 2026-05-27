@@ -111,5 +111,3 @@ final class AccessSecondFactorEntity
         return $this->confirmedAt instanceof \DateTimeImmutable && null === $this->revokedAt;
     }
 }
-
-class_alias(AccessSecondFactorEntity::class, SecondFactor::class);

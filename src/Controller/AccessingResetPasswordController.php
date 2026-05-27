@@ -16,7 +16,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Routing\CommerceAttributeEntity\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -37,6 +37,7 @@ final class AccessingResetPasswordController extends AbstractController
      * Accept a password reset request and issue a reset token when account exists.
      */
     #[Route('/reset-password', name: 'accessing_reset_password_request', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password', name: 'accessing_forgot_password', methods: ['GET', 'POST'])]
     public function request(
         Request $request,
         AccountRepositoryInterface $accountRepository,
@@ -74,13 +75,14 @@ final class AccessingResetPasswordController extends AbstractController
                 }
             }
 
-            return $this->redirectToRoute('accessing_reset_password_check_email');
+            return $this->redirectToRoute('accessing_forgot_password_check_email');
         }
 
         return $pageResponder->respond($pageViewFactory->resetPasswordRequest($form->createView()));
     }
 
     #[Route('/reset-password/check-email', name: 'accessing_reset_password_check_email', methods: ['GET'])]
+    #[Route('/forgot-password/check-email', name: 'accessing_forgot_password_check_email', methods: ['GET'])]
     public function checkEmail(
         PageViewFactoryInterface $pageViewFactory,
         PageResponderInterface $pageResponder,
@@ -92,7 +94,9 @@ final class AccessingResetPasswordController extends AbstractController
      * Validate a reset token and update account password when submitted data is valid.
      */
     #[Route('/reset-password/reset', name: 'accessing_reset_password_reset_plain', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password/reset', name: 'accessing_forgot_password_reset_plain', methods: ['GET', 'POST'])]
     #[Route('/reset-password/reset/{token}', name: 'accessing_reset_password_reset', methods: ['GET', 'POST'])]
+    #[Route('/forgot-password/reset/{token}', name: 'accessing_forgot_password_reset', methods: ['GET', 'POST'])]
     public function reset(
         Request $request,
         PageViewFactoryInterface $pageViewFactory,
@@ -104,13 +108,18 @@ final class AccessingResetPasswordController extends AbstractController
         if (null !== $token && '' !== trim($token)) {
             $session->set(self::RESET_PASSWORD_TOKEN_SESSION_KEY, trim($token));
 
-            return $this->redirectToRoute('accessing_reset_password_reset_plain');
+            return $this->redirectToRoute('accessing_forgot_password_reset_plain');
         }
 
         $tokenData = $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
         $token = is_string($tokenData) ? $tokenData : '';
         if ('' === $token) {
-            return $this->redirectToRoute('accessing_reset_password_request');
+            return $this->redirectToRoute('accessing_forgot_password');
+        }
+
+        $form = $this->createForm(ChangePasswordFormType::class);
+        if ('GET' === $request->getMethod()) {
+            return $pageResponder->respond($pageViewFactory->resetPassword($form->createView()));
         }
 
         try {
@@ -120,10 +129,9 @@ final class AccessingResetPasswordController extends AbstractController
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->addFlash('danger', 'Invalid or expired reset token.');
 
-            return $this->redirectToRoute('accessing_reset_password_request');
+            return $this->redirectToRoute('accessing_forgot_password');
         }
 
-        $form = $this->createForm(ChangePasswordFormType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

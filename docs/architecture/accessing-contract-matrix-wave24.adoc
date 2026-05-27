@@ -1,0 +1,15 @@
+= Wave 24: Accessing Contract Matrix
+
+Accessing now provides a safe account-administration contract matrix for Administering integration diagnostics.
+
+== Contracts
+
+The matrix describes current account context, safe account projections, controlled account action catalog, request validation, bridge execution, audit projections and explicit forbidden raw-edit boundaries.
+
+== Runtime Mode
+
+The matrix reports the Accessing account-administration execution mode. Controlled action execution remains blocked when the component is still in bootstrap mode.
+
+== Safety
+
+Accessing does not expose password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads or verification internals through this matrix.

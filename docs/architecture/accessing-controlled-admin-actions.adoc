@@ -1,0 +1,26 @@
+= Accessing Controlled Admin Actions
+
+Accessing owns identity, login, logout, sessions, passwords, 2FA state, verification, reset-password, and security events.
+
+Administering may request account administration actions, but Accessing must execute them through Accessing-owned services.
+This prevents Administering from raw-editing account internals.
+
+== Allowed action examples
+
+* lock account
+* unlock account
+* terminate session
+* request 2FA reset
+* view security events
+
+== Forbidden admin raw edits
+
+* password hash
+* TOTP secret
+* recovery codes
+* raw session payloads
+* verification internals
+
+== Contract
+
+`AccessingAccountAdministrationServiceInterface` is the safe surface for Administering-triggered account actions.

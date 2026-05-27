@@ -1,0 +1,7 @@
+= Wave 25: Accessing Administration Health Report
+
+Accessing now exposes a safe account-administration health report for Administering and host diagnostics.
+
+The report describes identity ownership, controlled action execution mode, capability readiness, contract readiness, and forbidden raw security boundaries.
+
+It must never expose password hashes, TOTP secrets, recovery codes, reset tokens, verification internals, or raw session payloads.

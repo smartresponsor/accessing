@@ -1,0 +1,25 @@
+config_tools:
+  - application_code: Accessing
+    tool_code: accessing.environment
+    label: Accessing Environment
+    description: Safe runtime flags and thresholds for the Accessing component.
+    form_class: App\Accessing\Form\Config\AccessingEnvironmentConfigFormType
+    service_class: App\Accessing\Service\Config\AccessingEnvironmentConfigService
+    required_permission: administration.config.update
+    editable_fields:
+      - mailerSender
+      - phoneVerificationProvider
+      - sessionMaxIdleDays
+      - recoveryCodeTtlMinutes
+      - verificationCodeTtlMinutes
+      - accountLockThreshold
+      - accountLockMinutes
+    sensitive_fields: []
+    readable_files:
+      - config/component/runtime.yaml
+    writable_files:
+      - config/component/runtime.yaml
+    apply_strategy: component_runtime_yaml
+    metadata:
+      section: Configuration
+      kind: environment

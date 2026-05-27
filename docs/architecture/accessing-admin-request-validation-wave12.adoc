@@ -1,0 +1,16 @@
+= Wave 12: Controlled Account Request Validation
+
+Accessing now validates `AccessingAccountAdministrationRequest` before the bridge delegates to the controlled account administration service.
+
+Validation checks that:
+
+* the requested action exists in the Accessing-controlled action catalog
+* the account reference is non-empty
+* the requesting subject is non-empty
+* the safe reason is non-empty
+
+The validator returns `AccessingAccountAdministrationResult`, so validation failure uses the same safe result channel as execution failure.
+
+The bridge records audit metadata for both rejected validation and execution results.
+
+Accessing remains the owner of account, login, logout, session, password, 2FA, recovery, verification, and security event internals.

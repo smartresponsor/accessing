@@ -1,0 +1,19 @@
+= Accessing Wave 8: Controlled Admin Action Catalog
+
+Accessing now exposes safe metadata for controlled account administration actions.
+
+== Purpose
+
+Administering may display which account actions exist, but Accessing remains the owner of the actual account/session/security internals.
+
+== Allowed action classes
+
+* lock account
+* unlock account
+* terminate session
+* request 2FA reset
+* view security events
+
+== Forbidden raw edits
+
+Administering must not raw-edit password hashes, TOTP secrets, recovery codes, reset tokens, verification internals, or raw session payloads.

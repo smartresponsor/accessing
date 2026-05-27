@@ -1,0 +1,21 @@
+= Accessing Account Administration Work Plan — Wave 21
+
+Wave 21 adds a safe work-plan provider for Accessing account administration hardening.
+
+== Scope
+
+Accessing remains the authentication, session, account, password, and two-factor owner.
+
+The work plan exposes only metadata about:
+
+* remediation items;
+* execution-readiness blockers;
+* controlled action catalog safety.
+
+== Forbidden data
+
+The work plan must never expose password hashes, TOTP secrets, recovery codes, reset tokens, or raw session payloads.
+
+== Usage
+
+Administering may aggregate this plan into connected-component planning surfaces, but the execution of account actions remains inside Accessing-owned services.

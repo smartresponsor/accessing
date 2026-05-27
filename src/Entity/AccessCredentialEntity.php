@@ -68,5 +68,3 @@ final class AccessCredentialEntity
         return $this->passwordChangedAt;
     }
 }
-
-class_alias(AccessCredentialEntity::class, Credential::class);

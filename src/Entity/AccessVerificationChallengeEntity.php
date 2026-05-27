@@ -221,5 +221,3 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 }
-
-class_alias(AccessVerificationChallengeEntity::class, VerificationChallenge::class);

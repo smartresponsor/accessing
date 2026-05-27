@@ -7,6 +7,12 @@ parameters:
   accessing.session_max_idle_days: '%env(int:default:accessing.session_max_idle_days.default:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
   accessing.product_name: 'Accessing'
   accessing.mailer_sender: 'no-reply@example.test'
+  accessing.phone_verification_provider.default: 'fake'
+  accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
+  accessing.account_lock_threshold.default: 5
+  accessing.account_lock_threshold: '%env(int:default:accessing.account_lock_threshold.default:ACCESSING_ACCOUNT_LOCK_THRESHOLD)%'
+  accessing.account_lock_minutes.default: 15
+  accessing.account_lock_minutes: '%env(int:default:accessing.account_lock_minutes.default:ACCESSING_ACCOUNT_LOCK_MINUTES)%'
 
 services:
   _defaults:
@@ -19,8 +25,9 @@ services:
       int $accessingRecoveryCodeTtlMinutes: '%accessing.recovery_code_ttl_minutes%'
       int $accessingVerificationCodeTtlMinutes: '%accessing.verification_code_ttl_minutes%'
       int $accessingSessionMaxIdleDays: '%accessing.session_max_idle_days%'
-      int $accessingAccountLockThreshold: 5
-      int $accessingAccountLockMinutes: 15
+      int $accessingAccountLockThreshold: '%accessing.account_lock_threshold%'
+      int $accessingAccountLockMinutes: '%accessing.account_lock_minutes%'
+      string $accessingPhoneVerificationProvider: '%accessing.phone_verification_provider%'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
 
   # Symfony-native component export surface.

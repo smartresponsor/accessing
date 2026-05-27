@@ -35,6 +35,14 @@ final class AccessingAuthenticationRoutesTest extends WebTestCase
         self::assertSelectorTextContains('h1', 'Sign in');
     }
 
+    public function testSignInTrailingSlashRedirectsToCanonicalRoute(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/sign-in/');
+
+        self::assertResponseRedirects('/sign-in');
+    }
+
     public function testCanonicalAuthenticationRoutesAreRegistered(): void
     {
         /** @var RouterInterface $router */
@@ -42,25 +50,44 @@ final class AccessingAuthenticationRoutesTest extends WebTestCase
         $routeCollection = $router->getRouteCollection();
 
         self::assertSame('/sign-in', $routeCollection->get('accessing_sign_in')?->getPath());
+        self::assertSame('/sign-in/', $routeCollection->get('accessing_sign_in_trailing_slash')?->getPath());
         self::assertSame('/sign-up', $routeCollection->get('accessing_sign_up')?->getPath());
+        self::assertSame('/login', $routeCollection->get('accessing_login')?->getPath());
         self::assertSame('/forgot-password', $routeCollection->get('accessing_forgot_password')?->getPath());
         self::assertSame('/recover', $routeCollection->get('accessing_recover')?->getPath());
         self::assertSame('/sign-out', $routeCollection->get('accessing_sign_out')?->getPath());
-        self::assertSame('/overview', $routeCollection->get('accessing_overview')?->getPath());
+        self::assertSame('/switch-account', $routeCollection->get('accessing_switch_account')?->getPath());
+        self::assertSame('/', $routeCollection->get('accessing_home')?->getPath());
     }
 
-    public function testSignOutGetIsNotAllowed(): void
+    public function testSignOutGetRedirectsGuestToSignIn(): void
     {
         $client = static::createClient();
         $client->request('GET', '/sign-out');
 
-        self::assertResponseStatusCodeSame(405);
+        self::assertResponseRedirects('/sign-in');
     }
 
     public function testSignOutPostRedirectsGuestToSignIn(): void
     {
         $client = static::createClient();
         $client->request('POST', '/sign-out');
+
+        self::assertResponseRedirects('/sign-in');
+    }
+
+    public function testSwitchAccountPostRedirectsGuestToSignIn(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/switch-account');
+
+        self::assertResponseRedirects('/sign-in');
+    }
+
+    public function testSwitchAccountGetRedirectsGuestToSignIn(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/switch-account');
 
         self::assertResponseRedirects('/sign-in');
     }
@@ -82,24 +109,14 @@ final class AccessingAuthenticationRoutesTest extends WebTestCase
             $router->getRouteCollection()->all(),
         );
 
-        self::assertNotContains('/login', $registeredPaths);
         self::assertNotContains('/logout', $registeredPaths);
         self::assertNotContains('/dashboard', $registeredPaths);
     }
 
-    public function testOverviewRequiresAuthentication(): void
+    public function testOverviewRouteIsNotRegistered(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/overview');
-
-        self::assertResponseRedirects('/sign-in');
-    }
-
-    public function testOverviewPostIsNotAllowed(): void
-    {
-        $client = static::createClient();
-        $client->request('POST', '/overview');
-
-        self::assertResponseStatusCodeSame(405);
+        /** @var RouterInterface $router */
+        $router = static::getContainer()->get(RouterInterface::class);
+        self::assertNull($router->getRouteCollection()->get('accessing_overview'));
     }
 }

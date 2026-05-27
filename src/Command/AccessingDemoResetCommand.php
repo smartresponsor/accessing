@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Command;
 
+use App\Accessing\DataFixtures\AccessingAdminFixtures;
 use App\Accessing\DataFixtures\AccessingDemoFixtures;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -16,16 +17,15 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(name: 'accessing:demo:reset', description: 'Rebuild the schema and load demo fixtures for Accessing.')]
 final class AccessingDemoResetCommand extends Command
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly AccessingAdminFixtures $accessingAdminFixtures,
         private readonly AccessingDemoFixtures $accessingDemoFixtures,
-        #[Autowire(service: 'doctrine.fixtures.loader')]
-        private readonly SymfonyFixturesLoader $fixturesLoader,
+        private readonly ?SymfonyFixturesLoader $fixturesLoader = null,
     ) {
         parent::__construct();
     }
@@ -40,7 +40,12 @@ final class AccessingDemoResetCommand extends Command
         $schemaTool->dropDatabase();
         $schemaTool->createSchema($metadata);
 
+        if (!$this->fixturesLoader instanceof SymfonyFixturesLoader) {
+            throw new \RuntimeException('Doctrine fixtures loader is not available in this environment.');
+        }
+
         $loader = clone $this->fixturesLoader;
+        $loader->addFixture($this->accessingAdminFixtures);
         $loader->addFixture($this->accessingDemoFixtures);
 
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());

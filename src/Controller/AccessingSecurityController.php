@@ -26,7 +26,7 @@ use App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInte
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\CommerceAttributeEntity\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 final class AccessingSecurityController extends AbstractController
 {
@@ -36,6 +36,7 @@ final class AccessingSecurityController extends AbstractController
      * Render and process account registration.
      */
     #[Route('/register', name: 'accessing_register', methods: ['GET', 'POST'])]
+    #[Route('/sign-up', name: 'accessing_sign_up', methods: ['GET', 'POST'])]
     public function register(
         Request $request,
         AccessingAccountRegistrationServiceInterface $accountRegistrationService,
@@ -43,7 +44,7 @@ final class AccessingSecurityController extends AbstractController
         PageResponderInterface $pageResponder,
     ): Response {
         if ($this->getUser() instanceof AccessAccountEntity) {
-            return $this->redirectToRoute('accessing_overview');
+            return $this->redirectToRoute('accessing_home');
         }
 
         $form = $this->createForm(AccountRegistrationFormType::class);
@@ -69,15 +70,38 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Render and process canonical sign-in.
      */
-    #[Route('/sign-in', name: 'accessing_sign_in', methods: ['GET', 'POST'])]
+    #[Route('/sign-in', name: 'accessing_sign_in', methods: ['GET'])]
+    #[Route('/login', name: 'accessing_login', methods: ['GET'])]
     public function signIn(
+        PageViewFactoryInterface $pageViewFactory,
+        PageResponderInterface $pageResponder,
+    ): Response {
+        $form = $this->createForm(AccountSignInFormType::class);
+
+        return $pageResponder->respond($pageViewFactory->signIn($form->createView()));
+    }
+
+    /**
+     * Normalize legacy trailing-slash sign-in URLs to the canonical route.
+     */
+    #[Route('/sign-in/', name: 'accessing_sign_in_trailing_slash', methods: ['GET'])]
+    public function signInTrailingSlash(): Response
+    {
+        return $this->redirectToRoute('accessing_sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
+    }
+
+    /**
+     * Handle sign-in form submission.
+     */
+    #[Route('/sign-in', name: 'accessing_sign_in_submit', methods: ['POST'])]
+    public function signInSubmit(
         Request $request,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
         PageViewFactoryInterface $pageViewFactory,
         PageResponderInterface $pageResponder,
     ): Response {
         if ($this->getUser() instanceof AccessAccountEntity) {
-            return $this->redirectToRoute('accessing_overview');
+            return $this->redirectToRoute('accessing_home');
         }
 
         $form = $this->createForm(AccountSignInFormType::class);
@@ -93,7 +117,7 @@ final class AccessingSecurityController extends AbstractController
             );
 
             if ($result->authenticated) {
-                return $this->redirectToRoute('accessing_overview');
+                return $this->redirectToRoute('accessing_home');
             }
 
             if ($result->requiresSecondFactor) {
@@ -145,7 +169,7 @@ final class AccessingSecurityController extends AbstractController
                 $accountAuthenticationService->completePendingSecondFactor($account, $request);
                 $this->addFlash('success', 'Signed in successfully.');
 
-                return $this->redirectToRoute('accessing_overview');
+                return $this->redirectToRoute('accessing_home');
             }
 
             $this->addFlash('danger', 'The second factor code was not accepted.');
@@ -157,7 +181,7 @@ final class AccessingSecurityController extends AbstractController
     /**
      * Sign out current account and invalidate current session.
      */
-    #[Route('/sign-out', name: 'accessing_sign_out', methods: ['POST'])]
+    #[Route('/sign-out', name: 'accessing_sign_out', methods: ['GET', 'POST'])]
     public function signOut(
         Request $request,
         AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
@@ -171,9 +195,28 @@ final class AccessingSecurityController extends AbstractController
     }
 
     /**
+     * Sign out and redirect to the sign-in page so another account can be used.
+     */
+    #[Route('/switch-account', name: 'accessing_switch_account', methods: ['GET', 'POST'])]
+    public function switchAccount(
+        Request $request,
+        AccessingAccountAuthenticationServiceInterface $accountAuthenticationService,
+    ): Response {
+        $accountAuthenticationService->signOut(
+            $this->getUser() instanceof AccessAccountEntity ? $this->getUser() : null,
+            $request,
+        );
+
+        $this->addFlash('info', 'Signed out. Use another account to continue.');
+
+        return $this->redirectToRoute('accessing_sign_in');
+    }
+
+    /**
      * Request password recovery challenge by email address.
      */
     #[Route('/recover/request', name: 'accessing_recover_request', methods: ['GET', 'POST'])]
+    #[Route('/recover', name: 'accessing_recover', methods: ['GET', 'POST'])]
     public function requestRecovery(
         Request $request,
         AccessingRecoveryServiceInterface $recoveryService,
