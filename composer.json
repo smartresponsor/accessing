@@ -36,7 +36,7 @@
     "ext-pdo": "*",
     "configuring/config": "*@dev",
     "interfacing/interface": "*@dev",
-    "smartresponsor/objecting": "*@dev"
+    "objecting/object": "*@dev"
   },
   "require-dev": {
     "doctrine/doctrine-fixtures-bundle": "^4.3",
