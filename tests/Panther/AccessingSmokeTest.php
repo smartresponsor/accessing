@@ -23,7 +23,7 @@ final class AccessingSmokeTest extends PantherTestCase
         }
 
         $client = static::createPantherClient();
-        $client->request('GET', '/sign-in');
+        $client->request('GET', '/access/signin');
 
         self::assertSelectorTextContains('h1', 'Sign in');
     }

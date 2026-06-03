@@ -1,5 +1,2 @@
-accessing_controllers:
-    resource:
-        path: ../../src/Controller/
-        namespace: App\Accessing\Controller
-    type: attribute
+# Producer route declarations intentionally empty.
+# Accessing no longer registers controller attribute routes.

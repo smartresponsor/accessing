@@ -31,7 +31,7 @@ final class AccountAuthenticationServiceTest extends DatabaseTestCase
 
         $registrationService->register($request);
 
-        $signInRequest = Request::create('/sign-in', 'POST', server: ['REMOTE_ADDR' => '127.0.0.1']);
+        $signInRequest = Request::create('/access/signin', 'POST', server: ['REMOTE_ADDR' => '127.0.0.1']);
         $signInRequest->setSession(new Session(new MockArraySessionStorage()));
 
         $signInResult = $authenticationService->attemptPasswordSignIn(

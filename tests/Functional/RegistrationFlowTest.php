@@ -26,7 +26,7 @@ final class RegistrationFlowTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $crawler = $client->request('GET', '/sign-up');
+        $crawler = $client->request('GET', '/accessing/sign-up');
 
         $client->submit($crawler->selectButton('Sign up')->form([
             'account_registration_form[displayName]' => 'Functional Tester',
@@ -34,7 +34,7 @@ final class RegistrationFlowTest extends WebTestCase
             'account_registration_form[plainPassword]' => 'functional-pass-123',
         ]));
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
         $client->followRedirect();
         self::assertSelectorExists('.alert-success');
 

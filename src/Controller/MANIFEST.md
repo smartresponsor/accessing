@@ -1,3 +1,3 @@
-# Controller Manifest
+# Surface Builder Manifest
 
-Controllers should stay thin and drive real account access scenarios. Favor DTO/Form/Service coordination over embedded business logic.
+Surface builders should stay thin and drive real account access scenarios. Favor DTO/Form/Service coordination over embedded business logic.

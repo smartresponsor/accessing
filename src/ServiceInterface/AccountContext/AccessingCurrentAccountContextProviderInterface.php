@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\AccountContext;
 
-use App\Accessing\Dto\AccountContext\AccessingCurrentAccountContext;
+use App\Accessing\Context\AccessingCurrentAccountContext;
 
 interface AccessingCurrentAccountContextProviderInterface
 {

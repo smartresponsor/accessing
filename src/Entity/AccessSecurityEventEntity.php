@@ -11,9 +11,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'accessing_security_event')]
-#[ORM\Index(name: 'idx_accessing_security_event_type', columns: ['event_type'])]
-#[ORM\Index(name: 'idx_accessing_security_event_occurred_at', columns: ['occurred_at'])]
+#[ORM\Table(name: 'access_security_event')]
+#[ORM\Index(name: 'idx_access_security_event_type', columns: ['event_type'])]
+#[ORM\Index(name: 'idx_access_security_event_occurred_at', columns: ['occurred_at'])]
 class AccessSecurityEventEntity
 {
     #[ORM\Id]

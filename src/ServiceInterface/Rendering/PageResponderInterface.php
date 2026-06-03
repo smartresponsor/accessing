@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Rendering;
 
 use App\Accessing\Dto\PageView;
-use Symfony\Component\HttpFoundation\Response;
+use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
 
 interface PageResponderInterface
 {
-    public function respond(PageView $pageView): Response;
+    public function respond(PageView $pageView): SurfaceRenderableInterface;
 }

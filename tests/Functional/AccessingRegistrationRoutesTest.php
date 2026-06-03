@@ -12,7 +12,7 @@ final class AccessingRegistrationRoutesTest extends WebTestCase
     public function testRegisterPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/sign-up');
+        $client->request('GET', '/accessing/sign-up');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Sign up');

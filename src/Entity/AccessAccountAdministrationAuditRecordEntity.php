@@ -14,10 +14,10 @@ use Doctrine\ORM\Mapping as ORM;
  * codes, reset tokens, and raw session payloads are forbidden here.
  */
 #[ORM\Entity]
-#[ORM\Table(name: 'accessing_account_administration_audit')]
-#[ORM\Index(name: 'idx_accessing_account_admin_audit_account', columns: ['account_reference'])]
-#[ORM\Index(name: 'idx_accessing_account_admin_audit_action', columns: ['action'])]
-#[ORM\Index(name: 'idx_accessing_account_admin_audit_requested_by', columns: ['requested_by_subject'])]
+#[ORM\Table(name: 'access_account_administration_audit')]
+#[ORM\Index(name: 'idx_access_account_admin_audit_account', columns: ['account_reference'])]
+#[ORM\Index(name: 'idx_access_account_admin_audit_action', columns: ['action'])]
+#[ORM\Index(name: 'idx_access_account_admin_audit_requested_by', columns: ['requested_by_subject'])]
 final class AccessAccountAdministrationAuditRecordEntity
 {
     #[ORM\Id]

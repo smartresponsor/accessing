@@ -1,3 +1,2 @@
-component_controllers:
-  resource: '../../src/Controller/'
-  type: attribute
+# Accessing declares no standalone component controller import here.
+# Host applications resolve Accessing surfaces through Cruding/View/Interfacing.

@@ -34,7 +34,9 @@
     "twig/extra-bundle": "^3.15",
     "twig/twig": "^3.15",
     "ext-pdo": "*",
-    "smart-responsor/objecting": "*@dev"
+    "smart-responsor/objecting": "*@dev",
+    "configuring/config": "*@dev",
+    "interfacing/interface": "*@dev"
   },
   "require-dev": {
     "doctrine/doctrine-fixtures-bundle": "^4.3",
@@ -97,6 +99,13 @@
     {
       "type": "path",
       "url": "../Objecting",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
+      "type": "path",
+      "url": "../Configuring",
       "options": {
         "symlink": true
       }

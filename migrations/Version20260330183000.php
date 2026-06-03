@@ -17,12 +17,12 @@ final class Version20260330183000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE accessing_account ADD totp_secret VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE access_account ADD totp_secret VARCHAR(255) DEFAULT NULL');
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE accessing_account DROP totp_secret');
+        $this->addSql('ALTER TABLE access_account DROP totp_secret');
     }
 }

@@ -8,7 +8,7 @@ namespace App\Accessing\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'second_factor')]
+#[ORM\Table(name: 'access_second_factor')]
 final class AccessSecondFactorEntity
 {
     #[ORM\Id]

@@ -12,11 +12,11 @@ final class AccessingAuthenticationEntryPointTest extends WebTestCase
     public function testSessionsRedirectGuestToCanonicalSignInAndStoresTargetPath(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/sessions');
+        $client->request('GET', '/accessing/sessions');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
         self::assertSame(
-            'http://localhost/sessions',
+            'http://localhost/accessing/sessions',
             $client->getRequest()->getSession()->get('_security.main.target_path'),
         );
     }

@@ -28,4 +28,4 @@ Targeted fixes only. No broad formatting pass and no mass rename sweep.
 ## Deferred
 
 - `PhpUnhandledExceptionInspection` items are deferred to a second wave because they require domain-level exception policy decisions.
-- `PhpTooManyParametersInspection` in `AccessingResetPasswordController` is deferred because reducing parameters would change controller/service seams and should be done as a separate architectural micro-refactor.
+- `PhpTooManyParametersInspection` in `AccessingResetPasswordSurfaceBuilder` is deferred because reducing parameters would change builder/service seams and should be done as a separate architectural micro-refactor.

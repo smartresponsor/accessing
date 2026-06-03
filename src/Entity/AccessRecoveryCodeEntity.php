@@ -9,8 +9,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'accessing_recovery_code')]
-#[ORM\Index(name: 'idx_accessing_recovery_code_consumed_at', columns: ['consumed_at'])]
+#[ORM\Table(name: 'access_recovery_code')]
+#[ORM\Index(name: 'idx_access_recovery_code_consumed_at', columns: ['consumed_at'])]
 class AccessRecoveryCodeEntity
 {
     #[ORM\Id]

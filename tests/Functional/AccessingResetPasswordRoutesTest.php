@@ -31,7 +31,7 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
     public function testResetPasswordRequestPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/forgot-password');
+        $client->request('GET', '/accessing/forgot-password');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Forgot password');
@@ -40,7 +40,7 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
     public function testResetPasswordCheckEmailPageIsSuccessful(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/forgot-password/check-email');
+        $client->request('GET', '/accessing/forgot-password/check-email');
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Reset request received');
@@ -49,7 +49,7 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
     public function testResetPasswordCheckEmailPostIsNotAllowed(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/forgot-password/check-email');
+        $client->request('POST', '/accessing/forgot-password/check-email');
 
         self::assertResponseStatusCodeSame(405);
     }
@@ -59,12 +59,12 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
         $this->prepareSchema();
 
         $client = static::createClient();
-        $client->request('GET', '/forgot-password/reset/invalid-token');
+        $client->request('GET', '/accessing/forgot-password/reset/invalid-token');
 
-        self::assertResponseRedirects('/forgot-password/reset');
+        self::assertResponseRedirects('/accessing/forgot-password/reset');
 
         $client->followRedirect();
-        self::assertResponseRedirects('/forgot-password');
+        self::assertResponseRedirects('/accessing/forgot-password');
     }
 
     public function testInvalidResetTokenPostRedirectsThroughPlainResetRoute(): void
@@ -72,8 +72,8 @@ final class AccessingResetPasswordRoutesTest extends WebTestCase
         $this->prepareSchema();
 
         $client = static::createClient();
-        $client->request('POST', '/forgot-password/reset/invalid-token');
+        $client->request('POST', '/accessing/forgot-password/reset/invalid-token');
 
-        self::assertResponseRedirects('/forgot-password/reset');
+        self::assertResponseRedirects('/accessing/forgot-password/reset');
     }
 }

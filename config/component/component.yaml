@@ -9,7 +9,6 @@ component:
   export_contract:
     services: config/component/services.yaml
     routes: config/component/routes.yaml
-    config_tools: config/component/config_tools.yaml
     api_platform: config/component/api_platform.yaml
     doctrine: config/component/doctrine.yaml
     messenger: config/component/messenger.yaml
@@ -28,3 +27,34 @@ component:
     extension: App\Accessing\DependencyInjection\AccessingExtension
     services_loaded_by_extension: config/component/services.yaml
     routes_import_required_by_host: config/component/routes.yaml
+
+# Accessing owns its integration contract here.
+# Administering reads this via AccessingConfigurationToolProvider::integrationContract().
+# The stub in Administering/src/Contract/Accessing/ is now replaced by a real adapter.
+# This is the single source of truth — do not duplicate in Administering's component.yaml.
+integration:
+  owns: authentication_session_identity
+
+  # Subject identity — used by Rolling to build ACL subject strings
+  subject_prefix: 'accessing:account:'
+
+  # Account administration services (interface FQCNs)
+  # Administering uses these to wire the admin bridge without hardcoding them.
+  administration_service: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationServiceInterface
+  administration_projection_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationProjectionProviderInterface
+  administration_action_catalog: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationActionCatalogInterface
+  administration_bridge: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationBridgeInterface
+  administration_request_validator: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRequestValidatorInterface
+  administration_audit_recorder: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditRecorderInterface
+  administration_audit_projection_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditProjectionProviderInterface
+
+  # Readiness and diagnostics surface services
+  administration_readiness_report_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationReadinessReportProviderInterface
+  administration_execution_readiness_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionReadinessProviderInterface
+  administration_remediation_plan_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRemediationPlanProviderInterface
+  administration_work_plan_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationWorkPlanProviderInterface
+  administration_execution_plan_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionPlanProviderInterface
+  administration_capability_matrix_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationCapabilityMatrixProviderInterface
+  administration_contract_matrix_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationContractMatrixProviderInterface
+  administration_health_report_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationHealthReportProviderInterface
+  administration_diagnostic_report_provider: App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationDiagnosticReportProviderInterface

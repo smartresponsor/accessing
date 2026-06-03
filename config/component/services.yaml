@@ -19,7 +19,6 @@ services:
     autowire: true
     autoconfigure: true
     bind:
-      string $accessingMailerSender: '%accessing.mailer_sender%'
       string $appSecret: '%env(APP_SECRET)%'
       string $accessingProductName: '%accessing.product_name%'
       int $accessingRecoveryCodeTtlMinutes: '%accessing.recovery_code_ttl_minutes%'
@@ -38,10 +37,25 @@ services:
       - '../../src/Kernel.php'
       - '../../src/DependencyInjection/'
       - '../../src/Entity/'
+      - ../../src/Dto/
+      - ../../src/ValueObject/
+      - ../../src/Value/
+      - ../../src/Contract/
+      - ../../src/Event/
+      - ../../src/Message/
+      - ../../src/Form/
       - '../../src/Tests/'
+      # Configuring integration is intentionally dormant in standalone Accessing.
+      # The external App\Configuring contracts are not part of this component.
+      - ../../src/Provider/Configuration/
+      - ../../src/Service/Config/
   App\Accessing\ServiceInterface\Rendering\PageResponderInterface:
-    alias: App\Accessing\Service\Rendering\TwigPageResponder
+    alias: App\Accessing\Responder\Rendering\TwigPageResponder
   App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface:
-    alias: App\Accessing\Service\Rendering\PageViewFactory
+    alias: App\Accessing\Factory\Rendering\PageViewFactory
   App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
     alias: App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService
+
+  App\Accessing\Service\SecurityNotification\AccessingSecurityNotificationService:
+    arguments:
+      $accessingMailerSender: '%accessing.mailer_sender%'

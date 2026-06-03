@@ -12,8 +12,8 @@ final class AccessingAccountSessionRoutesTest extends WebTestCase
     public function testSessionsRequireAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/sessions');
+        $client->request('GET', '/accessing/sessions');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
     }
 }

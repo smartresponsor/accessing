@@ -1,5 +1,2 @@
-controllers:
-  resource:
-    path: ../src/Controller/
-    namespace: App\Accessing\Controller
-  type: attribute
+# Producer route declarations intentionally empty.
+# Accessing surfaces are resolved through Cruding/View/Interfacing in the host application.

@@ -11,7 +11,7 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
 #[ORM\Entity(repositoryClass: ResetPasswordRequestRepository::class)]
-#[ORM\Table(name: 'accessing_reset_password_request')]
+#[ORM\Table(name: 'access_reset_password_request')]
 class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;

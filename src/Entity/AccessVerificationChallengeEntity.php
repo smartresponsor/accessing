@@ -10,9 +10,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'accessing_verification_challenge')]
-#[ORM\Index(name: 'idx_accessing_verification_challenge_type', columns: ['channel_type'])]
-#[ORM\Index(name: 'idx_accessing_verification_challenge_expires_at', columns: ['expires_at'])]
+#[ORM\Table(name: 'access_verification_challenge')]
+#[ORM\Index(name: 'idx_access_verification_challenge_type', columns: ['channel_type'])]
+#[ORM\Index(name: 'idx_access_verification_challenge_expires_at', columns: ['expires_at'])]
 class AccessVerificationChallengeEntity
 {
     #[ORM\Id]

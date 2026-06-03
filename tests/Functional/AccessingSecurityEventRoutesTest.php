@@ -12,8 +12,8 @@ final class AccessingSecurityEventRoutesTest extends WebTestCase
     public function testSecurityEventsRequireAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/security-events');
+        $client->request('GET', '/accessing/security-events');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
     }
 }

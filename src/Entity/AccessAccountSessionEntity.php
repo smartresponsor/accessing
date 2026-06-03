@@ -9,9 +9,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'accessing_account_session')]
-#[ORM\Index(name: 'idx_accessing_account_session_expires_at', columns: ['expires_at'])]
-#[ORM\Index(name: 'idx_accessing_account_session_revoked_at', columns: ['revoked_at'])]
+#[ORM\Table(name: 'access_account_session')]
+#[ORM\Index(name: 'idx_access_account_session_expires_at', columns: ['expires_at'])]
+#[ORM\Index(name: 'idx_access_account_session_revoked_at', columns: ['revoked_at'])]
 class AccessAccountSessionEntity
 {
     #[ORM\Id]

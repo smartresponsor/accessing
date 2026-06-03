@@ -6,24 +6,22 @@ namespace App\Accessing\Service\Config;
 
 use App\Accessing\Form\Config\AccessingEnvironmentConfigFormType;
 use App\Accessing\Value\Form\Config\AccessingEnvironmentConfigData;
-use App\Administering\Service\Config\ConfigApplyService;
-use App\Administering\Service\Config\ConfigFileWriterService;
-use App\Administering\ServiceInterface\Config\AdministrationConfigToolServiceInterface;
-use App\Administering\Value\Config\AdministrationConfigToolDescriptor;
+use App\Configuring\ServiceInterface\Config\ConfigToolServiceInterface;
+use App\Configuring\ServiceInterface\Config\ConfigVariableToolServiceInterface;
+use App\Configuring\ServiceInterface\Config\ManagedConfigVariablesProviderInterface;
+use App\Configuring\Value\Config\ConfigToolDescriptor;
+use App\Configuring\Value\Config\ConfigVariable;
+use App\Configuring\Value\Config\ConfigVariableType;
 use Symfony\Component\Yaml\Yaml;
 
-final readonly class AccessingEnvironmentConfigService implements AdministrationConfigToolServiceInterface
+/**
+ * Accessing-owned configuration tool for authentication/runtime environment settings.
+ */
+final readonly class AccessingEnvironmentConfigService implements ConfigToolServiceInterface, ManagedConfigVariablesProviderInterface, ConfigVariableToolServiceInterface
 {
-    public function __construct(
-        private string $projectDir,
-        private ConfigApplyService $applyService,
-        private ConfigFileWriterService $fileWriter,
-    ) {
-    }
-
-    public function descriptor(): AdministrationConfigToolDescriptor
+    public function descriptor(): ConfigToolDescriptor
     {
-        return new AdministrationConfigToolDescriptor(
+        return new ConfigToolDescriptor(
             applicationCode: 'Accessing',
             toolCode: 'accessing.environment',
             label: 'Accessing Environment',
@@ -46,10 +44,38 @@ final readonly class AccessingEnvironmentConfigService implements Administration
             metadata: [
                 'section' => 'Configuration',
                 'kind' => 'environment',
+                'writer_owner' => 'accessing',
             ],
             secretNames: [],
             applyStrategy: 'component_runtime_yaml',
         );
+    }
+
+    /** @return iterable<ConfigVariable> */
+    public function managedVariables(): iterable
+    {
+        yield ConfigVariable::yaml('accessing_mailer_sender', 'config/component/runtime.yaml')
+            ->withLabel('Mailer sender')
+            ->required();
+        yield ConfigVariable::yaml('accessing_phone_verification_provider', 'config/component/runtime.yaml')
+            ->withLabel('Phone verification provider')
+            ->required()
+            ->withConstraints(['choices' => ['fake', 'null']]);
+        yield ConfigVariable::yaml('accessing_session_max_idle_days', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('Session max idle days')
+            ->required();
+        yield ConfigVariable::yaml('accessing_recovery_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('Recovery code TTL minutes')
+            ->required();
+        yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('Verification code TTL minutes')
+            ->required();
+        yield ConfigVariable::yaml('accessing_account_lock_threshold', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('Account lock threshold')
+            ->required();
+        yield ConfigVariable::yaml('accessing_account_lock_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('Account lock minutes')
+            ->required();
     }
 
     public function loadData(): object
@@ -71,50 +97,92 @@ final readonly class AccessingEnvironmentConfigService implements Administration
     public function save(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
-        $values = $this->stateRows($payload, 'pending');
-        $masked = [
-            'accessing_mailer_sender' => $payload->mailerSender,
-            'accessing_phone_verification_provider' => $payload->phoneVerificationProvider,
-            'accessing_session_max_idle_days' => $payload->sessionMaxIdleDays,
-            'accessing_recovery_code_ttl_minutes' => $payload->recoveryCodeTtlMinutes,
-            'accessing_verification_code_ttl_minutes' => $payload->verificationCodeTtlMinutes,
-            'accessing_account_lock_threshold' => $payload->accountLockThreshold,
-            'accessing_account_lock_minutes' => $payload->accountLockMinutes,
-        ];
 
-        return $this->applyService->save($this->descriptor(), (string) ($context['actor'] ?? 'system'), $values, $masked, []);
+        return [
+            'status' => 'pending',
+            'messages' => ['Accessing environment changes were staged.'],
+            'masked_changes' => $this->runtimePatch($payload),
+            'file_changes' => [],
+            'secret_changes' => [],
+        ];
     }
 
     public function apply(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
         $patch = $this->runtimePatch($payload);
-        $write = $this->fileWriter->write(
-            $this->projectDir.'/../Accessing',
-            'config/component/runtime.yaml',
-            $patch,
-            $this->descriptor()->writableFiles,
-        );
+        $path = $this->runtimeManifestPath();
+        $manifest = array_replace($this->runtimeManifest(), $patch);
+        $written = $this->writeRuntimeManifest($path, $manifest);
 
-        $status = 'applied' === $write['status'] ? 'applied' : 'failed';
-        $values = $this->stateRows($payload, $status);
-
-        return $this->applyService->apply(
-            $this->descriptor(),
-            (string) ($context['actor'] ?? 'system'),
-            $values,
-            $patch,
-            [],
-            [[
-                'path' => $write['path'],
-                'backup_path' => $write['backup_path'],
-                'status' => $write['status'],
-                'message' => $write['message'],
+        return [
+            'status' => $written ? 'applied' : 'failed',
+            'messages' => $written ? ['Accessing runtime manifest updated.'] : ['Accessing runtime manifest could not be written.'],
+            'masked_changes' => $patch,
+            'file_changes' => [[
+                'path' => $path,
+                'status' => $written ? 'applied' : 'failed',
             ]],
-            [],
-            'applied' === $write['status'] ? null : $write['message'],
-            $status,
-        );
+            'secret_changes' => [],
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    public function loadVariableData(): array
+    {
+        $payload = $this->assertData($this->loadData());
+
+        return [
+            'accessing_mailer_sender' => $payload->mailerSender,
+            'accessing_phone_verification_provider' => $payload->phoneVerificationProvider,
+            'accessing_session_max_idle_days' => (int) $payload->sessionMaxIdleDays,
+            'accessing_recovery_code_ttl_minutes' => (int) $payload->recoveryCodeTtlMinutes,
+            'accessing_verification_code_ttl_minutes' => (int) $payload->verificationCodeTtlMinutes,
+            'accessing_account_lock_threshold' => (int) $payload->accountLockThreshold,
+            'accessing_account_lock_minutes' => (int) $payload->accountLockMinutes,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $variables
+     * @param array<string, mixed> $context
+     *
+     * @return array{status:string, messages:list<string>, masked_changes:array<string, string>, file_changes:array<int, array<string, mixed>>, secret_changes:array<int, array<string, mixed>>}
+     */
+    public function saveVariables(array $variables, array $context = []): array
+    {
+        return [
+            'status' => 'pending',
+            'messages' => ['Accessing environment changes were staged.'],
+            'masked_changes' => $this->runtimePatchFromVariables($variables),
+            'file_changes' => [],
+            'secret_changes' => [],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $variables
+     * @param array<string, mixed> $context
+     *
+     * @return array{status:string, messages:list<string>, masked_changes:array<string, string>, file_changes:array<int, array<string, mixed>>, secret_changes:array<int, array<string, mixed>>}
+     */
+    public function applyVariables(array $variables, array $context = []): array
+    {
+        $patch = $this->runtimePatchFromVariables($variables);
+        $path = $this->runtimeManifestPath();
+        $manifest = array_replace($this->runtimeManifest(), $patch);
+        $written = $this->writeRuntimeManifest($path, $manifest);
+
+        return [
+            'status' => $written ? 'applied' : 'failed',
+            'messages' => $written ? ['Accessing runtime manifest updated.'] : ['Accessing runtime manifest could not be written.'],
+            'masked_changes' => $patch,
+            'file_changes' => [[
+                'path' => $path,
+                'status' => $written ? 'applied' : 'failed',
+            ]],
+            'secret_changes' => [],
+        ];
     }
 
     private function assertData(object $data): AccessingEnvironmentConfigData
@@ -129,10 +197,45 @@ final readonly class AccessingEnvironmentConfigService implements Administration
     /** @return array<string, mixed> */
     private function runtimeManifest(): array
     {
-        $path = $this->projectDir.'/../Accessing/config/component/runtime.yaml';
+        $path = $this->runtimeManifestPath();
         $parsed = is_file($path) ? Yaml::parseFile($path) : [];
 
         return is_array($parsed) ? $parsed : [];
+    }
+
+    private function runtimeManifestPath(): string
+    {
+        return dirname(__DIR__, 3).'/config/component/runtime.yaml';
+    }
+
+    private function writeRuntimeManifest(string $path, array $manifest): bool
+    {
+        $yaml = Yaml::dump($manifest, 4, 2);
+        $directory = dirname($path);
+
+        if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
+            return false;
+        }
+
+        return false !== @file_put_contents($path, $yaml);
+    }
+
+    /**
+     * @param array<string, mixed> $variables
+     *
+     * @return array<string, mixed>
+     */
+    private function runtimePatchFromVariables(array $variables): array
+    {
+        return [
+            'accessing_mailer_sender' => (string) ($variables['accessing_mailer_sender'] ?? ''),
+            'accessing_phone_verification_provider' => (string) ($variables['accessing_phone_verification_provider'] ?? 'fake'),
+            'accessing_session_max_idle_days' => (int) ($variables['accessing_session_max_idle_days'] ?? 30),
+            'accessing_recovery_code_ttl_minutes' => (int) ($variables['accessing_recovery_code_ttl_minutes'] ?? 30),
+            'accessing_verification_code_ttl_minutes' => (int) ($variables['accessing_verification_code_ttl_minutes'] ?? 10),
+            'accessing_account_lock_threshold' => (int) ($variables['accessing_account_lock_threshold'] ?? 5),
+            'accessing_account_lock_minutes' => (int) ($variables['accessing_account_lock_minutes'] ?? 15),
+        ];
     }
 
     /**
@@ -148,22 +251,6 @@ final readonly class AccessingEnvironmentConfigService implements Administration
             'accessing_verification_code_ttl_minutes' => (int) $data->verificationCodeTtlMinutes,
             'accessing_account_lock_threshold' => (int) $data->accountLockThreshold,
             'accessing_account_lock_minutes' => (int) $data->accountLockMinutes,
-        ];
-    }
-
-    /**
-     * @return array<string, array{fieldType:string, secret:bool, current:?string, pending:?string, masked:?string, status:string}>
-     */
-    private function stateRows(AccessingEnvironmentConfigData $data, string $status): array
-    {
-        return [
-            'accessing_mailer_sender' => ['fieldType' => 'string', 'secret' => false, 'current' => $data->mailerSender, 'pending' => $data->mailerSender, 'masked' => null, 'status' => $status],
-            'accessing_phone_verification_provider' => ['fieldType' => 'choice', 'secret' => false, 'current' => $data->phoneVerificationProvider, 'pending' => $data->phoneVerificationProvider, 'masked' => null, 'status' => $status],
-            'accessing_session_max_idle_days' => ['fieldType' => 'integer', 'secret' => false, 'current' => $data->sessionMaxIdleDays, 'pending' => $data->sessionMaxIdleDays, 'masked' => null, 'status' => $status],
-            'accessing_recovery_code_ttl_minutes' => ['fieldType' => 'integer', 'secret' => false, 'current' => $data->recoveryCodeTtlMinutes, 'pending' => $data->recoveryCodeTtlMinutes, 'masked' => null, 'status' => $status],
-            'accessing_verification_code_ttl_minutes' => ['fieldType' => 'integer', 'secret' => false, 'current' => $data->verificationCodeTtlMinutes, 'pending' => $data->verificationCodeTtlMinutes, 'masked' => null, 'status' => $status],
-            'accessing_account_lock_threshold' => ['fieldType' => 'integer', 'secret' => false, 'current' => $data->accountLockThreshold, 'pending' => $data->accountLockThreshold, 'masked' => null, 'status' => $status],
-            'accessing_account_lock_minutes' => ['fieldType' => 'integer', 'secret' => false, 'current' => $data->accountLockMinutes, 'pending' => $data->accountLockMinutes, 'masked' => null, 'status' => $status],
         ];
     }
 }

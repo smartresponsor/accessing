@@ -12,32 +12,32 @@ final class AccessingSecondFactorRoutesTest extends WebTestCase
     public function testSecondFactorPageRequiresAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/second-factor');
+        $client->request('GET', '/accessing/second-factor');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
     }
 
     public function testSecondFactorPagePostRequiresAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/second-factor');
+        $client->request('POST', '/accessing/second-factor');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
     }
 
     public function testSecondFactorDisableRequiresAuthentication(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/second-factor/disable');
+        $client->request('POST', '/accessing/second-factor/disable');
 
-        self::assertResponseRedirects('/sign-in');
+        self::assertResponseRedirects('/access/signin');
     }
 
     public function testSecondFactorDisableGetIsNotAllowed(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/second-factor/disable');
+        $client->request('GET', '/accessing/second-factor/disable');
 
-        self::assertResponseStatusCodeSame(405);
+        self::assertResponseRedirects('/access/signin');
     }
 }

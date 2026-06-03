@@ -17,8 +17,8 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: AccountRepository::class)]
-#[ORM\Table(name: 'accessing_account')]
-#[ORM\UniqueConstraint(name: 'uniq_accessing_account_email', columns: ['email'])]
+#[ORM\Table(name: 'access_account')]
+#[ORM\UniqueConstraint(name: 'uniq_access_account_email', columns: ['email'])]
 class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]

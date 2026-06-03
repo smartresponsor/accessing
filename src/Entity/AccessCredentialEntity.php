@@ -8,7 +8,7 @@ namespace App\Accessing\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
-#[ORM\Table(name: 'credential')]
+#[ORM\Table(name: 'access_credential')]
 final class AccessCredentialEntity
 {
     #[ORM\Id]
