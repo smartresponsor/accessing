@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
-use App\Accessing\Repository\AccountRepository;
+use App\Accessing\Repository\AccessAccountRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,7 +16,7 @@ use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: AccountRepository::class)]
+#[ORM\Entity(repositoryClass: AccessAccountRepository::class)]
 #[ORM\Table(name: 'access_account')]
 #[ORM\UniqueConstraint(name: 'uniq_access_account_email', columns: ['email'])]
 class AccessAccountEntity implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface

@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
-use App\Accessing\ValueObject\VerificationChallengeType;
+use App\Accessing\ValueObject\AccessVerificationChallengeType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -53,7 +53,7 @@ class AccessVerificationChallengeEntity
      */
     public function __construct(
         ?AccessAccountEntity $account = null,
-        VerificationChallengeType|string|null $challengeType = null,
+        AccessVerificationChallengeType|string|null $challengeType = null,
         ?string $target = null,
         ?string $token = null,
         ?\DateTimeImmutable $expiresAt = null,
@@ -98,22 +98,22 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
-    public function getChallengeType(): VerificationChallengeType
+    public function getChallengeType(): AccessVerificationChallengeType
     {
         return match ($this->channelType) {
-            'email', 'email_verification' => VerificationChallengeType::EmailVerification,
-            'phone', 'phone_verification' => VerificationChallengeType::PhoneVerification,
-            default => VerificationChallengeType::PasswordRecovery,
+            'email', 'email_verification' => AccessVerificationChallengeType::EmailVerification,
+            'phone', 'phone_verification' => AccessVerificationChallengeType::PhoneVerification,
+            default => AccessVerificationChallengeType::PasswordRecovery,
         };
     }
 
-    public function setChallengeType(VerificationChallengeType|string $challengeType): self
+    public function setChallengeType(AccessVerificationChallengeType|string $challengeType): self
     {
-        $value = $challengeType instanceof VerificationChallengeType ? $challengeType->value : trim($challengeType);
+        $value = $challengeType instanceof AccessVerificationChallengeType ? $challengeType->value : trim($challengeType);
         $this->channelType = match ($value) {
-            VerificationChallengeType::EmailVerification->value, 'email' => 'email',
-            VerificationChallengeType::PhoneVerification->value, 'phone' => 'phone',
-            VerificationChallengeType::PasswordRecovery->value, 'recovery', 'password_recovery' => 'recovery',
+            AccessVerificationChallengeType::EmailVerification->value, 'email' => 'email',
+            AccessVerificationChallengeType::PhoneVerification->value, 'phone' => 'phone',
+            AccessVerificationChallengeType::PasswordRecovery->value, 'recovery', 'password_recovery' => 'recovery',
             default => $value,
         };
 

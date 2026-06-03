@@ -49,13 +49,13 @@ services:
       # The external App\Configuring contracts are not part of this component.
       - ../../src/Provider/Configuration/
       - ../../src/Service/Config/
-  App\Accessing\ServiceInterface\Rendering\PageResponderInterface:
-    alias: App\Accessing\Responder\Rendering\TwigPageResponder
-  App\Accessing\ServiceInterface\Rendering\PageViewFactoryInterface:
-    alias: App\Accessing\Factory\Rendering\PageViewFactory
-  App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface:
-    alias: App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService
+  App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface:
+    alias: App\Accessing\Responder\Rendering\AccessTwigPageResponder
+  App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface:
+    alias: App\Accessing\Factory\Rendering\AccessPageViewFactory
+  App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface:
+    alias: App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService
 
-  App\Accessing\Service\SecurityNotification\AccessingSecurityNotificationService:
+  App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:
     arguments:
       $accessingMailerSender: '%accessing.mailer_sender%'

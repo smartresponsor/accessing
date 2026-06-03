@@ -5,9 +5,9 @@ This wave normalizes source-tree placement and Symfony class naming without chan
 ## Decisions
 
 - `App\Accessing\...` remains the correct component namespace.
-- Context values are not DTOs: `AccessingCurrentAccountContext` now lives in `src/Context`.
+- Context values are not DTOs: `AccessCurrentAccountContext` now lives in `src/Context`.
 - Symfony form classes use the Symfony-style `*Type` suffix, not `*FormType`.
-- `AccessingAuthenticationEntryPoint` is a Symfony security entry point and now lives under `src/Authenticator` instead of a generic `src/Security` bucket.
+- `AccessAuthenticationEntryPoint` is a Symfony security entry point and now lives under `src/Authenticator` instead of a generic `src/Security` bucket.
 - Builders remain under `src/Builder` from W04.
 - Provider/Recorder/Validator/Bridge/Catalog/Factory/Responder classes are placed in type-identifiable folders instead of broad `src/Service` buckets.
 
@@ -21,9 +21,9 @@ This wave normalizes source-tree placement and Symfony class naming without chan
 - `src/Service/Admin/*Validator.php` -> `src/Validator/Admin`
 - `src/Service/Admin/*Bridge.php` -> `src/Bridge/Admin`
 - `src/Service/Admin/*Catalog.php` -> `src/Catalog/Admin`
-- `src/Service/Rendering/PageViewFactory.php` -> `src/Factory/Rendering/PageViewFactory.php`
-- `src/Service/Rendering/TwigPageResponder.php` -> `src/Responder/Rendering/TwigPageResponder.php`
-- `src/Service/SecurityEvent/AccessingSecurityEventRecorder.php` -> `src/Recorder/SecurityEvent/AccessingSecurityEventRecorder.php`
+- `src/Service/Rendering/AccessPageViewFactory.php` -> `src/Factory/Rendering/AccessPageViewFactory.php`
+- `src/Service/Rendering/AccessTwigPageResponder.php` -> `src/Responder/Rendering/AccessTwigPageResponder.php`
+- `src/Service/SecurityEvent/AccessSecurityEventRecorder.php` -> `src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php`
 - `src/Service/Accessing*SurfaceContractFactory.php` -> `src/Factory/Surface`
 
 ## Verification

@@ -18,7 +18,7 @@ Source: Qodana SARIF `v5bn4_1rXE7_aaa712d9-e005-4782-b498-e2b510c4e655_qodana.sa
 
 Targeted fixes only. No broad formatting pass and no mass rename sweep.
 
-- Renamed two non-canonical constants in `AccessingAccountAuthenticationService`.
+- Renamed two non-canonical constants in `AccessAccountAuthenticationService`.
 - Renamed docker runner local functions to snake_case.
 - Removed unnecessary curly interpolation in docker runner strings.
 - Normalized one runner diagnostic variable.
@@ -28,4 +28,4 @@ Targeted fixes only. No broad formatting pass and no mass rename sweep.
 ## Deferred
 
 - `PhpUnhandledExceptionInspection` items are deferred to a second wave because they require domain-level exception policy decisions.
-- `PhpTooManyParametersInspection` in `AccessingResetPasswordSurfaceBuilder` is deferred because reducing parameters would change builder/service seams and should be done as a separate architectural micro-refactor.
+- `PhpTooManyParametersInspection` in `AccessResetPasswordSurfaceBuilder` is deferred because reducing parameters would change builder/service seams and should be done as a separate architectural micro-refactor.

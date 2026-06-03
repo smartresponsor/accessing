@@ -1,0 +1,19 @@
+<?php
+
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
+declare(strict_types=1);
+
+namespace App\Accessing\Tests\Functional;
+
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+final class AccessSecurityEventRoutesTest extends WebTestCase
+{
+    public function testSecurityEventsRequireAuthentication(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/accessing/security-events');
+
+        self::assertResponseRedirects('/access/signin');
+    }
+}

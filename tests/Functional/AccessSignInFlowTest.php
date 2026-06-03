@@ -1,0 +1,47 @@
+<?php
+
+# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
+declare(strict_types=1);
+
+namespace App\Accessing\Tests\Functional;
+
+use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+final class AccessSignInFlowTest extends WebTestCase
+{
+    public function testPasswordSignInCompletesForVerifiedAccountWithoutSecondFactor(): void
+    {
+        self::bootKernel();
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+        $schemaTool = new SchemaTool($entityManager);
+        $metadata = $entityManager->getMetadataFactory()->getAllMetadata();
+        $schemaTool->dropSchema($metadata);
+        $schemaTool->createSchema($metadata);
+        $account = new AccessAccountEntity('signin@accessing.local', 'Sign In Tester');
+        $account->markEmailVerified();
+        /** @var AccessCredentialServiceInterface $credentialService */
+        $credentialService = static::getContainer()->get(AccessCredentialServiceInterface::class);
+        $credentialService->createCredential($account, 'signin-pass-123');
+        $entityManager->persist($account);
+        $entityManager->flush();
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $client->request('POST', '/access/signin', [
+            'account_sign_in' => [
+                'emailAddress' => 'signin@accessing.local',
+                'plainPassword' => 'signin-pass-123',
+            ],
+        ]);
+
+        self::assertResponseRedirects('/accessing/');
+        $client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h1', 'Account overview');
+    }
+}

@@ -6,10 +6,10 @@ Builder classes are not canonical in `src/Controller/`.
 
 Surface builders belong in the type-oriented builder layer:
 
-- `src/Builder/AccessingSurfaceBuilder.php`
-- `src/Builder/AccessingSecuritySurfaceBuilder.php`
-- `src/Builder/AccessingResetPasswordSurfaceBuilder.php`
-- `src/Builder/AccessingOperatorSurfaceBuilder.php`
+- `src/Builder/AccessSurfaceBuilder.php`
+- `src/Builder/AccessSecuritySurfaceBuilder.php`
+- `src/Builder/AccessResetPasswordSurfaceBuilder.php`
+- `src/Builder/AccessOperatorSurfaceBuilder.php`
 
 The component keeps the scoped namespace `App\Accessing\...`.
 
@@ -17,10 +17,10 @@ The component keeps the scoped namespace `App\Accessing\...`.
 
 Deleted the stale controller copies:
 
-- `src/Controller/AccessingSurfaceBuilder.php`
-- `src/Controller/AccessingSecuritySurfaceBuilder.php`
-- `src/Controller/AccessingResetPasswordSurfaceBuilder.php`
-- `src/Controller/AccessingOperatorSurfaceBuilder.php`
+- `src/Controller/AccessSurfaceBuilder.php`
+- `src/Controller/AccessSecuritySurfaceBuilder.php`
+- `src/Controller/AccessResetPasswordSurfaceBuilder.php`
+- `src/Controller/AccessOperatorSurfaceBuilder.php`
 
 ## Route ownership
 

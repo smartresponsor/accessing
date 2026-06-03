@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
-use App\Accessing\ValueObject\SecurityEventSeverity;
-use App\Accessing\ValueObject\SecurityEventType;
+use App\Accessing\ValueObject\AccessSecurityEventSeverity;
+use App\Accessing\ValueObject\AccessSecurityEventType;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -45,8 +45,8 @@ class AccessSecurityEventEntity
      * @param array<string, scalar|array<array-key, mixed>|null> $context
      */
     public function __construct(
-        SecurityEventType|string|null $eventType = null,
-        SecurityEventSeverity|string|null $severity = null,
+        AccessSecurityEventType|string|null $eventType = null,
+        AccessSecurityEventSeverity|string|null $severity = null,
         ?AccessAccountEntity $account = null,
         ?string $ipAddress = null,
         ?string $userAgent = null,
@@ -85,14 +85,14 @@ class AccessSecurityEventEntity
         return $this;
     }
 
-    public function getEventType(): SecurityEventType
+    public function getEventType(): AccessSecurityEventType
     {
-        return SecurityEventType::tryFrom($this->eventType) ?? SecurityEventType::SignInFailed;
+        return AccessSecurityEventType::tryFrom($this->eventType) ?? AccessSecurityEventType::SignInFailed;
     }
 
-    public function setEventType(SecurityEventType|string $eventType): self
+    public function setEventType(AccessSecurityEventType|string $eventType): self
     {
-        $this->eventType = trim($eventType instanceof SecurityEventType ? $eventType->value : $eventType);
+        $this->eventType = trim($eventType instanceof AccessSecurityEventType ? $eventType->value : $eventType);
 
         return $this;
     }
@@ -111,18 +111,18 @@ class AccessSecurityEventEntity
         return $this;
     }
 
-    public function getSeverity(): SecurityEventSeverity
+    public function getSeverity(): AccessSecurityEventSeverity
     {
         $severity = $this->context['severity'] ?? null;
 
-        return is_string($severity) && SecurityEventSeverity::tryFrom($severity) instanceof SecurityEventSeverity
-            ? SecurityEventSeverity::from($severity)
-            : SecurityEventSeverity::Info;
+        return is_string($severity) && AccessSecurityEventSeverity::tryFrom($severity) instanceof AccessSecurityEventSeverity
+            ? AccessSecurityEventSeverity::from($severity)
+            : AccessSecurityEventSeverity::Info;
     }
 
-    public function setSeverity(SecurityEventSeverity|string $severity): self
+    public function setSeverity(AccessSecurityEventSeverity|string $severity): self
     {
-        $this->context['severity'] = $severity instanceof SecurityEventSeverity ? $severity->value : trim($severity);
+        $this->context['severity'] = $severity instanceof AccessSecurityEventSeverity ? $severity->value : trim($severity);
 
         return $this;
     }

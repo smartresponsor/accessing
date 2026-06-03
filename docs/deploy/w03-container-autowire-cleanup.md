@@ -5,7 +5,7 @@ This wave keeps `App\Accessing\` as the component namespace and narrows Symfony 
 ## Fixes
 
 - Removes the unused component-level `_defaults.bind` entry for `string $accessingMailerSender`.
-- Wires `AccessingSecurityNotificationService::$accessingMailerSender` explicitly.
+- Wires `AccessSecurityNotificationService::$accessingMailerSender` explicitly.
 - Excludes DTO, value, contract, event, message, and form folders from service autowiring.
 - Keeps dormant Configuring integration folders excluded in standalone Accessing.
 

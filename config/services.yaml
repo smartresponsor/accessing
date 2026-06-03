@@ -35,68 +35,68 @@ services:
       - ../src/Event/
       - ../src/Message/
       - ../src/Form/
-      - '../src/Command/AccessingDemoResetCommand.php'
+      - '../src/Command/AccessDemoResetCommand.php'
       - '../src/Kernel.php'
       # Configuring integration is intentionally dormant in standalone Accessing.
       # The external App\Configuring contracts are not part of this component.
       - '../src/Provider/Configuration/'
       - '../src/Service/Config/'
 
-  App\Accessing\ServiceInterface\AccountContext\AccessingCurrentAccountContextProviderInterface: '@App\Accessing\Provider\AccountContext\AccessingCurrentAccountContextProvider'
-  App\Accessing\ServiceInterface\Account\AccessingAccountAuthenticationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountAuthenticationService'
-  App\Accessing\ServiceInterface\Account\AccessingAccountRegistrationServiceInterface: '@App\Accessing\Service\Account\AccessingAccountRegistrationService'
-  App\Accessing\ServiceInterface\AccountSession\AccessingAccountSessionServiceInterface: '@App\Accessing\Service\AccountSession\AccessingAccountSessionService'
-  App\Accessing\ServiceInterface\Credential\AccessingCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessingCredentialService'
-  App\Accessing\ServiceInterface\Recovery\AccessingRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessingRecoveryService'
-  App\Accessing\ServiceInterface\SecondFactor\AccessingSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessingSecondFactorService'
-  App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventRecorderInterface: '@App\Accessing\Recorder\SecurityEvent\AccessingSecurityEventRecorder'
-  App\Accessing\ServiceInterface\SecurityEvent\AccessingSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessingSecurityEventService'
-  App\Accessing\ServiceInterface\SecurityNotification\AccessingSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessingSecurityNotificationService'
-  App\Accessing\ServiceInterface\Vendor\AccessingPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService'
-  App\Accessing\ServiceInterface\Verification\AccessingVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessingVerificationChallengeService'
-  App\Accessing\RepositoryInterface\AccountRepositoryInterface: '@App\Accessing\Repository\AccountRepository'
-  App\Accessing\RepositoryInterface\AccountSessionRepositoryInterface: '@App\Accessing\Repository\AccountSessionRepository'
-  App\Accessing\RepositoryInterface\SecurityEventRepositoryInterface: '@App\Accessing\Repository\SecurityEventRepository'
-  App\Accessing\RepositoryInterface\VerificationChallengeRepositoryInterface: '@App\Accessing\Repository\VerificationChallengeRepository'
+  App\Accessing\ServiceInterface\AccountContext\AccessCurrentAccountContextProviderInterface: '@App\Accessing\Provider\AccountContext\AccessCurrentAccountContextProvider'
+  App\Accessing\ServiceInterface\Account\AccessAccountAuthenticationServiceInterface: '@App\Accessing\Service\Account\AccessAccountAuthenticationService'
+  App\Accessing\ServiceInterface\Account\AccessAccountRegistrationServiceInterface: '@App\Accessing\Service\Account\AccessAccountRegistrationService'
+  App\Accessing\ServiceInterface\AccountSession\AccessAccountSessionServiceInterface: '@App\Accessing\Service\AccountSession\AccessAccountSessionService'
+  App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessCredentialService'
+  App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessRecoveryService'
+  App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessSecondFactorService'
+  App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface: '@App\Accessing\Recorder\SecurityEvent\AccessSecurityEventRecorder'
+  App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessSecurityEventService'
+  App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService'
+  App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService'
+  App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessVerificationChallengeService'
+  App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface: '@App\Accessing\Repository\AccessAccountRepository'
+  App\Accessing\RepositoryInterface\AccessAccountSessionRepositoryInterface: '@App\Accessing\Repository\AccessAccountSessionRepository'
+  App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
+  App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\DoctrineAccessingAccountAdministrationService'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\DoctrineAccessingAccountAdministrationProjectionProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationActionCatalogInterface: '@App\Accessing\Catalog\Admin\AccessingAccountAdministrationActionCatalog'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationBridgeInterface: '@App\Accessing\Bridge\Admin\AccessingAccountAdministrationBridge'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\DoctrineAccessingAccountAdministrationAuditRecorder'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRequestValidatorInterface: '@App\Accessing\Validator\Admin\AccessingAccountAdministrationRequestValidator'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\DoctrineAccessingAccountAdministrationAuditProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\AccessDoctrineAccessingAccountAdministrationService'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccessingAccountAdministrationProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationActionCatalogInterface: '@App\Accessing\Catalog\Admin\AccessAccountAdministrationActionCatalog'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationBridgeInterface: '@App\Accessing\Bridge\Admin\AccessAccountAdministrationBridge'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\AccessDoctrineAccessingAccountAdministrationAuditRecorder'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRequestValidatorInterface: '@App\Accessing\Validator\Admin\AccessAccountAdministrationRequestValidator'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccessingAccountAdministrationAuditProjectionProvider'
 
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationExecutionPlanProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationCapabilityMatrixProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationContractMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationContractMatrixProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationHealthReportProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationHealthReportProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationDiagnosticReportProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationDiagnosticReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationExecutionPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationCapabilityMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationContractMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationContractMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationHealthReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationHealthReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationDiagnosticReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationDiagnosticReportProvider'
 
-  App\Accessing\Service\Vendor\AccessingPhoneVerificationGatewayService:
+  App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
       $selectedProvider: '%accessing.phone_verification_provider%'
 
-  App\Accessing\Service\Vendor\AccessingFakePhoneVerificationProviderService:
+  App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
 
-  App\Accessing\Service\Vendor\AccessingNullPhoneVerificationProviderService:
+  App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
 
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationReadinessReportProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationReadinessReportProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationExecutionReadinessProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationExecutionReadinessProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationRemediationPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationRemediationPlanProvider'
-  App\Accessing\ServiceInterface\Admin\AccessingAccountAdministrationWorkPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessingAccountAdministrationWorkPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationReadinessReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationReadinessReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionReadinessProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationExecutionReadinessProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRemediationPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationRemediationPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationWorkPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationWorkPlanProvider'
 
 
-  App\Accessing\Service\SecurityNotification\AccessingSecurityNotificationService:
+  App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:
     arguments:
       $accessingMailerSender: '%env(default:accessing.mailer_sender.default:ACCESSING_MAILER_SENDER)%'
 
 when@dev:
   services:
     Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader: '@doctrine.fixtures.loader'
-    App\Accessing\Command\AccessingDemoResetCommand:
+    App\Accessing\Command\AccessDemoResetCommand:
       arguments:
         $fixturesLoader: '@doctrine.fixtures.loader'
