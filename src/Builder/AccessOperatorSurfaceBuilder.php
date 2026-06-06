@@ -8,7 +8,7 @@ use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -18,7 +18,7 @@ final readonly class AccessOperatorSurfaceBuilder
         AccessAccountRepositoryInterface $accountRepository,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         return $pageResponder->respond($pageViewFactory->operatorAccounts(
             $accountRepository->findRecentAccounts(100),
         ));
@@ -30,7 +30,7 @@ final readonly class AccessOperatorSurfaceBuilder
         AccessSecurityEventRepositoryInterface $securityEventRepository,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $accountRepository->findById($id);
 
         if (null === $account) {
@@ -47,7 +47,7 @@ final readonly class AccessOperatorSurfaceBuilder
         AccessSecurityEventRepositoryInterface $securityEventRepository,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         return $pageResponder->respond($pageViewFactory->operatorSecurityEvents(
             $securityEventRepository->findRecentEvents(150),
         ));

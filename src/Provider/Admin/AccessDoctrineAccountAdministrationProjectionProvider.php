@@ -12,7 +12,7 @@ use App\Accessing\Value\Admin\AccessAccountAdministrationProjection;
 /**
  * Doctrine-backed safe account projection provider for Administering.
  */
-final class AccessDoctrineAccessingAccountAdministrationProjectionProvider implements AccessAccountAdministrationProjectionProviderInterface
+final class AccessDoctrineAccountAdministrationProjectionProvider implements AccessAccountAdministrationProjectionProviderInterface
 {
     public function __construct(private readonly AccessAccountRepository $accountRepository)
     {

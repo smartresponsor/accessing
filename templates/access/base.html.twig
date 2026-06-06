@@ -1,0 +1,50 @@
+{# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp #}
+{#
+  Public access surface adapter.
+
+  Access pages intentionally use the canonical Interfacing application document
+  from templates/base.html.twig. This file is not a document base and must not own
+  document-level HTML tags. It only adapts access-specific content
+  into the single shell path so public/auth pages cannot drift from the runtime
+  shell contract.
+#}
+{% extends '@Interfacing/base.html.twig' %}
+
+{% set accessPage = accessPage|default('welcome') %}
+{% set accessTitle = accessTitle|default('Welcome') %}
+{% set accessSubtitle = accessSubtitle|default('Continue to Smart Responsor.') %}
+{% set accessFooterMode = accessFooterMode|default('welcome-only') %}
+{% set title = accessTitle ~ ' · Smart Responsor' %}
+{% set shell = shell|default({
+  shellCompact: true,
+  locations: {},
+  navigation: { locations: {}, active: {} },
+  quickMenuGroup: [],
+  rightPanelGroup: []
+}) %}
+
+{% block body %}
+  <main class="interfacing-access-body-slot" data-interfacing-access-slot="body" data-interfacing-access-page="{{ accessPage }}">
+    <section class="interfacing-access-panel" data-interfacing-access-panel="single-card" aria-labelledby="interfacing-access-title">
+      <a href="/interfacing" class="interfacing-access-brand" data-interfacing-access-brand>
+        <img class="interfacing-access-brand__logo" src="{{ asset('mandala.svg') }}" alt="">
+        <span>Smart Responsor</span>
+      </a>
+      <div class="interfacing-access-card" data-interfacing-access-card data-interfacing-access-footer-mode="{{ accessFooterMode }}">
+        {% for label, messages in app.flashes %}
+          {% for message in messages %}
+            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'success' ? 'success' : 'secondary') }} interfacing-access-flash" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endfor %}
+        {% block access_body %}
+          <div class="interfacing-access-heading">
+            <h1 id="interfacing-access-title">{{ accessTitle }}</h1>
+            <p class="interfacing-muted">{{ accessSubtitle }}</p>
+          </div>
+        {% endblock %}
+      </div>
+    </section>
+  </main>
+{% endblock %}

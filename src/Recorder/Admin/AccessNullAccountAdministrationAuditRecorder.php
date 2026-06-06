@@ -10,7 +10,7 @@ use App\Accessing\Value\Admin\AccessAccountAdministrationAuditEvent;
 /**
  * Bootstrap audit recorder until host/system storage wiring is provided.
  */
-final class AccessNullAccessingAccountAdministrationAuditRecorder implements AccessAccountAdministrationAuditRecorderInterface
+final class AccessNullAccountAdministrationAuditRecorder implements AccessAccountAdministrationAuditRecorderInterface
 {
     public function record(AccessAccountAdministrationAuditEvent $event): void
     {

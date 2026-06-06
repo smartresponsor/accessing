@@ -15,7 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 /**
  * Doctrine-backed safe audit projection provider for Administering.
  */
-final readonly class AccessDoctrineAccessingAccountAdministrationAuditProjectionProvider implements AccessAccountAdministrationAuditProjectionProviderInterface
+final readonly class AccessDoctrineAccountAdministrationAuditProjectionProvider implements AccessAccountAdministrationAuditProjectionProviderInterface
 {
     public function __construct(private EntityManagerInterface $entityManager)
     {

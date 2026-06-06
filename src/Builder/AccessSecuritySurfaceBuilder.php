@@ -23,7 +23,7 @@ use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -47,7 +47,7 @@ final readonly class AccessSecuritySurfaceBuilder
         AccessAccountRegistrationServiceInterface $accountRegistrationService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         if ($this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectTo('accessing_home');
         }
@@ -80,7 +80,7 @@ final readonly class AccessSecuritySurfaceBuilder
         Request $request,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         if ($this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectTo('accessing_home');
         }
@@ -104,7 +104,7 @@ final readonly class AccessSecuritySurfaceBuilder
         AccessAccountAuthenticationServiceInterface $accountAuthenticationService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         if ($this->getUser() instanceof AccessAccountEntity) {
             return $this->redirectTo('accessing_home');
         }
@@ -144,7 +144,7 @@ final readonly class AccessSecuritySurfaceBuilder
         AccessSecondFactorServiceInterface $secondFactorService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $pendingAccountId = $accountAuthenticationService->getPendingSecondFactorAccountId($request->getSession());
 
         if (null === $pendingAccountId) {
@@ -182,7 +182,7 @@ final readonly class AccessSecuritySurfaceBuilder
     public function signOut(
         Request $request,
         AccessAccountAuthenticationServiceInterface $accountAuthenticationService,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $accountAuthenticationService->signOut(
             $this->getUser() instanceof AccessAccountEntity ? $this->getUser() : null,
             $request,
@@ -194,7 +194,7 @@ final readonly class AccessSecuritySurfaceBuilder
     public function switchAccount(
         Request $request,
         AccessAccountAuthenticationServiceInterface $accountAuthenticationService,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $accountAuthenticationService->signOut(
             $this->getUser() instanceof AccessAccountEntity ? $this->getUser() : null,
             $request,
@@ -210,7 +210,7 @@ final readonly class AccessSecuritySurfaceBuilder
         AccessRecoveryServiceInterface $recoveryService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $form = $this->formFactory->create(AccessRecoveryRequestType::class);
         $form->handleRequest($request);
 
@@ -235,7 +235,7 @@ final readonly class AccessSecuritySurfaceBuilder
         AccessRecoveryServiceInterface $recoveryService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $form = $this->formFactory->create(AccessRecoveryResetType::class);
         $form->handleRequest($request);
 

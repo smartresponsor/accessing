@@ -20,7 +20,7 @@ use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -46,7 +46,7 @@ final readonly class AccessSurfaceBuilder
     public function home(
         AccessSecurityEventRepositoryInterface $securityEventRepository,
         AccessHomeSurfaceContractFactory $surfaceContractFactory,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         if (!$this->currentUser() instanceof AccessAccountEntity) {
             return $this->redirectTo('interfacing_welcome_sign_in');
         }
@@ -67,7 +67,7 @@ final readonly class AccessSurfaceBuilder
         AccessVerificationChallengeServiceInterface $verificationChallengeService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $this->requireAccount();
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
         $form->handleRequest($request);
@@ -103,7 +103,7 @@ final readonly class AccessSurfaceBuilder
         AccessVerificationChallengeServiceInterface $verificationChallengeService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $this->requireAccount();
         $form = $this->formFactory->create(AccessPhoneVerificationRequestType::class);
         $form->handleRequest($request);
@@ -133,7 +133,7 @@ final readonly class AccessSurfaceBuilder
         AccessVerificationChallengeServiceInterface $verificationChallengeService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $this->requireAccount();
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
         $form->handleRequest($request);
@@ -165,7 +165,7 @@ final readonly class AccessSurfaceBuilder
         AccessSecondFactorServiceInterface $secondFactorService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $this->requireAccount();
         $enrollment = $secondFactorService->beginEnrollment($account);
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
@@ -212,7 +212,7 @@ final readonly class AccessSurfaceBuilder
     public function disableSecondFactor(
         Request $request,
         AccessSecondFactorServiceInterface $secondFactorService,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $secondFactorService->disableSecondFactor($this->requireAccount());
         $this->flash($request, 'info', 'Second factor has been disabled.');
 
@@ -225,7 +225,7 @@ final readonly class AccessSurfaceBuilder
     public function sessions(
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         return $pageResponder->respond($pageViewFactory->sessions($this->requireAccount()));
     }
 
@@ -235,7 +235,7 @@ final readonly class AccessSurfaceBuilder
     public function invalidateOtherSessions(
         Request $request,
         AccessAccountSessionServiceInterface $accountSessionService,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $invalidatedCount = $accountSessionService->invalidateOtherSessions($this->requireAccount(), $request->getSession());
         $this->flash($request, 'info', sprintf('%d other session(s) invalidated.', $invalidatedCount));
 
@@ -249,7 +249,7 @@ final readonly class AccessSurfaceBuilder
         AccessSecurityEventRepositoryInterface $securityEventRepository,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         return $pageResponder->respond($pageViewFactory->securityEvents(
             $securityEventRepository->findRecentEventsForAccount($this->requireAccount()),
         ));
@@ -263,7 +263,7 @@ final readonly class AccessSurfaceBuilder
         AccessCredentialServiceInterface $credentialService,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $account = $this->requireAccount();
         $form = $this->formFactory->create(AccessPasswordChangeType::class);
         $form->handleRequest($request);

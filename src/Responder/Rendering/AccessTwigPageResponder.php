@@ -8,7 +8,7 @@ namespace App\Accessing\Responder\Rendering;
 use App\Accessing\Dto\AccessPageView;
 use App\Accessing\Factory\Surface\AccessPageSurfaceContractFactory;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 
 final class AccessTwigPageResponder implements AccessPageResponderInterface
 {
@@ -17,7 +17,7 @@ final class AccessTwigPageResponder implements AccessPageResponderInterface
     ) {
     }
 
-    public function respond(AccessPageView $pageView): SurfaceRenderableInterface
+    public function respond(AccessPageView $pageView): InterfaceSurfaceRenderableInterface
     {
         return $this->surfaceContractFactory->create($pageView);
     }

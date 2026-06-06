@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Config;
 
-use App\Accessing\Form\Config\AccessEnvironmentConfigFormType;
-use App\Accessing\Value\Form\Config\AccessEnvironmentConfigData;
+use App\Accessing\Form\Config\AccessEnvironmentConfigType;
+use App\Accessing\Value\Config\AccessEnvironmentConfigData;
 use App\Configuring\ServiceInterface\Config\ConfigToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ConfigVariableToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ManagedConfigVariablesProviderInterface;
@@ -26,7 +26,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
             toolCode: 'accessing.environment',
             label: 'Accessing Environment',
             description: 'Safe runtime flags and thresholds stored in the Accessing component runtime manifest.',
-            formClass: AccessEnvironmentConfigFormType::class,
+            formClass: AccessEnvironmentConfigType::class,
             serviceClass: self::class,
             requiredPermission: 'administration.config.update',
             editableFields: [

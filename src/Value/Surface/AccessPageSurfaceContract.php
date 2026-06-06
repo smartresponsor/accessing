@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\Value\Surface;
 
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 
-final readonly class AccessPageSurfaceContract implements SurfaceRenderableInterface
+final readonly class AccessPageSurfaceContract implements InterfaceSurfaceRenderableInterface
 {
     /**
      * @param array<string, mixed> $parameters

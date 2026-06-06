@@ -11,7 +11,7 @@ use App\Accessing\Value\Admin\AccessAccountAdministrationAction;
  * Safe bootstrap implementation for host applications that have not wired
  * concrete account/session administration actions yet.
  */
-final class AccessBootstrapAccessingAccountAdministrationService implements AccessAccountAdministrationServiceInterface
+final class AccessBootstrapAccountAdministrationService implements AccessAccountAdministrationServiceInterface
 {
     private const SUPPORTED_ACTIONS = [
         'accessing.account.lock',

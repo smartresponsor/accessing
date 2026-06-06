@@ -12,7 +12,7 @@ use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
-use App\Interfacing\ServiceInterface\Presentation\SurfaceRenderableInterface;
+use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,7 +46,7 @@ final readonly class AccessResetPasswordSurfaceBuilder
         AccessSecurityEventRecorderInterface $securityEventRecorder,
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $form = $this->formFactory->create(AccessResetPasswordRequestType::class);
         $form->handleRequest($request);
 
@@ -85,7 +85,7 @@ final readonly class AccessResetPasswordSurfaceBuilder
     public function checkEmail(
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         return $pageResponder->respond($pageViewFactory->resetPasswordCheckEmail());
     }
 
@@ -97,7 +97,7 @@ final readonly class AccessResetPasswordSurfaceBuilder
         AccessPageViewFactoryInterface $pageViewFactory,
         AccessPageResponderInterface $pageResponder,
         ?string $token = null,
-    ): Response|SurfaceRenderableInterface {
+    ): Response|InterfaceSurfaceRenderableInterface {
         $session = $request->getSession();
 
         if (null !== $token && '' !== trim($token)) {

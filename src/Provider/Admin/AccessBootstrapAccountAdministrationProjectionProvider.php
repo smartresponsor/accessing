@@ -10,7 +10,7 @@ use App\Accessing\Value\Admin\AccessAccountAdministrationProjection;
 /**
  * Empty bootstrap provider until the host wires Doctrine-backed account projections.
  */
-final class AccessBootstrapAccessingAccountAdministrationProjectionProvider implements AccessAccountAdministrationProjectionProviderInterface
+final class AccessBootstrapAccountAdministrationProjectionProvider implements AccessAccountAdministrationProjectionProviderInterface
 {
     /** @return list<AccessAccountAdministrationProjection> */
     public function recent(int $limit = 25): array

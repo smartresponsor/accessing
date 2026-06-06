@@ -9,7 +9,7 @@ use App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorde
 use App\Accessing\Value\Admin\AccessAccountAdministrationAuditEvent;
 use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class AccessDoctrineAccessingAccountAdministrationAuditRecorder implements AccessAccountAdministrationAuditRecorderInterface
+final readonly class AccessDoctrineAccountAdministrationAuditRecorder implements AccessAccountAdministrationAuditRecorderInterface
 {
     public function __construct(private EntityManagerInterface $entityManager)
     {

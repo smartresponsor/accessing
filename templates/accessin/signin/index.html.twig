@@ -1,0 +1,28 @@
+{# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp #}
+{% extends '@Accessing/access/base.html.twig' %}
+
+{% block access_body %}
+  <div class="interfacing-access-stack">
+    <div>
+      <p class="interfacing-eyebrow">Account access</p>
+      <h1>Sign in to continue</h1>
+      <p class="interfacing-muted">This Accessing page owns the credential form surface. The actual credential check remains in the Accessing/security component.</p>
+    </div>
+
+    <form method="post" action="{{ path('interfacing_welcome_sign_in') }}" class="interfacing-form" data-interfacing-access-form="sign-in">
+      <label class="interfacing-form-label">Email
+        <input name="account_sign_in[emailAddress]" type="email" autocomplete="email" required>
+      </label>
+      <label class="interfacing-form-label">Password
+        <input name="account_sign_in[plainPassword]" type="password" autocomplete="current-password" required>
+      </label>
+      <div class="interfacing-inline-row">
+        <label class="interfacing-inline-check"><input name="account_sign_in[rememberMe]" type="checkbox"> Remember me</label>
+        <a href="#reset-password">Forgot password?</a>
+      </div>
+      <button class="interfacing-button-primary" type="submit">Sign in</button>
+    </form>
+
+    <p class="interfacing-muted">New here? <a href="{{ path('interfacing_welcome_sign_up') }}">Create an account</a>.</p>
+  </div>
+{% endblock %}

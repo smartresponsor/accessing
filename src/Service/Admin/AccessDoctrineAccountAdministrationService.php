@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
  * Administering may request these actions, but Accessing remains the owner of
  * account, session, 2FA, and security semantics.
  */
-final class AccessDoctrineAccessingAccountAdministrationService implements AccessAccountAdministrationServiceInterface
+final class AccessDoctrineAccountAdministrationService implements AccessAccountAdministrationServiceInterface
 {
     private const SUPPORTED_ACTIONS = [
         'accessing.account.lock',

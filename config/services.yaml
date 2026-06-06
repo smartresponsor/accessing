@@ -16,7 +16,6 @@ services:
       $accessingAccountLockThreshold: 5
       $accessingAccountLockMinutes: 15
       $accessingProductName: '%accessing.product_name%'
-      $accessingMailerSender: '%env(default:accessing.mailer_sender.default:ACCESSING_MAILER_SENDER)%'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignUpLimiter: '@limiter.accessing_sign_up'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingRecoveryLimiter: '@limiter.accessing_recovery'
@@ -59,13 +58,13 @@ services:
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\AccessDoctrineAccessingAccountAdministrationService'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccessingAccountAdministrationProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\AccessDoctrineAccountAdministrationService'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccountAdministrationProjectionProvider'
   App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationActionCatalogInterface: '@App\Accessing\Catalog\Admin\AccessAccountAdministrationActionCatalog'
   App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationBridgeInterface: '@App\Accessing\Bridge\Admin\AccessAccountAdministrationBridge'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\AccessDoctrineAccessingAccountAdministrationAuditRecorder'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\AccessDoctrineAccountAdministrationAuditRecorder'
   App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRequestValidatorInterface: '@App\Accessing\Validator\Admin\AccessAccountAdministrationRequestValidator'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccessingAccountAdministrationAuditProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccountAdministrationAuditProjectionProvider'
 
   App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationExecutionPlanProvider'
   App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationCapabilityMatrixProvider'
