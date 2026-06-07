@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\DataFixtures;
 
-use App\Accessing\Entity\AccessAccountEntity;
-use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
+use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -17,17 +17,17 @@ final class AccessAdminFixtures extends Fixture
     private const ADMIN_PASSWORD = 'admin';
 
     public function __construct(
-        private readonly AccessAccountRepositoryInterface $accountRepository,
+        private readonly AccessUserRepositoryInterface $userRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
     ) {
     }
 
     public function load(ObjectManager $manager): void
     {
-        $account = $this->accountRepository->findOneByEmailAddress(self::ADMIN_EMAIL)
-            ?? new AccessAccountEntity();
+        $user = $this->userRepository->findOneByEmailAddress(self::ADMIN_EMAIL)
+            ?? new AccessUserEntity();
 
-        $account
+        $user
             ->setEmail(self::ADMIN_EMAIL)
             ->setDisplayName('Accessing Admin')
             ->setRoles(['ROLE_ADMIN', 'ROLE_ALLOWED_TO_SWITCH'])
@@ -36,9 +36,9 @@ final class AccessAdminFixtures extends Fixture
             ->resetFailedLoginCount()
             ->markEmailVerified();
 
-        $this->credentialService->changePassword($account, self::ADMIN_PASSWORD);
+        $this->credentialService->changePassword($user, self::ADMIN_PASSWORD);
 
-        $manager->persist($account);
+        $manager->persist($user);
         $manager->flush();
     }
 }

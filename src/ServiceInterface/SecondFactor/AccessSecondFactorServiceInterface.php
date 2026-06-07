@@ -6,15 +6,15 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\SecondFactor;
 
 use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 
 interface AccessSecondFactorServiceInterface
 {
-    public function beginEnrollment(AccessAccountEntity $account): AccessSecondFactorEnrollmentDto;
+    public function beginEnrollment(AccessUserEntity $user): AccessSecondFactorEnrollmentDto;
 
-    public function confirmEnrollment(AccessAccountEntity $account, string $code): ?AccessSecondFactorEnrollmentDto;
+    public function confirmEnrollment(AccessUserEntity $user, string $code): ?AccessSecondFactorEnrollmentDto;
 
-    public function verifyChallenge(AccessAccountEntity $account, string $code): bool;
+    public function verifyChallenge(AccessUserEntity $user, string $code): bool;
 
-    public function disableSecondFactor(AccessAccountEntity $account): void;
+    public function disableSecondFactor(AccessUserEntity $user): void;
 }

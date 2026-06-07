@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
+use App\Accessing\Entity\AccessUserEntity;
 
 interface AccessSecurityEventRepositoryInterface
 {
@@ -20,5 +20,5 @@ interface AccessSecurityEventRepositoryInterface
     /**
      * @return list<AccessSecurityEventEntity>
      */
-    public function findRecentEventsForAccount(AccessAccountEntity $account, int $limit = 50): array;
+    public function findRecentEventsForUser(AccessUserEntity $user, int $limit = 50): array;
 }

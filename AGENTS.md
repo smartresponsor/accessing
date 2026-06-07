@@ -17,7 +17,7 @@ Execution policy:
 
 Product center:
 - Workspace: Accessing
-- Core entity: Account
+- Core entity: User
 
 Preferred supporting entities:
 - Credential
@@ -25,4 +25,4 @@ Preferred supporting entities:
 - SecondFactor
 - RecoveryCode
 - SecurityEvent
-- AccountSession
+- UserSession

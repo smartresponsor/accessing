@@ -32,7 +32,7 @@ final readonly class AccessHomeSurfaceContract implements InterfaceSurfaceRender
      *     slotMap: array<string, string>,
      *     slots: array<string, mixed>,
      *     accessingProductName: string,
-     *     account: mixed,
+     *     user: mixed,
      *     events: array<int, mixed>
      * }
      */
@@ -45,7 +45,7 @@ final readonly class AccessHomeSurfaceContract implements InterfaceSurfaceRender
             'slotMap' => $this->slotMap,
             'slots' => $this->slots,
             'accessingProductName' => is_scalar($this->slots['accessingProductName'] ?? null) ? (string) $this->slots['accessingProductName'] : 'Accessing',
-            'account' => $this->slots['account'] ?? null,
+            'user' => $this->slots['user'] ?? null,
             'events' => is_array($this->slots['events'] ?? null) ? array_values($this->slots['events']) : [],
         ];
     }

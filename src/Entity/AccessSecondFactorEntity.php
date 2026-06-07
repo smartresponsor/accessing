@@ -18,7 +18,7 @@ final class AccessSecondFactorEntity
 
     #[ORM\OneToOne(inversedBy: 'secondFactor')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private AccessAccountEntity $account;
+    private AccessUserEntity $user;
 
     #[ORM\Column(length: 128)]
     private string $secret;
@@ -38,9 +38,9 @@ final class AccessSecondFactorEntity
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $lastUsedAt = null;
 
-    public function __construct(AccessAccountEntity $account, string $secret, string $label)
+    public function __construct(AccessUserEntity $user, string $secret, string $label)
     {
-        $this->account = $account;
+        $this->user = $user;
         $this->secret = $secret;
         $this->label = $label;
         $this->createdAt = new \DateTimeImmutable();
@@ -51,17 +51,17 @@ final class AccessSecondFactorEntity
         return $this->id;
     }
 
-    public function getAccount(): AccessAccountEntity
+    public function getUser(): AccessUserEntity
     {
-        return $this->account;
+        return $this->user;
     }
 
-    public function setAccount(AccessAccountEntity $account): void
+    public function setUser(AccessUserEntity $user): void
     {
-        $this->account = $account;
+        $this->user = $user;
 
-        if ($account->getSecondFactor() !== $this) {
-            $account->setSecondFactor($this);
+        if ($user->getSecondFactor() !== $this) {
+            $user->setSecondFactor($this);
         }
     }
 

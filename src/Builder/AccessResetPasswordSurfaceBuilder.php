@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 namespace App\Accessing\Builder;
 
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Form\AccessChangePasswordType;
 use App\Accessing\Form\AccessResetPasswordRequestType;
-use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
@@ -29,7 +30,7 @@ final readonly class AccessResetPasswordSurfaceBuilder
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private UserPasswordHasherInterface $userPasswordHasher,
-        private AccessAccountRepositoryInterface $accountRepository,
+        private AccessUserRepositoryInterface $userRepository,
         private AccessSecurityEventRecorderInterface $securityEventRecorder,
         private FormFactoryInterface $formFactory,
         private UrlGeneratorInterface $urlGenerator,
@@ -37,11 +38,11 @@ final readonly class AccessResetPasswordSurfaceBuilder
     }
 
     /**
-     * Accept a password reset request and issue a reset token when account exists.
+     * Accept a password reset request and issue a reset token when user exists.
      */
     public function request(
         Request $request,
-        AccessAccountRepositoryInterface $accountRepository,
+        AccessUserRepositoryInterface $userRepository,
         ResetPasswordHelperInterface $resetPasswordHelper,
         AccessSecurityEventRecorderInterface $securityEventRecorder,
         AccessPageViewFactoryInterface $pageViewFactory,
@@ -53,14 +54,14 @@ final readonly class AccessResetPasswordSurfaceBuilder
         if ($form->isSubmitted() && $form->isValid()) {
             $emailData = $form->get('email')->getData();
             $email = is_string($emailData) ? $emailData : '';
-            $account = $accountRepository->findOneByEmailAddress($email);
+            $user = $userRepository->findOneByEmailAddress($email);
 
-            if ($account instanceof AccessAccountEntity) {
+            if ($user instanceof AccessUserEntity) {
                 try {
-                    $resetToken = $resetPasswordHelper->generateResetToken($account);
+                    $resetToken = $resetPasswordHelper->generateResetToken($user);
 
-                    $securityEventRecorder->record('reset_password.requested', $account, [
-                        'email' => $account->getEmail(),
+                    $securityEventRecorder->record('reset_password.requested', $user, [
+                        'email' => $user->getEmail(),
                     ]);
 
                     $this->flash($request, 'info', sprintf(
@@ -90,7 +91,7 @@ final readonly class AccessResetPasswordSurfaceBuilder
     }
 
     /**
-     * Validate a reset token and update account password when submitted data is valid.
+     * Validate a reset token and update user password when submitted data is valid.
      */
     public function reset(
         Request $request,
@@ -118,8 +119,8 @@ final readonly class AccessResetPasswordSurfaceBuilder
         }
 
         try {
-            /** @var AccessAccountEntity $account */
-            $account = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
+            /** @var AccessUserEntity $user */
+            $user = $this->resetPasswordHelper->validateTokenAndFetchUser($token);
         } catch (ResetPasswordExceptionInterface) {
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->flash($request, 'danger', 'Invalid or expired reset token.');
@@ -135,11 +136,11 @@ final readonly class AccessResetPasswordSurfaceBuilder
 
             $this->resetPasswordHelper->removeResetRequest($token);
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
-            $account->setPasswordHash($this->userPasswordHasher->hashPassword($account, $plainPassword));
-            $this->accountRepository->save($account, true);
+            $user->setPasswordHash($this->userPasswordHasher->hashPassword($user, $plainPassword));
+            $this->userRepository->save($user, true);
 
-            $this->securityEventRecorder->record('reset_password.completed', $account, [
-                'email' => $account->getEmail(),
+            $this->securityEventRecorder->record('reset_password.completed', $user, [
+                'email' => $user->getEmail(),
             ]);
 
             $this->flash($request, 'success', 'Password changed successfully.');
@@ -152,9 +153,18 @@ final readonly class AccessResetPasswordSurfaceBuilder
 
     private function flash(Request $request, string $type, string $message): void
     {
-        $request->getSession()->getFlashBag()->add($type, $message);
+        $session = $request->getSession();
+
+        if (!$session instanceof FlashBagAwareSessionInterface) {
+            return;
+        }
+
+        $session->getFlashBag()->add($type, $message);
     }
 
+    /**
+     * @param array<string, mixed> $parameters
+     */
     private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
     {
         return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);

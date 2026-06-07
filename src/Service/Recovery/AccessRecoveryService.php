@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Recovery;
 
 use App\Accessing\Dto\AccessIssuedChallengeDto;
-use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class AccessRecoveryService implements AccessRecoveryServiceInterface
 {
     public function __construct(
-        private AccessAccountRepositoryInterface $accountRepository,
+        private AccessUserRepositoryInterface $userRepository,
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessCredentialServiceInterface $credentialService,
         private AccessSecurityEventServiceInterface $securityEventService,
@@ -29,36 +29,36 @@ final readonly class AccessRecoveryService implements AccessRecoveryServiceInter
     public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallengeDto
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
-        $account = $this->accountRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
+        $user = $this->userRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
-        if (null === $account) {
+        if (null === $user) {
             return null;
         }
 
-        return $this->verificationChallengeService->issuePasswordRecovery($account, $request);
+        return $this->verificationChallengeService->issuePasswordRecovery($user, $request);
     }
 
     public function resetPassword(string $emailAddress, string $code, string $newPassword): bool
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
-        $account = $this->accountRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
+        $user = $this->userRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
-        if (null === $account) {
+        if (null === $user) {
             return false;
         }
 
-        if (!$this->verificationChallengeService->consumePasswordRecovery($account, $code)) {
+        if (!$this->verificationChallengeService->consumePasswordRecovery($user, $code)) {
             return false;
         }
 
-        $this->credentialService->changePassword($account, $newPassword);
-        $account->unlock();
-        $this->accountRepository->save($account, true);
+        $this->credentialService->changePassword($user, $newPassword);
+        $user->unlock();
+        $this->userRepository->save($user, true);
 
         $this->securityEventService->record(
             AccessSecurityEventType::RecoveryCompleted,
             AccessSecurityEventSeverity::Warning,
-            $account,
+            $user,
         );
 
         return true;

@@ -29,8 +29,8 @@ final class AccessEnvironmentConfigType extends AbstractType
             ->add('sessionMaxIdleDays', IntegerType::class)
             ->add('recoveryCodeTtlMinutes', IntegerType::class)
             ->add('verificationCodeTtlMinutes', IntegerType::class)
-            ->add('accountLockThreshold', IntegerType::class)
-            ->add('accountLockMinutes', IntegerType::class);
+            ->add('userLockThreshold', IntegerType::class)
+            ->add('userLockMinutes', IntegerType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

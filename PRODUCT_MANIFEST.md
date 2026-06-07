@@ -1,12 +1,12 @@
 # Accessing Product Manifest
 
 Mission:
-Provide a reusable ecosystem brick that owns secure account access from registration to verified, recoverable, and auditable usage.
+Provide a reusable ecosystem brick that owns secure user access from registration to verified, recoverable, and auditable usage.
 
 Primary persona groups:
 - end users
 - support operators
-- sibling applications consuming account access state
+- sibling applications consuming user access state
 
 MVP outcomes:
 - a user can register and verify email
@@ -15,7 +15,7 @@ MVP outcomes:
 - a user can verify phone ownership
 - a user can recover access through reset and recovery codes
 - the system can throttle abuse and record security events
-- operators can review meaningful demo data and key account states
+- operators can review meaningful demo data and key user states
 
 Key UI outcomes:
 - clean Bootstrap-based management pages

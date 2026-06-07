@@ -18,7 +18,7 @@ final class AccessCredentialEntity
 
     #[ORM\OneToOne(inversedBy: 'credential')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private AccessAccountEntity $account;
+    private AccessUserEntity $user;
 
     #[ORM\Column(length: 255)]
     private string $passwordHash;
@@ -26,9 +26,9 @@ final class AccessCredentialEntity
     #[ORM\Column]
     private \DateTimeImmutable $passwordChangedAt;
 
-    public function __construct(AccessAccountEntity $account, string $passwordHash)
+    public function __construct(AccessUserEntity $user, string $passwordHash)
     {
-        $this->account = $account;
+        $this->user = $user;
         $this->passwordHash = $passwordHash;
         $this->passwordChangedAt = new \DateTimeImmutable();
     }
@@ -38,17 +38,17 @@ final class AccessCredentialEntity
         return $this->id;
     }
 
-    public function getAccount(): AccessAccountEntity
+    public function getUser(): AccessUserEntity
     {
-        return $this->account;
+        return $this->user;
     }
 
-    public function setAccount(AccessAccountEntity $account): void
+    public function setUser(AccessUserEntity $user): void
     {
-        $this->account = $account;
+        $this->user = $user;
 
-        if ($account->getCredential() !== $this) {
-            $account->setCredential($this);
+        if ($user->getCredential() !== $this) {
+            $user->setCredential($this);
         }
     }
 

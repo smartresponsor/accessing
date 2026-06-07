@@ -1,6 +1,6 @@
 = Accessing Remediation Plan Wave 20
 
-Wave 20 adds a safe remediation plan provider for controlled account administration readiness.
+Wave 20 adds a safe remediation plan provider for controlled user administration readiness.
 
 Accessing remains the only authentication, login, logout, session, password, and second-factor owner.
 Administering may display the remediation plan but must not edit Accessing security internals directly.

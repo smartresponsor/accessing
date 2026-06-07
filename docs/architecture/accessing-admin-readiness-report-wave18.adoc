@@ -1,12 +1,12 @@
 = Wave 18: Accessing Administration Readiness Report
 
-Accessing now exposes a safe readiness report for Administering account administration surfaces.
+Accessing now exposes a safe readiness report for Administering user administration surfaces.
 
 == Contents
 
 The report includes:
 
-* controlled account action descriptors;
+* controlled user action descriptors;
 * risk level metadata;
 * reason requirement metadata;
 * controlled-action audit summary.
@@ -22,5 +22,5 @@ The report must not include:
 
 == Ownership
 
-Accessing remains the authentication, session, and account-security owner.
-Administering may display this readiness report but must not own Accessing account security internals.
+Accessing remains the authentication, session, and user-security owner.
+Administering may display this readiness report but must not own Accessing user security internals.

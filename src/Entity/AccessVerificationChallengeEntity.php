@@ -20,9 +20,9 @@ class AccessVerificationChallengeEntity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AccessAccountEntity::class, inversedBy: 'verificationChallenges')]
+    #[ORM\ManyToOne(targetEntity: AccessUserEntity::class, inversedBy: 'verificationChallenges')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?AccessAccountEntity $account = null;
+    private ?AccessUserEntity $user = null;
 
     #[ORM\Column(name: 'channel_type', length: 32)]
     private string $channelType = '';
@@ -52,7 +52,7 @@ class AccessVerificationChallengeEntity
      * @throws \DateMalformedStringException
      */
     public function __construct(
-        ?AccessAccountEntity $account = null,
+        ?AccessUserEntity $user = null,
         AccessVerificationChallengeType|string|null $challengeType = null,
         ?string $target = null,
         ?string $token = null,
@@ -64,8 +64,8 @@ class AccessVerificationChallengeEntity
         $this->expiresAt = $expiresAt ?? $now->modify('+15 minutes');
         $this->requestedIpAddress = $requestedIpAddress;
 
-        if (null !== $account) {
-            $this->setAccount($account);
+        if (null !== $user) {
+            $this->setUser($user);
         }
 
         if (null !== $challengeType) {
@@ -86,14 +86,14 @@ class AccessVerificationChallengeEntity
         return $this->id;
     }
 
-    public function getAccount(): ?AccessAccountEntity
+    public function getUser(): ?AccessUserEntity
     {
-        return $this->account;
+        return $this->user;
     }
 
-    public function setAccount(AccessAccountEntity $account): self
+    public function setUser(AccessUserEntity $user): self
     {
-        $this->account = $account;
+        $this->user = $user;
 
         return $this;
     }

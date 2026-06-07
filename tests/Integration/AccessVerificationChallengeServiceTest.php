@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
@@ -15,20 +15,20 @@ final class AccessVerificationChallengeServiceTest extends AccessDatabaseTestCas
     public function testEmailVerificationChallengeCanBeIssuedAndCompleted(): void
     {
         $entityManager = $this->refreshDatabase();
-        $account = new AccessAccountEntity('integration@accessing.local', 'Integration AccessAccountEntity');
+        $user = new AccessUserEntity('integration@accessing.local', 'Integration AccessUserEntity');
         /** @var AccessCredentialServiceInterface $credentialService */
         $credentialService = static::getContainer()->get(AccessCredentialServiceInterface::class);
-        $credentialService->createCredential($account, 'integration-pass-123');
-        $entityManager->persist($account);
+        $credentialService->createCredential($user, 'integration-pass-123');
+        $entityManager->persist($user);
         $entityManager->flush();
 
         /** @var AccessVerificationChallengeServiceInterface $verificationChallengeService */
         $verificationChallengeService = static::getContainer()->get(AccessVerificationChallengeServiceInterface::class);
-        $issuedChallenge = $verificationChallengeService->issueEmailVerification($account, null);
+        $issuedChallenge = $verificationChallengeService->issueEmailVerification($user, null);
 
         self::assertNotSame('', $issuedChallenge->plainCode);
-        self::assertFalse($account->isEmailVerified());
-        self::assertTrue($verificationChallengeService->completeEmailVerification($account, $issuedChallenge->plainCode));
-        self::assertTrue($account->isEmailVerified());
+        self::assertFalse($user->isEmailVerified());
+        self::assertTrue($verificationChallengeService->completeEmailVerification($user, $issuedChallenge->plainCode));
+        self::assertTrue($user->isEmailVerified());
     }
 }

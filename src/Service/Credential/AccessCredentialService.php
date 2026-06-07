@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Credential;
 
-use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Entity\AccessCredentialEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -19,34 +19,34 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
     ) {
     }
 
-    public function createCredential(AccessAccountEntity $account, string $plainPassword): AccessCredentialEntity
+    public function createCredential(AccessUserEntity $user, string $plainPassword): AccessCredentialEntity
     {
-        $passwordHash = $this->passwordHasher->hashPassword($account, $plainPassword);
-        $account->setPasswordHash($passwordHash);
+        $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
+        $user->setPasswordHash($passwordHash);
 
-        $credential = new AccessCredentialEntity($account, $passwordHash);
-        $account->setCredential($credential);
+        $credential = new AccessCredentialEntity($user, $passwordHash);
+        $user->setCredential($credential);
         $this->entityManager->persist($credential);
 
         return $credential;
     }
 
-    public function verifyPassword(AccessAccountEntity $account, string $plainPassword): bool
+    public function verifyPassword(AccessUserEntity $user, string $plainPassword): bool
     {
-        return $account->getCredential() instanceof AccessCredentialEntity
-            && $this->passwordHasher->isPasswordValid($account, $plainPassword);
+        return $user->getCredential() instanceof AccessCredentialEntity
+            && $this->passwordHasher->isPasswordValid($user, $plainPassword);
     }
 
-    public function changePassword(AccessAccountEntity $account, string $plainPassword): void
+    public function changePassword(AccessUserEntity $user, string $plainPassword): void
     {
-        $credential = $account->getCredential();
+        $credential = $user->getCredential();
 
         if (!$credential instanceof AccessCredentialEntity) {
-            $credential = $this->createCredential($account, $plainPassword);
+            $credential = $this->createCredential($user, $plainPassword);
         }
 
-        $passwordHash = $this->passwordHasher->hashPassword($account, $plainPassword);
-        $account->setPasswordHash($passwordHash);
+        $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
+        $user->setPasswordHash($passwordHash);
         $credential->updatePasswordHash($passwordHash);
         $this->entityManager->persist($credential);
         $this->entityManager->flush();

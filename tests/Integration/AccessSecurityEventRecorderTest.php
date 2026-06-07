@@ -5,14 +5,14 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Repository\AccessSecurityEventRepository;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
 
 final class AccessSecurityEventRecorderTest extends AccessDatabaseTestCase
 {
-    public function testRecordPersistsNewAccountWithoutCascadeViolation(): void
+    public function testRecordPersistsNewUserWithoutCascadeViolation(): void
     {
         $this->refreshDatabase();
 
@@ -21,15 +21,15 @@ final class AccessSecurityEventRecorderTest extends AccessDatabaseTestCase
         /** @var AccessSecurityEventRepository $securityEventRepository */
         $securityEventRepository = static::getContainer()->get(AccessSecurityEventRepository::class);
 
-        $account = new AccessAccountEntity('event-check@accessing.local', 'Event Check');
+        $user = new AccessUserEntity('event-check@accessing.local', 'Event Check');
 
-        $event = $recorder->record('integration.test_event', $account, [
+        $event = $recorder->record('integration.test_event', $user, [
             'severity' => 'info',
         ]);
 
         self::assertNotNull($event->getId());
-        self::assertNotNull($account->getId());
-        self::assertSame('event-check@accessing.local', $account->getEmail());
-        self::assertSame(1, \count($securityEventRepository->findRecentEventsForAccount($account, 10)));
+        self::assertNotNull($user->getId());
+        self::assertSame('event-check@accessing.local', $user->getEmail());
+        self::assertSame(1, \count($securityEventRepository->findRecentEventsForUser($user, 10)));
     }
 }

@@ -1,20 +1,20 @@
 # Accessing Full Manifest
 
 Product name: Accessing
-Core domain entity: Account
+Core domain entity: User
 Package name: smartresponsor/accessing
 
-Accessing is a single Symfony 8 application brick responsible for the account access lifecycle across the ecosystem.
+Accessing is a single Symfony 8 application brick responsible for the user access lifecycle across the ecosystem.
 It must remain a single-root Symfony-oriented application with App\Accessing\ => src/ and no alternative root namespaces.
 
 Core product capabilities:
-- account registration
+- user registration
 - sign in and sign out
 - email verification
 - phone verification
 - multi-factor authentication
 - password recovery
-- account lock, cooldown, and reactivation flows
+- user lock, cooldown, and reactivation flows
 - security audit events
 - demo management UI
 - CLI maintenance and diagnostics
@@ -23,7 +23,7 @@ Primary delivery principle:
 Build meaningful working flows first. Avoid decorative refactors, dead abstractions, fake complexity, and format churn.
 
 Implementation priorities:
-1. working Account lifecycle
+1. working User lifecycle
 2. secure verification and recovery
 3. usable demo UI and fixtures
 4. broad CLI support
@@ -47,8 +47,8 @@ Required stack direction:
 
 Naming canon:
 - Workspace: Accessing
-- Core entity: Account
-- Supporting entities: Credential, VerificationChallenge, SecondFactor, RecoveryCode, SecurityEvent, AccountSession
+- Core entity: User
+- Supporting entities: Credential, VerificationChallenge, SecondFactor, RecoveryCode, SecurityEvent, UserSession
 
 Agent directive:
 Each folder-level manifest is normative for its local area. Use them together with this root manifest.

@@ -35,8 +35,8 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
                 'sessionMaxIdleDays',
                 'recoveryCodeTtlMinutes',
                 'verificationCodeTtlMinutes',
-                'accountLockThreshold',
-                'accountLockMinutes',
+                'userLockThreshold',
+                'userLockMinutes',
             ],
             sensitiveFields: [],
             readableFiles: ['config/component/runtime.yaml'],
@@ -70,11 +70,11 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Verification code TTL minutes')
             ->required();
-        yield ConfigVariable::yaml('accessing_account_lock_threshold', 'config/component/runtime.yaml', ConfigVariableType::INT)
-            ->withLabel('Account lock threshold')
+        yield ConfigVariable::yaml('accessing_user_lock_threshold', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('User lock threshold')
             ->required();
-        yield ConfigVariable::yaml('accessing_account_lock_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
-            ->withLabel('Account lock minutes')
+        yield ConfigVariable::yaml('accessing_user_lock_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+            ->withLabel('User lock minutes')
             ->required();
     }
 
@@ -83,13 +83,13 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         $data = new AccessEnvironmentConfigData();
         $runtime = $this->runtimeManifest();
 
-        $data->mailerSender = (string) ($runtime['accessing_mailer_sender'] ?? $data->mailerSender);
-        $data->phoneVerificationProvider = (string) ($runtime['accessing_phone_verification_provider'] ?? $data->phoneVerificationProvider);
-        $data->sessionMaxIdleDays = (string) ($runtime['accessing_session_max_idle_days'] ?? $data->sessionMaxIdleDays);
-        $data->recoveryCodeTtlMinutes = (string) ($runtime['accessing_recovery_code_ttl_minutes'] ?? $data->recoveryCodeTtlMinutes);
-        $data->verificationCodeTtlMinutes = (string) ($runtime['accessing_verification_code_ttl_minutes'] ?? $data->verificationCodeTtlMinutes);
-        $data->accountLockThreshold = (string) ($runtime['accessing_account_lock_threshold'] ?? $data->accountLockThreshold);
-        $data->accountLockMinutes = (string) ($runtime['accessing_account_lock_minutes'] ?? $data->accountLockMinutes);
+        $data->mailerSender = self::stringValue($runtime['accessing_mailer_sender'] ?? null, $data->mailerSender);
+        $data->phoneVerificationProvider = self::stringValue($runtime['accessing_phone_verification_provider'] ?? null, $data->phoneVerificationProvider);
+        $data->sessionMaxIdleDays = self::stringValue($runtime['accessing_session_max_idle_days'] ?? null, $data->sessionMaxIdleDays);
+        $data->recoveryCodeTtlMinutes = self::stringValue($runtime['accessing_recovery_code_ttl_minutes'] ?? null, $data->recoveryCodeTtlMinutes);
+        $data->verificationCodeTtlMinutes = self::stringValue($runtime['accessing_verification_code_ttl_minutes'] ?? null, $data->verificationCodeTtlMinutes);
+        $data->userLockThreshold = self::stringValue($runtime['accessing_user_lock_threshold'] ?? null, $data->userLockThreshold);
+        $data->userLockMinutes = self::stringValue($runtime['accessing_user_lock_minutes'] ?? null, $data->userLockMinutes);
 
         return $data;
     }
@@ -101,7 +101,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return [
             'status' => 'pending',
             'messages' => ['Accessing environment changes were staged.'],
-            'masked_changes' => $this->runtimePatch($payload),
+            'masked_changes' => self::stringMap($this->runtimePatch($payload)),
             'file_changes' => [],
             'secret_changes' => [],
         ];
@@ -118,7 +118,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return [
             'status' => $written ? 'applied' : 'failed',
             'messages' => $written ? ['Accessing runtime manifest updated.'] : ['Accessing runtime manifest could not be written.'],
-            'masked_changes' => $patch,
+            'masked_changes' => self::stringMap($patch),
             'file_changes' => [[
                 'path' => $path,
                 'status' => $written ? 'applied' : 'failed',
@@ -138,8 +138,8 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
             'accessing_session_max_idle_days' => (int) $payload->sessionMaxIdleDays,
             'accessing_recovery_code_ttl_minutes' => (int) $payload->recoveryCodeTtlMinutes,
             'accessing_verification_code_ttl_minutes' => (int) $payload->verificationCodeTtlMinutes,
-            'accessing_account_lock_threshold' => (int) $payload->accountLockThreshold,
-            'accessing_account_lock_minutes' => (int) $payload->accountLockMinutes,
+            'accessing_user_lock_threshold' => (int) $payload->userLockThreshold,
+            'accessing_user_lock_minutes' => (int) $payload->userLockMinutes,
         ];
     }
 
@@ -154,7 +154,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return [
             'status' => 'pending',
             'messages' => ['Accessing environment changes were staged.'],
-            'masked_changes' => $this->runtimePatchFromVariables($variables),
+            'masked_changes' => self::stringMap($this->runtimePatchFromVariables($variables)),
             'file_changes' => [],
             'secret_changes' => [],
         ];
@@ -176,7 +176,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return [
             'status' => $written ? 'applied' : 'failed',
             'messages' => $written ? ['Accessing runtime manifest updated.'] : ['Accessing runtime manifest could not be written.'],
-            'masked_changes' => $patch,
+            'masked_changes' => self::stringMap($patch),
             'file_changes' => [[
                 'path' => $path,
                 'status' => $written ? 'applied' : 'failed',
@@ -200,7 +200,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         $path = $this->runtimeManifestPath();
         $parsed = is_file($path) ? Yaml::parseFile($path) : [];
 
-        return is_array($parsed) ? $parsed : [];
+        return is_array($parsed) ? self::stringKeyMap($parsed) : [];
     }
 
     private function runtimeManifestPath(): string
@@ -208,6 +208,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return dirname(__DIR__, 3).'/config/component/runtime.yaml';
     }
 
+    /** @param array<string, mixed> $manifest */
     private function writeRuntimeManifest(string $path, array $manifest): bool
     {
         $yaml = Yaml::dump($manifest, 4, 2);
@@ -228,13 +229,13 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
     private function runtimePatchFromVariables(array $variables): array
     {
         return [
-            'accessing_mailer_sender' => (string) ($variables['accessing_mailer_sender'] ?? ''),
-            'accessing_phone_verification_provider' => (string) ($variables['accessing_phone_verification_provider'] ?? 'fake'),
-            'accessing_session_max_idle_days' => (int) ($variables['accessing_session_max_idle_days'] ?? 30),
-            'accessing_recovery_code_ttl_minutes' => (int) ($variables['accessing_recovery_code_ttl_minutes'] ?? 30),
-            'accessing_verification_code_ttl_minutes' => (int) ($variables['accessing_verification_code_ttl_minutes'] ?? 10),
-            'accessing_account_lock_threshold' => (int) ($variables['accessing_account_lock_threshold'] ?? 5),
-            'accessing_account_lock_minutes' => (int) ($variables['accessing_account_lock_minutes'] ?? 15),
+            'accessing_mailer_sender' => self::stringValue($variables['accessing_mailer_sender'] ?? null, ''),
+            'accessing_phone_verification_provider' => self::stringValue($variables['accessing_phone_verification_provider'] ?? null, 'fake'),
+            'accessing_session_max_idle_days' => self::intValue($variables['accessing_session_max_idle_days'] ?? null, 30),
+            'accessing_recovery_code_ttl_minutes' => self::intValue($variables['accessing_recovery_code_ttl_minutes'] ?? null, 30),
+            'accessing_verification_code_ttl_minutes' => self::intValue($variables['accessing_verification_code_ttl_minutes'] ?? null, 10),
+            'accessing_user_lock_threshold' => self::intValue($variables['accessing_user_lock_threshold'] ?? null, 5),
+            'accessing_user_lock_minutes' => self::intValue($variables['accessing_user_lock_minutes'] ?? null, 15),
         ];
     }
 
@@ -249,8 +250,66 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
             'accessing_session_max_idle_days' => (int) $data->sessionMaxIdleDays,
             'accessing_recovery_code_ttl_minutes' => (int) $data->recoveryCodeTtlMinutes,
             'accessing_verification_code_ttl_minutes' => (int) $data->verificationCodeTtlMinutes,
-            'accessing_account_lock_threshold' => (int) $data->accountLockThreshold,
-            'accessing_account_lock_minutes' => (int) $data->accountLockMinutes,
+            'accessing_user_lock_threshold' => (int) $data->userLockThreshold,
+            'accessing_user_lock_minutes' => (int) $data->userLockMinutes,
         ];
+    }
+
+    private static function stringValue(mixed $value, string $default): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_scalar($value) || null === $value) {
+            return (string) ($value ?? $default);
+        }
+
+        return $default;
+    }
+
+    private static function intValue(mixed $value, int $default): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        return $default;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, string>
+     */
+    private static function stringMap(array $data): array
+    {
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            $normalized[$key] = self::stringValue($value, '');
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private static function stringKeyMap(array $data): array
+    {
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }

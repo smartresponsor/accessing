@@ -1,11 +1,11 @@
 = Accessing Admin Audit Projections - Wave 14
 
-Accessing now exposes a safe projection provider for controlled account administration audit records.
+Accessing now exposes a safe projection provider for controlled user administration audit records.
 
 The projection is intended for Administering UI and diagnostics. It carries only metadata:
 
 * action key
-* account reference
+* user reference
 * requesting subject
 * result status
 * safe message
@@ -21,4 +21,4 @@ Forbidden data:
 * raw session payloads
 * verification internals
 
-Accessing remains the owner of login, logout, sessions, credentials, two-factor internals, and account security state.
+Accessing remains the owner of login, logout, sessions, credentials, two-factor internals, and user security state.

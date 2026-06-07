@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Verification;
 
 use App\Accessing\Dto\AccessIssuedChallengeDto;
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
-use App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
@@ -25,7 +25,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
 {
     public function __construct(
         private AccessVerificationChallengeRepositoryInterface $verificationChallengeRepository,
-        private AccessAccountRepositoryInterface $accountRepository,
+        private AccessUserRepositoryInterface $userRepository,
         private AccessSecurityEventServiceInterface $securityEventService,
         private AccessPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private AccessSecurityNotificationServiceInterface $securityNotificationService,
@@ -42,18 +42,18 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issueEmailVerification(AccessAccountEntity $account, ?Request $request = null): AccessIssuedChallengeDto
+    public function issueEmailVerification(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
-            $account,
+            $user,
             AccessVerificationChallengeType::EmailVerification,
-            $account->getEmailAddress(),
+            $user->getEmailAddress(),
             $request,
             $this->accessingVerificationCodeTtlMinutes,
         );
 
         $this->securityNotificationService->sendEmailVerificationCode(
-            $account,
+            $user,
             $issuedChallenge->plainCode,
             $this->accessingVerificationCodeTtlMinutes,
         );
@@ -61,9 +61,9 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $this->securityEventService->record(
             AccessSecurityEventType::EmailVerificationRequested,
             AccessSecurityEventSeverity::Info,
-            $account,
+            $user,
             $request,
-            ['destination' => $account->getEmailAddress()],
+            ['destination' => $user->getEmailAddress()],
         );
 
         return $issuedChallenge;
@@ -75,12 +75,12 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws \DateMalformedStringException
      * @throws RandomException
      */
-    public function issuePhoneVerification(AccessAccountEntity $account, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePhoneVerification(AccessUserEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
     {
-        $account->changePhoneNumber($phoneNumber);
+        $user->changePhoneNumber($phoneNumber);
 
         $issuedChallenge = $this->issueChallenge(
-            $account,
+            $user,
             AccessVerificationChallengeType::PhoneVerification,
             $phoneNumber,
             $request,
@@ -95,35 +95,35 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $this->securityEventService->record(
             AccessSecurityEventType::PhoneVerificationRequested,
             AccessSecurityEventSeverity::Info,
-            $account,
+            $user,
             $request,
             ['destination' => $phoneNumber],
         );
 
-        $this->accountRepository->save($account, true);
+        $this->userRepository->save($user, true);
 
         return $issuedChallenge;
     }
 
     /**
-     * Issue a password recovery challenge for the account.
+     * Issue a password recovery challenge for the user.
      *
      * @throws \DateMalformedStringException
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issuePasswordRecovery(AccessAccountEntity $account, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePasswordRecovery(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
-            $account,
+            $user,
             AccessVerificationChallengeType::PasswordRecovery,
-            $account->getEmailAddress(),
+            $user->getEmailAddress(),
             $request,
             $this->accessingRecoveryCodeTtlMinutes,
         );
 
         $this->securityNotificationService->sendPasswordRecoveryCode(
-            $account,
+            $user,
             $issuedChallenge->plainCode,
             $this->accessingRecoveryCodeTtlMinutes,
         );
@@ -131,7 +131,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $this->securityEventService->record(
             AccessSecurityEventType::RecoveryRequested,
             AccessSecurityEventSeverity::Warning,
-            $account,
+            $user,
             $request,
         );
 
@@ -141,16 +141,16 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Complete email verification when a valid challenge code is provided.
      */
-    public function completeEmailVerification(AccessAccountEntity $account, string $code): bool
+    public function completeEmailVerification(AccessUserEntity $user, string $code): bool
     {
-        if (!$this->consumeChallenge($account, AccessVerificationChallengeType::EmailVerification, $code)) {
+        if (!$this->consumeChallenge($user, AccessVerificationChallengeType::EmailVerification, $code)) {
             return false;
         }
 
-        $account->markEmailVerified();
-        $this->accountRepository->save($account, true);
+        $user->markEmailVerified();
+        $this->userRepository->save($user, true);
 
-        $this->securityEventService->record(AccessSecurityEventType::EmailVerified, AccessSecurityEventSeverity::Info, $account);
+        $this->securityEventService->record(AccessSecurityEventType::EmailVerified, AccessSecurityEventSeverity::Info, $user);
 
         return true;
     }
@@ -158,16 +158,16 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Complete phone verification when a valid challenge code is provided.
      */
-    public function completePhoneVerification(AccessAccountEntity $account, string $code): bool
+    public function completePhoneVerification(AccessUserEntity $user, string $code): bool
     {
-        if (!$this->consumeChallenge($account, AccessVerificationChallengeType::PhoneVerification, $code)) {
+        if (!$this->consumeChallenge($user, AccessVerificationChallengeType::PhoneVerification, $code)) {
             return false;
         }
 
-        $account->markPhoneVerified();
-        $this->accountRepository->save($account, true);
+        $user->markPhoneVerified();
+        $this->userRepository->save($user, true);
 
-        $this->securityEventService->record(AccessSecurityEventType::PhoneVerified, AccessSecurityEventSeverity::Info, $account);
+        $this->securityEventService->record(AccessSecurityEventType::PhoneVerified, AccessSecurityEventSeverity::Info, $user);
 
         return true;
     }
@@ -175,9 +175,9 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Consume password recovery challenge with a one-time code.
      */
-    public function consumePasswordRecovery(AccessAccountEntity $account, string $code): bool
+    public function consumePasswordRecovery(AccessUserEntity $user, string $code): bool
     {
-        return $this->consumeChallenge($account, AccessVerificationChallengeType::PasswordRecovery, $code);
+        return $this->consumeChallenge($user, AccessVerificationChallengeType::PasswordRecovery, $code);
     }
 
     /**
@@ -195,7 +195,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      */
     private function issueChallenge(
-        AccessAccountEntity $account,
+        AccessUserEntity $user,
         AccessVerificationChallengeType $challengeType,
         string $destination,
         ?Request $request,
@@ -204,7 +204,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $plainCode = (string) random_int(100000, 999999);
 
         $verificationChallenge = new AccessVerificationChallengeEntity(
-            $account,
+            $user,
             $challengeType,
             $destination,
             $this->hashCode($plainCode),
@@ -212,15 +212,15 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             $request?->getClientIp(),
         );
 
-        $account->addVerificationChallenge($verificationChallenge);
+        $user->addVerificationChallenge($verificationChallenge);
         $this->verificationChallengeRepository->save($verificationChallenge, true);
 
         return new AccessIssuedChallengeDto($verificationChallenge, $plainCode);
     }
 
-    private function consumeChallenge(AccessAccountEntity $account, AccessVerificationChallengeType $challengeType, string $code): bool
+    private function consumeChallenge(AccessUserEntity $user, AccessVerificationChallengeType $challengeType, string $code): bool
     {
-        $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForAccount($account, $challengeType);
+        $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForUser($user, $challengeType);
 
         if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
             return false;

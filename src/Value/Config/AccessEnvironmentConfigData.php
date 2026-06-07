@@ -16,7 +16,7 @@ final class AccessEnvironmentConfigData
 
     public string $verificationCodeTtlMinutes = '10';
 
-    public string $accountLockThreshold = '5';
+    public string $userLockThreshold = '5';
 
-    public string $accountLockMinutes = '15';
+    public string $userLockMinutes = '15';
 }

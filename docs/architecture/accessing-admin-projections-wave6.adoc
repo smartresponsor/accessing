@@ -1,15 +1,15 @@
-= Accessing Wave 6: Safe Account Administration Projections
+= Accessing Wave 6: Safe User Administration Projections
 
-Accessing remains the owner of authentication, sessions, account state, password handling, 2FA, verification, and reset flows.
+Accessing remains the owner of authentication, sessions, user state, password handling, 2FA, verification, and reset flows.
 
-Administering may need to display accounts and trigger controlled actions. It must not raw-edit security internals.
+Administering may need to display users and trigger controlled actions. It must not raw-edit security internals.
 
 == Projection rule
 
-Administering-facing account projections may expose:
+Administering-facing user projections may expose:
 
-* stable subject id, for example `accessing:account:{id}`;
-* account identifier/email;
+* stable subject id, for example `accessing:user:{id}`;
+* user identifier/email;
 * active/locked status;
 * verified status;
 * bootstrap Symfony roles;

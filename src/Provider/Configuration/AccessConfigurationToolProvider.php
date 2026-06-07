@@ -104,10 +104,34 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
         }
 
         $parsed = Yaml::parseFile($path);
+        if (!is_array($parsed)) {
+            return [];
+        }
 
         // Support both flat key ('integration') and namespaced ('integrations.accessing')
-        $section = $parsed['integration'] ?? $parsed['integrations']['accessing'] ?? null;
+        $section = $parsed['integration'] ?? null;
+        if (!is_array($section)) {
+            $integrations = $parsed['integrations'] ?? null;
+            $section = is_array($integrations) ? ($integrations['accessing'] ?? null) : null;
+        }
 
-        return is_array($section) ? $section : [];
+        return is_array($section) ? self::stringKeyMap($section) : [];
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private static function stringKeyMap(array $data): array
+    {
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 }

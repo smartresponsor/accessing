@@ -3,5 +3,5 @@ accessing_phone_verification_provider: fake
 accessing_session_max_idle_days: 30
 accessing_recovery_code_ttl_minutes: 30
 accessing_verification_code_ttl_minutes: 10
-accessing_account_lock_threshold: 5
-accessing_account_lock_minutes: 15
+accessing_user_lock_threshold: 5
+accessing_user_lock_minutes: 15

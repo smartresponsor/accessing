@@ -1,7 +1,7 @@
-= Wave 16: Account Action Audit Filtering
+= Wave 16: User Action Audit Filtering
 
-Accessing now exposes a safe filter value for account-administration audit projections.
+Accessing now exposes a safe filter value for user-administration audit projections.
 
-`AccessingAccountAdministrationAuditFilter` supports filtering by action, result status, account reference, and limit. The Doctrine projection provider uses the filter to query only safe audit projection records.
+`AccessingUserAdministrationAuditFilter` supports filtering by action, result status, user reference, and limit. The Doctrine projection provider uses the filter to query only safe audit projection records.
 
 This keeps Administering views responsive without exposing password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads, or verification internals.

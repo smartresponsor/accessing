@@ -4,34 +4,45 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Form\AccessAccountRegistrationType;
-use App\Accessing\Form\AccessAccountSignInType;
 use App\Accessing\Form\AccessChangePasswordType;
 use App\Accessing\Form\AccessPasswordChangeType;
 use App\Accessing\Form\AccessPhoneVerificationRequestType;
 use App\Accessing\Form\AccessRecoveryRequestType;
 use App\Accessing\Form\AccessRecoveryResetType;
 use App\Accessing\Form\AccessResetPasswordRequestType;
+use App\Accessing\Form\AccessUserRegistrationType;
+use App\Accessing\Form\AccessUserSignInType;
 use App\Accessing\Form\AccessVerificationCodeType;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Component\Form\Test\TypeTestCase;
 
-#[CoversClass(AccessAccountRegistrationType::class)]
-#[CoversClass(AccessAccountSignInType::class)]
-#[CoversClass(AccessChangePasswordType::class)]
-#[CoversClass(AccessPasswordChangeType::class)]
-#[CoversClass(AccessPhoneVerificationRequestType::class)]
-#[CoversClass(AccessRecoveryRequestType::class)]
-#[CoversClass(AccessRecoveryResetType::class)]
-#[CoversClass(AccessResetPasswordRequestType::class)]
-#[CoversClass(AccessVerificationCodeType::class)]
 final class AccessFormTypesTest extends TypeTestCase
 {
+    /** @return array<string, mixed> */
+    private function fieldAttributes(string $formType, string $fieldName): array
+    {
+        $options = $this->factory->create($formType)->get($fieldName)->getConfig()->getOptions();
+        $attributes = $options['attr'] ?? [];
+
+        if (!is_array($attributes)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
+    }
+
     protected function getTypes(): array
     {
         return [
-            new AccessAccountRegistrationType(),
-            new AccessAccountSignInType(),
+            new AccessUserRegistrationType(),
+            new AccessUserSignInType(),
             new AccessChangePasswordType(),
             new AccessPasswordChangeType(),
             new AccessPhoneVerificationRequestType(),
@@ -42,16 +53,16 @@ final class AccessFormTypesTest extends TypeTestCase
         ];
     }
 
-    public function testAccountFormsExposeHelpfulFields(): void
+    public function testUserFormsExposeHelpfulFields(): void
     {
-        $registration = $this->factory->create(AccessAccountRegistrationType::class);
+        $registration = $this->factory->create(AccessUserRegistrationType::class);
         self::assertSame('Email address', $registration->get('email')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $registration->get('plainPassword')->getConfig()->getOption('attr')['autocomplete']);
+        self::assertSame('new-password', $this->fieldAttributes(AccessUserRegistrationType::class, 'plainPassword')['autocomplete'] ?? null);
         self::assertTrue($registration->has('submit'));
 
-        $signIn = $this->factory->create(AccessAccountSignInType::class);
+        $signIn = $this->factory->create(AccessUserSignInType::class);
         self::assertSame('Email address', $signIn->get('emailAddress')->getConfig()->getOption('label'));
-        self::assertSame('current-password', $signIn->get('plainPassword')->getConfig()->getOption('attr')['autocomplete']);
+        self::assertSame('current-password', $this->fieldAttributes(AccessUserSignInType::class, 'plainPassword')['autocomplete'] ?? null);
 
         $passwordChange = $this->factory->create(AccessPasswordChangeType::class);
         self::assertSame('Current password', $passwordChange->get('currentPassword')->getConfig()->getOption('label'));
@@ -62,7 +73,7 @@ final class AccessFormTypesTest extends TypeTestCase
 
         $recoveryReset = $this->factory->create(AccessRecoveryResetType::class);
         self::assertSame('Recovery code', $recoveryReset->get('code')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $recoveryReset->get('newPassword')->getConfig()->getOption('attr')['autocomplete']);
+        self::assertSame('new-password', $this->fieldAttributes(AccessRecoveryResetType::class, 'newPassword')['autocomplete'] ?? null);
     }
 
     public function testSupportFormsKeepBusinessFriendlyHints(): void

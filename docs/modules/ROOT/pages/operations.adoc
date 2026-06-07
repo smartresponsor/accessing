@@ -6,7 +6,7 @@ Use the local quality gates as an operational baseline:
 
 [source,bash]
 ----
-php -l src/Entity/Account.php
+php -l src/Entity/User.php
 php bin/console lint:container
 composer stan
 composer test

@@ -7,11 +7,11 @@ namespace App\Accessing\ValueObject;
 
 enum AccessSecurityEventType: string
 {
-    case AccountRegistered = 'account_registered';
+    case UserRegistered = 'user_registered';
     case SignInSucceeded = 'sign_in_succeeded';
     case SignInFailed = 'sign_in_failed';
-    case AccountLocked = 'account_locked';
-    case AccountUnlocked = 'account_unlocked';
+    case UserLocked = 'user_locked';
+    case UserUnlocked = 'user_unlocked';
     case EmailVerificationRequested = 'email_verification_requested';
     case EmailVerified = 'email_verified';
     case PhoneVerificationRequested = 'phone_verification_requested';

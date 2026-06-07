@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ValueObject\AccessVerificationChallengeType;
@@ -31,14 +31,14 @@ final class AccessVerificationChallengeRepository extends ServiceEntityRepositor
         }
     }
 
-    public function findLatestActiveForAccount(AccessAccountEntity $account, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
+    public function findLatestActiveForUser(AccessUserEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
     {
         $challenge = $this->createQueryBuilder('challenge')
-            ->andWhere('challenge.account = :account')
+            ->andWhere('challenge.user = :user')
             ->andWhere('challenge.channelType = :channelType')
             ->andWhere('challenge.completed = false')
             ->andWhere('challenge.expiresAt > :now')
-            ->setParameter('account', $account)
+            ->setParameter('user', $user)
             ->setParameter('channelType', match ($challengeType) {
                 AccessVerificationChallengeType::EmailVerification => 'email',
                 AccessVerificationChallengeType::PhoneVerification => 'phone',

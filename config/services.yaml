@@ -13,8 +13,8 @@ services:
       $accessingSessionMaxIdleDays: 30
       $accessingVerificationCodeTtlMinutes: 15
       $accessingRecoveryCodeTtlMinutes: 30
-      $accessingAccountLockThreshold: 5
-      $accessingAccountLockMinutes: 15
+      $accessingUserLockThreshold: 5
+      $accessingUserLockMinutes: 15
       $accessingProductName: '%accessing.product_name%'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignUpLimiter: '@limiter.accessing_sign_up'
@@ -33,7 +33,6 @@ services:
       - ../src/Contract/
       - ../src/Event/
       - ../src/Message/
-      - ../src/Form/
       - '../src/Command/AccessDemoResetCommand.php'
       - '../src/Kernel.php'
       # Configuring integration is intentionally dormant in standalone Accessing.
@@ -41,10 +40,11 @@ services:
       - '../src/Provider/Configuration/'
       - '../src/Service/Config/'
 
-  App\Accessing\ServiceInterface\AccountContext\AccessCurrentAccountContextProviderInterface: '@App\Accessing\Provider\AccountContext\AccessCurrentAccountContextProvider'
-  App\Accessing\ServiceInterface\Account\AccessAccountAuthenticationServiceInterface: '@App\Accessing\Service\Account\AccessAccountAuthenticationService'
-  App\Accessing\ServiceInterface\Account\AccessAccountRegistrationServiceInterface: '@App\Accessing\Service\Account\AccessAccountRegistrationService'
-  App\Accessing\ServiceInterface\AccountSession\AccessAccountSessionServiceInterface: '@App\Accessing\Service\AccountSession\AccessAccountSessionService'
+
+  App\Accessing\ServiceInterface\UserContext\AccessCurrentUserContextProviderInterface: '@App\Accessing\Provider\UserContext\AccessCurrentUserContextProvider'
+  App\Accessing\ServiceInterface\User\AccessUserAuthenticationServiceInterface: '@App\Accessing\Service\User\AccessUserAuthenticationService'
+  App\Accessing\ServiceInterface\User\AccessUserRegistrationServiceInterface: '@App\Accessing\Service\User\AccessUserRegistrationService'
+  App\Accessing\ServiceInterface\UserSession\AccessUserSessionServiceInterface: '@App\Accessing\Service\UserSession\AccessUserSessionService'
   App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessCredentialService'
   App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessRecoveryService'
   App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessSecondFactorService'
@@ -53,24 +53,24 @@ services:
   App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService'
   App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService'
   App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessVerificationChallengeService'
-  App\Accessing\RepositoryInterface\AccessAccountRepositoryInterface: '@App\Accessing\Repository\AccessAccountRepository'
-  App\Accessing\RepositoryInterface\AccessAccountSessionRepositoryInterface: '@App\Accessing\Repository\AccessAccountSessionRepository'
+  App\Accessing\RepositoryInterface\AccessUserRepositoryInterface: '@App\Accessing\Repository\AccessUserRepository'
+  App\Accessing\RepositoryInterface\AccessUserSessionRepositoryInterface: '@App\Accessing\Repository\AccessUserSessionRepository'
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationServiceInterface: '@App\Accessing\Service\Admin\AccessDoctrineAccountAdministrationService'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccountAdministrationProjectionProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationActionCatalogInterface: '@App\Accessing\Catalog\Admin\AccessAccountAdministrationActionCatalog'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationBridgeInterface: '@App\Accessing\Bridge\Admin\AccessAccountAdministrationBridge'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\AccessDoctrineAccountAdministrationAuditRecorder'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRequestValidatorInterface: '@App\Accessing\Validator\Admin\AccessAccountAdministrationRequestValidator'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineAccountAdministrationAuditProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationServiceInterface: '@App\Accessing\Service\Admin\AccessDoctrineUserAdministrationService'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineUserAdministrationProjectionProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationActionCatalogInterface: '@App\Accessing\Catalog\Admin\AccessUserAdministrationActionCatalog'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationBridgeInterface: '@App\Accessing\Bridge\Admin\AccessUserAdministrationBridge'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditRecorderInterface: '@App\Accessing\Recorder\Admin\AccessDoctrineUserAdministrationAuditRecorder'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRequestValidatorInterface: '@App\Accessing\Validator\Admin\AccessUserAdministrationRequestValidator'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditProjectionProviderInterface: '@App\Accessing\Provider\Admin\AccessDoctrineUserAdministrationAuditProjectionProvider'
 
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationExecutionPlanProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationCapabilityMatrixProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationContractMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationContractMatrixProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationHealthReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationHealthReportProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationDiagnosticReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationDiagnosticReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationExecutionPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationCapabilityMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationCapabilityMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationContractMatrixProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationContractMatrixProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationHealthReportProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationHealthReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationDiagnosticReportProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationDiagnosticReportProvider'
 
   App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService:
     arguments:
@@ -83,10 +83,10 @@ services:
   App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService:
     tags: ['app.accessing.phone_provider']
 
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationReadinessReportProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationReadinessReportProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionReadinessProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationExecutionReadinessProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRemediationPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationRemediationPlanProvider'
-  App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationWorkPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessAccountAdministrationWorkPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationReadinessReportProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationReadinessReportProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionReadinessProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationExecutionReadinessProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRemediationPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationRemediationPlanProvider'
+  App\Accessing\ServiceInterface\Admin\AccessUserAdministrationWorkPlanProviderInterface: '@App\Accessing\Provider\Admin\AccessUserAdministrationWorkPlanProvider'
 
 
   App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:

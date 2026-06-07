@@ -5,7 +5,7 @@ This wave normalizes source-tree placement and Symfony class naming without chan
 ## Decisions
 
 - `App\Accessing\...` remains the correct component namespace.
-- Context values are not DTOs: `AccessCurrentAccountContext` now lives in `src/Context`.
+- Context values are not DTOs: `AccessCurrentUserContext` now lives in `src/Context`.
 - Symfony form classes use the Symfony-style `*Type` suffix, not `*FormType`.
 - `AccessAuthenticationEntryPoint` is a Symfony security entry point and now lives under `src/Authenticator` instead of a generic `src/Security` bucket.
 - Builders remain under `src/Builder` from W04.
@@ -13,8 +13,8 @@ This wave normalizes source-tree placement and Symfony class naming without chan
 
 ## Canonical moves
 
-- `src/Dto/AccountContext` -> `src/Context`
-- `src/Service/AccountContext` -> `src/Provider/AccountContext`
+- `src/Dto/UserContext` -> `src/Context`
+- `src/Service/UserContext` -> `src/Provider/UserContext`
 - `src/Security` entry point -> `src/Authenticator`
 - `src/Service/Admin/*Provider.php` -> `src/Provider/Admin`
 - `src/Service/Admin/*Recorder.php` -> `src/Recorder/Admin`

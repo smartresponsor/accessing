@@ -7,61 +7,67 @@ namespace App\Accessing\Factory\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
 use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use Symfony\Component\Form\FormView;
 
 final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 {
-    public function home(AccessAccountEntity $account, array $events): AccessPageView
+    /**
+     * @param array<int, mixed> $events
+     */
+    public function home(AccessUserEntity $user, array $events): AccessPageView
     {
-        return $this->page('account.overview', [
-            'account' => $account,
+        return $this->page('user.overview', [
+            'user' => $user,
             'events' => $events,
         ]);
     }
 
-    public function overview(AccessAccountEntity $account, array $events): AccessPageView
+    /**
+     * @param array<int, mixed> $events
+     */
+    public function overview(AccessUserEntity $user, array $events): AccessPageView
     {
-        return $this->page('account.overview', [
-            'account' => $account,
+        return $this->page('user.overview', [
+            'user' => $user,
             'events' => $events,
         ]);
     }
 
-    public function verifyEmail(AccessAccountEntity $account, FormView $form): AccessPageView
+    public function verifyEmail(AccessUserEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('account.verify_email', [
-            'account' => $account,
+        return $this->page('user.verify_email', [
+            'user' => $user,
             'form' => $form,
         ]);
     }
 
-    public function requestPhoneVerification(AccessAccountEntity $account, FormView $form): AccessPageView
+    public function requestPhoneVerification(AccessUserEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('account.verify_phone_request', [
-            'account' => $account,
+        return $this->page('user.verify_phone_request', [
+            'user' => $user,
             'form' => $form,
         ]);
     }
 
-    public function confirmPhoneVerification(AccessAccountEntity $account, FormView $form): AccessPageView
+    public function confirmPhoneVerification(AccessUserEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('account.verify_phone_confirm', [
-            'account' => $account,
+        return $this->page('user.verify_phone_confirm', [
+            'user' => $user,
             'form' => $form,
         ]);
     }
 
     public function secondFactor(
-        AccessAccountEntity $account,
+        AccessUserEntity $user,
         FormView $form,
         ?AccessSecondFactorEnrollmentDto $enrollment,
         bool $enabled,
         bool $showRecoveryCodes,
     ): AccessPageView {
-        return $this->page('account.second_factor', [
-            'account' => $account,
+        return $this->page('user.second_factor', [
+            'user' => $user,
             'form' => $form,
             'enrollment' => $enrollment,
             'enabled' => $enabled,
@@ -69,13 +75,16 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ]);
     }
 
-    public function sessions(AccessAccountEntity $account): AccessPageView
+    public function sessions(AccessUserEntity $user): AccessPageView
     {
-        return $this->page('account.sessions', [
-            'account' => $account,
+        return $this->page('user.sessions', [
+            'user' => $user,
         ]);
     }
 
+    /**
+     * @param array<int, mixed> $events
+     */
     public function securityEvents(array $events): AccessPageView
     {
         return $this->page('security_event.index', [
@@ -83,29 +92,38 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ]);
     }
 
-    public function password(AccessAccountEntity $account, FormView $form): AccessPageView
+    public function password(AccessUserEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('account.password', [
-            'account' => $account,
+        return $this->page('user.password', [
+            'user' => $user,
             'form' => $form,
         ]);
     }
 
-    public function operatorAccounts(array $accounts): AccessPageView
+    /**
+     * @param array<int, mixed> $users
+     */
+    public function operatorUsers(array $users): AccessPageView
     {
-        return $this->page('account.operator_index', [
-            'accounts' => $accounts,
+        return $this->page('user.operator_index', [
+            'users' => $users,
         ]);
     }
 
-    public function operatorAccountDetail(AccessAccountEntity $account, array $events): AccessPageView
+    /**
+     * @param array<int, mixed> $events
+     */
+    public function operatorUserDetail(AccessUserEntity $user, array $events): AccessPageView
     {
-        return $this->page('account.operator_detail', [
-            'account' => $account,
+        return $this->page('user.operator_detail', [
+            'user' => $user,
             'events' => $events,
         ]);
     }
 
+    /**
+     * @param array<int, mixed> $events
+     */
     public function operatorSecurityEvents(array $events): AccessPageView
     {
         return $this->page('security_event.operator_index', [
@@ -115,36 +133,36 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 
     public function register(FormView $form): AccessPageView
     {
-        return $this->page('account.register', [
+        return $this->page('user.register', [
             'form' => $form,
         ]);
     }
 
     public function signIn(FormView $form): AccessPageView
     {
-        return $this->page('account.sign_in', [
+        return $this->page('user.sign_in', [
             'form' => $form,
         ]);
     }
 
-    public function secondFactorChallenge(AccessAccountEntity $account, FormView $form): AccessPageView
+    public function secondFactorChallenge(AccessUserEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('account.second_factor_challenge', [
-            'account' => $account,
+        return $this->page('user.second_factor_challenge', [
+            'user' => $user,
             'form' => $form,
         ]);
     }
 
     public function requestRecovery(FormView $form): AccessPageView
     {
-        return $this->page('account.recover_request', [
+        return $this->page('user.recover_request', [
             'form' => $form,
         ]);
     }
 
     public function resetRecovery(FormView $form): AccessPageView
     {
-        return $this->page('account.recover_reset', [
+        return $this->page('user.recover_reset', [
             'form' => $form,
         ]);
     }

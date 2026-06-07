@@ -31,8 +31,8 @@ Accessing route/surface ownership remains externalized through Cruding/View/Inte
 
 When operator surface tokens are represented by the host route layer, use singular no-dash tokens, for example:
 
-- `/operator/account`
-- `/operator/account/{id}`
+- `/operator/user`
+- `/operator/user/{id}`
 - `/operator/security/event`
 
 Avoid plural route tokens and dashed composite tokens such as `/operator/security-events`.

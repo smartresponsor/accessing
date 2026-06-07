@@ -30,7 +30,7 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
         if (is_file($runtimeConfigFile)) {
             $runtimeConfig = Yaml::parseFile($runtimeConfigFile);
             if (is_array($runtimeConfig)) {
-                $this->applyRuntimeParameters($container, $runtimeConfig);
+                $this->applyRuntimeParameters($container, self::stringKeyMap($runtimeConfig));
             }
         }
 
@@ -56,7 +56,7 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
             return;
         }
 
-        $container->prependExtensionConfig('framework', $config['framework']);
+        $container->prependExtensionConfig('framework', self::stringKeyMap($config['framework']));
 
         $twigConfigFile = __DIR__.'/../../config/packages/accessing_twig.yaml';
         if (!is_file($twigConfigFile)) {
@@ -68,10 +68,28 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
             return;
         }
 
-        $twig = $twigConfig['twig'];
-        $twig['paths'] = [dirname(__DIR__, 2).'/templates' => null] + ($twig['paths'] ?? []);
+        $twig = self::stringKeyMap($twigConfig['twig']);
+        $paths = $twig['paths'] ?? [];
+        $twig['paths'] = [dirname(__DIR__, 2).'/templates' => null] + (is_array($paths) ? self::stringKeyMap($paths) : []);
 
         $container->prependExtensionConfig('twig', $twig);
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private static function stringKeyMap(array $data): array
+    {
+        $normalized = [];
+        foreach ($data as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
     }
 
     /**
@@ -85,8 +103,8 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
             'accessing.session_max_idle_days' => 'accessing_session_max_idle_days',
             'accessing.recovery_code_ttl_minutes' => 'accessing_recovery_code_ttl_minutes',
             'accessing.verification_code_ttl_minutes' => 'accessing_verification_code_ttl_minutes',
-            'accessing.account_lock_threshold' => 'accessing_account_lock_threshold',
-            'accessing.account_lock_minutes' => 'accessing_account_lock_minutes',
+            'accessing.user_lock_threshold' => 'accessing_user_lock_threshold',
+            'accessing.user_lock_minutes' => 'accessing_user_lock_minutes',
         ];
 
         foreach ($map as $parameterName => $runtimeKey) {

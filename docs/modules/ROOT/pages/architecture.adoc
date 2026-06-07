@@ -12,8 +12,8 @@ Accessing is a single Symfony 8 application with one canonical root namespace: `
 == Product Center
 
 * Workspace: Accessing
-* Core entity: Account
-* Supporting entities: Credential, VerificationChallenge, SecondFactor, RecoveryCode, SecurityEvent, AccountSession
+* Core entity: User
+* Supporting entities: Credential, VerificationChallenge, SecondFactor, RecoveryCode, SecurityEvent, UserSession
 
 == Layering Expectations
 

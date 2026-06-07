@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecurityEvent;
 
-use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
@@ -24,14 +24,14 @@ final readonly class AccessSecurityEventService implements AccessSecurityEventSe
     public function record(
         AccessSecurityEventType $eventType,
         AccessSecurityEventSeverity $severity,
-        ?AccessAccountEntity $account = null,
+        ?AccessUserEntity $user = null,
         ?Request $request = null,
         array $context = [],
     ): AccessSecurityEventEntity {
         $securityEvent = new AccessSecurityEventEntity(
             $eventType,
             $severity,
-            $account,
+            $user,
             $request?->getClientIp(),
             $request?->headers->get('User-Agent'),
             $context,

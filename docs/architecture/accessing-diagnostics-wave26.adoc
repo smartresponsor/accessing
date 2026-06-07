@@ -1,6 +1,6 @@
-= Wave 26: Accessing Account Administration Diagnostics
+= Wave 26: Accessing User Administration Diagnostics
 
-Accessing now exposes a safe diagnostic issue register for its account-administration surface.
+Accessing now exposes a safe diagnostic issue register for its user-administration surface.
 
 The diagnostic provider derives issues from Accessing-owned health checks and only emits metadata suitable for Administering visualization.
 
@@ -10,4 +10,4 @@ Diagnostics must never include password hashes, TOTP secrets, recovery codes, re
 
 == Ownership
 
-Accessing remains the owner of authentication, login, logout, sessions, account lock state, and controlled account-action execution.
+Accessing remains the owner of authentication, login, logout, sessions, user lock state, and controlled user-action execution.

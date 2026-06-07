@@ -18,9 +18,9 @@ class AccessRecoveryCodeEntity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AccessAccountEntity::class, inversedBy: 'recoveryCodes')]
+    #[ORM\ManyToOne(targetEntity: AccessUserEntity::class, inversedBy: 'recoveryCodes')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?AccessAccountEntity $account = null;
+    private ?AccessUserEntity $user = null;
 
     #[ORM\Column(name: 'code_hash', length: 255)]
     private string $codeHash = '';
@@ -33,13 +33,13 @@ class AccessRecoveryCodeEntity
 
     private ?string $lastFourCharacters;
 
-    public function __construct(?AccessAccountEntity $account = null, ?string $codeHash = null, ?string $lastFourCharacters = null)
+    public function __construct(?AccessUserEntity $user = null, ?string $codeHash = null, ?string $lastFourCharacters = null)
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->lastFourCharacters = $lastFourCharacters;
 
-        if (null !== $account) {
-            $this->setAccount($account);
+        if (null !== $user) {
+            $this->setUser($user);
         }
 
         if (null !== $codeHash) {
@@ -52,14 +52,14 @@ class AccessRecoveryCodeEntity
         return $this->id;
     }
 
-    public function getAccount(): ?AccessAccountEntity
+    public function getUser(): ?AccessUserEntity
     {
-        return $this->account;
+        return $this->user;
     }
 
-    public function setAccount(AccessAccountEntity $account): self
+    public function setUser(AccessUserEntity $user): self
     {
-        $this->account = $account;
+        $this->user = $user;
 
         return $this;
     }

@@ -5,18 +5,18 @@ declare(strict_types=1);
 
 namespace App\Accessing\Command;
 
-use App\Accessing\ServiceInterface\AccountSession\AccessAccountSessionServiceInterface;
+use App\Accessing\ServiceInterface\UserSession\AccessUserSessionServiceInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'accessing:session:cleanup', description: 'Remove stale invalidated account sessions.')]
+#[AsCommand(name: 'accessing:session:cleanup', description: 'Remove stale invalidated user sessions.')]
 final class AccessSessionCleanupCommand extends Command
 {
     public function __construct(
-        private readonly AccessAccountSessionServiceInterface $accountSessionService,
+        private readonly AccessUserSessionServiceInterface $userSessionService,
     ) {
         parent::__construct();
     }
@@ -25,7 +25,7 @@ final class AccessSessionCleanupCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $removedCount = $this->accountSessionService->cleanupSessions();
+        $removedCount = $this->userSessionService->cleanupSessions();
         $io->success(sprintf('Removed %d stale session record(s).', $removedCount));
 
         return Command::SUCCESS;

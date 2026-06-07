@@ -1,6 +1,6 @@
 = Accessing Admin Audit Summary Wave 15
 
-Accessing now exposes a metadata-only aggregate summary for controlled account administration audit.
+Accessing now exposes a metadata-only aggregate summary for controlled user administration audit.
 
 The summary includes counts by result status, counts by action, total records considered, and latest event timestamp.
 It does not expose password hashes, TOTP secrets, recovery codes, reset tokens, sessions, verification internals, or raw request payloads.

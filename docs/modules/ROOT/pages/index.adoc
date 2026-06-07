@@ -1,11 +1,11 @@
 = Accessing Documentation
 :description: Documentation producer surface for the Accessing Symfony workspace.
 
-This component provides the account access lifecycle for the ecosystem.
+This component provides the user access lifecycle for the ecosystem.
 
 == Scope
 
-Accessing owns registration, sign-in, verification, second factor, recovery, session tracking, and security events for `Account`.
+Accessing owns registration, sign-in, verification, second factor, recovery, session tracking, and security events for `User`.
 
 == Documentation Roles
 

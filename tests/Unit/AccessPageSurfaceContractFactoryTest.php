@@ -6,12 +6,13 @@ namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Dto\AccessPageView;
 use App\Accessing\Factory\Surface\AccessPageSurfaceContractFactory;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPageSurfaceContractFactoryTest extends TestCase
 {
-    #[DataProvider('mappedViews')]
+    /**
+     * @dataProvider mappedViews
+     */
     public function testItMapsPageViewsToCanonicalInterfacingTemplates(string $view, string $expectedTemplate): void
     {
         $factory = new AccessPageSurfaceContractFactory();
@@ -24,7 +25,7 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
         $factory = new AccessPageSurfaceContractFactory();
 
         $this->expectException(\LogicException::class);
-        $factory->create(new AccessPageView('account.unknown'));
+        $factory->create(new AccessPageView('user.unknown'));
     }
 
     /**
@@ -33,10 +34,10 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
     public static function mappedViews(): array
     {
         return [
-            'account overview' => ['account.overview', 'access/account/overview.html.twig'],
-            'verify email' => ['account.verify_email', 'access/account/verify_email.html.twig'],
+            'user overview' => ['user.overview', 'access/user/overview.html.twig'],
+            'verify email' => ['user.verify_email', 'access/user/verify_email.html.twig'],
             'reset request' => ['reset_password.request', 'access/reset_password/request.html.twig'],
-            'sign in' => ['account.sign_in', 'accessin/signin/index.html.twig'],
+            'sign in' => ['user.sign_in', 'accessin/signin/index.html.twig'],
         ];
     }
 }

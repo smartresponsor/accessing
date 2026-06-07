@@ -1,15 +1,15 @@
 = Accessing Wave 8: Controlled Admin Action Catalog
 
-Accessing now exposes safe metadata for controlled account administration actions.
+Accessing now exposes safe metadata for controlled user administration actions.
 
 == Purpose
 
-Administering may display which account actions exist, but Accessing remains the owner of the actual account/session/security internals.
+Administering may display which user actions exist, but Accessing remains the owner of the actual user/session/security internals.
 
 == Allowed action classes
 
-* lock account
-* unlock account
+* lock user
+* unlock user
 * terminate session
 * request 2FA reset
 * view security events

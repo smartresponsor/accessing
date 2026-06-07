@@ -1,15 +1,15 @@
 # Accessing Bounding Manifest
 
-The component boundary is the account access lifecycle.
+The component boundary is the user access lifecycle.
 
 Inside boundary:
-- account registration and activation
+- user registration and activation
 - credential ownership and maintenance
 - email and phone verification
 - second-factor enrollment and challenge
 - password reset and recovery codes
 - login attempts, cooldowns, locks, unlocks
-- account session and security event tracking
+- user session and security event tracking
 - UI, CLI, fixtures, tests, and reports necessary to operate these flows
 
 Outside boundary unless explicitly needed:
@@ -22,7 +22,7 @@ Outside boundary unless explicitly needed:
 - unrelated notification center responsibilities
 
 Vocabulary canon:
-Use Account as the core domain term.
+Use User as the core domain term.
 Do not drift into User, Identity, Principal, Profile, Auth, Authorization, or Access as the main entity unless there is a very explicit and local reason.
 
 Architectural canon inside the boundary:

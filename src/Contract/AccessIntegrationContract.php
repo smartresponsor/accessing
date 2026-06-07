@@ -30,35 +30,35 @@ final readonly class AccessIntegrationContract
 
     /**
      * Prefix used when building Rolling ACL subject identifiers.
-     * Format: '{prefix}{accountId}'
-     * Example: 'accessing:account:42'.
+     * Format: '{prefix}{userId}'
+     * Example: 'accessing:user:42'.
      */
     public string $subjectPrefix;
 
     // -----------------------------------------------------------------
-    // Account administration services
+    // User administration services
     // (FQCNs consumed by Administering's admin bridge wiring)
     // -----------------------------------------------------------------
 
-    /** FQCN of the account administration service */
+    /** FQCN of the user administration service */
     public string $administrationService;
 
-    /** FQCN of the account administration projection provider */
+    /** FQCN of the user administration projection provider */
     public string $administrationProjectionProvider;
 
-    /** FQCN of the account administration action catalog */
+    /** FQCN of the user administration action catalog */
     public string $administrationActionCatalog;
 
-    /** FQCN of the account administration bridge */
+    /** FQCN of the user administration bridge */
     public string $administrationBridge;
 
-    /** FQCN of the account administration request validator */
+    /** FQCN of the user administration request validator */
     public string $administrationRequestValidator;
 
-    /** FQCN of the account administration audit recorder */
+    /** FQCN of the user administration audit recorder */
     public string $administrationAuditRecorder;
 
-    /** FQCN of the account administration audit projection provider */
+    /** FQCN of the user administration audit projection provider */
     public string $administrationAuditProjectionProvider;
 
     // -----------------------------------------------------------------
@@ -140,24 +140,37 @@ final readonly class AccessIntegrationContract
     public static function fromYaml(array $data): self
     {
         return new self(
-            owns: (string) ($data['owns'] ?? 'authentication_session_identity'),
-            subjectPrefix: (string) ($data['subject_prefix'] ?? 'accessing:account:'),
-            administrationService: (string) ($data['administration_service'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationServiceInterface::class),
-            administrationProjectionProvider: (string) ($data['administration_projection_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationProjectionProviderInterface::class),
-            administrationActionCatalog: (string) ($data['administration_action_catalog'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationActionCatalogInterface::class),
-            administrationBridge: (string) ($data['administration_bridge'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationBridgeInterface::class),
-            administrationRequestValidator: (string) ($data['administration_request_validator'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRequestValidatorInterface::class),
-            administrationAuditRecorder: (string) ($data['administration_audit_recorder'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditRecorderInterface::class),
-            administrationAuditProjectionProvider: (string) ($data['administration_audit_projection_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationAuditProjectionProviderInterface::class),
-            administrationReadinessReportProvider: (string) ($data['administration_readiness_report_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationReadinessReportProviderInterface::class),
-            administrationExecutionReadinessProvider: (string) ($data['administration_execution_readiness_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionReadinessProviderInterface::class),
-            administrationRemediationPlanProvider: (string) ($data['administration_remediation_plan_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationRemediationPlanProviderInterface::class),
-            administrationWorkPlanProvider: (string) ($data['administration_work_plan_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationWorkPlanProviderInterface::class),
-            administrationExecutionPlanProvider: (string) ($data['administration_execution_plan_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationExecutionPlanProviderInterface::class),
-            administrationCapabilityMatrixProvider: (string) ($data['administration_capability_matrix_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationCapabilityMatrixProviderInterface::class),
-            administrationContractMatrixProvider: (string) ($data['administration_contract_matrix_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationContractMatrixProviderInterface::class),
-            administrationHealthReportProvider: (string) ($data['administration_health_report_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationHealthReportProviderInterface::class),
-            administrationDiagnosticReportProvider: (string) ($data['administration_diagnostic_report_provider'] ?? \App\Accessing\ServiceInterface\Admin\AccessAccountAdministrationDiagnosticReportProviderInterface::class),
+            owns: self::stringValue($data['owns'] ?? null, 'authentication_session_identity'),
+            subjectPrefix: self::stringValue($data['subject_prefix'] ?? null, 'accessing:user:'),
+            administrationService: self::stringValue($data['administration_service'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationServiceInterface::class),
+            administrationProjectionProvider: self::stringValue($data['administration_projection_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationProjectionProviderInterface::class),
+            administrationActionCatalog: self::stringValue($data['administration_action_catalog'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationActionCatalogInterface::class),
+            administrationBridge: self::stringValue($data['administration_bridge'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationBridgeInterface::class),
+            administrationRequestValidator: self::stringValue($data['administration_request_validator'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRequestValidatorInterface::class),
+            administrationAuditRecorder: self::stringValue($data['administration_audit_recorder'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditRecorderInterface::class),
+            administrationAuditProjectionProvider: self::stringValue($data['administration_audit_projection_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditProjectionProviderInterface::class),
+            administrationReadinessReportProvider: self::stringValue($data['administration_readiness_report_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationReadinessReportProviderInterface::class),
+            administrationExecutionReadinessProvider: self::stringValue($data['administration_execution_readiness_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionReadinessProviderInterface::class),
+            administrationRemediationPlanProvider: self::stringValue($data['administration_remediation_plan_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRemediationPlanProviderInterface::class),
+            administrationWorkPlanProvider: self::stringValue($data['administration_work_plan_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationWorkPlanProviderInterface::class),
+            administrationExecutionPlanProvider: self::stringValue($data['administration_execution_plan_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionPlanProviderInterface::class),
+            administrationCapabilityMatrixProvider: self::stringValue($data['administration_capability_matrix_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationCapabilityMatrixProviderInterface::class),
+            administrationContractMatrixProvider: self::stringValue($data['administration_contract_matrix_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationContractMatrixProviderInterface::class),
+            administrationHealthReportProvider: self::stringValue($data['administration_health_report_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationHealthReportProviderInterface::class),
+            administrationDiagnosticReportProvider: self::stringValue($data['administration_diagnostic_report_provider'] ?? null, \App\Accessing\ServiceInterface\Admin\AccessUserAdministrationDiagnosticReportProviderInterface::class),
         );
+    }
+
+    private static function stringValue(mixed $value, string $default): string
+    {
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_scalar($value) || null === $value) {
+            return (string) ($value ?? $default);
+        }
+
+        return $default;
     }
 }

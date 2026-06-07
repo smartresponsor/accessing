@@ -21,13 +21,13 @@ class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AccessAccountEntity::class)]
+    #[ORM\ManyToOne(targetEntity: AccessUserEntity::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private AccessAccountEntity $account;
+    private AccessUserEntity $user;
 
-    public function __construct(AccessAccountEntity $account, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
+    public function __construct(AccessUserEntity $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
-        $this->account = $account;
+        $this->user = $user;
         $this->initialize($expiresAt, $selector, $hashedToken);
     }
 
@@ -36,13 +36,8 @@ class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
         return $this->id;
     }
 
-    public function getAccount(): AccessAccountEntity
+    public function getUser(): AccessUserEntity
     {
-        return $this->account;
-    }
-
-    public function getUser(): object
-    {
-        return $this->account;
+        return $this->user;
     }
 }

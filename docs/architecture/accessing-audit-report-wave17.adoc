@@ -1,12 +1,12 @@
-= Accessing Account Administration Audit Report - Wave 17
+= Accessing User Administration Audit Report - Wave 17
 
-Accessing now exposes a metadata-only audit report DTO for controlled account administration actions.
+Accessing now exposes a metadata-only audit report DTO for controlled user administration actions.
 
 The report is built from Accessing-owned audit persistence and can be filtered by:
 
 * action
 * result status
-* account reference
+* user reference
 * limit
 
 The report is safe for Administering because it exposes only audit projections and summaries. It must never expose password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads, or verification internals.

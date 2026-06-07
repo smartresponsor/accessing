@@ -1,16 +1,16 @@
 = Accessing Capability Matrix - Wave 23
 
-Wave 23 adds a safe capability matrix for Accessing account administration.
+Wave 23 adds a safe capability matrix for Accessing user administration.
 
 == Purpose
 
-Accessing exposes metadata about what account-administration surfaces exist and whether they are executable, blocked or projection-only.
+Accessing exposes metadata about what user-administration surfaces exist and whether they are executable, blocked or projection-only.
 
-This does not make Administering the owner of account mutations. Administering may display the matrix and request controlled actions through Accessing-owned services.
+This does not make Administering the owner of user mutations. Administering may display the matrix and request controlled actions through Accessing-owned services.
 
 == Capability categories
 
-* account_action
+* user_action
 * projection
 
 == Safety rules

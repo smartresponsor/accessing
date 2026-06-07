@@ -1,12 +1,12 @@
 = Accessing Admin Action Bridge
 
-Accessing remains the owner of authentication, sessions, password, 2FA, verification, and account security internals.
+Accessing remains the owner of authentication, sessions, password, 2FA, verification, and user security internals.
 
-Administering may request controlled account actions, but it must not raw-edit Accessing internals. Wave 9 adds a small bridge:
+Administering may request controlled user actions, but it must not raw-edit Accessing internals. Wave 9 adds a small bridge:
 
-* `AccessingAccountAdministrationBridgeInterface`
-* `AccessingAccountAdministrationBridge`
+* `AccessingUserAdministrationBridgeInterface`
+* `AccessingUserAdministrationBridge`
 
 The bridge returns safe result DTOs for Administering and delegates execution to Accessing-owned services.
 
-Allowed actions remain limited to the published action catalog, such as account lock/unlock, session termination, 2FA reset request, and security-event viewing. Password hashes, TOTP secrets, recovery codes, raw session payloads, and verification internals remain outside the Administering editable surface.
+Allowed actions remain limited to the published action catalog, such as user lock/unlock, session termination, 2FA reset request, and security-event viewing. Password hashes, TOTP secrets, recovery codes, raw session payloads, and verification internals remain outside the Administering editable surface.

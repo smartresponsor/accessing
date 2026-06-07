@@ -30,13 +30,13 @@ final class AccessReportSecurityCommand extends Command
         foreach ($this->securityEventRepository->findRecentEvents() as $event) {
             $rows[] = [
                 $event->getOccurredAt()->format('Y-m-d H:i:s'),
-                $event->getAccount()?->getEmailAddress() ?? 'unknown',
+                $event->getUser()?->getEmailAddress() ?? 'unknown',
                 $event->getEventType()->value,
                 $event->getSeverity()->value,
             ];
         }
 
-        $io->table(['Occurred', 'AccessAccountEntity', 'Event', 'Severity'], $rows);
+        $io->table(['Occurred', 'AccessUserEntity', 'Event', 'Severity'], $rows);
 
         return Command::SUCCESS;
     }

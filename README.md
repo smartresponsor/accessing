@@ -1,6 +1,6 @@
 # Accessing
 
-Accessing is a Symfony 8 account access brick for the ecosystem.
+Accessing is a Symfony 8 user access brick for the ecosystem.
 
 This repository is intentionally scaffolded with directional manifests so an implementation agent can grow it consistently.
 

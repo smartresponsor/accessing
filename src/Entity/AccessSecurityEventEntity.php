@@ -21,9 +21,9 @@ class AccessSecurityEventEntity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AccessAccountEntity::class)]
+    #[ORM\ManyToOne(targetEntity: AccessUserEntity::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?AccessAccountEntity $account;
+    private ?AccessUserEntity $user;
 
     #[ORM\Column(name: 'event_type', length: 64)]
     private string $eventType = '';
@@ -47,7 +47,7 @@ class AccessSecurityEventEntity
     public function __construct(
         AccessSecurityEventType|string|null $eventType = null,
         AccessSecurityEventSeverity|string|null $severity = null,
-        ?AccessAccountEntity $account = null,
+        ?AccessUserEntity $user = null,
         ?string $ipAddress = null,
         ?string $userAgent = null,
         array $context = [],
@@ -63,7 +63,7 @@ class AccessSecurityEventEntity
             $this->setSeverity($severity);
         }
 
-        $this->account = $account;
+        $this->user = $user;
         $this->ipAddress = $ipAddress;
         $this->userAgent = $userAgent;
     }
@@ -73,14 +73,14 @@ class AccessSecurityEventEntity
         return $this->id;
     }
 
-    public function getAccount(): ?AccessAccountEntity
+    public function getUser(): ?AccessUserEntity
     {
-        return $this->account;
+        return $this->user;
     }
 
-    public function setAccount(?AccessAccountEntity $account): self
+    public function setUser(?AccessUserEntity $user): self
     {
-        $this->account = $account;
+        $this->user = $user;
 
         return $this;
     }

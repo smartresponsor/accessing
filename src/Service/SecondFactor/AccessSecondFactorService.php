@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Service\SecondFactor;
 
 use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
-use App\Accessing\Entity\AccessAccountEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
@@ -26,18 +26,18 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     ) {
     }
 
-    public function beginEnrollment(AccessAccountEntity $account): AccessSecondFactorEnrollmentDto
+    public function beginEnrollment(AccessUserEntity $user): AccessSecondFactorEnrollmentDto
     {
-        $secondFactor = $account->getSecondFactor();
+        $secondFactor = $user->getSecondFactor();
 
         if (!$secondFactor instanceof AccessSecondFactorEntity) {
             $totp = TOTP::create();
-            $label = $this->nonEmptyLabel($account->getEmailAddress());
+            $label = $this->nonEmptyLabel($user->getEmailAddress());
             $totp->setLabel($label);
             $totp->setIssuer('Accessing');
 
-            $secondFactor = new AccessSecondFactorEntity($account, $totp->getSecret(), $account->getEmailAddress());
-            $account->setSecondFactor($secondFactor);
+            $secondFactor = new AccessSecondFactorEntity($user, $totp->getSecret(), $user->getEmailAddress());
+            $user->setSecondFactor($secondFactor);
             $this->entityManager->persist($secondFactor);
             $this->entityManager->flush();
 
@@ -46,7 +46,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
 
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
         $totp = TOTP::create($secret);
-        $label = $this->nonEmptyLabel($account->getEmailAddress());
+        $label = $this->nonEmptyLabel($user->getEmailAddress());
         $totp->setLabel($label);
         $totp->setIssuer('Accessing');
 
@@ -56,9 +56,9 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     /**
      * @throws RandomException
      */
-    public function confirmEnrollment(AccessAccountEntity $account, string $code): ?AccessSecondFactorEnrollmentDto
+    public function confirmEnrollment(AccessUserEntity $user, string $code): ?AccessSecondFactorEnrollmentDto
     {
-        $secondFactor = $account->getSecondFactor();
+        $secondFactor = $user->getSecondFactor();
 
         if (!$secondFactor instanceof AccessSecondFactorEntity) {
             return null;
@@ -74,7 +74,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
 
         $secondFactor->confirm();
 
-        foreach ($account->getRecoveryCodes() as $recoveryCode) {
+        foreach ($user->getRecoveryCodes() as $recoveryCode) {
             $this->entityManager->remove($recoveryCode);
         }
 
@@ -83,8 +83,8 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         for ($index = 0; $index < 8; ++$index) {
             $plainRecoveryCode = strtoupper(substr(bin2hex(random_bytes(5)), 0, 10));
             $plainRecoveryCodes[] = $plainRecoveryCode;
-            $account->addRecoveryCode(new AccessRecoveryCodeEntity(
-                $account,
+            $user->addRecoveryCode(new AccessRecoveryCodeEntity(
+                $user,
                 $this->hashRecoveryCode($plainRecoveryCode),
                 substr($plainRecoveryCode, -4),
             ));
@@ -95,18 +95,18 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $this->securityEventService->record(
             AccessSecurityEventType::SecondFactorEnrolled,
             AccessSecurityEventSeverity::Info,
-            $account,
+            $user,
         );
 
-        $totp->setLabel($this->nonEmptyLabel($account->getEmailAddress()));
+        $totp->setLabel($this->nonEmptyLabel($user->getEmailAddress()));
         $totp->setIssuer('Accessing');
 
         return new AccessSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
     }
 
-    public function verifyChallenge(AccessAccountEntity $account, string $code): bool
+    public function verifyChallenge(AccessUserEntity $user, string $code): bool
     {
-        $secondFactor = $account->getSecondFactor();
+        $secondFactor = $user->getSecondFactor();
 
         if (!$secondFactor instanceof AccessSecondFactorEntity || !$secondFactor->isEnabled()) {
             return false;
@@ -123,7 +123,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
             return true;
         }
 
-        foreach ($account->getRecoveryCodes() as $recoveryCode) {
+        foreach ($user->getRecoveryCodes() as $recoveryCode) {
             if ($recoveryCode->isUsed()) {
                 continue;
             }
@@ -138,7 +138,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
             $this->securityEventService->record(
                 AccessSecurityEventType::RecoveryCodeUsed,
                 AccessSecurityEventSeverity::Warning,
-                $account,
+                $user,
             );
 
             return true;
@@ -147,15 +147,15 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         return false;
     }
 
-    public function disableSecondFactor(AccessAccountEntity $account): void
+    public function disableSecondFactor(AccessUserEntity $user): void
     {
-        $secondFactor = $account->getSecondFactor();
+        $secondFactor = $user->getSecondFactor();
 
         if ($secondFactor instanceof AccessSecondFactorEntity) {
             $secondFactor->revoke();
         }
 
-        foreach ($account->getRecoveryCodes() as $recoveryCode) {
+        foreach ($user->getRecoveryCodes() as $recoveryCode) {
             $this->entityManager->remove($recoveryCode);
         }
 
@@ -164,7 +164,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $this->securityEventService->record(
             AccessSecurityEventType::SecondFactorRevoked,
             AccessSecurityEventSeverity::Warning,
-            $account,
+            $user,
         );
     }
 

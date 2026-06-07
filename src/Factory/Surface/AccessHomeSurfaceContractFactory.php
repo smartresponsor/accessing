@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Factory\Surface;
 
-use App\Accessing\Entity\AccessAccountEntity;
+use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Value\Surface\AccessHomeSurfaceContract;
 
 final readonly class AccessHomeSurfaceContractFactory
@@ -17,11 +17,11 @@ final readonly class AccessHomeSurfaceContractFactory
     /**
      * @param array<int, mixed> $events
      */
-    public function create(AccessAccountEntity $account, array $events): AccessHomeSurfaceContract
+    public function create(AccessUserEntity $user, array $events): AccessHomeSurfaceContract
     {
         return new AccessHomeSurfaceContract(
             word: AccessHomeSurfaceContract::WORD,
-            view: 'account.overview',
+            view: 'user.overview',
             templateName: 'access/index.html.twig',
             slotMap: [
                 'main.body' => 'main',
@@ -30,7 +30,7 @@ final readonly class AccessHomeSurfaceContractFactory
             ],
             slots: [
                 'accessingProductName' => $this->accessingProductName,
-                'account' => $account,
+                'user' => $user,
                 'events' => $events,
             ],
         );
