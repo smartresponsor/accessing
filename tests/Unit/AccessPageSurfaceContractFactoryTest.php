@@ -25,7 +25,7 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
         $factory = new AccessPageSurfaceContractFactory();
 
         $this->expectException(\LogicException::class);
-        $factory->create(new AccessPageView('user.unknown'));
+        $factory->create(new AccessPageView('access.unknown'));
     }
 
     /**
@@ -34,10 +34,10 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
     public static function mappedViews(): array
     {
         return [
-            'user overview' => ['user.overview', 'access/user/overview.html.twig'],
-            'verify email' => ['user.verify_email', 'access/user/verify_email.html.twig'],
+            'access overview' => ['access.overview', 'access/overview.html.twig'],
+            'verify email' => ['access.verify_email', 'access/verify_email.html.twig'],
             'reset request' => ['reset_password.request', 'access/reset_password/request.html.twig'],
-            'sign in' => ['user.sign_in', 'accessin/signin/index.html.twig'],
+            'sign in' => ['access.sign_in', 'accessin/signin/index.html.twig'],
         ];
     }
 }

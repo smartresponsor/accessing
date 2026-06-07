@@ -36,7 +36,7 @@ final class AccessReportSecurityCommand extends Command
             ];
         }
 
-        $io->table(['Occurred', 'AccessUserEntity', 'Event', 'Severity'], $rows);
+        $io->table(['Occurred', 'AccessEntity', 'Event', 'Severity'], $rows);
 
         return Command::SUCCESS;
     }

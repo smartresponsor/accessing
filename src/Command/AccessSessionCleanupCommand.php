@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Command;
 
-use App\Accessing\ServiceInterface\UserSession\AccessUserSessionServiceInterface;
+use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class AccessSessionCleanupCommand extends Command
 {
     public function __construct(
-        private readonly AccessUserSessionServiceInterface $userSessionService,
+        private readonly AccessSessionServiceInterface $userSessionService,
     ) {
         parent::__construct();
     }

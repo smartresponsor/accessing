@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Recorder\SecurityEvent;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,7 +20,7 @@ final readonly class AccessSecurityEventRecorder implements AccessSecurityEventR
     }
 
     /** @param array<string, scalar|array<array-key, mixed>|null> $context */
-    public function record(string $eventType, ?AccessUserEntity $user = null, array $context = []): AccessSecurityEventEntity
+    public function record(string $eventType, ?AccessEntity $user = null, array $context = []): AccessSecurityEventEntity
     {
         $request = $this->requestStack->getCurrentRequest();
 

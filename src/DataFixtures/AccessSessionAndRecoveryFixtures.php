@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\DataFixtures;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessResetPasswordRequestEntity;
-use App\Accessing\Entity\AccessUserEntity;
-use App\Accessing\Entity\AccessUserSessionEntity;
+use App\Accessing\Entity\AccessSessionEntity;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -21,14 +21,14 @@ final class AccessSessionAndRecoveryFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $user = new AccessUserEntity()
+        $user = new AccessEntity()
             ->setEmail('session-demo@smartresponsor.local')
             ->setDisplayName('Accessing Session Demo')
             ->setRoles(['ROLE_USER'])
-            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessUserEntity(), 'AccessingSession123!'));
+            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessEntity(), 'AccessingSession123!'));
         $user->markEmailVerified();
 
-        $userSession = new AccessUserSessionEntity()
+        $userSession = new AccessSessionEntity()
             ->setUser($user)
             ->setSessionIdentifier('demo-session-identifier')
             ->setIpAddress('127.0.0.1')

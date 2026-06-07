@@ -5,24 +5,24 @@ declare(strict_types=1);
 
 namespace App\Accessing\Dto;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 
 final readonly class AccessSignInResultDto
 {
     private function __construct(
         public bool $authenticated,
         public bool $requiresSecondFactor,
-        public ?AccessUserEntity $user,
+        public ?AccessEntity $user,
         public string $message,
     ) {
     }
 
-    public static function authenticated(AccessUserEntity $user): self
+    public static function authenticated(AccessEntity $user): self
     {
         return new self(true, false, $user, 'Signed in successfully.');
     }
 
-    public static function pendingSecondFactor(AccessUserEntity $user): self
+    public static function pendingSecondFactor(AccessEntity $user): self
     {
         return new self(false, true, $user, 'Second factor verification is required.');
     }

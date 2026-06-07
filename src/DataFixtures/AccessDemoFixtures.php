@@ -5,9 +5,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\DataFixtures;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -22,13 +22,13 @@ final class AccessDemoFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-        $user = new AccessUserEntity()
+        $user = new AccessEntity()
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
             ->setRoles(['ROLE_USER'])
             ->setSecondFactorEnabled(true)
-            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessUserEntity(), 'AccessingDemo123!'));
+            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessEntity(), 'AccessingDemo123!'));
         $user->markEmailVerified();
 
         $manager->persist($user);

@@ -6,22 +6,22 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Verification;
 
 use App\Accessing\Dto\AccessIssuedChallengeDto;
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 interface AccessVerificationChallengeServiceInterface
 {
-    public function issueEmailVerification(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto;
+    public function issueEmailVerification(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto;
 
-    public function issuePhoneVerification(AccessUserEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto;
+    public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto;
 
-    public function issuePasswordRecovery(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto;
+    public function issuePasswordRecovery(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto;
 
-    public function completeEmailVerification(AccessUserEntity $user, string $code): bool;
+    public function completeEmailVerification(AccessEntity $user, string $code): bool;
 
-    public function completePhoneVerification(AccessUserEntity $user, string $code): bool;
+    public function completePhoneVerification(AccessEntity $user, string $code): bool;
 
-    public function consumePasswordRecovery(AccessUserEntity $user, string $code): bool;
+    public function consumePasswordRecovery(AccessEntity $user, string $code): bool;
 
     public function cleanupExpiredChallenges(): int;
 }

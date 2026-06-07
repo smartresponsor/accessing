@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -24,11 +24,11 @@ final class AccessSecurityEventRepository extends ServiceEntityRepository implem
     public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void
     {
         $user = $securityEvent->getUser();
-        if ($user instanceof AccessUserEntity) {
+        if ($user instanceof AccessEntity) {
             $entityManager = $this->getEntityManager();
 
             if (null !== $user->getId()) {
-                $securityEvent->setUser($entityManager->getReference(AccessUserEntity::class, $user->getId()));
+                $securityEvent->setUser($entityManager->getReference(AccessEntity::class, $user->getId()));
             } elseif (!$entityManager->contains($user)) {
                 $entityManager->persist($user);
             }
@@ -54,7 +54,7 @@ final class AccessSecurityEventRepository extends ServiceEntityRepository implem
         return $results;
     }
 
-    public function findRecentEventsForUser(AccessUserEntity $user, int $limit = 50): array
+    public function findRecentEventsForUser(AccessEntity $user, int $limit = 50): array
     {
         $query = $this->createQueryBuilder('securityEvent')
             ->andWhere('securityEvent.user = :user')

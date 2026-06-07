@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ValueObject\AccessVerificationChallengeType;
@@ -31,7 +31,7 @@ final class AccessVerificationChallengeRepository extends ServiceEntityRepositor
         }
     }
 
-    public function findLatestActiveForUser(AccessUserEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
+    public function findLatestActiveForUser(AccessEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
     {
         $challenge = $this->createQueryBuilder('challenge')
             ->andWhere('challenge.user = :user')

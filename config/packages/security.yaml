@@ -8,7 +8,7 @@ security:
   providers:
     accessing_user_provider:
       entity:
-        class: App\Accessing\Entity\AccessUserEntity
+        class: App\Accessing\Entity\AccessEntity
         property: email
 
   firewalls:

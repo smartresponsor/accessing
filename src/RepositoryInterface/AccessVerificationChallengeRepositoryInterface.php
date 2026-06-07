@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\RepositoryInterface;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\ValueObject\AccessVerificationChallengeType;
 
@@ -13,7 +13,7 @@ interface AccessVerificationChallengeRepositoryInterface
 {
     public function save(AccessVerificationChallengeEntity $verificationChallenge, bool $flush = false): void;
 
-    public function findLatestActiveForUser(AccessUserEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity;
+    public function findLatestActiveForUser(AccessEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity;
 
     /**
      * @return list<AccessVerificationChallengeEntity>

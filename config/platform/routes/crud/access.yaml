@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------------------
+# Cruding token grammar
+# ---------------------------------------------------------------------------
+# This file is a route-map registry/protocol file for the current Cruding parser.
+#
+# Current Cruding catch-all grammar:
+#   API CRUD:
+#     /api/{resourcePath}
+#     /api/{resourcePath}/{slug}
+#
+#   Surface:
+#     /{resource}/{subject}/{surface}
+#     /{resource}/{subject}/{surface}/{action}
+#     /{resource}/{subject}/{surface}/{item}/{action}
+#     /{resource}/{subject}/{surface}/{token}/{item}
+#     /{resource}/{subject}/{surface}/{token}/{item}/{action}
+#
+#   Classic CRUD:
+#     /{resourcePath}/new/
+#     /{resourcePath}/edit/{id}
+#     /{resourcePath}/edit/{slug}
+#     /{resourcePath}/delete/{id}
+#     /{resourcePath}/delete/{slug}
+#     /{resourcePath}/{id}
+#     /{resourcePath}/{slug}
+#     /{resourcePath}
+#
+# Token meaning:
+#   resource      = first business/root token allowed by APP_RUNTIME_ENTITY
+#   subject       = second business token
+#   surface       = visual/object/surface token
+#   token         = operation/surface token when grammar has 5+ segments
+#   item          = item identifier value
+#   action        = final operation token
+#   resourcePath  = slash-aware classic CRUD resource path
+#   id            = internal/admin/system identifier
+#   slug          = public/outdoor/human identifier
+#
+# Runtime guard:
+#   first URI token must be allowed by APP_RUNTIME_ENTITY.
+#   reserved component roots must not be captured as business resources.
+#
+# Canon:
+#   routeKey keeps full business chain, for example:
+#     vendor.attachment.document.show
+#   template target may stay short, for example:
+#     document/show/index.html.twig
+#   no {ref}; use {id}/{slug}; use semantic {productId}/{mediaId} for relations.
+# ---------------------------------------------------------------------------
+
+# config/platform/routes/crud/access.yaml
+# Typical CRUD / CRUD-adjacent map.
+# Item routes are explicit id/slug variants; no {ref}.
+
+access.index:                     { path: /access/index,                        service: App\Accessing\Service\Http\Access\AccessIndexService }
+access.show_id:                   { path: /access/show/{id},                    service: App\Accessing\Service\Http\Access\AccessShowService, resolver: id }
+access.show_slug:                 { path: /access/show/{slug},                  service: App\Accessing\Service\Http\Access\AccessShowService, resolver: slug }
+access.new:                       { path: /access/new,                          service: App\Accessing\Service\Http\Access\AccessNewService }
+access.create:                    { path: /access/create,                       type: App\Accessing\Form\Access\AccessCreateType,                           service: App\Accessing\Service\Http\Access\AccessCreateService }
+access.edit_id:                   { path: /access/edit/{id},                    service: App\Accessing\Service\Http\Access\AccessEditService, resolver: id }
+access.edit_slug:                 { path: /access/edit/{slug},                  service: App\Accessing\Service\Http\Access\AccessEditService, resolver: slug }
+access.update_id:                 { path: /access/update/{id},                  type: App\Accessing\Form\Access\AccessUpdateType,                           service: App\Accessing\Service\Http\Access\AccessUpdateService, resolver: id }
+access.update_slug:               { path: /access/update/{slug},                type: App\Accessing\Form\Access\AccessUpdateType,                           service: App\Accessing\Service\Http\Access\AccessUpdateService, resolver: slug }
+access.delete_id:                 { path: /access/delete/{id},                  type: App\Accessing\Form\Access\AccessDeleteType,                           service: App\Accessing\Service\Http\Access\AccessDeleteService, resolver: id }
+access.delete_slug:               { path: /access/delete/{slug},                type: App\Accessing\Form\Access\AccessDeleteType,                           service: App\Accessing\Service\Http\Access\AccessDeleteService, resolver: slug }
+access.bulk:                      { path: /access/bulk,                         type: App\Accessing\Form\Access\AccessBulkType,                             service: App\Accessing\Service\Http\Access\AccessBulkService }
+access.import:                    { path: /access/import,                       type: App\Accessing\Form\Access\AccessImportType,                           service: App\Accessing\Service\Http\Access\AccessImportService }
+access.export:                    { path: /access/export,                       type: App\Accessing\Form\Access\AccessExportType,                           service: App\Accessing\Service\Http\Access\AccessExportService }
+access.archive_id:                { path: /access/archive/{id},                 type: App\Accessing\Form\Access\AccessArchiveType,                          service: App\Accessing\Service\Http\Access\AccessArchiveService, resolver: id }
+access.archive_slug:              { path: /access/archive/{slug},               type: App\Accessing\Form\Access\AccessArchiveType,                          service: App\Accessing\Service\Http\Access\AccessArchiveService, resolver: slug }
+access.restore_id:                { path: /access/restore/{id},                 type: App\Accessing\Form\Access\AccessRestoreType,                          service: App\Accessing\Service\Http\Access\AccessRestoreService, resolver: id }
+access.restore_slug:              { path: /access/restore/{slug},               type: App\Accessing\Form\Access\AccessRestoreType,                          service: App\Accessing\Service\Http\Access\AccessRestoreService, resolver: slug }
+access.duplicate_id:              { path: /access/duplicate/{id},               type: App\Accessing\Form\Access\AccessDuplicateType,                        service: App\Accessing\Service\Http\Access\AccessDuplicateService, resolver: id }
+access.duplicate_slug:            { path: /access/duplicate/{slug},             type: App\Accessing\Form\Access\AccessDuplicateType,                        service: App\Accessing\Service\Http\Access\AccessDuplicateService, resolver: slug }

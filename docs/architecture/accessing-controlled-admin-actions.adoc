@@ -23,4 +23,4 @@ This prevents Administering from raw-editing user internals.
 
 == Contract
 
-`AccessingUserAdministrationServiceInterface` is the safe surface for Administering-triggered user actions.
+`AccessingAdministrationServiceInterface` is the safe surface for Administering-triggered user actions.

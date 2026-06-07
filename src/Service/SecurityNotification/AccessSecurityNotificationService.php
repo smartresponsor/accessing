@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecurityNotification;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -18,7 +18,7 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
     ) {
     }
 
-    public function sendEmailVerificationCode(AccessUserEntity $user, string $plainCode, int $ttlMinutes): void
+    public function sendEmailVerificationCode(AccessEntity $user, string $plainCode, int $ttlMinutes): void
     {
         $this->mailer->send((new Email())
             ->from($this->accessingMailerSender)
@@ -33,7 +33,7 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
             )));
     }
 
-    public function sendPasswordRecoveryCode(AccessUserEntity $user, string $plainCode, int $ttlMinutes): void
+    public function sendPasswordRecoveryCode(AccessEntity $user, string $plainCode, int $ttlMinutes): void
     {
         $this->mailer->send((new Email())
             ->from($this->accessingMailerSender)

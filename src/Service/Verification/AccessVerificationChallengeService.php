@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Verification;
 
 use App\Accessing\Dto\AccessIssuedChallengeDto;
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
-use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
@@ -25,7 +25,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
 {
     public function __construct(
         private AccessVerificationChallengeRepositoryInterface $verificationChallengeRepository,
-        private AccessUserRepositoryInterface $userRepository,
+        private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventServiceInterface $securityEventService,
         private AccessPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private AccessSecurityNotificationServiceInterface $securityNotificationService,
@@ -42,7 +42,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issueEmailVerification(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto
+    public function issueEmailVerification(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
             $user,
@@ -75,7 +75,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws \DateMalformedStringException
      * @throws RandomException
      */
-    public function issuePhoneVerification(AccessUserEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
     {
         $user->changePhoneNumber($phoneNumber);
 
@@ -112,7 +112,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issuePasswordRecovery(AccessUserEntity $user, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePasswordRecovery(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto
     {
         $issuedChallenge = $this->issueChallenge(
             $user,
@@ -141,7 +141,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Complete email verification when a valid challenge code is provided.
      */
-    public function completeEmailVerification(AccessUserEntity $user, string $code): bool
+    public function completeEmailVerification(AccessEntity $user, string $code): bool
     {
         if (!$this->consumeChallenge($user, AccessVerificationChallengeType::EmailVerification, $code)) {
             return false;
@@ -158,7 +158,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Complete phone verification when a valid challenge code is provided.
      */
-    public function completePhoneVerification(AccessUserEntity $user, string $code): bool
+    public function completePhoneVerification(AccessEntity $user, string $code): bool
     {
         if (!$this->consumeChallenge($user, AccessVerificationChallengeType::PhoneVerification, $code)) {
             return false;
@@ -175,7 +175,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
     /**
      * Consume password recovery challenge with a one-time code.
      */
-    public function consumePasswordRecovery(AccessUserEntity $user, string $code): bool
+    public function consumePasswordRecovery(AccessEntity $user, string $code): bool
     {
         return $this->consumeChallenge($user, AccessVerificationChallengeType::PasswordRecovery, $code);
     }
@@ -195,7 +195,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      */
     private function issueChallenge(
-        AccessUserEntity $user,
+        AccessEntity $user,
         AccessVerificationChallengeType $challengeType,
         string $destination,
         ?Request $request,
@@ -218,7 +218,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         return new AccessIssuedChallengeDto($verificationChallenge, $plainCode);
     }
 
-    private function consumeChallenge(AccessUserEntity $user, AccessVerificationChallengeType $challengeType, string $code): bool
+    private function consumeChallenge(AccessEntity $user, AccessVerificationChallengeType $challengeType, string $code): bool
     {
         $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForUser($user, $challengeType);
 

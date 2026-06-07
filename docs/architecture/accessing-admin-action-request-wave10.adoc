@@ -1,6 +1,6 @@
 = Accessing Admin Action Request Wave 10
 
-Accessing now exposes `AccessingUserAdministrationRequest` as a higher-level request DTO for Administering-driven user actions.
+Accessing now exposes `AccessingAdministrationRequest` as a higher-level request DTO for Administering-driven user actions.
 
 The DTO carries only safe metadata:
 
@@ -10,4 +10,4 @@ The DTO carries only safe metadata:
 * safe reason;
 * safe context.
 
-The request converts to `AccessingUserAdministrationAction` at the Accessing bridge boundary. Accessing still owns execution and may reject unsupported actions. Administering must not raw-edit password hashes, TOTP secrets, recovery codes, verification internals, or raw session payloads.
+The request converts to `AccessingAdministrationAction` at the Accessing bridge boundary. Accessing still owns execution and may reject unsupported actions. Administering must not raw-edit password hashes, TOTP secrets, recovery codes, verification internals, or raw session payloads.

@@ -1,6 +1,6 @@
 = Wave 12: Controlled User Request Validation
 
-Accessing now validates `AccessingUserAdministrationRequest` before the bridge delegates to the controlled user administration service.
+Accessing now validates `AccessingAdministrationRequest` before the bridge delegates to the controlled user administration service.
 
 Validation checks that:
 
@@ -9,7 +9,7 @@ Validation checks that:
 * the requesting subject is non-empty
 * the safe reason is non-empty
 
-The validator returns `AccessingUserAdministrationResult`, so validation failure uses the same safe result channel as execution failure.
+The validator returns `AccessingAdministrationResult`, so validation failure uses the same safe result channel as execution failure.
 
 The bridge records audit metadata for both rejected validation and execution results.
 

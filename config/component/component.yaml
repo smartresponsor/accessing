@@ -38,23 +38,5 @@ integration:
   # Subject identity — used by Rolling to build ACL subject strings
   subject_prefix: 'accessing:user:'
 
-  # User administration services (interface FQCNs)
-  # Administering uses these to wire the admin bridge without hardcoding them.
-  administration_service: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationServiceInterface
-  administration_projection_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationProjectionProviderInterface
-  administration_action_catalog: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationActionCatalogInterface
-  administration_bridge: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationBridgeInterface
-  administration_request_validator: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRequestValidatorInterface
-  administration_audit_recorder: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditRecorderInterface
-  administration_audit_projection_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationAuditProjectionProviderInterface
-
-  # Readiness and diagnostics surface services
-  administration_readiness_report_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationReadinessReportProviderInterface
-  administration_execution_readiness_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionReadinessProviderInterface
-  administration_remediation_plan_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationRemediationPlanProviderInterface
-  administration_work_plan_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationWorkPlanProviderInterface
-  administration_execution_plan_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationExecutionPlanProviderInterface
-  administration_capability_matrix_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationCapabilityMatrixProviderInterface
-  administration_contract_matrix_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationContractMatrixProviderInterface
-  administration_health_report_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationHealthReportProviderInterface
-  administration_diagnostic_report_provider: App\Accessing\ServiceInterface\Admin\AccessUserAdministrationDiagnosticReportProviderInterface
+  # Administration/workbench contracts were evacuated from Accessing.
+  # Accessing now exports only access-domain identity metadata here.

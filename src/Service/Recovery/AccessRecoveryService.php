@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Recovery;
 
 use App\Accessing\Dto\AccessIssuedChallengeDto;
-use App\Accessing\RepositoryInterface\AccessUserRepositoryInterface;
+use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 final readonly class AccessRecoveryService implements AccessRecoveryServiceInterface
 {
     public function __construct(
-        private AccessUserRepositoryInterface $userRepository,
+        private AccessRepositoryInterface $userRepository,
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessCredentialServiceInterface $credentialService,
         private AccessSecurityEventServiceInterface $securityEventService,

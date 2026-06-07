@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Credential;
 
 use App\Accessing\Entity\AccessCredentialEntity;
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -19,7 +19,7 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
     ) {
     }
 
-    public function createCredential(AccessUserEntity $user, string $plainPassword): AccessCredentialEntity
+    public function createCredential(AccessEntity $user, string $plainPassword): AccessCredentialEntity
     {
         $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPasswordHash($passwordHash);
@@ -31,13 +31,13 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
         return $credential;
     }
 
-    public function verifyPassword(AccessUserEntity $user, string $plainPassword): bool
+    public function verifyPassword(AccessEntity $user, string $plainPassword): bool
     {
         return $user->getCredential() instanceof AccessCredentialEntity
             && $this->passwordHasher->isPasswordValid($user, $plainPassword);
     }
 
-    public function changePassword(AccessUserEntity $user, string $plainPassword): void
+    public function changePassword(AccessEntity $user, string $plainPassword): void
     {
         $credential = $user->getCredential();
 

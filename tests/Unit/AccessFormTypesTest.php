@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Form\AccessChangePasswordType;
-use App\Accessing\Form\AccessPasswordChangeType;
-use App\Accessing\Form\AccessPhoneVerificationRequestType;
-use App\Accessing\Form\AccessRecoveryRequestType;
-use App\Accessing\Form\AccessRecoveryResetType;
-use App\Accessing\Form\AccessResetPasswordRequestType;
-use App\Accessing\Form\AccessUserRegistrationType;
-use App\Accessing\Form\AccessUserSignInType;
-use App\Accessing\Form\AccessVerificationCodeType;
+use App\Accessing\Form\Access\AccessChangePasswordType;
+use App\Accessing\Form\Access\AccessPasswordChangeType;
+use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
+use App\Accessing\Form\Access\AccessRecoveryRequestType;
+use App\Accessing\Form\Access\AccessRecoveryResetType;
+use App\Accessing\Form\Access\AccessRegistrationType;
+use App\Accessing\Form\Access\AccessResetPasswordRequestType;
+use App\Accessing\Form\Access\AccessSignInType;
+use App\Accessing\Form\Access\AccessVerificationCodeType;
 use Symfony\Component\Form\Test\TypeTestCase;
 
 final class AccessFormTypesTest extends TypeTestCase
@@ -41,8 +41,8 @@ final class AccessFormTypesTest extends TypeTestCase
     protected function getTypes(): array
     {
         return [
-            new AccessUserRegistrationType(),
-            new AccessUserSignInType(),
+            new AccessRegistrationType(),
+            new AccessSignInType(),
             new AccessChangePasswordType(),
             new AccessPasswordChangeType(),
             new AccessPhoneVerificationRequestType(),
@@ -53,16 +53,16 @@ final class AccessFormTypesTest extends TypeTestCase
         ];
     }
 
-    public function testUserFormsExposeHelpfulFields(): void
+    public function testAccessFormsExposeHelpfulFields(): void
     {
-        $registration = $this->factory->create(AccessUserRegistrationType::class);
+        $registration = $this->factory->create(AccessRegistrationType::class);
         self::assertSame('Email address', $registration->get('email')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $this->fieldAttributes(AccessUserRegistrationType::class, 'plainPassword')['autocomplete'] ?? null);
+        self::assertSame('new-password', $this->fieldAttributes(AccessRegistrationType::class, 'plainPassword')['autocomplete'] ?? null);
         self::assertTrue($registration->has('submit'));
 
-        $signIn = $this->factory->create(AccessUserSignInType::class);
+        $signIn = $this->factory->create(AccessSignInType::class);
         self::assertSame('Email address', $signIn->get('emailAddress')->getConfig()->getOption('label'));
-        self::assertSame('current-password', $this->fieldAttributes(AccessUserSignInType::class, 'plainPassword')['autocomplete'] ?? null);
+        self::assertSame('current-password', $this->fieldAttributes(AccessSignInType::class, 'plainPassword')['autocomplete'] ?? null);
 
         $passwordChange = $this->factory->create(AccessPasswordChangeType::class);
         self::assertSame('Current password', $passwordChange->get('currentPassword')->getConfig()->getOption('label'));

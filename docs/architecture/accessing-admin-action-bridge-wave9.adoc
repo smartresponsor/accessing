@@ -4,8 +4,8 @@ Accessing remains the owner of authentication, sessions, password, 2FA, verifica
 
 Administering may request controlled user actions, but it must not raw-edit Accessing internals. Wave 9 adds a small bridge:
 
-* `AccessingUserAdministrationBridgeInterface`
-* `AccessingUserAdministrationBridge`
+* `AccessingAdministrationBridgeInterface`
+* `AccessingAdministrationBridge`
 
 The bridge returns safe result DTOs for Administering and delegates execution to Accessing-owned services.
 

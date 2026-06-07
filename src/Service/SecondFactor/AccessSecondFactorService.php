@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Service\SecondFactor;
 
 use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
@@ -26,7 +26,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     ) {
     }
 
-    public function beginEnrollment(AccessUserEntity $user): AccessSecondFactorEnrollmentDto
+    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollmentDto
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -56,7 +56,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     /**
      * @throws RandomException
      */
-    public function confirmEnrollment(AccessUserEntity $user, string $code): ?AccessSecondFactorEnrollmentDto
+    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollmentDto
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -104,7 +104,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         return new AccessSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
     }
 
-    public function verifyChallenge(AccessUserEntity $user, string $code): bool
+    public function verifyChallenge(AccessEntity $user, string $code): bool
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -147,7 +147,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         return false;
     }
 
-    public function disableSecondFactor(AccessUserEntity $user): void
+    public function disableSecondFactor(AccessEntity $user): void
     {
         $secondFactor = $user->getSecondFactor();
 

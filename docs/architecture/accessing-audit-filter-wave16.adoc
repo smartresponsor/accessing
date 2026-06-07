@@ -2,6 +2,6 @@
 
 Accessing now exposes a safe filter value for user-administration audit projections.
 
-`AccessingUserAdministrationAuditFilter` supports filtering by action, result status, user reference, and limit. The Doctrine projection provider uses the filter to query only safe audit projection records.
+`AccessingAdministrationAuditFilter` supports filtering by action, result status, user reference, and limit. The Doctrine projection provider uses the filter to query only safe audit projection records.
 
 This keeps Administering views responsive without exposing password hashes, TOTP secrets, recovery codes, reset tokens, raw session payloads, or verification internals.

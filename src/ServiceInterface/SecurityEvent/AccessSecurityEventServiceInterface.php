@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\SecurityEvent;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ interface AccessSecurityEventServiceInterface
     public function record(
         AccessSecurityEventType $eventType,
         AccessSecurityEventSeverity $severity,
-        ?AccessUserEntity $user = null,
+        ?AccessEntity $user = null,
         ?Request $request = null,
         array $context = [],
     ): AccessSecurityEventEntity;

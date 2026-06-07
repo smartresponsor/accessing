@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Repository\AccessSecurityEventRepository;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
@@ -21,7 +21,7 @@ final class AccessSecurityEventRecorderTest extends AccessDatabaseTestCase
         /** @var AccessSecurityEventRepository $securityEventRepository */
         $securityEventRepository = static::getContainer()->get(AccessSecurityEventRepository::class);
 
-        $user = new AccessUserEntity('event-check@accessing.local', 'Event Check');
+        $user = new AccessEntity('event-check@accessing.local', 'Event Check');
 
         $event = $recorder->record('integration.test_event', $user, [
             'severity' => 'info',

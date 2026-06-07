@@ -20,9 +20,9 @@ class AccessVerificationChallengeEntity
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: AccessUserEntity::class, inversedBy: 'verificationChallenges')]
+    #[ORM\ManyToOne(targetEntity: AccessEntity::class, inversedBy: 'verificationChallenges')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private ?AccessUserEntity $user = null;
+    private ?AccessEntity $user = null;
 
     #[ORM\Column(name: 'channel_type', length: 32)]
     private string $channelType = '';
@@ -52,7 +52,7 @@ class AccessVerificationChallengeEntity
      * @throws \DateMalformedStringException
      */
     public function __construct(
-        ?AccessUserEntity $user = null,
+        ?AccessEntity $user = null,
         AccessVerificationChallengeType|string|null $challengeType = null,
         ?string $target = null,
         ?string $token = null,
@@ -86,12 +86,12 @@ class AccessVerificationChallengeEntity
         return $this->id;
     }
 
-    public function getUser(): ?AccessUserEntity
+    public function getUser(): ?AccessEntity
     {
         return $this->user;
     }
 
-    public function setUser(AccessUserEntity $user): self
+    public function setUser(AccessEntity $user): self
     {
         $this->user = $user;
 

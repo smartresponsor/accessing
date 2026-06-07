@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
@@ -15,7 +15,7 @@ final class AccessVerificationChallengeServiceTest extends AccessDatabaseTestCas
     public function testEmailVerificationChallengeCanBeIssuedAndCompleted(): void
     {
         $entityManager = $this->refreshDatabase();
-        $user = new AccessUserEntity('integration@accessing.local', 'Integration AccessUserEntity');
+        $user = new AccessEntity('integration@accessing.local', 'Integration AccessEntity');
         /** @var AccessCredentialServiceInterface $credentialService */
         $credentialService = static::getContainer()->get(AccessCredentialServiceInterface::class);
         $credentialService->createCredential($user, 'integration-pass-123');

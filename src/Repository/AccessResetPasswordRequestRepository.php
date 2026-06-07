@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessResetPasswordRequestEntity;
-use App\Accessing\Entity\AccessUserEntity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;
@@ -27,6 +27,6 @@ final class AccessResetPasswordRequestRepository extends ServiceEntityRepository
 
     public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequestInterface
     {
-        return new AccessResetPasswordRequestEntity($user instanceof AccessUserEntity ? $user : throw new \InvalidArgumentException('Expected AccessUserEntity user.'), $expiresAt, $selector, $hashedToken);
+        return new AccessResetPasswordRequestEntity($user instanceof AccessEntity ? $user : throw new \InvalidArgumentException('Expected AccessEntity user.'), $expiresAt, $selector, $hashedToken);
     }
 }

@@ -7,7 +7,7 @@ namespace App\Accessing\Factory\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
 use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
-use App\Accessing\Entity\AccessUserEntity;
+use App\Accessing\Entity\AccessEntity;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use Symfony\Component\Form\FormView;
 
@@ -16,9 +16,9 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
     /**
      * @param array<int, mixed> $events
      */
-    public function home(AccessUserEntity $user, array $events): AccessPageView
+    public function home(AccessEntity $user, array $events): AccessPageView
     {
-        return $this->page('user.overview', [
+        return $this->page('access.overview', [
             'user' => $user,
             'events' => $events,
         ]);
@@ -27,46 +27,46 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
     /**
      * @param array<int, mixed> $events
      */
-    public function overview(AccessUserEntity $user, array $events): AccessPageView
+    public function overview(AccessEntity $user, array $events): AccessPageView
     {
-        return $this->page('user.overview', [
+        return $this->page('access.overview', [
             'user' => $user,
             'events' => $events,
         ]);
     }
 
-    public function verifyEmail(AccessUserEntity $user, FormView $form): AccessPageView
+    public function verifyEmail(AccessEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('user.verify_email', [
+        return $this->page('access.verify_email', [
             'user' => $user,
             'form' => $form,
         ]);
     }
 
-    public function requestPhoneVerification(AccessUserEntity $user, FormView $form): AccessPageView
+    public function requestPhoneVerification(AccessEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('user.verify_phone_request', [
+        return $this->page('access.verify_phone_request', [
             'user' => $user,
             'form' => $form,
         ]);
     }
 
-    public function confirmPhoneVerification(AccessUserEntity $user, FormView $form): AccessPageView
+    public function confirmPhoneVerification(AccessEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('user.verify_phone_confirm', [
+        return $this->page('access.verify_phone_confirm', [
             'user' => $user,
             'form' => $form,
         ]);
     }
 
     public function secondFactor(
-        AccessUserEntity $user,
+        AccessEntity $user,
         FormView $form,
         ?AccessSecondFactorEnrollmentDto $enrollment,
         bool $enabled,
         bool $showRecoveryCodes,
     ): AccessPageView {
-        return $this->page('user.second_factor', [
+        return $this->page('access.second_factor', [
             'user' => $user,
             'form' => $form,
             'enrollment' => $enrollment,
@@ -75,9 +75,9 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ]);
     }
 
-    public function sessions(AccessUserEntity $user): AccessPageView
+    public function sessions(AccessEntity $user): AccessPageView
     {
-        return $this->page('user.sessions', [
+        return $this->page('access.sessions', [
             'user' => $user,
         ]);
     }
@@ -92,9 +92,9 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ]);
     }
 
-    public function password(AccessUserEntity $user, FormView $form): AccessPageView
+    public function password(AccessEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('user.password', [
+        return $this->page('access.password', [
             'user' => $user,
             'form' => $form,
         ]);
@@ -105,7 +105,7 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
      */
     public function operatorUsers(array $users): AccessPageView
     {
-        return $this->page('user.operator_index', [
+        return $this->page('access.operator_index', [
             'users' => $users,
         ]);
     }
@@ -113,9 +113,9 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
     /**
      * @param array<int, mixed> $events
      */
-    public function operatorUserDetail(AccessUserEntity $user, array $events): AccessPageView
+    public function operatorUserDetail(AccessEntity $user, array $events): AccessPageView
     {
-        return $this->page('user.operator_detail', [
+        return $this->page('access.operator_detail', [
             'user' => $user,
             'events' => $events,
         ]);
@@ -133,21 +133,21 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 
     public function register(FormView $form): AccessPageView
     {
-        return $this->page('user.register', [
+        return $this->page('access.register', [
             'form' => $form,
         ]);
     }
 
     public function signIn(FormView $form): AccessPageView
     {
-        return $this->page('user.sign_in', [
+        return $this->page('access.sign_in', [
             'form' => $form,
         ]);
     }
 
-    public function secondFactorChallenge(AccessUserEntity $user, FormView $form): AccessPageView
+    public function secondFactorChallenge(AccessEntity $user, FormView $form): AccessPageView
     {
-        return $this->page('user.second_factor_challenge', [
+        return $this->page('access.second_factor_challenge', [
             'user' => $user,
             'form' => $form,
         ]);
@@ -155,14 +155,14 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 
     public function requestRecovery(FormView $form): AccessPageView
     {
-        return $this->page('user.recover_request', [
+        return $this->page('access.recover_request', [
             'form' => $form,
         ]);
     }
 
     public function resetRecovery(FormView $form): AccessPageView
     {
-        return $this->page('user.recover_reset', [
+        return $this->page('access.recover_reset', [
             'form' => $form,
         ]);
     }
