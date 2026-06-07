@@ -15,7 +15,7 @@ final class AccessRecoveryRequestType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
-        return 'user_recovery_request';
+        return 'access_recovery_request';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

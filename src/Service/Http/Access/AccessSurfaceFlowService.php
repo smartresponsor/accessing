@@ -55,7 +55,7 @@ final readonly class AccessSurfaceFlowService
     public function home(): Response|InterfaceSurfaceRenderableInterface
     {
         if (!$this->currentUser() instanceof AccessEntity) {
-            return $this->redirectTo('interfacing_welcome_sign_in');
+            return $this->redirectTo('access.sign_in');
         }
 
         $user = $this->requireUser();
@@ -82,7 +82,7 @@ final readonly class AccessSurfaceFlowService
             if ($this->verificationChallengeService->completeEmailVerification($user, $data->code)) {
                 $this->flash($request, 'success', 'Email verification completed.');
 
-                return $this->redirectTo('accessing_home');
+                return $this->redirectTo('access.index');
             }
 
             $this->flash($request, 'danger', 'That email verification code is invalid or expired.');
@@ -115,7 +115,7 @@ final readonly class AccessSurfaceFlowService
             $this->flash($request, 'info', 'Phone verification code sent.');
             $this->addDemoCodeFlash($request, 'Phone verification code', $issuedChallenge->plainCode);
 
-            return $this->redirectTo('accessing_verify_phone_confirm');
+            return $this->redirectTo('access.verify_phone_confirm');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->requestPhoneVerification(
@@ -140,7 +140,7 @@ final readonly class AccessSurfaceFlowService
             if ($this->verificationChallengeService->completePhoneVerification($user, $data->code)) {
                 $this->flash($request, 'success', 'Phone verification completed.');
 
-                return $this->redirectTo('accessing_home');
+                return $this->redirectTo('access.index');
             }
 
             $this->flash($request, 'danger', 'That phone verification code is invalid or expired.');
@@ -205,7 +205,7 @@ final readonly class AccessSurfaceFlowService
         $this->secondFactorService->disableSecondFactor($this->requireUser());
         $this->flash($request, 'info', 'Second factor has been disabled.');
 
-        return $this->redirectTo('accessing_second_factor');
+        return $this->redirectTo('access.second_factor');
     }
 
     /**
@@ -224,7 +224,7 @@ final readonly class AccessSurfaceFlowService
         $invalidatedCount = $this->userSessionService->invalidateOtherSessions($this->requireUser(), $request->getSession());
         $this->flash($request, 'info', sprintf('%d other session(s) invalidated.', $invalidatedCount));
 
-        return $this->redirectTo('accessing_sessions');
+        return $this->redirectTo('access.sessions');
     }
 
     /**
@@ -256,7 +256,7 @@ final readonly class AccessSurfaceFlowService
                 $this->credentialService->changePassword($user, $data->newPassword);
                 $this->flash($request, 'success', 'Password updated.');
 
-                return $this->redirectTo('accessing_home');
+                return $this->redirectTo('access.index');
             }
         }
 

@@ -87,7 +87,7 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
      */
     public function securityEvents(array $events): AccessPageView
     {
-        return $this->page('security_event.index', [
+        return $this->page('access.security_event_index', [
             'events' => $events,
         ]);
     }
@@ -126,7 +126,7 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
      */
     public function operatorSecurityEvents(array $events): AccessPageView
     {
-        return $this->page('security_event.operator_index', [
+        return $this->page('access.operator_security_event_index', [
             'events' => $events,
         ]);
     }
@@ -169,19 +169,19 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 
     public function resetPasswordRequest(FormView $form): AccessPageView
     {
-        return $this->page('reset_password.request', [
+        return $this->page('access.reset_password_request', [
             'request_form' => $form,
         ]);
     }
 
     public function resetPasswordCheckEmail(): AccessPageView
     {
-        return $this->page('reset_password.check_email');
+        return $this->page('access.reset_password_check_email');
     }
 
     public function resetPassword(FormView $form): AccessPageView
     {
-        return $this->page('reset_password.reset', [
+        return $this->page('access.reset_password_reset', [
             'reset_form' => $form,
         ]);
     }

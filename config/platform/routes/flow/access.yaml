@@ -1,0 +1,124 @@
+# ---------------------------------------------------------------------------
+# Access flow route map
+# ---------------------------------------------------------------------------
+# Cruding owns the controller boundary. Accessing exposes canonical service/form
+# targets and route keys for access flows that are not classic CRUD.
+# ---------------------------------------------------------------------------
+
+access.register:
+  path: "/access/register"
+  type: App\Accessing\Form\Access\AccessRegistrationType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: register
+
+access.sign_in:
+  path: "/access/sign-in"
+  type: App\Accessing\Form\Access\AccessSignInType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: signIn
+
+access.sign_in_submit:
+  path: "/access/sign-in/submit"
+  type: App\Accessing\Form\Access\AccessSignInType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: signInSubmit
+
+access.sign_out:
+  path: "/access/sign-out"
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: signOut
+
+access.switch:
+  path: "/access/switch"
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: switchUser
+
+access.second_factor_challenge:
+  path: "/access/second-factor/challenge"
+  type: App\Accessing\Form\Access\AccessVerificationCodeType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: secondFactorChallenge
+
+access.recover_request:
+  path: "/access/recover"
+  type: App\Accessing\Form\Access\AccessRecoveryRequestType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: requestRecovery
+
+access.recover_reset:
+  path: "/access/recover/reset"
+  type: App\Accessing\Form\Access\AccessRecoveryResetType
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: resetRecovery
+
+access.verify_email:
+  path: "/access/verify-email"
+  type: App\Accessing\Form\Access\AccessVerificationCodeType
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: verifyEmail
+
+access.verify_phone_request:
+  path: "/access/verify-phone"
+  type: App\Accessing\Form\Access\AccessPhoneVerificationRequestType
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: requestPhone
+
+access.verify_phone_confirm:
+  path: "/access/verify-phone/confirm"
+  type: App\Accessing\Form\Access\AccessVerificationCodeType
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: confirmPhone
+
+access.second_factor:
+  path: "/access/second-factor"
+  type: App\Accessing\Form\Access\AccessVerificationCodeType
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: secondFactor
+
+access.second_factor_disable:
+  path: "/access/second-factor/disable"
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: disableSecondFactor
+
+access.sessions:
+  path: "/access/sessions"
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: sessions
+
+access.sessions_invalidate_others:
+  path: "/access/sessions/invalidate-others"
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: invalidateOtherSessions
+
+access.password:
+  path: "/access/password"
+  type: App\Accessing\Form\Access\AccessPasswordChangeType
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: password
+
+access.security_event_index:
+  path: "/access/security-event"
+  service: App\Accessing\Service\Http\Access\AccessSurfaceFlowService
+  action: securityEvents
+
+access.operator_security_event_index:
+  path: "/access/operator/security-event"
+  service: App\Accessing\Service\Http\Access\AccessOperatorSecurityEventsService
+  action: securityEvents
+
+access.reset_password_request:
+  path: "/access/reset-password/request"
+  type: App\Accessing\Form\Access\AccessResetPasswordRequestType
+  service: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService
+  action: request
+
+access.reset_password_check_email:
+  path: "/access/reset-password/check-email"
+  service: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService
+  action: checkEmail
+
+access.reset_password_reset:
+  path: "/access/reset-password/reset"
+  type: App\Accessing\Form\Access\AccessChangePasswordType
+  service: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService
+  action: reset

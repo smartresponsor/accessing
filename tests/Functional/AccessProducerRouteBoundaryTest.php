@@ -18,11 +18,11 @@ final class AccessProducerRouteBoundaryTest extends KernelTestCase
         $routes = $router->getRouteCollection();
 
         $forbiddenRouteNames = [
-            'accessing_home',
+            'access.index',
             'accessing_sign_up',
             'accessing_sign_in_submit',
-            'accessing_operator_users',
-            'accessing_operator_security_events',
+            'access.operator_index',
+            'access.operator_security_event_index',
         ];
 
         foreach ($forbiddenRouteNames as $routeName) {

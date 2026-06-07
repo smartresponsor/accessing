@@ -1,0 +1,52 @@
+{# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp #}
+{% extends '@Accessing/access/base.html.twig' %}
+
+{% set accessPage = 'access-second_factor.html' %}
+{% set accessTitle = 'Second factor' %}
+{% set accessSubtitle = 'Manage authenticator enrollment and recovery codes.' %}
+
+{% block access_body %}
+  <div class="interfacing-access-stack">
+    <div>
+      <p class="interfacing-eyebrow">Access</p>
+      <h1>Second factor</h1>
+      <p class="interfacing-muted">Manage authenticator enrollment and recovery codes.</p>
+    </div>
+
+    {% if form is defined %}
+      {{ form_start(form) }}
+      {{ form_widget(form) }}
+      <button class="interfacing-button-primary" type="submit">Continue</button>
+      {{ form_end(form) }}
+    {% elseif request_form is defined %}
+      {{ form_start(request_form) }}
+      {{ form_widget(request_form) }}
+      <button class="interfacing-button-primary" type="submit">Continue</button>
+      {{ form_end(request_form) }}
+    {% elseif reset_form is defined %}
+      {{ form_start(reset_form) }}
+      {{ form_widget(reset_form) }}
+      <button class="interfacing-button-primary" type="submit">Continue</button>
+      {{ form_end(reset_form) }}
+    {% endif %}
+
+    {% if events is defined and events is iterable %}
+      <ul class="interfacing-list">
+        {% for event in events %}
+          <li>{{ event|json_encode }}</li>
+        {% else %}
+          <li>No events available.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if users is defined and users is iterable %}
+      <ul class="interfacing-list">
+        {% for item in users %}
+          <li>{{ item|json_encode }}</li>
+        {% else %}
+          <li>No access records available.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endblock %}

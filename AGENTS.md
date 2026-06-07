@@ -17,7 +17,8 @@ Execution policy:
 
 Product center:
 - Workspace: Accessing
-- Core entity: User
+- Canonical route/resource root: Access
+- Core access subject entity: AccessEntity
 
 Preferred supporting entities:
 - Credential
@@ -25,4 +26,4 @@ Preferred supporting entities:
 - SecondFactor
 - RecoveryCode
 - SecurityEvent
-- UserSession
+- AccessSession

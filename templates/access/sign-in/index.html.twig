@@ -9,20 +9,20 @@
       <p class="interfacing-muted">This Accessing page owns the credential form surface. The actual credential check remains in the Accessing/security component.</p>
     </div>
 
-    <form method="post" action="{{ path('interfacing_welcome_sign_in') }}" class="interfacing-form" data-interfacing-access-form="sign-in">
+    <form method="post" action="{{ path('access.sign_in') }}" class="interfacing-form" data-interfacing-access-form="sign-in">
       <label class="interfacing-form-label">Email
-        <input name="user_sign_in[emailAddress]" type="email" autocomplete="email" required>
+        <input name="access_sign_in[emailAddress]" type="email" autocomplete="email" required>
       </label>
       <label class="interfacing-form-label">Password
-        <input name="user_sign_in[plainPassword]" type="password" autocomplete="current-password" required>
+        <input name="access_sign_in[plainPassword]" type="password" autocomplete="current-password" required>
       </label>
       <div class="interfacing-inline-row">
-        <label class="interfacing-inline-check"><input name="user_sign_in[rememberMe]" type="checkbox"> Remember me</label>
+        <label class="interfacing-inline-check"><input name="access_sign_in[rememberMe]" type="checkbox"> Remember me</label>
         <a href="#reset-password">Forgot password?</a>
       </div>
       <button class="interfacing-button-primary" type="submit">Sign in</button>
     </form>
 
-    <p class="interfacing-muted">New here? <a href="{{ path('interfacing_welcome_sign_up') }}">Create an user</a>.</p>
+    <p class="interfacing-muted">New here? <a href="{{ path('access.register') }}">Create access</a>.</p>
   </div>
 {% endblock %}

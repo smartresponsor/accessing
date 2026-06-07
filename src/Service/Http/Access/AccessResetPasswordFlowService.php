@@ -63,7 +63,7 @@ final readonly class AccessResetPasswordFlowService
                     $this->flash($request, 'info', sprintf(
                         'Owner-oriented preview link: %s',
                         $this->urlGenerator->generate(
-                            'accessing_reset_password_reset',
+                            'access.reset_password_reset',
                             ['token' => $resetToken->getToken()],
                             UrlGeneratorInterface::ABSOLUTE_URL,
                         )
@@ -73,7 +73,7 @@ final readonly class AccessResetPasswordFlowService
                 }
             }
 
-            return $this->redirectTo('accessing_forgot_password_check_email');
+            return $this->redirectTo('access.reset_password_check_email');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->resetPasswordRequest($form->createView()));
@@ -94,13 +94,13 @@ final readonly class AccessResetPasswordFlowService
         if (null !== $token && '' !== trim($token)) {
             $session->set(self::RESET_PASSWORD_TOKEN_SESSION_KEY, trim($token));
 
-            return $this->redirectTo('accessing_forgot_password_reset_plain');
+            return $this->redirectTo('access.reset_password_reset');
         }
 
         $tokenData = $session->get(self::RESET_PASSWORD_TOKEN_SESSION_KEY, '');
         $token = is_string($tokenData) ? $tokenData : '';
         if ('' === $token) {
-            return $this->redirectTo('accessing_forgot_password');
+            return $this->redirectTo('access.reset_password_request');
         }
 
         $form = $this->formFactory->create(AccessChangePasswordType::class);
@@ -115,7 +115,7 @@ final readonly class AccessResetPasswordFlowService
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
             $this->flash($request, 'danger', 'Invalid or expired reset token.');
 
-            return $this->redirectTo('accessing_forgot_password');
+            return $this->redirectTo('access.reset_password_request');
         }
 
         $form->handleRequest($request);
@@ -135,7 +135,7 @@ final readonly class AccessResetPasswordFlowService
 
             $this->flash($request, 'success', 'Password changed successfully.');
 
-            return $this->redirectTo('interfacing_welcome_sign_in');
+            return $this->redirectTo('access.sign_in');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->resetPassword($form->createView()));

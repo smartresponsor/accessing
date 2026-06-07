@@ -23,15 +23,15 @@ final readonly class AccessPageSurfaceContractFactory
         'access.operator_index' => 'access/operator_index.html.twig',
         'access.operator_detail' => 'access/operator_detail.html.twig',
         'access.register' => 'access/sign_up.html.twig',
-        'access.sign_in' => 'accessin/signin/index.html.twig',
+        'access.sign_in' => 'access/sign-in/index.html.twig',
         'access.second_factor_challenge' => 'access/second_factor_challenge.html.twig',
         'access.recover_request' => 'access/recover.html.twig',
         'access.recover_reset' => 'access/recover_reset.html.twig',
-        'security_event.index' => 'access/security_event/index.html.twig',
-        'security_event.operator_index' => 'access/security_event/operator_index.html.twig',
-        'reset_password.request' => 'access/request.html.twig',
-        'reset_password.check_email' => 'access/check_email.html.twig',
-        'reset_password.reset' => 'access/reset.html.twig',
+        'access.security_event_index' => 'access/security-event/index.html.twig',
+        'access.operator_security_event_index' => 'access/operator-security-event/index.html.twig',
+        'access.reset_password_request' => 'access/reset-password/request.html.twig',
+        'access.reset_password_check_email' => 'access/reset-password/check-email.html.twig',
+        'access.reset_password_reset' => 'access/reset-password/reset.html.twig',
     ];
 
     public function create(AccessPageView $pageView): AccessPageSurfaceContract

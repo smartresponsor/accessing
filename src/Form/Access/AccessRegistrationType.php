@@ -19,7 +19,7 @@ final class AccessRegistrationType extends AbstractType
 {
     public function getBlockPrefix(): string
     {
-        return 'user_registration';
+        return 'access_registration';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void

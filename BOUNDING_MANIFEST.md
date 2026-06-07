@@ -1,15 +1,15 @@
 # Accessing Bounding Manifest
 
-The component boundary is the user access lifecycle.
+The component boundary is the access lifecycle.
 
 Inside boundary:
-- user registration and activation
+- access registration and activation
 - credential ownership and maintenance
 - email and phone verification
 - second-factor enrollment and challenge
 - password reset and recovery codes
 - login attempts, cooldowns, locks, unlocks
-- user session and security event tracking
+- access session and security event tracking
 - UI, CLI, fixtures, tests, and reports necessary to operate these flows
 
 Outside boundary unless explicitly needed:
@@ -22,8 +22,8 @@ Outside boundary unless explicitly needed:
 - unrelated notification center responsibilities
 
 Vocabulary canon:
-Use User as the core domain term.
-Do not drift into User, Identity, Principal, Profile, Auth, Authorization, or Access as the main entity unless there is a very explicit and local reason.
+Use Access as the route/resource root. Use User only where Symfony security vocabulary requires it, such as UserInterface or getUser().
+Do not reintroduce AccessUser*, UserSession, UserContext, or UserAdministration wrapper names.
 
 Architectural canon inside the boundary:
 - one Symfony root code tree: App\Accessing\ => src/

@@ -53,11 +53,11 @@ final readonly class AccessSecurityFlowService
     public function register(Request $request): Response|InterfaceSurfaceRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('accessing_home');
+            return $this->redirectTo('access.index');
         }
 
         if ('GET' === $request->getMethod()) {
-            return $this->redirectTo('interfacing_welcome_sign_up', [], Response::HTTP_PERMANENTLY_REDIRECT);
+            return $this->redirectTo('access.register', [], Response::HTTP_PERMANENTLY_REDIRECT);
         }
 
         $form = $this->formFactory->create(AccessRegistrationType::class);
@@ -71,7 +71,7 @@ final readonly class AccessSecurityFlowService
                 $this->userRegistrationService->register($data);
                 $this->flash($request, 'success', 'Registration complete. Verify your email address to finish activation.');
 
-                return $this->redirectTo('interfacing_welcome_sign_in');
+                return $this->redirectTo('access.sign_in');
             } catch (\DomainException $exception) {
                 $this->flash($request, 'danger', $exception->getMessage());
             }
@@ -83,11 +83,11 @@ final readonly class AccessSecurityFlowService
     public function signIn(Request $request): Response|InterfaceSurfaceRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('accessing_home');
+            return $this->redirectTo('access.index');
         }
 
         if ('GET' === $request->getMethod()) {
-            return $this->redirectTo('interfacing_welcome_sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
+            return $this->redirectTo('access.sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
@@ -97,13 +97,13 @@ final readonly class AccessSecurityFlowService
 
     public function signInTrailingSlash(): Response
     {
-        return $this->redirectTo('interfacing_welcome_sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
+        return $this->redirectTo('access.sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
     public function signInSubmit(Request $request): Response|InterfaceSurfaceRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('accessing_home');
+            return $this->redirectTo('access.index');
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
@@ -119,13 +119,13 @@ final readonly class AccessSecurityFlowService
             );
 
             if ($result->authenticated) {
-                return $this->redirectTo('accessing_home');
+                return $this->redirectTo('access.index');
             }
 
             if ($result->requiresSecondFactor) {
                 $this->flash($request, 'info', 'Enter your authenticator or recovery code to finish signing in.');
 
-                return $this->redirectTo('accessing_sign_in_second_factor');
+                return $this->redirectTo('access.second_factor_challenge');
             }
 
             $this->flash($request, 'danger', $result->message);
@@ -139,7 +139,7 @@ final readonly class AccessSecurityFlowService
         $pendingUserId = $this->userAuthenticationService->getPendingSecondFactorUserId($request->getSession());
 
         if (null === $pendingUserId) {
-            return $this->redirectTo('interfacing_welcome_sign_in');
+            return $this->redirectTo('access.sign_in');
         }
 
         $user = $this->userRepository->findById($pendingUserId);
@@ -147,7 +147,7 @@ final readonly class AccessSecurityFlowService
         if (!$user instanceof AccessEntity) {
             $this->userAuthenticationService->clearPendingSecondFactor($request->getSession());
 
-            return $this->redirectTo('interfacing_welcome_sign_in');
+            return $this->redirectTo('access.sign_in');
         }
 
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
@@ -161,7 +161,7 @@ final readonly class AccessSecurityFlowService
                 $this->userAuthenticationService->completePendingSecondFactor($user, $request);
                 $this->flash($request, 'success', 'Signed in successfully.');
 
-                return $this->redirectTo('accessing_home');
+                return $this->redirectTo('access.index');
             }
 
             $this->flash($request, 'danger', 'The second factor code was not accepted.');
@@ -177,7 +177,7 @@ final readonly class AccessSecurityFlowService
             $request,
         );
 
-        return $this->redirectTo('interfacing_welcome_sign_in');
+        return $this->redirectTo('access.sign_in');
     }
 
     public function switchUser(Request $request): Response|InterfaceSurfaceRenderableInterface
@@ -189,7 +189,7 @@ final readonly class AccessSecurityFlowService
 
         $this->flash($request, 'info', 'Signed out. Use another user to continue.');
 
-        return $this->redirectTo('interfacing_welcome_sign_in');
+        return $this->redirectTo('access.sign_in');
     }
 
     public function requestRecovery(Request $request): Response|InterfaceSurfaceRenderableInterface
@@ -207,7 +207,7 @@ final readonly class AccessSecurityFlowService
                 $this->addDemoCodeFlash($request, 'Password recovery code', $issuedChallenge->plainCode);
             }
 
-            return $this->redirectTo('accessing_recover_reset');
+            return $this->redirectTo('access.recover_reset');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->requestRecovery($form->createView()));
@@ -229,7 +229,7 @@ final readonly class AccessSecurityFlowService
             )) {
                 $this->flash($request, 'success', 'Password recovery completed. You can now sign in.');
 
-                return $this->redirectTo('interfacing_welcome_sign_in');
+                return $this->redirectTo('access.sign_in');
             }
 
             $this->flash($request, 'danger', 'Password recovery failed. Check the email address and recovery code.');

@@ -52,23 +52,110 @@
 # Typical CRUD / CRUD-adjacent map.
 # Item routes are explicit id/slug variants; no {ref}.
 
-access.index:                     { path: /access/index,                        service: App\Accessing\Service\Http\Access\AccessIndexService }
-access.show_id:                   { path: /access/show/{id},                    service: App\Accessing\Service\Http\Access\AccessShowService, resolver: id }
-access.show_slug:                 { path: /access/show/{slug},                  service: App\Accessing\Service\Http\Access\AccessShowService, resolver: slug }
-access.new:                       { path: /access/new,                          service: App\Accessing\Service\Http\Access\AccessNewService }
-access.create:                    { path: /access/create,                       type: App\Accessing\Form\Access\AccessCreateType,                           service: App\Accessing\Service\Http\Access\AccessCreateService }
-access.edit_id:                   { path: /access/edit/{id},                    service: App\Accessing\Service\Http\Access\AccessEditService, resolver: id }
-access.edit_slug:                 { path: /access/edit/{slug},                  service: App\Accessing\Service\Http\Access\AccessEditService, resolver: slug }
-access.update_id:                 { path: /access/update/{id},                  type: App\Accessing\Form\Access\AccessUpdateType,                           service: App\Accessing\Service\Http\Access\AccessUpdateService, resolver: id }
-access.update_slug:               { path: /access/update/{slug},                type: App\Accessing\Form\Access\AccessUpdateType,                           service: App\Accessing\Service\Http\Access\AccessUpdateService, resolver: slug }
-access.delete_id:                 { path: /access/delete/{id},                  type: App\Accessing\Form\Access\AccessDeleteType,                           service: App\Accessing\Service\Http\Access\AccessDeleteService, resolver: id }
-access.delete_slug:               { path: /access/delete/{slug},                type: App\Accessing\Form\Access\AccessDeleteType,                           service: App\Accessing\Service\Http\Access\AccessDeleteService, resolver: slug }
-access.bulk:                      { path: /access/bulk,                         type: App\Accessing\Form\Access\AccessBulkType,                             service: App\Accessing\Service\Http\Access\AccessBulkService }
-access.import:                    { path: /access/import,                       type: App\Accessing\Form\Access\AccessImportType,                           service: App\Accessing\Service\Http\Access\AccessImportService }
-access.export:                    { path: /access/export,                       type: App\Accessing\Form\Access\AccessExportType,                           service: App\Accessing\Service\Http\Access\AccessExportService }
-access.archive_id:                { path: /access/archive/{id},                 type: App\Accessing\Form\Access\AccessArchiveType,                          service: App\Accessing\Service\Http\Access\AccessArchiveService, resolver: id }
-access.archive_slug:              { path: /access/archive/{slug},               type: App\Accessing\Form\Access\AccessArchiveType,                          service: App\Accessing\Service\Http\Access\AccessArchiveService, resolver: slug }
-access.restore_id:                { path: /access/restore/{id},                 type: App\Accessing\Form\Access\AccessRestoreType,                          service: App\Accessing\Service\Http\Access\AccessRestoreService, resolver: id }
-access.restore_slug:              { path: /access/restore/{slug},               type: App\Accessing\Form\Access\AccessRestoreType,                          service: App\Accessing\Service\Http\Access\AccessRestoreService, resolver: slug }
-access.duplicate_id:              { path: /access/duplicate/{id},               type: App\Accessing\Form\Access\AccessDuplicateType,                        service: App\Accessing\Service\Http\Access\AccessDuplicateService, resolver: id }
-access.duplicate_slug:            { path: /access/duplicate/{slug},             type: App\Accessing\Form\Access\AccessDuplicateType,                        service: App\Accessing\Service\Http\Access\AccessDuplicateService, resolver: slug }
+access.index:
+  path: "/access/index"
+  service: App\Accessing\Service\Http\Access\AccessIndexService
+
+access.show_id:
+  path: "/access/show/{id}"
+  service: App\Accessing\Service\Http\Access\AccessShowService
+  resolver: id
+
+access.show_slug:
+  path: "/access/show/{slug}"
+  service: App\Accessing\Service\Http\Access\AccessShowService
+  resolver: slug
+
+access.new:
+  path: "/access/new"
+  service: App\Accessing\Service\Http\Access\AccessNewService
+
+access.create:
+  path: "/access/create"
+  type: App\Accessing\Form\Access\AccessCreateType
+  service: App\Accessing\Service\Http\Access\AccessCreateService
+
+access.edit_id:
+  path: "/access/edit/{id}"
+  service: App\Accessing\Service\Http\Access\AccessEditService
+  resolver: id
+
+access.edit_slug:
+  path: "/access/edit/{slug}"
+  service: App\Accessing\Service\Http\Access\AccessEditService
+  resolver: slug
+
+access.update_id:
+  path: "/access/update/{id}"
+  type: App\Accessing\Form\Access\AccessUpdateType
+  service: App\Accessing\Service\Http\Access\AccessUpdateService
+  resolver: id
+
+access.update_slug:
+  path: "/access/update/{slug}"
+  type: App\Accessing\Form\Access\AccessUpdateType
+  service: App\Accessing\Service\Http\Access\AccessUpdateService
+  resolver: slug
+
+access.delete_id:
+  path: "/access/delete/{id}"
+  type: App\Accessing\Form\Access\AccessDeleteType
+  service: App\Accessing\Service\Http\Access\AccessDeleteService
+  resolver: id
+
+access.delete_slug:
+  path: "/access/delete/{slug}"
+  type: App\Accessing\Form\Access\AccessDeleteType
+  service: App\Accessing\Service\Http\Access\AccessDeleteService
+  resolver: slug
+
+access.bulk:
+  path: "/access/bulk"
+  type: App\Accessing\Form\Access\AccessBulkType
+  service: App\Accessing\Service\Http\Access\AccessBulkService
+
+access.import:
+  path: "/access/import"
+  type: App\Accessing\Form\Access\AccessImportType
+  service: App\Accessing\Service\Http\Access\AccessImportService
+
+access.export:
+  path: "/access/export"
+  type: App\Accessing\Form\Access\AccessExportType
+  service: App\Accessing\Service\Http\Access\AccessExportService
+
+access.archive_id:
+  path: "/access/archive/{id}"
+  type: App\Accessing\Form\Access\AccessArchiveType
+  service: App\Accessing\Service\Http\Access\AccessArchiveService
+  resolver: id
+
+access.archive_slug:
+  path: "/access/archive/{slug}"
+  type: App\Accessing\Form\Access\AccessArchiveType
+  service: App\Accessing\Service\Http\Access\AccessArchiveService
+  resolver: slug
+
+access.restore_id:
+  path: "/access/restore/{id}"
+  type: App\Accessing\Form\Access\AccessRestoreType
+  service: App\Accessing\Service\Http\Access\AccessRestoreService
+  resolver: id
+
+access.restore_slug:
+  path: "/access/restore/{slug}"
+  type: App\Accessing\Form\Access\AccessRestoreType
+  service: App\Accessing\Service\Http\Access\AccessRestoreService
+  resolver: slug
+
+access.duplicate_id:
+  path: "/access/duplicate/{id}"
+  type: App\Accessing\Form\Access\AccessDuplicateType
+  service: App\Accessing\Service\Http\Access\AccessDuplicateService
+  resolver: id
+
+access.duplicate_slug:
+  path: "/access/duplicate/{slug}"
+  type: App\Accessing\Form\Access\AccessDuplicateType
+  service: App\Accessing\Service\Http\Access\AccessDuplicateService
+  resolver: slug
