@@ -13,6 +13,7 @@ abstract class TestCase
     public static function assertNotNull(mixed $actual, string $message = ''): void {}
     public static function assertInstanceOf(string $expected, mixed $actual, string $message = ''): void {}
     public static function assertStringStartsWith(string $prefix, string $string, string $message = ''): void {}
+    public static function assertStringNotContainsString(string $needle, string $haystack, string $message = ''): void {}
     /** @param iterable<mixed>|string $haystack */
     public static function assertNotContains(mixed $needle, iterable|string $haystack, string $message = ''): void {}
     public function expectException(string $exception): void {}
