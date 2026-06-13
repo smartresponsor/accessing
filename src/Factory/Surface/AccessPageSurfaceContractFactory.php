@@ -23,7 +23,7 @@ final readonly class AccessPageSurfaceContractFactory
         'access.operator_index' => 'access/operator_index.html.twig',
         'access.operator_detail' => 'access/operator_detail.html.twig',
         'access.register' => 'access/sign_up.html.twig',
-        'access.sign_in' => 'access/sign-in/index.html.twig',
+        'access.signin' => 'access/signin/index.html.twig',
         'access.second_factor_challenge' => 'access/second_factor_challenge.html.twig',
         'access.recover_request' => 'access/recover.html.twig',
         'access.recover_reset' => 'access/recover_reset.html.twig',

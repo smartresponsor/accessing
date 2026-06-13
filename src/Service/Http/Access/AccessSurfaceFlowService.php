@@ -50,12 +50,12 @@ final readonly class AccessSurfaceFlowService
     }
 
     /**
-     * Render home entrypoint for signed-in users and redirect guests to sign-in.
+     * Render home entrypoint for signed in users and redirect guests to sign in.
      */
     public function home(): Response|InterfaceSurfaceRenderableInterface
     {
         if (!$this->currentUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.sign_in');
+            return $this->redirectTo('access.signin');
         }
 
         $user = $this->requireUser();

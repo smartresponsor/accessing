@@ -140,7 +140,7 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
 
     public function signIn(FormView $form): AccessPageView
     {
-        return $this->page('access.sign_in', [
+        return $this->page('access.signin', [
             'form' => $form,
         ]);
     }

@@ -135,7 +135,7 @@ final readonly class AccessResetPasswordFlowService
 
             $this->flash($request, 'success', 'Password changed successfully.');
 
-            return $this->redirectTo('access.sign_in');
+            return $this->redirectTo('access.signin');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->resetPassword($form->createView()));

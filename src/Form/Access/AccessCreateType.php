@@ -33,7 +33,7 @@ final class AccessCreateType extends AbstractType
                 'attr' => ['autocomplete' => 'new-password'],
             ])
             ->add('displayName', TextType::class, [
-                'label' => 'Display name',
+                'label' => 'Display nameEntity',
                 'required' => false,
             ])
             ->add('phoneNumber', TelType::class, [

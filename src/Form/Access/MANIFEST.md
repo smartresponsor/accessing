@@ -2,7 +2,7 @@
 
 This directory is the canonical form tree for the `access.*` grammar and access flows.
 
-All access forms live here. Do not split registration, sign-in, recovery, password, or verification forms into parallel form roots while the grammar has no such separation.
+All access forms live here. Do not split registration, sign in, recovery, password, or verification forms into parallel form roots while the grammar has no such separation.
 
 Canonical namespace:
 

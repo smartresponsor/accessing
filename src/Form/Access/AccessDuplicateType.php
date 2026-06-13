@@ -30,7 +30,7 @@ final class AccessDuplicateType extends AbstractType
                 'attr' => ['autocomplete' => 'email'],
             ])
             ->add('displayName', TextType::class, [
-                'label' => 'Display name',
+                'label' => 'Display nameEntity',
                 'required' => false,
             ]);
     }

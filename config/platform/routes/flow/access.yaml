@@ -6,19 +6,19 @@
 # ---------------------------------------------------------------------------
 
 access.register:
-  path: "/access/register"
+  path: "/access/signup"
   type: App\Accessing\Form\Access\AccessRegistrationType
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: register
 
-access.sign_in:
-  path: "/access/sign-in"
+access.signin:
+  path: "/access/signin"
   type: App\Accessing\Form\Access\AccessSignInType
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: signIn
 
-access.sign_in_submit:
-  path: "/access/sign-in/submit"
+access.signin_submit:
+  path: "/access/signin/submit"
   type: App\Accessing\Form\Access\AccessSignInType
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: signInSubmit

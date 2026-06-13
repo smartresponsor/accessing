@@ -47,7 +47,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         $limiter = $this->accessingSignInLimiter->create(sprintf('%s|%s', $normalizedEmailAddress, $request->getClientIp() ?? 'unknown'));
 
         if (!$limiter->consume()->isAccepted()) {
-            return AccessSignInResultDto::failed('Too many sign-in attempts. Please wait before trying again.');
+            return AccessSignInResultDto::failed('Too many sign in attempts. Please wait before trying again.');
         }
 
         $user = $this->userRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
@@ -61,7 +61,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
                 ['emailAddress' => $normalizedEmailAddress->toString(), 'reason' => 'user_not_found'],
             );
 
-            return AccessSignInResultDto::failed('Invalid sign-in credentials.');
+            return AccessSignInResultDto::failed('Invalid sign in credentials.');
         }
 
         if ($user->getLockedUntil() instanceof \DateTimeImmutable && !$user->isLocked()) {
@@ -99,7 +99,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
 
             $this->userRepository->save($user, true);
 
-            return AccessSignInResultDto::failed('Invalid sign-in credentials.');
+            return AccessSignInResultDto::failed('Invalid sign in credentials.');
         }
 
         if ($user->getSecondFactor()?->isEnabled()) {

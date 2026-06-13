@@ -5,10 +5,11 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
+use App\Accessing\Repository\AccessRecoveryCodeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AccessRecoveryCodeRepository::class)]
 #[ORM\Table(name: 'access_recovery_code')]
 #[ORM\Index(name: 'idx_access_recovery_code_consumed_at', columns: ['consumed_at'])]
 class AccessRecoveryCodeEntity

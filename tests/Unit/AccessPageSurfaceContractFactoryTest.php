@@ -37,7 +37,7 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
             'access overview' => ['access.overview', 'access/overview.html.twig'],
             'verify email' => ['access.verify_email', 'access/verify_email.html.twig'],
             'reset request' => ['access.reset_password_request', 'access/reset_password/request.html.twig'],
-            'sign in' => ['access.sign_in', 'access/sign-in/index.html.twig'],
+            'sign in' => ['access.signin', 'access/signin/index.html.twig'],
         ];
     }
 }

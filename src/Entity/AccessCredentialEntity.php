@@ -5,9 +5,10 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
+use App\Accessing\Repository\AccessCredentialRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AccessCredentialRepository::class)]
 #[ORM\Table(name: 'access_credential')]
 final class AccessCredentialEntity
 {

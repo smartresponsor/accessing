@@ -71,7 +71,7 @@ final readonly class AccessSecurityFlowService
                 $this->userRegistrationService->register($data);
                 $this->flash($request, 'success', 'Registration complete. Verify your email address to finish activation.');
 
-                return $this->redirectTo('access.sign_in');
+                return $this->redirectTo('access.signin');
             } catch (\DomainException $exception) {
                 $this->flash($request, 'danger', $exception->getMessage());
             }
@@ -87,7 +87,7 @@ final readonly class AccessSecurityFlowService
         }
 
         if ('GET' === $request->getMethod()) {
-            return $this->redirectTo('access.sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
+            return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
@@ -97,7 +97,7 @@ final readonly class AccessSecurityFlowService
 
     public function signInTrailingSlash(): Response
     {
-        return $this->redirectTo('access.sign_in', [], Response::HTTP_PERMANENTLY_REDIRECT);
+        return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
     public function signInSubmit(Request $request): Response|InterfaceSurfaceRenderableInterface
@@ -139,7 +139,7 @@ final readonly class AccessSecurityFlowService
         $pendingUserId = $this->userAuthenticationService->getPendingSecondFactorUserId($request->getSession());
 
         if (null === $pendingUserId) {
-            return $this->redirectTo('access.sign_in');
+            return $this->redirectTo('access.signin');
         }
 
         $user = $this->userRepository->findById($pendingUserId);
@@ -147,7 +147,7 @@ final readonly class AccessSecurityFlowService
         if (!$user instanceof AccessEntity) {
             $this->userAuthenticationService->clearPendingSecondFactor($request->getSession());
 
-            return $this->redirectTo('access.sign_in');
+            return $this->redirectTo('access.signin');
         }
 
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
@@ -177,7 +177,7 @@ final readonly class AccessSecurityFlowService
             $request,
         );
 
-        return $this->redirectTo('access.sign_in');
+        return $this->redirectTo('access.signin');
     }
 
     public function switchUser(Request $request): Response|InterfaceSurfaceRenderableInterface
@@ -189,7 +189,7 @@ final readonly class AccessSecurityFlowService
 
         $this->flash($request, 'info', 'Signed out. Use another user to continue.');
 
-        return $this->redirectTo('access.sign_in');
+        return $this->redirectTo('access.signin');
     }
 
     public function requestRecovery(Request $request): Response|InterfaceSurfaceRenderableInterface
@@ -229,7 +229,7 @@ final readonly class AccessSecurityFlowService
             )) {
                 $this->flash($request, 'success', 'Password recovery completed. You can now sign in.');
 
-                return $this->redirectTo('access.sign_in');
+                return $this->redirectTo('access.signin');
             }
 
             $this->flash($request, 'danger', 'Password recovery failed. Check the email address and recovery code.');
