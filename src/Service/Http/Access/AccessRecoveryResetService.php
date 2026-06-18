@@ -5,16 +5,18 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-final readonly class AccessOperatorSecurityEventsService
+final readonly class AccessRecoveryResetService
 {
     public function __construct(
-        private AccessSecurityEventRepositoryInterface $securityEventRepository,
+        private FormFactoryInterface $formFactory,
         private AccessPageViewFactoryInterface $pageViewFactory,
         private AccessPageResponderInterface $pageResponder,
     ) {
@@ -22,8 +24,12 @@ final readonly class AccessOperatorSecurityEventsService
 
     public function __invoke(): Response|InterfaceSurfaceRenderableInterface
     {
-        return $this->pageResponder->respond($this->pageViewFactory->operatorSecurityEvents(
-            $this->securityEventRepository->findRecentEvents(150),
-        ));
+        $form = $this->formFactory->createBuilder()
+            ->add('email', EmailType::class)
+            ->add('code', TextType::class)
+            ->add('credential', TextType::class)
+            ->getForm();
+
+        return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
     }
 }

@@ -5,25 +5,35 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final readonly class AccessOperatorSecurityEventsService
+final readonly class AccessOperatorUserDetailService
 {
     public function __construct(
+        private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
         private AccessPageViewFactoryInterface $pageViewFactory,
         private AccessPageResponderInterface $pageResponder,
     ) {
     }
 
-    public function __invoke(): Response|InterfaceSurfaceRenderableInterface
+    public function __invoke(int $id): Response|InterfaceSurfaceRenderableInterface
     {
-        return $this->pageResponder->respond($this->pageViewFactory->operatorSecurityEvents(
-            $this->securityEventRepository->findRecentEvents(150),
+        $user = $this->userRepository->findById($id);
+
+        if (null === $user) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->pageResponder->respond($this->pageViewFactory->operatorUserDetail(
+            $user,
+            $this->securityEventRepository->findRecentEventsForUser($user),
         ));
     }
 }

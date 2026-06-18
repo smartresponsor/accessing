@@ -11,7 +11,7 @@ use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-final readonly class AccessOperatorSecurityEventsService
+final readonly class AccessSecurityEventsService
 {
     public function __construct(
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
@@ -22,8 +22,8 @@ final readonly class AccessOperatorSecurityEventsService
 
     public function __invoke(): Response|InterfaceSurfaceRenderableInterface
     {
-        return $this->pageResponder->respond($this->pageViewFactory->operatorSecurityEvents(
-            $this->securityEventRepository->findRecentEvents(150),
+        return $this->pageResponder->respond($this->pageViewFactory->securityEvents(
+            $this->securityEventRepository->findRecentEvents(),
         ));
     }
 }
