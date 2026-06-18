@@ -20,10 +20,7 @@ final readonly class AccessOperatorSecurityEventsService
     ) {
     }
 
-    /**
-     * Render operator-level security event index for the Access grammar tree.
-     */
-    public function securityEvents(): Response|InterfaceSurfaceRenderableInterface
+    public function __invoke(): Response|InterfaceSurfaceRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->operatorSecurityEvents(
             $this->securityEventRepository->findRecentEvents(150),
