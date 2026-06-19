@@ -27,8 +27,12 @@ final class AccessRegistrationType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('email', EmailType::class)
-            ->add('plainPassword', PasswordType::class)
+            ->add('email', EmailType::class, [
+                'label' => 'Email address',
+            ])
+            ->add('plainPassword', PasswordType::class, [
+                'attr' => ['autocomplete' => 'new-password'],
+            ])
             ->add('displayName', TextType::class, [
                 'required' => false,
             ])
