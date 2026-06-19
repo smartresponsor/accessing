@@ -18,7 +18,9 @@ final class AccessResetPasswordRequestType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'label' => 'Email address',
+            ])
             ->add('submit', SubmitType::class, [
                 'label' => 'Send reset link',
             ]);
