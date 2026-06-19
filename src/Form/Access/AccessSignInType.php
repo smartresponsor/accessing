@@ -24,7 +24,9 @@ final class AccessSignInType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('emailAddress', EmailType::class)
+            ->add('emailAddress', EmailType::class, [
+                'label' => 'Email address',
+            ])
             ->add('plainPassword', PasswordType::class, ['attr' => ['autocomplete' => 'current-password']]);
     }
 
