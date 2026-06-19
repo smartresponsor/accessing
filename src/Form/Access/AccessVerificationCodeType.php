@@ -17,7 +17,9 @@ final class AccessVerificationCodeType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('code', TextType::class);
+        $builder->add('code', TextType::class, [
+            'label' => 'Verification code',
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

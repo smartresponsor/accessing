@@ -18,8 +18,14 @@ final class AccessPasswordChangeType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('currentPassword', PasswordType::class, ['attr' => ['autocomplete' => 'current-password']])
-            ->add('newPassword', PasswordType::class, ['attr' => ['autocomplete' => 'new-password']]);
+            ->add('currentPassword', PasswordType::class, [
+                'label' => 'Current password',
+                'attr' => ['autocomplete' => 'current-password'],
+            ])
+            ->add('newPassword', PasswordType::class, [
+                'label' => 'New password',
+                'attr' => ['autocomplete' => 'new-password'],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

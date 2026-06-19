@@ -35,11 +35,8 @@ services:
       - ../src/Message/
       - '../src/Command/AccessDemoResetCommand.php'
       - '../src/Kernel.php'
-      # Configuring integration is intentionally dormant in standalone Accessing.
-      # The external App\Configuring contracts are not part of this component.
       - '../src/Provider/Configuration/'
       - '../src/Service/Config/'
-
 
   App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
   App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface: '@App\Accessing\Service\Access\AccessAuthenticationService'
@@ -58,18 +55,12 @@ services:
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-
   App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService:
     arguments:
-      $providers: !tagged_iterator 'app.accessing.phone_provider'
+      $providers:
+        - '@App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService'
+        - '@App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService'
       $selectedProvider: '%accessing.phone_verification_provider%'
-
-  App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService:
-    tags: ['app.accessing.phone_provider']
-
-  App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService:
-    tags: ['app.accessing.phone_provider']
-
 
   App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:
     arguments:

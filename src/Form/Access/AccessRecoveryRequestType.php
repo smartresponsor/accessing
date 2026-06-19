@@ -22,7 +22,9 @@ final class AccessRecoveryRequestType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('emailAddress', EmailType::class);
+        $builder->add('emailAddress', EmailType::class, [
+            'label' => 'Email address',
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
