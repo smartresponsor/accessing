@@ -17,7 +17,9 @@ final class AccessPhoneVerificationRequestType extends AbstractType
     {
         parent::buildForm($builder, $options);
 
-        $builder->add('phoneNumber', TextType::class);
+        $builder->add('phoneNumber', TextType::class, [
+            'label' => 'Phone number',
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
