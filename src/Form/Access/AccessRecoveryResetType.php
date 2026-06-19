@@ -25,9 +25,16 @@ final class AccessRecoveryResetType extends AbstractType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('emailAddress', EmailType::class)
-            ->add('code', TextType::class)
-            ->add('newPassword', PasswordType::class, ['attr' => ['autocomplete' => 'new-password']]);
+            ->add('emailAddress', EmailType::class, [
+                'label' => 'Email address',
+            ])
+            ->add('code', TextType::class, [
+                'label' => 'Recovery code',
+            ])
+            ->add('newPassword', PasswordType::class, [
+                'label' => 'New password',
+                'attr' => ['autocomplete' => 'new-password'],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
