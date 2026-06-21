@@ -1,0 +1,27 @@
+api.access.signin:
+  path: /api/access/signin
+  routeKey: api.access.signin
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: signIn
+
+api.access.register:
+  path: /api/access/register
+  routeKey: api.access.register
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: register
+
+api.access.logout:
+  path: /api/access/logout
+  routeKey: api.access.logout
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: logout
+
+api.access.session:
+  path: /api/access/session
+  routeKey: api.access.session
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: session

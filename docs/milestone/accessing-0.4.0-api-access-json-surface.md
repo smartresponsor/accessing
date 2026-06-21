@@ -1,0 +1,32 @@
+# Accessing 0.4.0 API Access JSON Surface Milestone
+
+- Route decision: no mobile token; canonical backend routes are `/api/access/signin`, `/api/access/register`, `/api/access/logout`, and `/api/access/session`.
+- Purpose: materialize an Accessing-owned JSON surface for access/auth without moving business logic into App.
+- Endpoints:
+  - `POST /api/access/signin`
+  - `POST /api/access/register`
+  - `POST /api/access/logout`
+  - `GET /api/access/session`
+- Payload classes:
+  - `ApiAccessSignInRequest`
+  - `ApiAccessRegisterRequest`
+  - `ApiAccessIdentityPayload`
+  - `ApiAccessSessionPayload`
+  - `ApiAccessErrorPayload`
+- Explicit limitations:
+  - route parser gap remains intentionally open; this YAML map is declaration-only for now
+  - no fake token
+  - no fake refresh token
+  - no fake user
+  - no fake authenticated mobile session
+  - no JWT invention
+  - no App-owned business logic
+  - no mobile-edge integration yet
+  - token/session transport is not implemented yet; a successful sign-in is intentionally `session_transport_pending` until the mobile-edge session strategy is decided
+  - `/api/access/session` only reflects an existing Symfony session context when the backend already has one; it does not establish mobile token transport
+- Relationship:
+  - this milestone is the backend JSON counterpart to Mobiling mobile-edge `0.3.0-mobile-edge-auth-contract`
+  - next milestone: mobile-edge calls `/api/access/*`
+- Verification:
+  - focused PHPUnit coverage was added for route declaration, DTO contract, JSON responder, and API flow behavior
+  - local check command used: `composer test -- --filter AccessPageSurfaceContractFactoryTest`
