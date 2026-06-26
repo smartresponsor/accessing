@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\Value\Surface;
 
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 
-final readonly class AccessHomeSurfaceContract implements InterfaceSurfaceRenderableInterface
+final readonly class AccessHomeSurfaceContract implements InterfaceTemplateRenderableInterface
 {
     public const WORD = 'access';
 

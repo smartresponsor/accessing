@@ -12,7 +12,7 @@ use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,7 @@ final readonly class AccessResetPasswordFlowService
     /**
      * Accept a password reset request and issue a reset token when user exists.
      */
-    public function request(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function request(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->create(AccessResetPasswordRequestType::class);
         $form->handleRequest($request);
@@ -79,7 +79,7 @@ final readonly class AccessResetPasswordFlowService
         return $this->pageResponder->respond($this->pageViewFactory->resetPasswordRequest($form->createView()));
     }
 
-    public function checkEmail(): Response|InterfaceSurfaceRenderableInterface
+    public function checkEmail(): Response|InterfaceTemplateRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->resetPasswordCheckEmail());
     }
@@ -87,7 +87,7 @@ final readonly class AccessResetPasswordFlowService
     /**
      * Validate a reset token and update user password when submitted data is valid.
      */
-    public function reset(Request $request, ?string $token = null): Response|InterfaceSurfaceRenderableInterface
+    public function reset(Request $request, ?string $token = null): Response|InterfaceTemplateRenderableInterface
     {
         $session = $request->getSession();
 

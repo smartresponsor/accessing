@@ -20,7 +20,7 @@ use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -52,7 +52,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Render home entrypoint for signed in users and redirect guests to sign in.
      */
-    public function home(): Response|InterfaceSurfaceRenderableInterface
+    public function home(): Response|InterfaceTemplateRenderableInterface
     {
         if (!$this->currentUser() instanceof AccessEntity) {
             return $this->redirectTo('access.signin');
@@ -69,7 +69,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Verify user email ownership using a challenge code.
      */
-    public function verifyEmail(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function verifyEmail(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
@@ -101,7 +101,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Request a phone verification code and hand it to the provider.
      */
-    public function requestPhone(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function requestPhone(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
         $form = $this->formFactory->create(AccessPhoneVerificationRequestType::class);
@@ -127,7 +127,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Confirm a phone verification challenge.
      */
-    public function confirmPhone(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function confirmPhone(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
         $form = $this->formFactory->create(AccessVerificationCodeType::class);
@@ -155,7 +155,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Complete second-factor enrollment.
      */
-    public function secondFactor(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function secondFactor(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
         $enrollment = $this->secondFactorService->beginEnrollment($user);
@@ -200,7 +200,7 @@ final readonly class AccessSurfaceFlowService
         return new Response('', Response::HTTP_METHOD_NOT_ALLOWED);
     }
 
-    public function disableSecondFactor(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function disableSecondFactor(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->secondFactorService->disableSecondFactor($this->requireUser());
         $this->flash($request, 'info', 'Second factor has been disabled.');
@@ -211,7 +211,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Render session management page.
      */
-    public function sessions(): Response|InterfaceSurfaceRenderableInterface
+    public function sessions(): Response|InterfaceTemplateRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->sessions($this->requireUser()));
     }
@@ -219,7 +219,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Invalidate all active sessions except current one.
      */
-    public function invalidateOtherSessions(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function invalidateOtherSessions(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $invalidatedCount = $this->userSessionService->invalidateOtherSessions($this->requireUser(), $request->getSession());
         $this->flash($request, 'info', sprintf('%d other session(s) invalidated.', $invalidatedCount));
@@ -230,7 +230,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Render recent security events for current user.
      */
-    public function securityEvents(): Response|InterfaceSurfaceRenderableInterface
+    public function securityEvents(): Response|InterfaceTemplateRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->securityEvents(
             $this->securityEventRepository->findRecentEventsForUser($this->requireUser()),
@@ -240,7 +240,7 @@ final readonly class AccessSurfaceFlowService
     /**
      * Change user password after current-password verification.
      */
-    public function password(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function password(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
         $form = $this->formFactory->create(AccessPasswordChangeType::class);

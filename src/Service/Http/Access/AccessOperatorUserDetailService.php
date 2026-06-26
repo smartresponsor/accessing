@@ -9,7 +9,7 @@ use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -23,7 +23,7 @@ final readonly class AccessOperatorUserDetailService
     ) {
     }
 
-    public function __invoke(int $id): Response|InterfaceSurfaceRenderableInterface
+    public function __invoke(int $id): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->userRepository->findById($id);
 

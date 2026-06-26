@@ -7,7 +7,7 @@ namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,13 +21,13 @@ final readonly class AccessCredentialResetService
     ) {
     }
 
-    public function __invoke(): Response|InterfaceSurfaceRenderableInterface
+    public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->createBuilder()
             ->add('code', TextType::class)
             ->add('credential', TextType::class)
             ->getForm();
-        $factoryMethod = 'reset'.'Password';
+        $factoryMethod = 'resetPassword';
 
         return $this->pageResponder->respond($this->pageViewFactory->{$factoryMethod}($form->createView()));
     }

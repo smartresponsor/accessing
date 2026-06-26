@@ -23,7 +23,7 @@ use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -50,7 +50,7 @@ final readonly class AccessSecurityFlowService
     ) {
     }
 
-    public function register(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function register(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
             return $this->redirectTo('access.index');
@@ -80,7 +80,7 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->register($form->createView()));
     }
 
-    public function signIn(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
             return $this->redirectTo('access.index');
@@ -100,7 +100,7 @@ final readonly class AccessSecurityFlowService
         return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
-    public function signInSubmit(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function signInSubmit(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
             return $this->redirectTo('access.index');
@@ -134,7 +134,7 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
     }
 
-    public function secondFactorChallenge(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function secondFactorChallenge(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $pendingUserId = $this->userAuthenticationService->getPendingSecondFactorUserId($request->getSession());
 
@@ -170,7 +170,7 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->secondFactorChallenge($user, $form->createView()));
     }
 
-    public function signOut(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function signOut(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
             $this->getUser() instanceof AccessEntity ? $this->getUser() : null,
@@ -180,7 +180,7 @@ final readonly class AccessSecurityFlowService
         return $this->redirectTo('access.signin');
     }
 
-    public function switchUser(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function switchUser(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
             $this->getUser() instanceof AccessEntity ? $this->getUser() : null,
@@ -192,7 +192,7 @@ final readonly class AccessSecurityFlowService
         return $this->redirectTo('access.signin');
     }
 
-    public function requestRecovery(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function requestRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->create(AccessRecoveryRequestType::class);
         $form->handleRequest($request);
@@ -213,7 +213,7 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->requestRecovery($form->createView()));
     }
 
-    public function resetRecovery(Request $request): Response|InterfaceSurfaceRenderableInterface
+    public function resetRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->create(AccessRecoveryResetType::class);
         $form->handleRequest($request);

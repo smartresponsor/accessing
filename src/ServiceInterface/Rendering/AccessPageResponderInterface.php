@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
-use App\Interfacing\Contract\Surface\InterfaceSurfaceRenderableInterface;
+use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 
 interface AccessPageResponderInterface
 {
-    public function respond(AccessPageView $pageView): InterfaceSurfaceRenderableInterface;
+    public function respond(AccessPageView $pageView): InterfaceTemplateRenderableInterface;
 }

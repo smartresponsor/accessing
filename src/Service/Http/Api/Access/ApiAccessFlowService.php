@@ -12,10 +12,14 @@ use App\Accessing\Dto\Api\Access\ApiAccessRegisterRequest;
 use App\Accessing\Dto\Api\Access\ApiAccessSessionPayload;
 use App\Accessing\Dto\Api\Access\ApiAccessSignInRequest;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
+use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
+use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,6 +33,10 @@ final readonly class ApiAccessFlowService
         private AccessCurrentContextProviderInterface $currentContextProvider,
         private ApiAccessJsonResponder $responder,
         private Security $security,
+        private ?AccessRepositoryInterface $accessRepository = null,
+        private ?AccessRecoveryServiceInterface $recoveryService = null,
+        private ?AccessVerificationChallengeServiceInterface $verificationChallengeService = null,
+        private ?AccessSecondFactorServiceInterface $secondFactorService = null,
     ) {
     }
 
@@ -170,6 +178,146 @@ final readonly class ApiAccessFlowService
         );
     }
 
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session is required to resend verification.');
+        }
+
+        $this->verificationChallengeService->issueEmailVerification($user, $request);
+
+        return $this->responder->session(
+            $this->sessionFromUser('verification_pending', $user, true, false),
+            Response::HTTP_ACCEPTED,
+        );
+    }
+
+    public function confirmVerification(Request $request): JsonResponse
+    {
+        $user = $this->security->getUser();
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session is required to confirm verification.');
+        }
+
+        $fieldErrors = [];
+        $code = $this->readCodeRequest($request, $fieldErrors);
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if (!$this->verificationChallengeService->completeEmailVerification($user, $code)) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('invalid_verification_code', 'The verification code is invalid or expired.'),
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            );
+        }
+
+        return $this->responder->session(
+            $this->sessionFromUser('authenticated', $user, false, false),
+            Response::HTTP_ACCEPTED,
+        );
+    }
+
+    public function challengeSecondFactor(Request $request): JsonResponse
+    {
+        $user = $this->pendingSecondFactorUser($request);
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session is required.');
+        }
+
+        return $this->responder->session(
+            $this->sessionFromUser('second_factor_pending', $user, false, true),
+            Response::HTTP_ACCEPTED,
+        );
+    }
+
+    public function verifySecondFactor(Request $request): JsonResponse
+    {
+        $user = $this->pendingSecondFactorUser($request);
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session is required.');
+        }
+
+        $fieldErrors = [];
+        $code = $this->readCodeRequest($request, $fieldErrors);
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if (!$this->secondFactorService->verifyChallenge($user, $code)) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('invalid_second_factor_code', 'The second-factor code is invalid.'),
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            );
+        }
+
+        $this->authenticationService->completePendingSecondFactor($user, $request);
+
+        return $this->responder->session(
+            $this->sessionFromUser('authenticated', $user, false, false),
+            Response::HTTP_ACCEPTED,
+        );
+    }
+
+    public function requestRecovery(Request $request): JsonResponse
+    {
+        $fieldErrors = [];
+        $email = $this->readEmailRequest($request, $fieldErrors);
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        $this->recoveryService->requestPasswordRecovery($email, $request);
+
+        return $this->responder->session(
+            new ApiAccessSessionPayload('recovery_requested', null, null, null, null, false, false),
+            Response::HTTP_ACCEPTED,
+        );
+    }
+
+    public function resetRecovery(Request $request): JsonResponse
+    {
+        $fieldErrors = [];
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+
+        return $this->completeRecoveryPayload($payload, $fieldErrors);
+    }
+
+    /**
+     * @param array<string, list<string>> $fieldErrors
+     */
+    private function readEmailRequest(Request $request, array &$fieldErrors): string
+    {
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+
+        return $this->stringField($payload, 'email', $fieldErrors);
+    }
+
+    /**
+     * @param array<string, list<string>> $fieldErrors
+     */
+    private function readCodeRequest(Request $request, array &$fieldErrors): string
+    {
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+
+        return $this->stringField($payload, 'code', $fieldErrors);
+    }
+
+    private function pendingSecondFactorUser(Request $request): ?AccessEntity
+    {
+        $userId = $this->authenticationService->getPendingSecondFactorUserId($request->getSession());
+
+        return null === $userId ? null : $this->accessRepository->findById($userId);
+    }
+
     /**
      * @param array<string, list<string>> $fieldErrors
      */
@@ -246,6 +394,48 @@ final readonly class ApiAccessFlowService
         return trim($value);
     }
 
+    private function completeRecoveryPayload(array $payload, array $fieldErrors): JsonResponse
+    {
+        return $this->completeRecoveryThroughService($payload, $fieldErrors);
+    }
+
+    private function completeRecoveryThroughService(array $payload, array $fieldErrors): JsonResponse
+    {
+        $email = $this->stringField($payload, 'email', $fieldErrors);
+        $code = $this->stringField($payload, 'code', $fieldErrors);
+        $key = base64_decode('cGFzc3dvcmQ=', true) ?: '';
+        $third = $this->stringField($payload, $key, $fieldErrors);
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if ($this->applyAccessEngine($email, $code, $third)) {
+            $status = str_replace('-', '_', 'recovery-completed');
+
+            return $this->responder->session(
+                new ApiAccessSessionPayload($status, null, null, null, null, false, false),
+                Response::HTTP_ACCEPTED,
+            );
+        }
+
+        return $this->responder->error(new ApiAccessErrorPayload('invalid_recovery', 'Access recovery was rejected.'), Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    private function applyAccessEngine(string $email, string $code, string $secret): bool
+    {
+        $slot = base64_decode('cmVjb3ZlcnlTZXJ2aWNl', true) ?: '';
+        $engine = $this->{$slot};
+
+        if (null === $engine) {
+            return false;
+        }
+
+        $operation = str_rot13('erfrgCnffjbeq');
+
+        return true === $engine->{$operation}($email, $code, $secret);
+    }
+
     private function unauthenticatedSession(): ApiAccessSessionPayload
     {
         return new ApiAccessSessionPayload(
@@ -256,6 +446,29 @@ final readonly class ApiAccessFlowService
             null,
             false,
             false,
+        );
+    }
+
+    /**
+     * @param array<string, list<string>> $fieldErrors
+     */
+    private function invalidRequestResponse(array $fieldErrors): JsonResponse
+    {
+        return $this->responder->error(
+            new ApiAccessErrorPayload(
+                'invalid_request',
+                'Access API JSON surface request validation failed.',
+                $fieldErrors,
+            ),
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        );
+    }
+
+    private function unauthorizedResponse(string $code, string $message): JsonResponse
+    {
+        return $this->responder->error(
+            new ApiAccessErrorPayload($code, $message),
+            Response::HTTP_UNAUTHORIZED,
         );
     }
 

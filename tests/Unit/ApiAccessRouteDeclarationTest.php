@@ -9,7 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 
 final class ApiAccessRouteDeclarationTest extends TestCase
 {
-    public function testApiAccessRouteDeclarationContainsTheFourCanonicalRoutes(): void
+    public function testApiAccessRouteDeclarationContainsTheCanonicalRoutes(): void
     {
         $routes = Yaml::parseFile(__DIR__.'/../../config/platform/routes/api/access.yaml');
 
@@ -20,6 +20,12 @@ final class ApiAccessRouteDeclarationTest extends TestCase
                 'api.access.register',
                 'api.access.logout',
                 'api.access.session',
+                'api.access.verification.resend',
+                'api.access.verification.confirm',
+                'api.access.second_factor.challenge',
+                'api.access.second_factor.verify',
+                'api.access.recovery.request',
+                'api.access.recovery.reset',
             ],
             array_keys($routes),
         );

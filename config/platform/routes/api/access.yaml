@@ -25,3 +25,45 @@ api.access.session:
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
   action: session
+
+api.access.verification.resend:
+  path: /api/access/verification/resend
+  routeKey: api.access.verification.resend
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: resendVerification
+
+api.access.verification.confirm:
+  path: /api/access/verification/confirm
+  routeKey: api.access.verification.confirm
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: confirmVerification
+
+api.access.second_factor.challenge:
+  path: /api/access/second-factor/challenge
+  routeKey: api.access.second_factor.challenge
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: challengeSecondFactor
+
+api.access.second_factor.verify:
+  path: /api/access/second-factor/verify
+  routeKey: api.access.second_factor.verify
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: verifySecondFactor
+
+api.access.recovery.request:
+  path: /api/access/recovery/request
+  routeKey: api.access.recovery.request
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: requestRecovery
+
+api.access.recovery.reset:
+  path: /api/access/recovery/reset
+  routeKey: api.access.recovery.reset
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: resetRecovery
