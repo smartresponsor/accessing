@@ -33,4 +33,8 @@ enum AccessSecurityEventType: string
     case PasskeyAuthenticated = 'passkey_authenticated';
     case PasskeyRevoked = 'passkey_revoked';
     case PasskeyCounterRegression = 'passkey_counter_regression';
+    case MobileSessionIssued = 'mobile_session_issued';
+    case MobileSessionRefreshed = 'mobile_session_refreshed';
+    case MobileSessionRevoked = 'mobile_session_revoked';
+    case MobileRefreshReuseDetected = 'mobile_refresh_reuse_detected';
 }

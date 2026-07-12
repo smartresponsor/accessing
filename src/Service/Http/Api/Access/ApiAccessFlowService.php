@@ -20,6 +20,7 @@ use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
@@ -42,6 +43,7 @@ final readonly class ApiAccessFlowService
         private ?AccessVerificationChallengeServiceInterface $verificationChallengeService = null,
         private ?AccessSecondFactorServiceInterface $secondFactorService = null,
         private ?RateLimiterFactory $accessingSignUpLimiter = null,
+        private ?AccessMobileTokenServiceInterface $mobileTokenService = null,
     ) {
     }
 
@@ -64,17 +66,29 @@ final readonly class ApiAccessFlowService
         $result = $this->authenticationService->attemptPasswordSignIn($input->email, $input->password, $request);
 
         if ($result->authenticated && $result->user instanceof AccessEntity) {
+            if (null === $this->mobileTokenService) {
+                return $this->unavailableResponse('mobile_session_unavailable', 'Mobile session transport is temporarily unavailable.');
+            }
+
+            $tokens = $this->mobileTokenService->issue($result->user, $this->deviceName($request));
+
             return $this->responder->session(
                 new ApiAccessSessionPayload(
-                    'session_transport_pending',
-                    null,
-                    null,
-                    null,
-                    null,
+                    'authenticated',
+                    new ApiAccessIdentityPayload(
+                        $result->user->getId(),
+                        $result->user->getDisplayName(),
+                        $result->user->getEmail(),
+                        $result->user->isEmailVerified(),
+                        $result->user->isSecondFactorEnabled(),
+                    ),
+                    $tokens->accessToken,
+                    $tokens->refreshToken,
+                    $tokens->accessExpiresAt->format(DATE_ATOM),
                     false,
                     false,
                 ),
-                Response::HTTP_ACCEPTED,
+                Response::HTTP_OK,
             );
         }
 
@@ -100,6 +114,38 @@ final readonly class ApiAccessFlowService
             ),
             $this->statusCodeForSignInResult($result),
         );
+    }
+
+    public function refresh(Request $request): JsonResponse
+    {
+        if (null === $this->mobileTokenService) {
+            return $this->unavailableResponse('mobile_session_unavailable', 'Mobile session transport is temporarily unavailable.');
+        }
+
+        $fieldErrors = [];
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        $refreshToken = $this->stringField($payload, 'refreshToken', $fieldErrors);
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        try {
+            $tokens = $this->mobileTokenService->rotate($refreshToken);
+            $user = $this->mobileTokenService->authenticate($tokens->accessToken);
+        } catch (\DomainException) {
+            return $this->unauthorizedResponse('invalid_refresh_token', 'The mobile refresh token is invalid, expired, or reused.');
+        }
+
+        return $this->responder->session(new ApiAccessSessionPayload(
+            'authenticated',
+            new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+            $tokens->accessToken,
+            $tokens->refreshToken,
+            $tokens->accessExpiresAt->format(DATE_ATOM),
+            false,
+            false,
+        ));
     }
 
     public function register(Request $request): JsonResponse
@@ -174,6 +220,11 @@ final readonly class ApiAccessFlowService
 
     public function logout(Request $request): JsonResponse
     {
+        $accessToken = $this->bearerToken($request);
+        if (null !== $accessToken && null !== $this->mobileTokenService) {
+            $this->mobileTokenService->revoke($accessToken);
+        }
+
         $user = $this->security->getUser();
         $this->authenticationService->signOut($user instanceof AccessEntity ? $user : null, $request);
 
@@ -182,6 +233,17 @@ final readonly class ApiAccessFlowService
 
     public function session(Request $request): JsonResponse
     {
+        $accessToken = $this->bearerToken($request);
+        if (null !== $accessToken && null !== $this->mobileTokenService) {
+            try {
+                $user = $this->mobileTokenService->authenticate($accessToken);
+
+                return $this->responder->session($this->sessionFromUser('authenticated', $user, false, false));
+            } catch (\DomainException) {
+                return $this->unauthorizedResponse('invalid_access_token', 'The mobile access token is invalid or expired.');
+            }
+        }
+
         $current = $this->currentContextProvider->current();
 
         if (null === $current) {
@@ -584,6 +646,31 @@ final readonly class ApiAccessFlowService
             $requiresVerification,
             $requiresSecondFactor,
         );
+    }
+
+    private function deviceName(Request $request): string
+    {
+        $deviceName = trim((string) $request->headers->get('X-Device-Name', ''));
+
+        if ('' !== $deviceName) {
+            return mb_substr($deviceName, 0, 255);
+        }
+
+        $userAgent = trim((string) $request->headers->get('User-Agent', 'Mobile device'));
+
+        return '' === $userAgent ? 'Mobile device' : mb_substr($userAgent, 0, 255);
+    }
+
+    private function bearerToken(Request $request): ?string
+    {
+        $authorization = trim((string) $request->headers->get('Authorization', ''));
+        if (!str_starts_with($authorization, 'Bearer ')) {
+            return null;
+        }
+
+        $token = trim(substr($authorization, 7));
+
+        return '' === $token ? null : $token;
     }
 
     private function errorCodeForSignInResult(AccessSignInResultDto $result): string

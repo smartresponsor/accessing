@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
+use App\Accessing\Dto\AccessMobileTokenPair;
 use App\Accessing\Dto\AccessSignInResultDto;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
@@ -13,6 +14,7 @@ use App\Accessing\Service\Http\Api\Access\ApiAccessFlowService;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +28,7 @@ use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 
 final class ApiAccessFlowServiceTest extends TestCase
 {
-    public function testSignInReturnsHonestPayloadWithoutTokensOnSuccess(): void
+    public function testSignInReturnsOpaqueMobileTokenPairOnSuccess(): void
     {
         $user = new AccessEntity('demo@example.test', 'Demo User');
         $user->markEmailVerified();
@@ -35,6 +37,17 @@ final class ApiAccessFlowServiceTest extends TestCase
         $authenticationService->expects(self::once())
             ->method('attemptPasswordSignIn')
             ->willReturn(AccessSignInResultDto::authenticated($user));
+        $mobileTokenService = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $mobileTokenService->expects(self::once())
+            ->method('issue')
+            ->with($user, 'Test iPhone')
+            ->willReturn(new AccessMobileTokenPair(
+                'access-token',
+                'refresh-token',
+                new \DateTimeImmutable('2026-07-12T00:15:00+00:00'),
+                new \DateTimeImmutable('2026-08-11T00:00:00+00:00'),
+                'session-id',
+            ));
 
         $service = new ApiAccessFlowService(
             $authenticationService,
@@ -42,6 +55,7 @@ final class ApiAccessFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new ApiAccessJsonResponder(),
             $this->createMock(Security::class),
+            mobileTokenService: $mobileTokenService,
         );
 
         $request = Request::create(
@@ -51,18 +65,72 @@ final class ApiAccessFlowServiceTest extends TestCase
                 'email' => 'demo@example.test',
                 'password' => 'secret-secret',
             ], JSON_THROW_ON_ERROR),
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X_DEVICE_NAME' => 'Test iPhone'],
         );
         $request->setSession(new Session(new MockArraySessionStorage()));
 
         $response = $service->signIn($request);
         $payload = $this->decodeResponse($response);
 
-        self::assertSame(202, $response->getStatusCode());
-        self::assertSame('session_transport_pending', $payload['status']);
-        self::assertNull($payload['identity']);
-        self::assertNull($payload['accessToken']);
-        self::assertNull($payload['refreshToken']);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('authenticated', $payload['status']);
+        self::assertSame('access-token', $payload['accessToken']);
+        self::assertSame('refresh-token', $payload['refreshToken']);
+        self::assertSame('2026-07-12T00:15:00+00:00', $payload['expiresAt']);
+    }
+
+    public function testRefreshRotatesOpaqueTokens(): void
+    {
+        $user = new AccessEntity('refresh@example.test', 'Refresh User');
+        $mobileTokenService = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $mobileTokenService->expects(self::once())
+            ->method('rotate')
+            ->with('refresh-old')
+            ->willReturn(new AccessMobileTokenPair(
+                'access-new',
+                'refresh-new',
+                new \DateTimeImmutable('2026-07-12T00:15:00+00:00'),
+                new \DateTimeImmutable('2026-08-11T00:00:00+00:00'),
+                'session-id',
+            ));
+        $mobileTokenService->expects(self::once())->method('authenticate')->with('access-new')->willReturn($user);
+        $service = new ApiAccessFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new ApiAccessJsonResponder(),
+            $this->createMock(Security::class),
+            mobileTokenService: $mobileTokenService,
+        );
+
+        $response = $service->refresh(Request::create('/api/access/refresh', 'POST', content: json_encode(['refreshToken' => 'refresh-old'], JSON_THROW_ON_ERROR)));
+        $payload = $this->decodeResponse($response);
+
+        self::assertSame('access-new', $payload['accessToken']);
+        self::assertSame('refresh-new', $payload['refreshToken']);
+    }
+
+    public function testBearerSessionReturnsAuthenticatedIdentity(): void
+    {
+        $user = new AccessEntity('bearer@example.test', 'Bearer User');
+        $mobileTokenService = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $mobileTokenService->expects(self::once())->method('authenticate')->with('access-token')->willReturn($user);
+        $service = new ApiAccessFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new ApiAccessJsonResponder(),
+            $this->createMock(Security::class),
+            mobileTokenService: $mobileTokenService,
+        );
+
+        $request = Request::create('/api/access/session', 'GET', server: ['HTTP_AUTHORIZATION' => 'Bearer access-token']);
+        $payload = $this->decodeResponse($service->session($request));
+
+        self::assertSame('authenticated', $payload['status']);
+        $identity = $payload['identity'] ?? null;
+        self::assertIsArray($identity);
+        self::assertSame('bearer@example.test', $identity['email'] ?? null);
     }
 
     public function testRegisterReturnsHonestPayloadWithoutTokens(): void

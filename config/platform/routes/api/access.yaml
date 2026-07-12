@@ -5,6 +5,13 @@ api.access.signin:
   service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
   action: signIn
 
+api.access.refresh:
+  path: /api/access/refresh
+  routeKey: api.access.refresh
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: refresh
+
 api.access.register:
   path: /api/access/register
   routeKey: api.access.register

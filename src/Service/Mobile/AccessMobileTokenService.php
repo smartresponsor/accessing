@@ -9,6 +9,9 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessMobileSessionEntity;
 use App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
+use App\Accessing\ValueObject\AccessSecurityEventSeverity;
+use App\Accessing\ValueObject\AccessSecurityEventType;
 use Psr\Clock\ClockInterface;
 
 final readonly class AccessMobileTokenService implements AccessMobileTokenServiceInterface
@@ -16,6 +19,7 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
     public function __construct(
         private AccessMobileSessionRepositoryInterface $repository,
         private ClockInterface $clock,
+        private AccessSecurityEventServiceInterface $securityEventService,
         private int $accessingMobileAccessTtlSeconds = 900,
         private int $accessingMobileRefreshTtlSeconds = 2592000,
     ) {
@@ -33,6 +37,13 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         $refreshExpiresAt = $now->modify(sprintf('+%d seconds', $this->accessingMobileRefreshTtlSeconds));
         $session = new AccessMobileSessionEntity($user, bin2hex(random_bytes(16)), $accessToken, $refreshToken, $deviceName, $now, $accessExpiresAt, $refreshExpiresAt);
         $this->repository->save($session, true);
+        $this->securityEventService->record(
+            AccessSecurityEventType::MobileSessionIssued,
+            AccessSecurityEventSeverity::Info,
+            $user,
+            null,
+            ['sessionId' => $session->getSessionId(), 'deviceName' => $deviceName],
+        );
 
         return new AccessMobileTokenPair($accessToken, $refreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
     }
@@ -58,6 +69,13 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
             if ($reusedSession instanceof AccessMobileSessionEntity && $reusedSession->hasPreviousRefreshToken($refreshToken)) {
                 $reusedSession->markRefreshReuseDetected($now);
                 $this->repository->save($reusedSession, true);
+                $this->securityEventService->record(
+                    AccessSecurityEventType::MobileRefreshReuseDetected,
+                    AccessSecurityEventSeverity::Warning,
+                    $reusedSession->getUser(),
+                    null,
+                    ['sessionId' => $reusedSession->getSessionId()],
+                );
             }
 
             throw new \DomainException('Mobile refresh token is invalid.');
@@ -73,6 +91,13 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         $refreshExpiresAt = $now->modify(sprintf('+%d seconds', $this->accessingMobileRefreshTtlSeconds));
         $session->rotate($accessToken, $newRefreshToken, $now, $accessExpiresAt, $refreshExpiresAt);
         $this->repository->save($session, true);
+        $this->securityEventService->record(
+            AccessSecurityEventType::MobileSessionRefreshed,
+            AccessSecurityEventSeverity::Info,
+            $session->getUser(),
+            null,
+            ['sessionId' => $session->getSessionId()],
+        );
 
         return new AccessMobileTokenPair($accessToken, $newRefreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
     }
@@ -83,6 +108,13 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         if ($session instanceof AccessMobileSessionEntity && $session->hasAccessToken($accessToken)) {
             $session->revoke($this->clock->now());
             $this->repository->save($session, true);
+            $this->securityEventService->record(
+                AccessSecurityEventType::MobileSessionRevoked,
+                AccessSecurityEventSeverity::Info,
+                $session->getUser(),
+                null,
+                ['sessionId' => $session->getSessionId()],
+            );
         }
     }
 

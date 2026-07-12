@@ -20,6 +20,7 @@ final class ApiAccessRouteDeclarationTest extends TestCase
         self::assertSame(
             [
                 'api.access.signin',
+                'api.access.refresh',
                 'api.access.register',
                 'api.access.logout',
                 'api.access.session',
