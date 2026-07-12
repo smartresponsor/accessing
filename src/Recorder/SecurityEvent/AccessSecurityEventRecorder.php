@@ -1,38 +1,31 @@
 <?php
 
-# Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
 namespace App\Accessing\Recorder\SecurityEvent;
 
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
+use App\Accessing\ValueObject\AccessSecurityEventSeverity;
+use App\Accessing\ValueObject\AccessSecurityEventType;
+use Symfony\Component\HttpFoundation\Request;
 
+/** @deprecated Use AccessSecurityEventServiceInterface directly. */
 final readonly class AccessSecurityEventRecorder implements AccessSecurityEventRecorderInterface
 {
-    public function __construct(
-        private AccessSecurityEventRepositoryInterface $securityEventRepository,
-        private RequestStack $requestStack,
-    ) {
+    public function __construct(private AccessSecurityEventServiceInterface $securityEventService)
+    {
     }
 
-    /** @param array<string, scalar|array<array-key, mixed>|null> $context */
-    public function record(string $eventType, ?AccessEntity $user = null, array $context = []): AccessSecurityEventEntity
-    {
-        $request = $this->requestStack->getCurrentRequest();
-
-        $securityEvent = new AccessSecurityEventEntity()
-            ->setEventType($eventType)
-            ->setUser($user)
-            ->setContext($context)
-            ->setIpAddress($request?->getClientIp())
-            ->setUserAgent($request?->headers->get('User-Agent'));
-
-        $this->securityEventRepository->save($securityEvent, true);
-
-        return $securityEvent;
+    public function record(
+        AccessSecurityEventType $eventType,
+        AccessSecurityEventSeverity $severity,
+        ?AccessEntity $user = null,
+        ?Request $request = null,
+        array $context = [],
+    ): AccessSecurityEventEntity {
+        return $this->securityEventService->record($eventType, $severity, $user, $request, $context);
     }
 }

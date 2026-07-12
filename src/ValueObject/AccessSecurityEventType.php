@@ -10,6 +10,7 @@ enum AccessSecurityEventType: string
     case UserRegistered = 'user_registered';
     case SignInSucceeded = 'sign_in_succeeded';
     case SignInFailed = 'sign_in_failed';
+    case LockedAccountSignInAttempt = 'locked_account_sign_in_attempt';
     case UserLocked = 'user_locked';
     case UserUnlocked = 'user_unlocked';
     case EmailVerificationRequested = 'email_verification_requested';
@@ -25,4 +26,11 @@ enum AccessSecurityEventType: string
     case SessionRegistered = 'session_registered';
     case SessionInvalidated = 'session_invalidated';
     case PasswordChanged = 'password_changed';
+    case RateLimitExceeded = 'rate_limit_exceeded';
+    case VerificationAttemptLimitReached = 'verification_attempt_limit_reached';
+    case NotificationDeliveryFailed = 'notification_delivery_failed';
+    case PasskeyRegistered = 'passkey_registered';
+    case PasskeyAuthenticated = 'passkey_authenticated';
+    case PasskeyRevoked = 'passkey_revoked';
+    case PasskeyCounterRegression = 'passkey_counter_regression';
 }

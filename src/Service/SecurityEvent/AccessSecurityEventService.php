@@ -7,6 +7,7 @@ namespace App\Accessing\Service\SecurityEvent;
 
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
+use App\Accessing\Factory\SecurityEvent\AccessSecurityEventContextFactory;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
@@ -17,6 +18,7 @@ final readonly class AccessSecurityEventService implements AccessSecurityEventSe
 {
     public function __construct(
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
+        private AccessSecurityEventContextFactory $contextFactory,
     ) {
     }
 
@@ -28,12 +30,13 @@ final readonly class AccessSecurityEventService implements AccessSecurityEventSe
         ?Request $request = null,
         array $context = [],
     ): AccessSecurityEventEntity {
+        $requestContext = $this->contextFactory->fromRequest($request);
         $securityEvent = new AccessSecurityEventEntity(
             $eventType,
             $severity,
             $user,
-            $request?->getClientIp(),
-            $request?->headers->get('User-Agent'),
+            $requestContext['ipAddress'],
+            $requestContext['userAgent'],
             $context,
         );
 
