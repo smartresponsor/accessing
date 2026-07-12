@@ -24,7 +24,7 @@ final readonly class AccessPageSurfaceContractFactory
     /** @return array<string, string> */
     private function templateMap(): array
     {
-        $credentialReset = 'reset'.'_password';
+        $credentialReset = 'reset_password';
 
         return [
             'access.overview' => 'access/overview.html.twig',

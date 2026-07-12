@@ -69,9 +69,21 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         }
 
         if ($user->isLocked()) {
+            $lockedUntil = $user->getLockedUntil();
+            $this->securityEventService->record(
+                AccessSecurityEventType::LockedAccountSignInAttempt,
+                AccessSecurityEventSeverity::Warning,
+                $user,
+                $request,
+                [
+                    'lockExpiresAt' => $lockedUntil?->format(\DateTimeInterface::ATOM),
+                    'reason' => 'account_locked',
+                ],
+            );
+
             return AccessSignInResultDto::failed(sprintf(
                 'This user is locked until %s.',
-                $user->getLockedUntil()?->format('Y-m-d H:i'),
+                $lockedUntil?->format('Y-m-d H:i'),
             ));
         }
 

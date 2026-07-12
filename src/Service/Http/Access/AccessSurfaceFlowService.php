@@ -9,6 +9,8 @@ use App\Accessing\Dto\AccessPasswordChangeDto;
 use App\Accessing\Dto\AccessPhoneVerificationRequestDto;
 use App\Accessing\Dto\AccessVerificationCodeDto;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Exception\AccessCompromisedPasswordException;
+use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
 use App\Accessing\Form\Access\AccessPasswordChangeType;
 use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
@@ -88,9 +90,14 @@ final readonly class AccessSurfaceFlowService
             $this->flash($request, 'danger', 'That email verification code is invalid or expired.');
         }
 
-        $issuedChallenge = $this->verificationChallengeService->issueEmailVerification($user, $request);
-        $this->flash($request, 'info', 'A fresh email verification code has been issued.');
-        $this->addDemoCodeFlash($request, 'Email verification code', $issuedChallenge->plainCode);
+        $issuedChallenge = $this->verificationChallengeService->resendEmailVerification($user, $request);
+
+        if (null === $issuedChallenge) {
+            $this->flash($request, 'warning', 'Too many verification resend attempts. Please wait before trying again.');
+        } else {
+            $this->flash($request, 'info', 'A fresh email verification code has been issued.');
+            $this->addDemoCodeFlash($request, 'Email verification code', $issuedChallenge->plainCode);
+        }
 
         return $this->pageResponder->respond($this->pageViewFactory->verifyEmail(
             $user,
@@ -253,7 +260,18 @@ final readonly class AccessSurfaceFlowService
             if (!$this->credentialService->verifyPassword($user, $data->currentPassword)) {
                 $this->flash($request, 'danger', 'The current password is incorrect.');
             } else {
-                $this->credentialService->changePassword($user, $data->newPassword);
+                try {
+                    $this->credentialService->changePassword($user, $data->newPassword);
+                } catch (AccessCompromisedPasswordException $exception) {
+                    $this->flash($request, 'danger', $exception->getMessage());
+
+                    return $this->pageResponder->respond($this->pageViewFactory->password($user, $form->createView()));
+                } catch (AccessPasswordSafetyUnavailableException $exception) {
+                    $this->flash($request, 'warning', $exception->getMessage());
+
+                    return $this->pageResponder->respond($this->pageViewFactory->password($user, $form->createView()));
+                }
+
                 $this->flash($request, 'success', 'Password updated.');
 
                 return $this->redirectTo('access.index');

@@ -15,6 +15,6 @@ final class AccessKernelBootTest extends KernelTestCase
         self::bootKernel();
 
         self::assertInstanceOf(Kernel::class, self::$kernel);
-        self::assertNotNull(static::getContainer()->get('router'));
+        self::assertTrue(static::getContainer()->has('router'));
     }
 }
