@@ -11,6 +11,9 @@ use App\Accessing\Dto\AccessRegistrationRequest;
 use App\Accessing\Dto\AccessSignInRequestDto;
 use App\Accessing\Dto\AccessVerificationCodeDto;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Exception\AccessCompromisedPasswordException;
+use App\Accessing\Exception\AccessNotificationDeliveryException;
+use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Form\Access\AccessRecoveryRequestType;
 use App\Accessing\Form\Access\AccessRecoveryResetType;
 use App\Accessing\Form\Access\AccessRegistrationType;
@@ -31,6 +34,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final readonly class AccessSecurityFlowService
@@ -45,6 +49,7 @@ final readonly class AccessSecurityFlowService
         private AccessRepositoryInterface $userRepository,
         private AccessSecondFactorServiceInterface $secondFactorService,
         private AccessRecoveryServiceInterface $recoveryService,
+        private RateLimiterFactory $accessingSignUpLimiter,
         private AccessPageViewFactoryInterface $pageViewFactory,
         private AccessPageResponderInterface $pageResponder,
     ) {
@@ -67,11 +72,21 @@ final readonly class AccessSecurityFlowService
             /** @var AccessRegistrationRequest $data */
             $data = $form->getData();
 
+            $limiterKey = sprintf('%s|%s', mb_strtolower(trim($data->email)), $request->getClientIp() ?? 'unknown');
+
+            if (!$this->accessingSignUpLimiter->create($limiterKey)->consume()->isAccepted()) {
+                $this->flash($request, 'warning', 'Too many registration attempts. Please wait before trying again.');
+
+                return $this->pageResponder->respond($this->pageViewFactory->register($form->createView()));
+            }
+
             try {
                 $this->userRegistrationService->register($data);
                 $this->flash($request, 'success', 'Registration complete. Verify your email address to finish activation.');
 
                 return $this->redirectTo('access.signin');
+            } catch (AccessNotificationDeliveryException) {
+                $this->flash($request, 'warning', 'Registration was saved, but verification delivery is temporarily unavailable. Please retry verification later.');
             } catch (\DomainException $exception) {
                 $this->flash($request, 'danger', $exception->getMessage());
             }
@@ -200,11 +215,15 @@ final readonly class AccessSecurityFlowService
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var AccessRecoveryRequestDto $data */
             $data = $form->getData();
-            $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
-            $this->flash($request, 'info', 'If an user exists, a password recovery code has been issued.');
+            try {
+                $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
+                $this->flash($request, 'info', 'If an user exists, a password recovery code has been issued.');
 
-            if (null !== $issuedChallenge) {
-                $this->addDemoCodeFlash($request, 'Password recovery code', $issuedChallenge->plainCode);
+                if (null !== $issuedChallenge) {
+                    $this->addDemoCodeFlash($request, 'Password recovery code', $issuedChallenge->plainCode);
+                }
+            } catch (AccessNotificationDeliveryException) {
+                $this->flash($request, 'warning', 'Password recovery delivery is temporarily unavailable. Please try again later.');
             }
 
             return $this->redirectTo('access.recover_reset');
@@ -222,11 +241,23 @@ final readonly class AccessSecurityFlowService
             /** @var AccessRecoveryResetDto $data */
             $data = $form->getData();
 
-            if ($this->recoveryService->resetPassword(
-                $data->emailAddress,
-                $data->code,
-                $data->newPassword,
-            )) {
+            try {
+                $completed = $this->recoveryService->resetPassword(
+                    $data->emailAddress,
+                    $data->code,
+                    $data->newPassword,
+                );
+            } catch (AccessCompromisedPasswordException $exception) {
+                $this->flash($request, 'danger', $exception->getMessage());
+
+                return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
+            } catch (AccessPasswordSafetyUnavailableException $exception) {
+                $this->flash($request, 'warning', $exception->getMessage());
+
+                return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
+            }
+
+            if ($completed) {
                 $this->flash($request, 'success', 'Password recovery completed. You can now sign in.');
 
                 return $this->redirectTo('access.signin');

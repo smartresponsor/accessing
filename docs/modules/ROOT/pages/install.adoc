@@ -14,10 +14,26 @@
 composer install
 cp .env .env.local
 php bin/console doctrine:database:create --if-not-exists
+# Generate and apply the host application's migration from installed Accessing metadata.
+php bin/console doctrine:migrations:diff --no-interaction
 php bin/console doctrine:migrations:migrate --no-interaction
 php bin/console doctrine:fixtures:load --no-interaction
 symfony server:start
 ----
+
+== Compromised-password protection
+
+Accessing validates every password mutation through the canonical credential service. The Symfony `NotCompromisedPassword` integration uses the provider's privacy-preserving range lookup behavior: the plaintext password and complete hash are not sent to the remote service, logged, or persisted by Accessing.
+
+The provider has three stable outcomes:
+
+* `safe` — password mutation may continue.
+* `compromised` — mutation is rejected as `password_compromised`.
+* `unavailable` — mutation is rejected as `password_safety_unavailable`.
+
+Provider outages intentionally fail closed. Hosts must therefore allow outbound HTTPS for the validator's range service and monitor availability without logging candidate passwords, full hashes, provider payloads, or exception details. Development and test environments may bind the always-safe provider explicitly; production must use the real provider.
+
+Reset tokens and verification/recovery codes are never exposed through production flash messages. Local preview output is restricted to `dev` and `test` environments.
 
 == Verification
 

@@ -12,6 +12,9 @@ use App\Accessing\Dto\Api\Access\ApiAccessRegisterRequest;
 use App\Accessing\Dto\Api\Access\ApiAccessSessionPayload;
 use App\Accessing\Dto\Api\Access\ApiAccessSignInRequest;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Exception\AccessCompromisedPasswordException;
+use App\Accessing\Exception\AccessNotificationDeliveryException;
+use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
@@ -24,6 +27,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final readonly class ApiAccessFlowService
 {
@@ -37,6 +41,7 @@ final readonly class ApiAccessFlowService
         private ?AccessRecoveryServiceInterface $recoveryService = null,
         private ?AccessVerificationChallengeServiceInterface $verificationChallengeService = null,
         private ?AccessSecondFactorServiceInterface $secondFactorService = null,
+        private ?RateLimiterFactory $accessingSignUpLimiter = null,
     ) {
     }
 
@@ -113,6 +118,17 @@ final readonly class ApiAccessFlowService
             );
         }
 
+        if (null !== $this->accessingSignUpLimiter) {
+            $limiterKey = sprintf('%s|%s', mb_strtolower(trim($input->email)), $request->getClientIp() ?? 'unknown');
+
+            if (!$this->accessingSignUpLimiter->create($limiterKey)->consume()->isAccepted()) {
+                return $this->responder->error(
+                    new ApiAccessErrorPayload('registration_rate_limited', 'Too many registration attempts.'),
+                    Response::HTTP_TOO_MANY_REQUESTS,
+                );
+            }
+        }
+
         $registrationRequest = new AccessRegistrationRequest();
         $registrationRequest->displayName = $input->displayName;
         $registrationRequest->email = $input->email;
@@ -120,6 +136,21 @@ final readonly class ApiAccessFlowService
 
         try {
             $user = $this->registrationService->register($registrationRequest);
+        } catch (AccessCompromisedPasswordException $exception) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('password_compromised', $exception->getMessage()),
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            );
+        } catch (AccessPasswordSafetyUnavailableException $exception) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('password_safety_unavailable', $exception->getMessage()),
+                Response::HTTP_SERVICE_UNAVAILABLE,
+            );
+        } catch (AccessNotificationDeliveryException $exception) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('notification_delivery_unavailable', $exception->getMessage()),
+                Response::HTTP_SERVICE_UNAVAILABLE,
+            );
         } catch (\DomainException $exception) {
             return $this->responder->error(
                 new ApiAccessErrorPayload(
@@ -186,7 +217,22 @@ final readonly class ApiAccessFlowService
             return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session is required to resend verification.');
         }
 
-        $this->verificationChallengeService->issueEmailVerification($user, $request);
+        if (null === $this->verificationChallengeService) {
+            return $this->unavailableResponse('verification_unavailable', 'Access verification is temporarily unavailable.');
+        }
+
+        try {
+            $issuedChallenge = $this->verificationChallengeService->resendEmailVerification($user, $request);
+        } catch (AccessNotificationDeliveryException $exception) {
+            return $this->unavailableResponse('notification_delivery_unavailable', $exception->getMessage());
+        }
+
+        if (null === $issuedChallenge) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('verification_resend_rate_limited', 'Too many verification resend attempts.'),
+                Response::HTTP_TOO_MANY_REQUESTS,
+            );
+        }
 
         return $this->responder->session(
             $this->sessionFromUser('verification_pending', $user, true, false),
@@ -207,6 +253,10 @@ final readonly class ApiAccessFlowService
 
         if ([] !== $fieldErrors) {
             return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if (null === $this->verificationChallengeService) {
+            return $this->unavailableResponse('verification_unavailable', 'Access verification is temporarily unavailable.');
         }
 
         if (!$this->verificationChallengeService->completeEmailVerification($user, $code)) {
@@ -251,6 +301,10 @@ final readonly class ApiAccessFlowService
             return $this->invalidRequestResponse($fieldErrors);
         }
 
+        if (null === $this->secondFactorService) {
+            return $this->unavailableResponse('second_factor_unavailable', 'Second-factor verification is temporarily unavailable.');
+        }
+
         if (!$this->secondFactorService->verifyChallenge($user, $code)) {
             return $this->responder->error(
                 new ApiAccessErrorPayload('invalid_second_factor_code', 'The second-factor code is invalid.'),
@@ -275,7 +329,15 @@ final readonly class ApiAccessFlowService
             return $this->invalidRequestResponse($fieldErrors);
         }
 
-        $this->recoveryService->requestPasswordRecovery($email, $request);
+        if (null === $this->recoveryService) {
+            return $this->unavailableResponse('recovery_unavailable', 'Access recovery is temporarily unavailable.');
+        }
+
+        try {
+            $this->recoveryService->requestPasswordRecovery($email, $request);
+        } catch (AccessNotificationDeliveryException $exception) {
+            return $this->unavailableResponse('notification_delivery_unavailable', $exception->getMessage());
+        }
 
         return $this->responder->session(
             new ApiAccessSessionPayload('recovery_requested', null, null, null, null, false, false),
@@ -315,7 +377,11 @@ final readonly class ApiAccessFlowService
     {
         $userId = $this->authenticationService->getPendingSecondFactorUserId($request->getSession());
 
-        return null === $userId ? null : $this->accessRepository->findById($userId);
+        if (null === $userId || null === $this->accessRepository) {
+            return null;
+        }
+
+        return $this->accessRepository->findById($userId);
     }
 
     /**
@@ -374,7 +440,19 @@ final readonly class ApiAccessFlowService
             return [];
         }
 
-        return $payload;
+        $objectPayload = [];
+
+        foreach ($payload as $key => $value) {
+            if (!is_string($key)) {
+                $fieldErrors['_body'][] = 'The request body must be a JSON object.';
+
+                return [];
+            }
+
+            $objectPayload[$key] = $value;
+        }
+
+        return $objectPayload;
     }
 
     /**
@@ -394,46 +472,55 @@ final readonly class ApiAccessFlowService
         return trim($value);
     }
 
+    /**
+     * @param array<string, mixed>        $payload
+     * @param array<string, list<string>> $fieldErrors
+     */
     private function completeRecoveryPayload(array $payload, array $fieldErrors): JsonResponse
-    {
-        return $this->completeRecoveryThroughService($payload, $fieldErrors);
-    }
-
-    private function completeRecoveryThroughService(array $payload, array $fieldErrors): JsonResponse
     {
         $email = $this->stringField($payload, 'email', $fieldErrors);
         $code = $this->stringField($payload, 'code', $fieldErrors);
-        $key = base64_decode('cGFzc3dvcmQ=', true) ?: '';
-        $third = $this->stringField($payload, $key, $fieldErrors);
+        $password = $this->stringField($payload, 'password', $fieldErrors);
 
         if ([] !== $fieldErrors) {
             return $this->invalidRequestResponse($fieldErrors);
         }
 
-        if ($this->applyAccessEngine($email, $code, $third)) {
-            $status = str_replace('-', '_', 'recovery-completed');
+        if (null === $this->recoveryService) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload(
+                    'recovery_unavailable',
+                    'Access recovery is temporarily unavailable.',
+                ),
+                Response::HTTP_SERVICE_UNAVAILABLE,
+            );
+        }
 
+        try {
+            $completed = $this->recoveryService->resetPassword($email, $code, $password);
+        } catch (AccessCompromisedPasswordException $exception) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('password_compromised', $exception->getMessage()),
+                Response::HTTP_UNPROCESSABLE_ENTITY,
+            );
+        } catch (AccessPasswordSafetyUnavailableException $exception) {
+            return $this->responder->error(
+                new ApiAccessErrorPayload('password_safety_unavailable', $exception->getMessage()),
+                Response::HTTP_SERVICE_UNAVAILABLE,
+            );
+        }
+
+        if ($completed) {
             return $this->responder->session(
-                new ApiAccessSessionPayload($status, null, null, null, null, false, false),
+                new ApiAccessSessionPayload('recovery_completed', null, null, null, null, false, false),
                 Response::HTTP_ACCEPTED,
             );
         }
 
-        return $this->responder->error(new ApiAccessErrorPayload('invalid_recovery', 'Access recovery was rejected.'), Response::HTTP_UNPROCESSABLE_ENTITY);
-    }
-
-    private function applyAccessEngine(string $email, string $code, string $secret): bool
-    {
-        $slot = base64_decode('cmVjb3ZlcnlTZXJ2aWNl', true) ?: '';
-        $engine = $this->{$slot};
-
-        if (null === $engine) {
-            return false;
-        }
-
-        $operation = str_rot13('erfrgCnffjbeq');
-
-        return true === $engine->{$operation}($email, $code, $secret);
+        return $this->responder->error(
+            new ApiAccessErrorPayload('invalid_recovery', 'Access recovery was rejected.'),
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+        );
     }
 
     private function unauthenticatedSession(): ApiAccessSessionPayload
@@ -461,6 +548,14 @@ final readonly class ApiAccessFlowService
                 $fieldErrors,
             ),
             Response::HTTP_UNPROCESSABLE_ENTITY,
+        );
+    }
+
+    private function unavailableResponse(string $code, string $message): JsonResponse
+    {
+        return $this->responder->error(
+            new ApiAccessErrorPayload($code, $message),
+            Response::HTTP_SERVICE_UNAVAILABLE,
         );
     }
 

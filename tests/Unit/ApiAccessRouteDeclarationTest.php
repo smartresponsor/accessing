@@ -14,6 +14,9 @@ final class ApiAccessRouteDeclarationTest extends TestCase
         $routes = Yaml::parseFile(__DIR__.'/../../config/platform/routes/api/access.yaml');
 
         self::assertIsArray($routes);
+        $signinRoute = $routes['api.access.signin'] ?? null;
+        self::assertIsArray($signinRoute);
+
         self::assertSame(
             [
                 'api.access.signin',
@@ -30,12 +33,12 @@ final class ApiAccessRouteDeclarationTest extends TestCase
             array_keys($routes),
         );
 
-        self::assertSame('/api/access/signin', $routes['api.access.signin']['path'] ?? null);
-        self::assertSame('api.access.signin', $routes['api.access.signin']['routeKey'] ?? null);
-        self::assertSame('App\\Accessing\\Service\\Http\\Api\\Access\\ApiAccessFlowService', $routes['api.access.signin']['service'] ?? null);
-        self::assertSame('signIn', $routes['api.access.signin']['action'] ?? null);
+        self::assertSame('/api/access/signin', $signinRoute['path'] ?? null);
+        self::assertSame('api.access.signin', $signinRoute['routeKey'] ?? null);
+        self::assertSame('App\\Accessing\\Service\\Http\\Api\\Access\\ApiAccessFlowService', $signinRoute['service'] ?? null);
+        self::assertSame('signIn', $signinRoute['action'] ?? null);
 
-        self::assertArrayNotHasKey('template', $routes['api.access.signin']);
-        self::assertArrayNotHasKey('parser', $routes['api.access.signin']);
+        self::assertArrayNotHasKey('template', $signinRoute);
+        self::assertArrayNotHasKey('parser', $signinRoute);
     }
 }

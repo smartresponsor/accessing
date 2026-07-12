@@ -15,6 +15,7 @@ use App\Accessing\ValueObject\AccessEmailAddress;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final readonly class AccessRecoveryService implements AccessRecoveryServiceInterface
 {
@@ -23,12 +24,27 @@ final readonly class AccessRecoveryService implements AccessRecoveryServiceInter
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
         private AccessCredentialServiceInterface $credentialService,
         private AccessSecurityEventServiceInterface $securityEventService,
+        private RateLimiterFactory $accessingRecoveryLimiter,
     ) {
     }
 
     public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallengeDto
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
+        $limiterKey = sprintf('%s|%s', $normalizedEmailAddress, $request?->getClientIp() ?? 'unknown');
+
+        if (!$this->accessingRecoveryLimiter->create($limiterKey)->consume()->isAccepted()) {
+            $this->securityEventService->record(
+                AccessSecurityEventType::RateLimitExceeded,
+                AccessSecurityEventSeverity::Warning,
+                null,
+                $request,
+                ['flow' => 'recovery_request'],
+            );
+
+            return null;
+        }
+
         $user = $this->userRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
 
         if (null === $user) {

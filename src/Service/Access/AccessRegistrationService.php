@@ -10,8 +10,10 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
+use App\Accessing\ValueObject\AccessSecurityEventSeverity;
+use App\Accessing\ValueObject\AccessSecurityEventType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final readonly class AccessRegistrationService implements AccessRegistrationServiceInterface
@@ -20,7 +22,7 @@ final readonly class AccessRegistrationService implements AccessRegistrationServ
         private AccessRepositoryInterface $userRepository,
         private AccessCredentialServiceInterface $credentialService,
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
-        private AccessSecurityEventRecorderInterface $securityEventRecorder,
+        private AccessSecurityEventServiceInterface $securityEventService,
     ) {
     }
 
@@ -45,10 +47,12 @@ final readonly class AccessRegistrationService implements AccessRegistrationServ
 
         $challenge = $this->verificationChallengeService->issueEmailVerification($user);
 
-        $this->securityEventRecorder->record('user.registered', $user, [
-            'email' => $user->getEmail(),
-            'challengeId' => $challenge->challenge->getId(),
-        ]);
+        $this->securityEventService->record(
+            AccessSecurityEventType::UserRegistered,
+            AccessSecurityEventSeverity::Info,
+            $user,
+            context: ['challengeId' => $challenge->challenge->getId()],
+        );
 
         return $user;
     }

@@ -20,7 +20,7 @@ final class ApiAccessDtoContractTest extends TestCase
         self::assertObjectHasProperty('displayName', $request);
         self::assertObjectHasProperty('email', $request);
         self::assertObjectHasProperty('password', $request);
-        self::assertFalse(property_exists($request, 'companyName'));
+        self::assertFalse((new \ReflectionObject($request))->hasProperty('companyName'));
     }
 
     public function testSignInRequestUsesEmailAndPasswordOnly(): void

@@ -6,19 +6,25 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Exception\AccessCompromisedPasswordException;
+use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Form\Access\AccessChangePasswordType;
 use App\Accessing\Form\Access\AccessResetPasswordRequestType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
+use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
-use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
+use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
+use App\Accessing\ValueObject\AccessSecurityEventSeverity;
+use App\Accessing\ValueObject\AccessSecurityEventType;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -29,11 +35,13 @@ final readonly class AccessResetPasswordFlowService
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private UserPasswordHasherInterface $userPasswordHasher,
+        private AccessCredentialServiceInterface $credentialService,
         private AccessRepositoryInterface $userRepository,
-        private AccessSecurityEventRecorderInterface $securityEventRecorder,
+        private AccessSecurityEventServiceInterface $securityEventService,
+        private RateLimiterFactory $accessingForgotPasswordLimiter,
         private FormFactoryInterface $formFactory,
         private UrlGeneratorInterface $urlGenerator,
+        private KernelInterface $kernel,
         private AccessPageViewFactoryInterface $pageViewFactory,
         private AccessPageResponderInterface $pageResponder,
     ) {
@@ -49,25 +57,36 @@ final readonly class AccessResetPasswordFlowService
 
         if ($form->isSubmitted() && $form->isValid()) {
             $emailData = $form->get('email')->getData();
-            $email = is_string($emailData) ? $emailData : '';
+            $email = is_string($emailData) ? mb_strtolower(trim($emailData)) : '';
+            $limiterKey = sprintf('%s|%s', $email, $request->getClientIp() ?? 'unknown');
+
+            if (!$this->accessingForgotPasswordLimiter->create($limiterKey)->consume()->isAccepted()) {
+                return $this->redirectTo('access.reset_password_check_email');
+            }
+
             $user = $this->userRepository->findOneByEmailAddress($email);
 
             if ($user instanceof AccessEntity) {
                 try {
                     $resetToken = $this->resetPasswordHelper->generateResetToken($user);
 
-                    $this->securityEventRecorder->record('reset_password.requested', $user, [
-                        'email' => $user->getEmail(),
-                    ]);
+                    $this->securityEventService->record(
+                        AccessSecurityEventType::RecoveryRequested,
+                        AccessSecurityEventSeverity::Warning,
+                        $user,
+                        $request,
+                    );
 
-                    $this->flash($request, 'info', sprintf(
-                        'Owner-oriented preview link: %s',
-                        $this->urlGenerator->generate(
-                            'access.reset_password_reset',
-                            ['token' => $resetToken->getToken()],
-                            UrlGeneratorInterface::ABSOLUTE_URL,
-                        )
-                    ));
+                    if (in_array($this->kernel->getEnvironment(), ['dev', 'test'], true)) {
+                        $this->flash($request, 'info', sprintf(
+                            'Owner-oriented preview link: %s',
+                            $this->urlGenerator->generate(
+                                'access.reset_password_reset',
+                                ['token' => $resetToken->getToken()],
+                                UrlGeneratorInterface::ABSOLUTE_URL,
+                            )
+                        ));
+                    }
                 } catch (ResetPasswordExceptionInterface) {
                     $this->flash($request, 'warning', 'A reset request could not be created right now.');
                 }
@@ -124,14 +143,28 @@ final readonly class AccessResetPasswordFlowService
             $plainPasswordData = $form->get('plainPassword')->getData();
             $plainPassword = is_string($plainPasswordData) ? $plainPasswordData : '';
 
+            try {
+                $this->credentialService->changePassword($user, $plainPassword);
+            } catch (AccessCompromisedPasswordException $exception) {
+                $this->flash($request, 'danger', $exception->getMessage());
+
+                return $this->pageResponder->respond($this->pageViewFactory->resetPassword($form->createView()));
+            } catch (AccessPasswordSafetyUnavailableException $exception) {
+                $this->flash($request, 'warning', $exception->getMessage());
+
+                return $this->pageResponder->respond($this->pageViewFactory->resetPassword($form->createView()));
+            }
+
             $this->resetPasswordHelper->removeResetRequest($token);
             $session->remove(self::RESET_PASSWORD_TOKEN_SESSION_KEY);
-            $user->setPasswordHash($this->userPasswordHasher->hashPassword($user, $plainPassword));
             $this->userRepository->save($user, true);
 
-            $this->securityEventRecorder->record('reset_password.completed', $user, [
-                'email' => $user->getEmail(),
-            ]);
+            $this->securityEventService->record(
+                AccessSecurityEventType::RecoveryCompleted,
+                AccessSecurityEventSeverity::Warning,
+                $user,
+                $request,
+            );
 
             $this->flash($request, 'success', 'Password changed successfully.');
 

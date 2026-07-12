@@ -8,8 +8,10 @@ namespace App\Accessing\Tests\Integration;
 use App\Accessing\Dto\AccessRegistrationRequest;
 use App\Accessing\Entity\AccessCredentialEntity;
 use App\Accessing\Repository\AccessRepository;
+use App\Accessing\Repository\AccessSecurityEventRepository;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
+use App\Accessing\ValueObject\AccessSecurityEventType;
 
 final class AccessRegistrationServiceTest extends AccessDatabaseTestCase
 {
@@ -21,6 +23,8 @@ final class AccessRegistrationServiceTest extends AccessDatabaseTestCase
         $registrationService = static::getContainer()->get(AccessRegistrationServiceInterface::class);
         /** @var AccessRepository $userRepository */
         $userRepository = static::getContainer()->get(AccessRepository::class);
+        /** @var AccessSecurityEventRepository $securityEventRepository */
+        $securityEventRepository = static::getContainer()->get(AccessSecurityEventRepository::class);
 
         $request = new AccessRegistrationRequest();
         $request->email = 'duplicate@accessing.local';
@@ -31,7 +35,16 @@ final class AccessRegistrationServiceTest extends AccessDatabaseTestCase
 
         $user = $userRepository->findOneByEmailAddress('duplicate@accessing.local');
         self::assertNotNull($user);
-        self::assertInstanceOf(AccessCredentialEntity::class, $user?->getCredential());
+        self::assertInstanceOf(AccessCredentialEntity::class, $user->getCredential());
+
+        $events = $securityEventRepository->findRecentEventsForUser($user, 10);
+        $registrationEvents = array_values(array_filter(
+            $events,
+            static fn ($event): bool => AccessSecurityEventType::UserRegistered === $event->getEventType(),
+        ));
+
+        self::assertCount(1, $registrationEvents);
+        self::assertArrayNotHasKey('email', $registrationEvents[0]->getContext());
 
         $this->expectException(\DomainException::class);
         $this->expectExceptionMessage('An user with email "duplicate@accessing.local" already exists.');
