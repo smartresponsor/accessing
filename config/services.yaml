@@ -20,6 +20,8 @@ services:
       $accessingUserLockMinutes: 15
       $accessingProductName: '%accessing.product_name%'
       $accessingPasskeyChallengeTtlSeconds: 300
+      $accessingMobileAccessTtlSeconds: 900
+      $accessingMobileRefreshTtlSeconds: 2592000
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignUpLimiter: '@limiter.accessing_sign_up'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingRecoveryLimiter: '@limiter.accessing_recovery'
@@ -64,8 +66,10 @@ services:
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAttestationVerifier'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAssertionVerifier'
+  App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface: '@App\Accessing\Service\Mobile\AccessMobileTokenService'
   App\Accessing\RepositoryInterface\AccessPasskeyChallengeRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyChallengeRepository'
   App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyCredentialRepository'
+  App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface: '@App\Accessing\Repository\AccessMobileSessionRepository'
   App\Accessing\RepositoryInterface\AccessRepositoryInterface: '@App\Accessing\Repository\AccessRepository'
   App\Accessing\RepositoryInterface\AccessSessionRepositoryInterface: '@App\Accessing\Repository\AccessSessionRepository'
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
