@@ -6,7 +6,3 @@ services:
   App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface:
     alias: App\Accessing\Service\Access\AccessRegistrationService
     public: true
-
-  App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface:
-    alias: App\Accessing\Recorder\SecurityEvent\AccessSecurityEventRecorder
-    public: true

@@ -19,7 +19,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class AccessEnsureAdminCommand extends Command
 {
     private const ADMIN_EMAIL = 'admin@smartresponsor.local';
-    private const ADMIN_PASSWORD = 'admin';
 
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
@@ -31,19 +30,42 @@ final class AccessEnsureAdminCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show what would change without writing to the database.');
+        $this
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Show what would change without writing to the database.')
+            ->addOption('password', null, InputOption::VALUE_REQUIRED, 'Initial or replacement administrator password.')
+            ->addOption('reset-password', null, InputOption::VALUE_NONE, 'Explicitly replace the password of an existing administrator.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $dryRun = (bool) $input->getOption('dry-run');
+        $resetPassword = (bool) $input->getOption('reset-password');
+        $password = $this->passwordOption($input);
         $email = self::ADMIN_EMAIL;
 
         $user = $this->userRepository->findOneByEmailAddress($email);
         $isNew = null === $user;
-        $user ??= new AccessEntity();
 
+        if ($isNew && null === $password) {
+            $io->error('A non-empty --password value is required when creating the administrator.');
+
+            return Command::INVALID;
+        }
+
+        if ($resetPassword && null === $password) {
+            $io->error('A non-empty --password value is required with --reset-password.');
+
+            return Command::INVALID;
+        }
+
+        if (!$isNew && null !== $password && !$resetPassword) {
+            $io->error('Refusing to change an existing administrator password without --reset-password.');
+
+            return Command::INVALID;
+        }
+
+        $user ??= new AccessEntity();
         $user
             ->setEmail($email)
             ->setDisplayName('Accessing Admin')
@@ -53,29 +75,44 @@ final class AccessEnsureAdminCommand extends Command
             ->resetFailedLoginCount()
             ->markEmailVerified();
 
-        $this->credentialService->changePassword($user, self::ADMIN_PASSWORD);
-
         if ($dryRun) {
             $io->success(sprintf(
-                'Dry run: would %s admin user %s with roles %s.',
+                'Dry run: would %s admin user %s%s.',
                 $isNew ? 'create' : 'update',
                 $email,
-                'ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH'
+                $resetPassword ? ' and reset its password' : '',
             ));
 
             return Command::SUCCESS;
+        }
+
+        if ($isNew || $resetPassword) {
+            $this->credentialService->changePassword($user, $password);
         }
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         $io->success(sprintf(
-            '%s admin user %s with roles %s.',
+            '%s admin user %s%s.',
             $isNew ? 'Created' : 'Updated',
             $email,
-            'ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH'
+            $resetPassword ? ' and reset its password' : '',
         ));
 
         return Command::SUCCESS;
+    }
+
+    private function passwordOption(InputInterface $input): ?string
+    {
+        $password = $input->getOption('password');
+
+        if (!is_string($password)) {
+            return null;
+        }
+
+        $password = trim($password);
+
+        return '' === $password ? null : $password;
     }
 }

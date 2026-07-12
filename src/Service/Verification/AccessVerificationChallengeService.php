@@ -8,6 +8,7 @@ namespace App\Accessing\Service\Verification;
 use App\Accessing\Dto\AccessIssuedChallengeDto;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
+use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
@@ -20,6 +21,7 @@ use App\Accessing\ValueObject\AccessVerificationChallengeType;
 use Random\RandomException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final readonly class AccessVerificationChallengeService implements AccessVerificationChallengeServiceInterface
 {
@@ -29,6 +31,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         private AccessSecurityEventServiceInterface $securityEventService,
         private AccessPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
         private AccessSecurityNotificationServiceInterface $securityNotificationService,
+        private RateLimiterFactory $accessingVerificationResendLimiter,
         private string $appSecret,
         private int $accessingVerificationCodeTtlMinutes,
         private int $accessingRecoveryCodeTtlMinutes,
@@ -52,21 +55,54 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             $this->accessingVerificationCodeTtlMinutes,
         );
 
-        $this->securityNotificationService->sendEmailVerificationCode(
-            $user,
-            $issuedChallenge->plainCode,
-            $this->accessingVerificationCodeTtlMinutes,
-        );
+        try {
+            $this->securityNotificationService->sendEmailVerificationCode(
+                $user,
+                $issuedChallenge->plainCode,
+                $this->accessingVerificationCodeTtlMinutes,
+            );
+        } catch (\Throwable $exception) {
+            $issuedChallenge->challenge->consume();
+            $this->verificationChallengeRepository->save($issuedChallenge->challenge, true);
+            $this->securityEventService->record(
+                AccessSecurityEventType::NotificationDeliveryFailed,
+                AccessSecurityEventSeverity::Critical,
+                $user,
+                $request,
+                ['channel' => 'email', 'purpose' => 'verification'],
+            );
+
+            throw new AccessNotificationDeliveryException($exception);
+        }
 
         $this->securityEventService->record(
             AccessSecurityEventType::EmailVerificationRequested,
             AccessSecurityEventSeverity::Info,
             $user,
             $request,
-            ['destination' => $user->getEmailAddress()],
+            ['channel' => 'email', 'purpose' => 'verification'],
         );
 
         return $issuedChallenge;
+    }
+
+    public function resendEmailVerification(AccessEntity $user, ?Request $request = null): ?AccessIssuedChallengeDto
+    {
+        $limiterKey = sprintf('%s|%s', $user->getId() ?? $user->getEmailAddress(), $request?->getClientIp() ?? 'unknown');
+
+        if (!$this->accessingVerificationResendLimiter->create($limiterKey)->consume()->isAccepted()) {
+            $this->securityEventService->record(
+                AccessSecurityEventType::RateLimitExceeded,
+                AccessSecurityEventSeverity::Warning,
+                $user,
+                $request,
+                ['flow' => 'verification_resend'],
+            );
+
+            return null;
+        }
+
+        return $this->issueEmailVerification($user, $request);
     }
 
     /**
@@ -87,17 +123,31 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             $this->accessingVerificationCodeTtlMinutes,
         );
 
-        $this->phoneVerificationProvider->sendVerificationMessage(
-            $phoneNumber,
-            sprintf('Accessing phone verification code: %s', $issuedChallenge->plainCode),
-        );
+        try {
+            $this->phoneVerificationProvider->sendVerificationMessage(
+                $phoneNumber,
+                sprintf('Accessing phone verification code: %s', $issuedChallenge->plainCode),
+            );
+        } catch (\Throwable $exception) {
+            $issuedChallenge->challenge->consume();
+            $this->verificationChallengeRepository->save($issuedChallenge->challenge, true);
+            $this->securityEventService->record(
+                AccessSecurityEventType::NotificationDeliveryFailed,
+                AccessSecurityEventSeverity::Critical,
+                $user,
+                $request,
+                ['channel' => 'phone', 'purpose' => 'verification'],
+            );
+
+            throw new AccessNotificationDeliveryException($exception);
+        }
 
         $this->securityEventService->record(
             AccessSecurityEventType::PhoneVerificationRequested,
             AccessSecurityEventSeverity::Info,
             $user,
             $request,
-            ['destination' => $phoneNumber],
+            ['channel' => 'phone', 'purpose' => 'verification'],
         );
 
         $this->userRepository->save($user, true);
@@ -122,11 +172,25 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             $this->accessingRecoveryCodeTtlMinutes,
         );
 
-        $this->securityNotificationService->sendPasswordRecoveryCode(
-            $user,
-            $issuedChallenge->plainCode,
-            $this->accessingRecoveryCodeTtlMinutes,
-        );
+        try {
+            $this->securityNotificationService->sendPasswordRecoveryCode(
+                $user,
+                $issuedChallenge->plainCode,
+                $this->accessingRecoveryCodeTtlMinutes,
+            );
+        } catch (\Throwable $exception) {
+            $issuedChallenge->challenge->consume();
+            $this->verificationChallengeRepository->save($issuedChallenge->challenge, true);
+            $this->securityEventService->record(
+                AccessSecurityEventType::NotificationDeliveryFailed,
+                AccessSecurityEventSeverity::Critical,
+                $user,
+                $request,
+                ['channel' => 'email', 'purpose' => 'recovery'],
+            );
+
+            throw new AccessNotificationDeliveryException($exception);
+        }
 
         $this->securityEventService->record(
             AccessSecurityEventType::RecoveryRequested,
@@ -229,6 +293,16 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $verificationChallenge->registerAttempt();
 
         if (!hash_equals($verificationChallenge->getCodeHash(), $this->hashCode(trim($code)))) {
+            if ($verificationChallenge->hasReachedAttemptLimit()) {
+                $verificationChallenge->consume();
+                $this->securityEventService->record(
+                    AccessSecurityEventType::VerificationAttemptLimitReached,
+                    AccessSecurityEventSeverity::Warning,
+                    $user,
+                    context: ['challengeType' => $challengeType->value],
+                );
+            }
+
             $this->verificationChallengeRepository->save($verificationChallenge, true);
 
             return false;

@@ -46,6 +46,8 @@ class AccessVerificationChallengeEntity
     private \DateTimeImmutable $createdAt;
 
     private ?string $requestedIpAddress;
+
+    #[ORM\Column(name: 'attempt_count')]
     private int $attemptCount = 0;
 
     /**
@@ -219,5 +221,15 @@ class AccessVerificationChallengeEntity
         ++$this->attemptCount;
 
         return $this;
+    }
+
+    public function getAttemptCount(): int
+    {
+        return $this->attemptCount;
+    }
+
+    public function hasReachedAttemptLimit(int $maximumAttempts = 5): bool
+    {
+        return $this->attemptCount >= $maximumAttempts;
     }
 }

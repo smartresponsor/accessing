@@ -31,4 +31,31 @@ final class AccessVerificationChallengeServiceTest extends AccessDatabaseTestCas
         self::assertTrue($verificationChallengeService->completeEmailVerification($user, $issuedChallenge->plainCode));
         self::assertTrue($user->isEmailVerified());
     }
+
+    public function testEmailVerificationChallengeBecomesTerminalAfterFiveFailedAttempts(): void
+    {
+        $entityManager = $this->refreshDatabase();
+        $user = new AccessEntity('attempt-limit@accessing.local', 'Attempt Limit');
+        /** @var AccessCredentialServiceInterface $credentialService */
+        $credentialService = static::getContainer()->get(AccessCredentialServiceInterface::class);
+        $credentialService->createCredential($user, 'integration-pass-123');
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        /** @var AccessVerificationChallengeServiceInterface $verificationChallengeService */
+        $verificationChallengeService = static::getContainer()->get(AccessVerificationChallengeServiceInterface::class);
+        $issuedChallenge = $verificationChallengeService->issueEmailVerification($user, null);
+
+        for ($attempt = 0; $attempt < 5; ++$attempt) {
+            self::assertFalse($verificationChallengeService->completeEmailVerification($user, '000000'));
+        }
+
+        $entityManager->clear();
+        $challenge = $entityManager->find($issuedChallenge->challenge::class, $issuedChallenge->challenge->getId());
+
+        self::assertNotNull($challenge);
+        self::assertSame(5, $challenge->getAttemptCount());
+        self::assertTrue($challenge->isCompleted());
+        self::assertFalse($verificationChallengeService->completeEmailVerification($user, $issuedChallenge->plainCode));
+    }
 }

@@ -14,16 +14,26 @@ use Doctrine\Persistence\ObjectManager;
 final class AccessAdminFixtures extends Fixture
 {
     private const ADMIN_EMAIL = 'admin@smartresponsor.local';
-    private const ADMIN_PASSWORD = 'admin';
 
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
+        private readonly string $adminPassword = '',
     ) {
+    }
+
+    public function assertConfigured(): void
+    {
+        if ('' === trim($this->adminPassword)) {
+            throw new \RuntimeException('A non-empty Accessing administrator password must be configured before loading admin fixtures.');
+        }
     }
 
     public function load(ObjectManager $manager): void
     {
+        $this->assertConfigured();
+        $adminPassword = trim($this->adminPassword);
+
         $user = $this->userRepository->findOneByEmailAddress(self::ADMIN_EMAIL)
             ?? new AccessEntity();
 
@@ -36,7 +46,7 @@ final class AccessAdminFixtures extends Fixture
             ->resetFailedLoginCount()
             ->markEmailVerified();
 
-        $this->credentialService->changePassword($user, self::ADMIN_PASSWORD);
+        $this->credentialService->changePassword($user, $adminPassword);
 
         $manager->persist($user);
         $manager->flush();

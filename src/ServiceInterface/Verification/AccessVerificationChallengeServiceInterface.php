@@ -13,6 +13,8 @@ interface AccessVerificationChallengeServiceInterface
 {
     public function issueEmailVerification(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto;
 
+    public function resendEmailVerification(AccessEntity $user, ?Request $request = null): ?AccessIssuedChallengeDto;
+
     public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto;
 
     public function issuePasswordRecovery(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto;

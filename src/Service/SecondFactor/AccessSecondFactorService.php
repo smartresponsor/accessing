@@ -15,13 +15,17 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
+use Psr\Clock\ClockInterface;
 use Random\RandomException;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final readonly class AccessSecondFactorService implements AccessSecondFactorServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private AccessSecurityEventServiceInterface $securityEventService,
+        private RateLimiterFactory $accessingSecondFactorLimiter,
+        private ClockInterface $clock,
         private string $appSecret,
     ) {
     }
@@ -31,7 +35,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $secondFactor = $user->getSecondFactor();
 
         if (!$secondFactor instanceof AccessSecondFactorEntity) {
-            $totp = TOTP::create();
+            $totp = TOTP::create(clock: $this->clock);
             $label = $this->nonEmptyLabel($user->getEmailAddress());
             $totp->setLabel($label);
             $totp->setIssuer('Accessing');
@@ -45,7 +49,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         }
 
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
-        $totp = TOTP::create($secret);
+        $totp = TOTP::create($secret, clock: $this->clock);
         $label = $this->nonEmptyLabel($user->getEmailAddress());
         $totp->setLabel($label);
         $totp->setIssuer('Accessing');
@@ -65,7 +69,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         }
 
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
-        $totp = TOTP::create($secret);
+        $totp = TOTP::create($secret, clock: $this->clock);
         $normalizedVerificationCode = trim($code);
 
         if ('' === $normalizedVerificationCode || !$totp->verify($normalizedVerificationCode)) {
@@ -112,9 +116,22 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
             return false;
         }
 
+        $limiterKey = null !== $user->getId() ? (string) $user->getId() : $user->getEmailAddress();
+
+        if (!$this->accessingSecondFactorLimiter->create($limiterKey)->consume()->isAccepted()) {
+            $this->securityEventService->record(
+                AccessSecurityEventType::RateLimitExceeded,
+                AccessSecurityEventSeverity::Warning,
+                $user,
+                context: ['flow' => 'second_factor'],
+            );
+
+            return false;
+        }
+
         $normalizedCode = strtoupper(trim(str_replace([' ', '-'], '', $code)));
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
-        $totp = TOTP::create($secret);
+        $totp = TOTP::create($secret, clock: $this->clock);
 
         if ('' !== $normalizedCode && $totp->verify($normalizedCode)) {
             $secondFactor->markUsed();
@@ -178,7 +195,11 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     {
         $normalizedSecret = trim($secret);
 
-        return '' !== $normalizedSecret ? $normalizedSecret : 'ACCESSING-DEFAULT-SECRET';
+        if ('' === $normalizedSecret) {
+            throw new \LogicException('Second-factor secret must not be empty.');
+        }
+
+        return $normalizedSecret;
     }
 
     /** @return non-empty-string */

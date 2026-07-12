@@ -9,14 +9,14 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
+use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AccessDemoFixtures extends Fixture
 {
     public function __construct(
-        private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly AccessCredentialServiceInterface $credentialService,
     ) {
     }
 
@@ -27,10 +27,10 @@ final class AccessDemoFixtures extends Fixture
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
             ->setRoles(['ROLE_USER'])
-            ->setSecondFactorEnabled(true)
-            ->setPasswordHash($this->userPasswordHasher->hashPassword(new AccessEntity(), 'AccessingDemo123!'));
+            ->setSecondFactorEnabled(true);
         $user->markEmailVerified();
 
+        $this->credentialService->changePassword($user, 'AccessingDemo123!');
         $manager->persist($user);
 
         $emailChallenge = new AccessVerificationChallengeEntity()

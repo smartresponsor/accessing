@@ -11,4 +11,13 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
+
+    public function getCacheDir(): string
+    {
+        if ('test' === $this->environment) {
+            return sprintf('%s/accessing-test-cache-%d', sys_get_temp_dir(), getmypid());
+        }
+
+        return parent::getCacheDir();
+    }
 }
