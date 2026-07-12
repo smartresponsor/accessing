@@ -3,6 +3,8 @@ parameters:
   accessing.mailer_sender.default: 'no-reply@accessing.local'
   accessing.phone_verification_provider.default: 'fake'
   accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
+  accessing.admin_password.default: ''
+  accessing.admin_password: '%env(default:accessing.admin_password.default:ACCESSING_ADMIN_PASSWORD)%'
 
 services:
   _defaults:
@@ -10,17 +12,20 @@ services:
     autoconfigure: true
     bind:
       $appSecret: '%env(APP_SECRET)%'
+      $adminPassword: '%accessing.admin_password%'
       $accessingSessionMaxIdleDays: 30
       $accessingVerificationCodeTtlMinutes: 15
       $accessingRecoveryCodeTtlMinutes: 30
       $accessingUserLockThreshold: 5
       $accessingUserLockMinutes: 15
       $accessingProductName: '%accessing.product_name%'
+      $accessingPasskeyChallengeTtlSeconds: 300
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignInLimiter: '@limiter.accessing_sign_in'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingSignUpLimiter: '@limiter.accessing_sign_up'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingRecoveryLimiter: '@limiter.accessing_recovery'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingForgotPasswordLimiter: '@limiter.accessing_forgot_password'
       Symfony\Component\RateLimiter\RateLimiterFactory $accessingVerificationResendLimiter: '@limiter.accessing_verification_resend'
+      Symfony\Component\RateLimiter\RateLimiterFactory $accessingSecondFactorLimiter: '@limiter.accessing_second_factor'
 
   App\Accessing\:
     resource: '../src/'
@@ -34,10 +39,13 @@ services:
       - ../src/Event/
       - ../src/Message/
       - '../src/Command/AccessDemoResetCommand.php'
+      - '../src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php'
+      - '../src/ServiceInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
       - '../src/Kernel.php'
       - '../src/Provider/Configuration/'
       - '../src/Service/Config/'
 
+  Psr\Clock\ClockInterface: '@App\Accessing\Service\Clock\AccessSystemClock'
   App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
   App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface: '@App\Accessing\Service\Access\AccessAuthenticationService'
   App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface: '@App\Accessing\Service\Access\AccessRegistrationService'
@@ -45,11 +53,19 @@ services:
   App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessCredentialService'
   App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessRecoveryService'
   App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessSecondFactorService'
-  App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface: '@App\Accessing\Recorder\SecurityEvent\AccessSecurityEventRecorder'
   App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessSecurityEventService'
   App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService'
   App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService'
   App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessVerificationChallengeService'
+  App\Accessing\ServiceInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Service\Password\AccessSymfonyCompromisedPasswordProvider'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyCredentialService'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyChallengeService'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyRegistrationService'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAttestationVerifier'
+  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAssertionVerifier'
+  App\Accessing\RepositoryInterface\AccessPasskeyChallengeRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyChallengeRepository'
+  App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyCredentialRepository'
   App\Accessing\RepositoryInterface\AccessRepositoryInterface: '@App\Accessing\Repository\AccessRepository'
   App\Accessing\RepositoryInterface\AccessSessionRepositoryInterface: '@App\Accessing\Repository\AccessSessionRepository'
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
@@ -72,3 +88,7 @@ when@dev:
     App\Accessing\Command\AccessDemoResetCommand:
       arguments:
         $fixturesLoader: '@doctrine.fixtures.loader'
+
+when@test:
+  services:
+    App\Accessing\ServiceInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Service\Password\AccessAlwaysSafePasswordProvider'
