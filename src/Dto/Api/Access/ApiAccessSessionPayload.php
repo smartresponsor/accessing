@@ -14,6 +14,7 @@ final readonly class ApiAccessSessionPayload
         public ?string $expiresAt = null,
         public bool $requiresVerification = false,
         public bool $requiresSecondFactor = false,
+        public ?string $pendingToken = null,
     ) {
     }
 
@@ -24,6 +25,7 @@ final readonly class ApiAccessSessionPayload
      *     accessToken: ?string,
      *     refreshToken: ?string,
      *     expiresAt: ?string,
+     *     pendingToken: ?string,
      *     requiresVerification: bool,
      *     requiresSecondFactor: bool
      * }
@@ -36,6 +38,7 @@ final readonly class ApiAccessSessionPayload
             'accessToken' => $this->accessToken,
             'refreshToken' => $this->refreshToken,
             'expiresAt' => $this->expiresAt,
+            'pendingToken' => $this->pendingToken,
             'requiresVerification' => $this->requiresVerification,
             'requiresSecondFactor' => $this->requiresSecondFactor,
         ];

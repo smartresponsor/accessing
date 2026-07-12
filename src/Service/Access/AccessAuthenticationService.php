@@ -136,6 +136,20 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         $this->signIn($user, $request);
     }
 
+    public function completeMobileSecondFactor(AccessEntity $user, Request $request): void
+    {
+        $user->markSuccessfulSignIn();
+        $user->unlock();
+        $this->userRepository->save($user, true);
+        $this->securityEventService->record(
+            AccessSecurityEventType::SignInSucceeded,
+            AccessSecurityEventSeverity::Info,
+            $user,
+            $request,
+            ['transport' => 'mobile_token'],
+        );
+    }
+
     public function signOut(?AccessEntity $user, Request $request): void
     {
         $session = $request->getSession();

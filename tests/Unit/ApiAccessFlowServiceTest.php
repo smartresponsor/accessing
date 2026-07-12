@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
+use App\Accessing\Dto\AccessMobilePendingToken;
 use App\Accessing\Dto\AccessMobileTokenPair;
 use App\Accessing\Dto\AccessSignInResultDto;
 use App\Accessing\Entity\AccessEntity;
@@ -14,9 +15,11 @@ use App\Accessing\Service\Http\Api\Access\ApiAccessFlowService;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
+use App\Accessing\ValueObject\AccessMobilePendingPurpose;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -142,6 +145,11 @@ final class ApiAccessFlowServiceTest extends TestCase
         $registrationService->expects(self::once())
             ->method('register')
             ->willReturn($user);
+        $pendingAuthService = $this->createMock(AccessMobilePendingAuthServiceInterface::class);
+        $pendingAuthService->expects(self::once())
+            ->method('issue')
+            ->with($user, AccessMobilePendingPurpose::EmailVerification, 'Symfony')
+            ->willReturn(new AccessMobilePendingToken('pending-token', new \DateTimeImmutable('2026-07-12T00:10:00+00:00')));
 
         $service = new ApiAccessFlowService(
             $this->createMock(AccessAuthenticationServiceInterface::class),
@@ -149,6 +157,7 @@ final class ApiAccessFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new ApiAccessJsonResponder(),
             $this->createMock(Security::class),
+            mobilePendingAuthService: $pendingAuthService,
         );
 
         $request = Request::create(
@@ -170,6 +179,8 @@ final class ApiAccessFlowServiceTest extends TestCase
         self::assertTrue($payload['requiresVerification']);
         self::assertNull($payload['accessToken']);
         self::assertNull($payload['refreshToken']);
+        self::assertSame('pending-token', $payload['pendingToken']);
+        self::assertSame('2026-07-12T00:10:00+00:00', $payload['expiresAt']);
         $identity = $payload['identity'] ?? null;
         self::assertIsArray($identity);
         self::assertSame('demo-register@example.test', $identity['email'] ?? null);

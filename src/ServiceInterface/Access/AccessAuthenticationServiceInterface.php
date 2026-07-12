@@ -16,6 +16,8 @@ interface AccessAuthenticationServiceInterface
 
     public function completePendingSecondFactor(AccessEntity $user, Request $request): void;
 
+    public function completeMobileSecondFactor(AccessEntity $user, Request $request): void;
+
     public function signOut(?AccessEntity $user, Request $request): void;
 
     public function getPendingSecondFactorUserId(SessionInterface $session): ?int;

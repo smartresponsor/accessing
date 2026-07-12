@@ -20,10 +20,12 @@ use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
+use App\Accessing\ValueObject\AccessMobilePendingPurpose;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,6 +46,7 @@ final readonly class ApiAccessFlowService
         private ?AccessSecondFactorServiceInterface $secondFactorService = null,
         private ?RateLimiterFactory $accessingSignUpLimiter = null,
         private ?AccessMobileTokenServiceInterface $mobileTokenService = null,
+        private ?AccessMobilePendingAuthServiceInterface $mobilePendingAuthService = null,
     ) {
     }
 
@@ -93,15 +96,22 @@ final readonly class ApiAccessFlowService
         }
 
         if ($result->requiresSecondFactor && $result->user instanceof AccessEntity) {
+            if (null === $this->mobilePendingAuthService) {
+                return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+            }
+
+            $pending = $this->mobilePendingAuthService->issue($result->user, AccessMobilePendingPurpose::SecondFactor, $this->deviceName($request));
+
             return $this->responder->session(
                 new ApiAccessSessionPayload(
                     'second_factor_pending',
                     null,
                     null,
                     null,
-                    null,
+                    $pending->expiresAt->format(DATE_ATOM),
                     false,
                     true,
+                    $pending->token,
                 ),
                 Response::HTTP_ACCEPTED,
             );
@@ -207,12 +217,22 @@ final readonly class ApiAccessFlowService
             );
         }
 
+        if (null === $this->mobilePendingAuthService) {
+            return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+        }
+
+        $pending = $this->mobilePendingAuthService->issue($user, AccessMobilePendingPurpose::EmailVerification, $this->deviceName($request));
+
         return $this->responder->session(
-            $this->sessionFromUser(
+            new ApiAccessSessionPayload(
                 'verification_pending',
-                $user,
+                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                null,
+                null,
+                $pending->expiresAt->format(DATE_ATOM),
                 true,
                 false,
+                $pending->token,
             ),
             Response::HTTP_CREATED,
         );
@@ -273,10 +293,31 @@ final readonly class ApiAccessFlowService
 
     public function resendVerification(Request $request): JsonResponse
     {
+        $fieldErrors = [];
+        $payload = '' === trim($request->getContent()) ? [] : $this->decodeJsonPayload($request, $fieldErrors);
+        $pendingToken = $this->optionalStringField($payload, 'pendingToken');
+        $pendingAuth = null;
         $user = $this->security->getUser();
 
+        if (null !== $pendingToken) {
+            if (null === $this->mobilePendingAuthService) {
+                return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+            }
+
+            try {
+                $pendingAuth = $this->mobilePendingAuthService->resolve($pendingToken, AccessMobilePendingPurpose::EmailVerification);
+                $user = $pendingAuth->getUser();
+            } catch (\DomainException) {
+                return $this->unauthorizedResponse('invalid_pending_token', 'The mobile continuation token is invalid or expired.');
+            }
+        }
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
         if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session is required to resend verification.');
+            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session or pending token is required.');
         }
 
         if (null === $this->verificationChallengeService) {
@@ -296,6 +337,22 @@ final readonly class ApiAccessFlowService
             );
         }
 
+        if (null !== $pendingAuth) {
+            $this->mobilePendingAuthService->consume($pendingToken, AccessMobilePendingPurpose::EmailVerification);
+            $replacement = $this->mobilePendingAuthService->issue($user, AccessMobilePendingPurpose::EmailVerification, $pendingAuth->getDeviceName());
+
+            return $this->responder->session(new ApiAccessSessionPayload(
+                'verification_pending',
+                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                null,
+                null,
+                $replacement->expiresAt->format(DATE_ATOM),
+                true,
+                false,
+                $replacement->token,
+            ), Response::HTTP_ACCEPTED);
+        }
+
         return $this->responder->session(
             $this->sessionFromUser('verification_pending', $user, true, false),
             Response::HTTP_ACCEPTED,
@@ -304,17 +361,32 @@ final readonly class ApiAccessFlowService
 
     public function confirmVerification(Request $request): JsonResponse
     {
+        $fieldErrors = [];
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        $code = $this->stringField($payload, 'code', $fieldErrors);
+        $pendingToken = $this->optionalStringField($payload, 'pendingToken');
+        $pendingAuth = null;
         $user = $this->security->getUser();
 
-        if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session is required to confirm verification.');
-        }
+        if (null !== $pendingToken) {
+            if (null === $this->mobilePendingAuthService) {
+                return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+            }
 
-        $fieldErrors = [];
-        $code = $this->readCodeRequest($request, $fieldErrors);
+            try {
+                $pendingAuth = $this->mobilePendingAuthService->resolve($pendingToken, AccessMobilePendingPurpose::EmailVerification);
+                $user = $pendingAuth->getUser();
+            } catch (\DomainException) {
+                return $this->unauthorizedResponse('invalid_pending_token', 'The mobile continuation token is invalid or expired.');
+            }
+        }
 
         if ([] !== $fieldErrors) {
             return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('verification_requires_session', 'A signed-in access session or pending token is required.');
         }
 
         if (null === $this->verificationChallengeService) {
@@ -328,6 +400,12 @@ final readonly class ApiAccessFlowService
             );
         }
 
+        if (null !== $pendingAuth) {
+            $this->mobilePendingAuthService->consume($pendingToken, AccessMobilePendingPurpose::EmailVerification);
+
+            return $this->mobileAuthenticatedResponse($user, $pendingAuth->getDeviceName());
+        }
+
         return $this->responder->session(
             $this->sessionFromUser('authenticated', $user, false, false),
             Response::HTTP_ACCEPTED,
@@ -336,10 +414,46 @@ final readonly class ApiAccessFlowService
 
     public function challengeSecondFactor(Request $request): JsonResponse
     {
+        $payload = [];
+        $fieldErrors = [];
+        if ('' !== trim($request->getContent())) {
+            $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        }
+        $pendingToken = $this->optionalStringField($payload, 'pendingToken');
+
+        if (null !== $pendingToken) {
+            if (null === $this->mobilePendingAuthService) {
+                return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+            }
+
+            try {
+                $pendingAuth = $this->mobilePendingAuthService->resolve($pendingToken, AccessMobilePendingPurpose::SecondFactor);
+            } catch (\DomainException) {
+                return $this->unauthorizedResponse('invalid_pending_token', 'The mobile continuation token is invalid or expired.');
+            }
+
+            $user = $pendingAuth->getUser();
+
+            return $this->responder->session(new ApiAccessSessionPayload(
+                'second_factor_pending',
+                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                null,
+                null,
+                $pendingAuth->getExpiresAt()->format(DATE_ATOM),
+                false,
+                true,
+                $pendingToken,
+            ), Response::HTTP_ACCEPTED);
+        }
+
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
         $user = $this->pendingSecondFactorUser($request);
 
         if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session is required.');
+            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session or token is required.');
         }
 
         return $this->responder->session(
@@ -350,17 +464,34 @@ final readonly class ApiAccessFlowService
 
     public function verifySecondFactor(Request $request): JsonResponse
     {
-        $user = $this->pendingSecondFactorUser($request);
-
-        if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session is required.');
-        }
-
         $fieldErrors = [];
-        $code = $this->readCodeRequest($request, $fieldErrors);
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        $code = $this->stringField($payload, 'code', $fieldErrors);
+        $pendingToken = $this->optionalStringField($payload, 'pendingToken');
+        $pendingAuth = null;
+        $user = null;
+
+        if (null !== $pendingToken) {
+            if (null === $this->mobilePendingAuthService) {
+                return $this->unavailableResponse('mobile_pending_auth_unavailable', 'Mobile continuation is temporarily unavailable.');
+            }
+
+            try {
+                $pendingAuth = $this->mobilePendingAuthService->resolve($pendingToken, AccessMobilePendingPurpose::SecondFactor);
+                $user = $pendingAuth->getUser();
+            } catch (\DomainException) {
+                return $this->unauthorizedResponse('invalid_pending_token', 'The mobile continuation token is invalid or expired.');
+            }
+        } else {
+            $user = $this->pendingSecondFactorUser($request);
+        }
 
         if ([] !== $fieldErrors) {
             return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('second_factor_requires_pending_session', 'A pending second-factor session or token is required.');
         }
 
         if (null === $this->secondFactorService) {
@@ -372,6 +503,13 @@ final readonly class ApiAccessFlowService
                 new ApiAccessErrorPayload('invalid_second_factor_code', 'The second-factor code is invalid.'),
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
+        }
+
+        if (null !== $pendingAuth) {
+            $this->authenticationService->completeMobileSecondFactor($user, $request);
+            $this->mobilePendingAuthService->consume($pendingToken, AccessMobilePendingPurpose::SecondFactor);
+
+            return $this->mobileAuthenticatedResponse($user, $pendingAuth->getDeviceName());
         }
 
         $this->authenticationService->completePendingSecondFactor($user, $request);
@@ -423,16 +561,6 @@ final readonly class ApiAccessFlowService
         $payload = $this->decodeJsonPayload($request, $fieldErrors);
 
         return $this->stringField($payload, 'email', $fieldErrors);
-    }
-
-    /**
-     * @param array<string, list<string>> $fieldErrors
-     */
-    private function readCodeRequest(Request $request, array &$fieldErrors): string
-    {
-        $payload = $this->decodeJsonPayload($request, $fieldErrors);
-
-        return $this->stringField($payload, 'code', $fieldErrors);
     }
 
     private function pendingSecondFactorUser(Request $request): ?AccessEntity
@@ -532,6 +660,14 @@ final readonly class ApiAccessFlowService
         }
 
         return trim($value);
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function optionalStringField(array $payload, string $field): ?string
+    {
+        $value = $payload[$field] ?? null;
+
+        return is_string($value) && '' !== trim($value) ? trim($value) : null;
     }
 
     /**
@@ -646,6 +782,25 @@ final readonly class ApiAccessFlowService
             $requiresVerification,
             $requiresSecondFactor,
         );
+    }
+
+    private function mobileAuthenticatedResponse(AccessEntity $user, string $deviceName): JsonResponse
+    {
+        if (null === $this->mobileTokenService) {
+            return $this->unavailableResponse('mobile_session_unavailable', 'Mobile session transport is temporarily unavailable.');
+        }
+
+        $tokens = $this->mobileTokenService->issue($user, $deviceName);
+
+        return $this->responder->session(new ApiAccessSessionPayload(
+            'authenticated',
+            new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+            $tokens->accessToken,
+            $tokens->refreshToken,
+            $tokens->accessExpiresAt->format(DATE_ATOM),
+            false,
+            false,
+        ));
     }
 
     private function deviceName(Request $request): string

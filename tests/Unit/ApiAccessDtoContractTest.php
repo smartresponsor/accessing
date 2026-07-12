@@ -39,6 +39,7 @@ final class ApiAccessDtoContractTest extends TestCase
         self::assertNull($payload->accessToken);
         self::assertNull($payload->refreshToken);
         self::assertNull($payload->expiresAt);
+        self::assertNull($payload->pendingToken);
         self::assertFalse($payload->requiresVerification);
         self::assertFalse($payload->requiresSecondFactor);
         self::assertSame('unauthenticated', $payload->status);

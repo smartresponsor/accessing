@@ -36,6 +36,7 @@ final class ApiAccessJsonResponderTest extends TestCase
                 'accessToken' => null,
                 'refreshToken' => null,
                 'expiresAt' => null,
+                'pendingToken' => null,
                 'requiresVerification' => false,
                 'requiresSecondFactor' => false,
             ],
