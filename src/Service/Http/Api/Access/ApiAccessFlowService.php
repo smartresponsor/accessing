@@ -52,6 +52,8 @@ final readonly class ApiAccessFlowService
         private ?AccessMobilePendingAuthServiceInterface $mobilePendingAuthService = null,
         private ?AccessPasskeyRegistrationServiceInterface $passkeyRegistrationService = null,
         private ?AccessPasskeyAuthenticationServiceInterface $passkeyAuthenticationService = null,
+        private string $accessingPasskeyRelyingPartyId = '',
+        private string $accessingPasskeyOrigin = '',
     ) {
     }
 
@@ -885,10 +887,13 @@ final readonly class ApiAccessFlowService
 
     private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
     {
+        $relyingPartyId = '' !== trim($this->accessingPasskeyRelyingPartyId) ? trim($this->accessingPasskeyRelyingPartyId) : $request->getHost();
+        $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
+
         return new AccessPasskeyRelyingPartyConfig(
-            $request->getHost(),
+            $relyingPartyId,
             'SmartResponsor Access',
-            $request->getSchemeAndHttpHost(),
+            $origin,
         );
     }
 

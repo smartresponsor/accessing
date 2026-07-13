@@ -5,6 +5,10 @@ parameters:
   accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
   accessing.admin_password.default: ''
   accessing.admin_password: '%env(default:accessing.admin_password.default:ACCESSING_ADMIN_PASSWORD)%'
+  accessing.passkey_rp_id.default: ''
+  accessing.passkey_rp_id: '%env(default:accessing.passkey_rp_id.default:ACCESSING_PASSKEY_RP_ID)%'
+  accessing.passkey_origin.default: ''
+  accessing.passkey_origin: '%env(default:accessing.passkey_origin.default:ACCESSING_PASSKEY_ORIGIN)%'
 
 services:
   _defaults:
@@ -20,6 +24,8 @@ services:
       $accessingUserLockMinutes: 15
       $accessingProductName: '%accessing.product_name%'
       $accessingPasskeyChallengeTtlSeconds: 300
+      $accessingPasskeyRelyingPartyId: '%accessing.passkey_rp_id%'
+      $accessingPasskeyOrigin: '%accessing.passkey_origin%'
       $accessingMobileAccessTtlSeconds: 900
       $accessingMobileRefreshTtlSeconds: 2592000
       $accessingMobilePendingAuthTtlSeconds: 600

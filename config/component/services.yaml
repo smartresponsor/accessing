@@ -15,6 +15,10 @@ parameters:
   accessing.user_lock_minutes: '%env(int:default:accessing.user_lock_minutes.default:ACCESSING_USER_LOCK_MINUTES)%'
   accessing.admin_password.default: ''
   accessing.admin_password: '%env(default:accessing.admin_password.default:ACCESSING_ADMIN_PASSWORD)%'
+  accessing.passkey_rp_id.default: ''
+  accessing.passkey_rp_id: '%env(default:accessing.passkey_rp_id.default:ACCESSING_PASSKEY_RP_ID)%'
+  accessing.passkey_origin.default: ''
+  accessing.passkey_origin: '%env(default:accessing.passkey_origin.default:ACCESSING_PASSKEY_ORIGIN)%'
 
 services:
   _defaults:
@@ -30,6 +34,8 @@ services:
       int $accessingUserLockThreshold: '%accessing.user_lock_threshold%'
       int $accessingUserLockMinutes: '%accessing.user_lock_minutes%'
       int $accessingPasskeyChallengeTtlSeconds: 300
+      string $accessingPasskeyRelyingPartyId: '%accessing.passkey_rp_id%'
+      string $accessingPasskeyOrigin: '%accessing.passkey_origin%'
       int $accessingMobileAccessTtlSeconds: 900
       int $accessingMobileRefreshTtlSeconds: 2592000
       int $accessingMobilePendingAuthTtlSeconds: 600
