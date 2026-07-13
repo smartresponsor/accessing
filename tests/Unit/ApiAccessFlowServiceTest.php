@@ -116,18 +116,17 @@ final class ApiAccessFlowServiceTest extends TestCase
     public function testBearerSessionReturnsAuthenticatedIdentity(): void
     {
         $user = new AccessEntity('bearer@example.test', 'Bearer User');
-        $mobileTokenService = $this->createMock(AccessMobileTokenServiceInterface::class);
-        $mobileTokenService->expects(self::once())->method('authenticate')->with('access-token')->willReturn($user);
+        $security = $this->createMock(Security::class);
+        $security->expects(self::once())->method('getUser')->willReturn($user);
         $service = new ApiAccessFlowService(
             $this->createMock(AccessAuthenticationServiceInterface::class),
             $this->createMock(AccessRegistrationServiceInterface::class),
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new ApiAccessJsonResponder(),
-            $this->createMock(Security::class),
-            mobileTokenService: $mobileTokenService,
+            $security,
         );
 
-        $request = Request::create('/api/access/session', 'GET', server: ['HTTP_AUTHORIZATION' => 'Bearer access-token']);
+        $request = Request::create('/api/access/session', 'GET');
         $payload = $this->decodeResponse($service->session($request));
 
         self::assertSame('authenticated', $payload['status']);

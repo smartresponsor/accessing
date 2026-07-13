@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Api\Access;
 
+use App\Accessing\Authenticator\AccessBearerAuthenticator;
 use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
 use App\Accessing\Dto\AccessRegistrationRequest;
 use App\Accessing\Dto\AccessSignInResultDto;
@@ -247,8 +248,8 @@ final readonly class ApiAccessFlowService
 
     public function logout(Request $request): JsonResponse
     {
-        $accessToken = $this->bearerToken($request);
-        if (null !== $accessToken && null !== $this->mobileTokenService) {
+        $accessToken = $request->attributes->get(AccessBearerAuthenticator::REQUEST_ATTRIBUTE);
+        if (is_string($accessToken) && '' !== trim($accessToken) && null !== $this->mobileTokenService) {
             $this->mobileTokenService->revoke($accessToken);
         }
 
@@ -260,15 +261,9 @@ final readonly class ApiAccessFlowService
 
     public function session(Request $request): JsonResponse
     {
-        $accessToken = $this->bearerToken($request);
-        if (null !== $accessToken && null !== $this->mobileTokenService) {
-            try {
-                $user = $this->mobileTokenService->authenticate($accessToken);
-
-                return $this->responder->session($this->sessionFromUser('authenticated', $user, false, false));
-            } catch (\DomainException) {
-                return $this->unauthorizedResponse('invalid_access_token', 'The mobile access token is invalid or expired.');
-            }
+        $user = $this->security->getUser();
+        if ($user instanceof AccessEntity) {
+            return $this->responder->session($this->sessionFromUser('authenticated', $user, false, false));
         }
 
         $current = $this->currentContextProvider->current();
@@ -529,7 +524,7 @@ final readonly class ApiAccessFlowService
 
     public function passkeyRegistrationOptions(Request $request): JsonResponse
     {
-        $user = $this->authenticatedUser($request);
+        $user = $this->authenticatedUser();
         if (!$user instanceof AccessEntity) {
             return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
         }
@@ -542,7 +537,7 @@ final readonly class ApiAccessFlowService
 
     public function passkeyRegistrationComplete(Request $request): JsonResponse
     {
-        $user = $this->authenticatedUser($request);
+        $user = $this->authenticatedUser();
         if (!$user instanceof AccessEntity) {
             return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
         }
@@ -869,17 +864,8 @@ final readonly class ApiAccessFlowService
         );
     }
 
-    private function authenticatedUser(Request $request): ?AccessEntity
+    private function authenticatedUser(): ?AccessEntity
     {
-        $accessToken = $this->bearerToken($request);
-        if (null !== $accessToken && null !== $this->mobileTokenService) {
-            try {
-                return $this->mobileTokenService->authenticate($accessToken);
-            } catch (\DomainException) {
-                return null;
-            }
-        }
-
         $user = $this->security->getUser();
 
         return $user instanceof AccessEntity ? $user : null;
@@ -955,18 +941,6 @@ final readonly class ApiAccessFlowService
         $userAgent = trim((string) $request->headers->get('User-Agent', 'Mobile device'));
 
         return '' === $userAgent ? 'Mobile device' : mb_substr($userAgent, 0, 255);
-    }
-
-    private function bearerToken(Request $request): ?string
-    {
-        $authorization = trim((string) $request->headers->get('Authorization', ''));
-        if (!str_starts_with($authorization, 'Bearer ')) {
-            return null;
-        }
-
-        $token = trim(substr($authorization, 7));
-
-        return '' === $token ? null : $token;
     }
 
     private function errorCodeForSignInResult(AccessSignInResultDto $result): string

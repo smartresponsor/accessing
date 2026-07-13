@@ -13,6 +13,12 @@ security:
       pattern: ^/(_(profiler|wdt)|css|images|js)/
       security: false
 
+    api:
+      pattern: ^/api/access
+      stateless: true
+      custom_authenticators:
+        - App\Accessing\Authenticator\AccessBearerAuthenticator
+
     main:
       lazy: true
       provider: accessing_user_provider
