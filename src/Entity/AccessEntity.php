@@ -10,16 +10,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
-use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
-use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: AccessRepository::class)]
 #[ORM\Table(name: 'access')]
 #[ORM\UniqueConstraint(name: 'uniq_access_email', columns: ['email'])]
-class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
+class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -286,26 +283,6 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         $this->touch();
 
         return $this;
-    }
-
-    public function isTotpAuthenticationEnabled(): bool
-    {
-        return ($this->secondFactor?->isEnabled() ?? false)
-            || ($this->secondFactorEnabled && null !== $this->totpSecret && '' !== $this->totpSecret);
-    }
-
-    public function getTotpAuthenticationUsername(): string
-    {
-        return $this->email;
-    }
-
-    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
-    {
-        $secret = $this->secondFactor?->getSecret() ?? $this->totpSecret;
-
-        return $this->isTotpAuthenticationEnabled() && null !== $secret && '' !== $secret
-            ? new TotpConfiguration($secret, TotpConfiguration::ALGORITHM_SHA1, 30, 6)
-            : null;
     }
 
     public function getCredential(): ?AccessCredentialEntity
