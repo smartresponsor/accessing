@@ -40,7 +40,7 @@ final class AccessAdminFixtures extends Fixture
         $user
             ->setEmail(self::ADMIN_EMAIL)
             ->setDisplayName('Accessing Admin')
-            ->setRoles(['ROLE_ADMIN', 'ROLE_ALLOWED_TO_SWITCH'])
+            ->setRoles(['ROLE_ADMIN_BOOTSTRAP', 'ROLE_ALLOWED_TO_SWITCH'])
             ->setSecondFactorEnabled(false)
             ->unlock()
             ->resetFailedLoginCount()

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'accessing:admin:ensure', description: 'Ensure the Accessing admin user exists and has ROLE_ADMIN.')]
+#[AsCommand(name: 'accessing:admin:ensure', description: 'Ensure the Accessing bootstrap admin identity exists.')]
 final class AccessEnsureAdminCommand extends Command
 {
     private const ADMIN_EMAIL = 'admin@smartresponsor.local';
@@ -69,7 +69,7 @@ final class AccessEnsureAdminCommand extends Command
         $user
             ->setEmail($email)
             ->setDisplayName('Accessing Admin')
-            ->setRoles(['ROLE_ADMIN', 'ROLE_ALLOWED_TO_SWITCH'])
+            ->setRoles(['ROLE_ADMIN_BOOTSTRAP', 'ROLE_ALLOWED_TO_SWITCH'])
             ->setSecondFactorEnabled(false)
             ->unlock()
             ->resetFailedLoginCount()
