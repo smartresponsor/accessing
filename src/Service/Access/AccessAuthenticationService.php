@@ -150,6 +150,11 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         );
     }
 
+    public function completePasskeySignIn(AccessEntity $user, Request $request): void
+    {
+        $this->signIn($user, $request);
+    }
+
     public function signOut(?AccessEntity $user, Request $request): void
     {
         $session = $request->getSession();

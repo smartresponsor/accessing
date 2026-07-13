@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
 use App\Accessing\Dto\AccessRecoveryRequestDto;
 use App\Accessing\Dto\AccessRecoveryResetDto;
 use App\Accessing\Dto\AccessRegistrationRequest;
@@ -22,6 +23,7 @@ use App\Accessing\Form\Access\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
@@ -29,6 +31,7 @@ use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterfa
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,9 +52,12 @@ final readonly class AccessSecurityFlowService
         private AccessRepositoryInterface $userRepository,
         private AccessSecondFactorServiceInterface $secondFactorService,
         private AccessRecoveryServiceInterface $recoveryService,
+        private AccessPasskeyAuthenticationServiceInterface $passkeyAuthenticationService,
         private RateLimiterFactory $accessingSignUpLimiter,
         private AccessPageViewFactoryInterface $pageViewFactory,
         private AccessPageResponderInterface $pageResponder,
+        private string $accessingPasskeyRelyingPartyId = '',
+        private string $accessingPasskeyOrigin = '',
     ) {
     }
 
@@ -147,6 +153,45 @@ final readonly class AccessSecurityFlowService
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
+    }
+
+    public function passkeyAuthenticationOptions(Request $request): JsonResponse
+    {
+        if ($this->getUser() instanceof AccessEntity) {
+            return new JsonResponse(['error' => 'already_authenticated'], Response::HTTP_CONFLICT);
+        }
+
+        return new JsonResponse($this->passkeyAuthenticationService->issueOptions($this->passkeyRelyingParty($request))->toArray());
+    }
+
+    public function passkeyAuthenticationComplete(Request $request): JsonResponse
+    {
+        if ($this->getUser() instanceof AccessEntity) {
+            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+        }
+
+        try {
+            $payload = $request->toArray();
+            $credentialPayload = $payload['credential'] ?? null;
+            if (!is_array($credentialPayload)) {
+                throw new \DomainException('Passkey credential payload is required.');
+            }
+
+            $credential = [];
+            foreach ($credentialPayload as $key => $value) {
+                if (!is_string($key)) {
+                    throw new \DomainException('Passkey credential payload must be a JSON object.');
+                }
+                $credential[$key] = $value;
+            }
+
+            $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
+            $this->userAuthenticationService->completePasskeySignIn($user, $request);
+
+            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+        } catch (\Throwable) {
+            return new JsonResponse(['error' => 'passkey_authentication_failed'], Response::HTTP_UNAUTHORIZED);
+        }
     }
 
     public function secondFactorChallenge(Request $request): Response|InterfaceTemplateRenderableInterface
@@ -295,6 +340,14 @@ final readonly class AccessSecurityFlowService
     private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
     {
         return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
+    }
+
+    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
+    {
+        $relyingPartyId = '' !== trim($this->accessingPasskeyRelyingPartyId) ? trim($this->accessingPasskeyRelyingPartyId) : $request->getHost();
+        $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
+
+        return new AccessPasskeyRelyingPartyConfig($relyingPartyId, 'SmartResponsor Access', $origin);
     }
 
     private function getUser(): ?AccessEntity

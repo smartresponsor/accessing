@@ -23,6 +23,73 @@
       <button class="interfacing-button-primary" type="submit">Sign in</button>
     </form>
 
+    <button class="interfacing-button-secondary" type="button" data-access-passkey-signin>Sign in with a passkey</button>
+    <p class="interfacing-muted" data-access-passkey-status hidden></p>
+
     <p class="interfacing-muted">New here? <a href="{{ path('access.register') }}">Create access</a>.</p>
   </div>
+
+  <script>
+    (() => {
+      const button = document.querySelector('[data-access-passkey-signin]');
+      const status = document.querySelector('[data-access-passkey-status]');
+      if (!button || !window.PublicKeyCredential || !navigator.credentials) return;
+
+      const decode = (value) => {
+        const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
+        const binary = atob(normalized + '='.repeat((4 - normalized.length % 4) % 4));
+        return Uint8Array.from(binary, character => character.charCodeAt(0)).buffer;
+      };
+      const encode = (value) => {
+        const bytes = new Uint8Array(value);
+        let binary = '';
+        bytes.forEach(byte => binary += String.fromCharCode(byte));
+        return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+      };
+
+      button.addEventListener('click', async () => {
+        button.disabled = true;
+        status.hidden = false;
+        status.textContent = 'Waiting for your passkey…';
+        try {
+          const optionsResponse = await fetch('{{ path('access.passkey_authentication_options') }}', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+          });
+          if (!optionsResponse.ok) throw new Error('options');
+          const publicKey = await optionsResponse.json();
+          publicKey.challenge = decode(publicKey.challenge);
+          if (Array.isArray(publicKey.allowCredentials)) {
+            publicKey.allowCredentials = publicKey.allowCredentials.map(item => ({ ...item, id: decode(item.id) }));
+          }
+          const assertion = await navigator.credentials.get({ publicKey });
+          if (!assertion) throw new Error('cancelled');
+          const credential = {
+            id: assertion.id,
+            rawId: encode(assertion.rawId),
+            type: assertion.type,
+            response: {
+              clientDataJSON: encode(assertion.response.clientDataJSON),
+              authenticatorData: encode(assertion.response.authenticatorData),
+              signature: encode(assertion.response.signature),
+              userHandle: assertion.response.userHandle ? encode(assertion.response.userHandle) : null
+            }
+          };
+          const completeResponse = await fetch('{{ path('access.passkey_authentication_complete') }}', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ credential })
+          });
+          const result = await completeResponse.json();
+          if (!completeResponse.ok || !result.redirect) throw new Error('complete');
+          window.location.assign(result.redirect);
+        } catch (error) {
+          status.textContent = 'Passkey sign-in was cancelled or could not be completed.';
+          button.disabled = false;
+        }
+      });
+    })();
+  </script>
 {% endblock %}

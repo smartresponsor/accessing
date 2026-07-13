@@ -23,6 +23,16 @@ access.signin_submit:
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: signInSubmit
 
+access.passkey_authentication_options:
+  path: "/access/passkeys/authentication/options"
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: passkeyAuthenticationOptions
+
+access.passkey_authentication_complete:
+  path: "/access/passkeys/authentication/complete"
+  service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
+  action: passkeyAuthenticationComplete
+
 access.sign_out:
   path: "/access/sign-out"
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
