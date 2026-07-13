@@ -11,10 +11,9 @@ use PHPUnit\Framework\TestCase;
 
 final class AccessCanonicalCredentialStateTest extends TestCase
 {
-    public function testCredentialEntityOverridesLegacyPasswordHash(): void
+    public function testCredentialEntityIsTheOnlyPasswordHashSource(): void
     {
         $user = new AccessEntity('credential@example.test', 'Credential');
-        $user->setPasswordHash('legacy-hash');
         $credential = new AccessCredentialEntity($user, 'canonical-hash');
         $user->setCredential($credential);
 
@@ -22,11 +21,9 @@ final class AccessCanonicalCredentialStateTest extends TestCase
         self::assertSame('canonical-hash', $user->getPasswordHash());
     }
 
-    public function testSecondFactorEntityOverridesLegacyState(): void
+    public function testSecondFactorEntityIsTheOnlyTotpStateSource(): void
     {
         $user = new AccessEntity('second-factor@example.test', 'Second Factor');
-        $user->setTotpSecret('legacy-secret');
-        $user->setSecondFactorEnabled(false);
         $secondFactor = new AccessSecondFactorEntity($user, 'canonical-secret', $user->getEmailAddress());
         $secondFactor->confirm();
         $user->setSecondFactor($secondFactor);

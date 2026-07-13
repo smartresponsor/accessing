@@ -30,26 +30,17 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::JSON)]
     private array $roles = [];
 
-    #[ORM\Column(length: 255)]
-    private string $passwordHash = '';
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $displayName = null;
 
     #[ORM\Column(length: 32, nullable: true)]
     private ?string $phoneNumber = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $totpSecret = null;
-
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $emailVerifiedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $phoneVerifiedAt = null;
-
-    #[ORM\Column]
-    private bool $secondFactorEnabled = false;
 
     #[ORM\Column]
     private bool $locked = false;
@@ -153,20 +144,12 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPassword(): string
     {
-        return $this->credential?->getPasswordHash() ?? $this->passwordHash;
+        return $this->credential?->getPasswordHash() ?? '';
     }
 
     public function getPasswordHash(): string
     {
         return $this->getPassword();
-    }
-
-    public function setPasswordHash(string $passwordHash): self
-    {
-        $this->passwordHash = $passwordHash;
-        $this->touch();
-
-        return $this;
     }
 
     public function eraseCredentials(): void
@@ -206,15 +189,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTotpSecret(): ?string
     {
-        return $this->secondFactor?->getSecret() ?? $this->totpSecret;
-    }
-
-    public function setTotpSecret(?string $totpSecret): self
-    {
-        $this->totpSecret = null !== $totpSecret ? trim($totpSecret) : null;
-        $this->touch();
-
-        return $this;
+        return $this->secondFactor?->getSecret();
     }
 
     public function getEmailVerifiedAt(): ?\DateTimeImmutable
@@ -255,15 +230,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isSecondFactorEnabled(): bool
     {
-        return $this->secondFactor?->isEnabled() ?? $this->secondFactorEnabled;
-    }
-
-    public function setSecondFactorEnabled(bool $secondFactorEnabled): self
-    {
-        $this->secondFactorEnabled = $secondFactorEnabled;
-        $this->touch();
-
-        return $this;
+        return $this->secondFactor?->isEnabled() ?? false;
     }
 
     public function getSecondFactor(): ?AccessSecondFactorEntity
