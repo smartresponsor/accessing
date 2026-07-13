@@ -28,8 +28,6 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
     {
         $this->assertPasswordIsSafe($plainPassword);
         $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
-        $user->setPasswordHash($passwordHash);
-
         $credential = new AccessCredentialEntity($user, $passwordHash);
         $user->setCredential($credential);
         $this->entityManager->persist($credential);
@@ -56,7 +54,6 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
 
         $this->assertPasswordIsSafe($plainPassword);
         $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
-        $user->setPasswordHash($passwordHash);
         $credential->updatePasswordHash($passwordHash);
         $this->entityManager->persist($credential);
         $this->entityManager->flush();

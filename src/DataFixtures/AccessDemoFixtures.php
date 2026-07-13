@@ -26,8 +26,7 @@ final class AccessDemoFixtures extends Fixture
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
-            ->setRoles(['ROLE_USER'])
-            ->setSecondFactorEnabled(true);
+            ->setRoles(['ROLE_USER']);
         $user->markEmailVerified();
 
         $this->credentialService->changePassword($user, 'AccessingDemo123!');

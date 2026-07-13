@@ -70,7 +70,6 @@ final class AccessEnsureAdminCommand extends Command
             ->setEmail($email)
             ->setDisplayName('Accessing Admin')
             ->setRoles(['ROLE_ADMIN_BOOTSTRAP', 'ROLE_ALLOWED_TO_SWITCH'])
-            ->setSecondFactorEnabled(false)
             ->unlock()
             ->resetFailedLoginCount()
             ->markEmailVerified();

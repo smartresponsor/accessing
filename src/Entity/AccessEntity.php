@@ -153,12 +153,12 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getPassword(): string
     {
-        return $this->passwordHash;
+        return $this->credential?->getPasswordHash() ?? $this->passwordHash;
     }
 
     public function getPasswordHash(): string
     {
-        return $this->passwordHash;
+        return $this->getPassword();
     }
 
     public function setPasswordHash(string $passwordHash): self
@@ -206,7 +206,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getTotpSecret(): ?string
     {
-        return $this->totpSecret;
+        return $this->secondFactor?->getSecret() ?? $this->totpSecret;
     }
 
     public function setTotpSecret(?string $totpSecret): self
@@ -255,7 +255,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isSecondFactorEnabled(): bool
     {
-        return $this->secondFactorEnabled;
+        return $this->secondFactor?->isEnabled() ?? $this->secondFactorEnabled;
     }
 
     public function setSecondFactorEnabled(bool $secondFactorEnabled): self
@@ -274,7 +274,6 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSecondFactor(?AccessSecondFactorEntity $secondFactor): self
     {
         $this->secondFactor = $secondFactor;
-        $this->secondFactorEnabled = $secondFactor?->isEnabled() ?? false;
 
         if (null !== $secondFactor && $secondFactor->getUser() !== $this) {
             $secondFactor->setUser($this);
