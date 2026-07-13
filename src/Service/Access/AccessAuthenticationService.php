@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Access;
 
+use App\Accessing\Authenticator\AccessProgrammaticAuthenticator;
 use App\Accessing\Dto\AccessSignInResultDto;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
@@ -15,11 +16,12 @@ use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use App\Accessing\ValueObject\AccessEmailAddress;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 final readonly class AccessAuthenticationService implements AccessAuthenticationServiceInterface
 {
@@ -31,6 +33,8 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         private AccessCredentialServiceInterface $credentialService,
         private AccessSecurityEventServiceInterface $securityEventService,
         private AccessSessionServiceInterface $userSessionService,
+        private Security $security,
+        private RequestStack $requestStack,
         private TokenStorageInterface $tokenStorage,
         private RateLimiterFactory $accessingSignInLimiter,
         private int $accessingUserLockThreshold,
@@ -197,9 +201,22 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         $user->unlock();
         $this->userRepository->save($user, true);
 
-        $token = new PostAuthenticationToken($user, self::FIREWALL_NAME, $user->getRoles());
-        $this->tokenStorage->setToken($token);
-        $session->set('_security_'.self::FIREWALL_NAME, serialize($token));
+        $pushedRequest = $this->requestStack->getCurrentRequest() !== $request;
+        if ($pushedRequest) {
+            $this->requestStack->push($request);
+        }
+
+        try {
+            $this->security->login(
+                $user,
+                authenticatorName: AccessProgrammaticAuthenticator::class,
+                firewallName: self::FIREWALL_NAME,
+            );
+        } finally {
+            if ($pushedRequest) {
+                $this->requestStack->pop();
+            }
+        }
 
         $this->userSessionService->registerSession($user, $request);
         $this->securityEventService->record(
