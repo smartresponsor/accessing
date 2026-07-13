@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Api\Access;
 
+use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
 use App\Accessing\Dto\AccessRegistrationRequest;
 use App\Accessing\Dto\AccessSignInResultDto;
 use App\Accessing\Dto\Api\Access\ApiAccessErrorPayload;
@@ -22,6 +23,8 @@ use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
+use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
@@ -47,6 +50,8 @@ final readonly class ApiAccessFlowService
         private ?RateLimiterFactory $accessingSignUpLimiter = null,
         private ?AccessMobileTokenServiceInterface $mobileTokenService = null,
         private ?AccessMobilePendingAuthServiceInterface $mobilePendingAuthService = null,
+        private ?AccessPasskeyRegistrationServiceInterface $passkeyRegistrationService = null,
+        private ?AccessPasskeyAuthenticationServiceInterface $passkeyAuthenticationService = null,
     ) {
     }
 
@@ -520,6 +525,84 @@ final readonly class ApiAccessFlowService
         );
     }
 
+    public function passkeyRegistrationOptions(Request $request): JsonResponse
+    {
+        $user = $this->authenticatedUser($request);
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
+        }
+        if (null === $this->passkeyRegistrationService) {
+            return $this->unavailableResponse('passkey_registration_unavailable', 'Passkey registration is temporarily unavailable.');
+        }
+
+        return new JsonResponse($this->passkeyRegistrationService->issueOptions($user, $this->passkeyRelyingParty($request))->toArray());
+    }
+
+    public function passkeyRegistrationComplete(Request $request): JsonResponse
+    {
+        $user = $this->authenticatedUser($request);
+        if (!$user instanceof AccessEntity) {
+            return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
+        }
+        if (null === $this->passkeyRegistrationService) {
+            return $this->unavailableResponse('passkey_registration_unavailable', 'Passkey registration is temporarily unavailable.');
+        }
+
+        $fieldErrors = [];
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        $name = $this->stringField($payload, 'name', $fieldErrors);
+        $credential = $this->arrayField($payload, 'credential', $fieldErrors);
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        try {
+            $registered = $this->passkeyRegistrationService->complete($user, $this->passkeyRelyingParty($request), $credential, $name, $request);
+        } catch (\DomainException $exception) {
+            return $this->responder->error(new ApiAccessErrorPayload('passkey_registration_failed', $exception->getMessage()), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return new JsonResponse([
+            'status' => 'passkey_registered',
+            'credential' => [
+                'id' => $registered->getCredentialId(),
+                'name' => $registered->getName(),
+                'transports' => $registered->getTransports(),
+            ],
+        ], Response::HTTP_CREATED);
+    }
+
+    public function passkeyAuthenticationOptions(Request $request): JsonResponse
+    {
+        if (null === $this->passkeyAuthenticationService) {
+            return $this->unavailableResponse('passkey_authentication_unavailable', 'Passkey authentication is temporarily unavailable.');
+        }
+
+        return new JsonResponse($this->passkeyAuthenticationService->issueOptions($this->passkeyRelyingParty($request))->toArray());
+    }
+
+    public function passkeyAuthenticationComplete(Request $request): JsonResponse
+    {
+        if (null === $this->passkeyAuthenticationService) {
+            return $this->unavailableResponse('passkey_authentication_unavailable', 'Passkey authentication is temporarily unavailable.');
+        }
+
+        $fieldErrors = [];
+        $payload = $this->decodeJsonPayload($request, $fieldErrors);
+        $credential = $this->arrayField($payload, 'credential', $fieldErrors);
+        if ([] !== $fieldErrors) {
+            return $this->invalidRequestResponse($fieldErrors);
+        }
+
+        try {
+            $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
+        } catch (\DomainException $exception) {
+            return $this->responder->error(new ApiAccessErrorPayload('passkey_authentication_failed', $exception->getMessage()), Response::HTTP_UNAUTHORIZED);
+        }
+
+        return $this->mobileAuthenticatedResponse($user, $this->deviceName($request));
+    }
+
     public function requestRecovery(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -782,6 +865,59 @@ final readonly class ApiAccessFlowService
             $requiresVerification,
             $requiresSecondFactor,
         );
+    }
+
+    private function authenticatedUser(Request $request): ?AccessEntity
+    {
+        $accessToken = $this->bearerToken($request);
+        if (null !== $accessToken && null !== $this->mobileTokenService) {
+            try {
+                return $this->mobileTokenService->authenticate($accessToken);
+            } catch (\DomainException) {
+                return null;
+            }
+        }
+
+        $user = $this->security->getUser();
+
+        return $user instanceof AccessEntity ? $user : null;
+    }
+
+    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
+    {
+        return new AccessPasskeyRelyingPartyConfig(
+            $request->getHost(),
+            'SmartResponsor Access',
+            $request->getSchemeAndHttpHost(),
+        );
+    }
+
+    /**
+     * @param array<string, mixed>        $payload
+     * @param array<string, list<string>> $fieldErrors
+     *
+     * @return array<string, mixed>
+     */
+    private function arrayField(array $payload, string $field, array &$fieldErrors): array
+    {
+        $value = $payload[$field] ?? null;
+        if (!is_array($value)) {
+            $fieldErrors[$field][] = sprintf('The "%s" field must be a JSON object.', $field);
+
+            return [];
+        }
+
+        $result = [];
+        foreach ($value as $key => $item) {
+            if (!is_string($key)) {
+                $fieldErrors[$field][] = sprintf('The "%s" field must be a JSON object.', $field);
+
+                return [];
+            }
+            $result[$key] = $item;
+        }
+
+        return $result;
     }
 
     private function mobileAuthenticatedResponse(AccessEntity $user, string $deviceName): JsonResponse

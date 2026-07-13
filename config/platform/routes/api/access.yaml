@@ -61,6 +61,34 @@ api.access.second_factor.verify:
   service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
   action: verifySecondFactor
 
+api.access.passkey.registration.options:
+  path: /api/access/passkeys/registration/options
+  routeKey: api.access.passkey.registration.options
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: passkeyRegistrationOptions
+
+api.access.passkey.registration.complete:
+  path: /api/access/passkeys/registration/complete
+  routeKey: api.access.passkey.registration.complete
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: passkeyRegistrationComplete
+
+api.access.passkey.authentication.options:
+  path: /api/access/passkeys/authentication/options
+  routeKey: api.access.passkey.authentication.options
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: passkeyAuthenticationOptions
+
+api.access.passkey.authentication.complete:
+  path: /api/access/passkeys/authentication/complete
+  routeKey: api.access.passkey.authentication.complete
+  object: access.api
+  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  action: passkeyAuthenticationComplete
+
 api.access.recovery.request:
   path: /api/access/recovery/request
   routeKey: api.access.recovery.request
