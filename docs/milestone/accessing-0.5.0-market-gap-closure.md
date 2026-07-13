@@ -1,6 +1,6 @@
 # Accessing 0.5.0 Market-Gap Closure Milestone
 
-Status: M0 and M1 complete; M2 next
+Status: M0 and M1 complete; M2 implementation complete in code, release acceptance pending
 Priority: growth track after 0.4.1 RC blockers
 Boundary owner: Accessing
 
@@ -152,7 +152,7 @@ M1 acceptance verification completed:
 - privacy and outbound-service availability requirements are documented for host applications;
 - dependency audit and the complete local pipeline pass.
 
-#### M2 — Passkeys/WebAuthn: persistence foundation implemented; ceremonies pending
+#### M2 — Passkeys/WebAuthn: backend ceremonies implemented; release acceptance pending
 
 The current tree now contains a provider-neutral passkey credential entity, Doctrine repository, lifecycle service, relying-party configuration validation, sign-counter and revocation invariants, typed security-event taxonomy, focused unit coverage, and a host-owned schema contract. Registration/authentication ceremony verification, API/Twig surfaces, browser integration, and third-party WebAuthn library selection remain pending.
 
@@ -204,3 +204,64 @@ This milestone is complete only when:
 - no authorization concepts migrate from Rolling into Accessing;
 - every externally visible capability is installable by a host without repository-specific patches;
 - the milestone document and market analysis are updated to reflect released code rather than planned or dirty-tree-only implementation.
+
+## Repository assessment — 2026-07-12
+
+The repository is clean on `master`, so this assessment is based on committed code rather than an uncommitted implementation wave.
+
+### What now matches the documented boundary
+
+- Accessing still owns authentication, credentials, verification, recovery, second factor, sessions, throttling, and security events.
+- The code remains under `App\Accessing\`; no `src/Domain` tree or Port/Adapter architecture was introduced.
+- Authorization policy ownership has not moved into Accessing. Roles, permissions, voters, and policy catalogues remain outside this roadmap and belong to Rolling.
+- The component now includes committed passkey/WebAuthn persistence, one-time challenge state, registration and authentication ceremonies, attestation/assertion verification, relying-party validation, sign-counter handling, revocation, and security-event recording.
+- `web-auth/webauthn-lib` is a production dependency and the passkey services are wired through Symfony DI.
+
+### Market-analysis drift found
+
+Both `MARKET_ANALYSIS.md` and `docs/market-analysis.md` still describe Passkeys/WebAuthn as absent and state that Accessing has only TOTP. That statement no longer matches the repository. The market analysis must be refreshed before the next product review so the competitive matrix distinguishes:
+
+1. implemented passkey backend capability;
+2. host-installation and migration requirements;
+3. API/Twig/browser UX coverage;
+4. release acceptance and interoperability evidence.
+
+Until that refresh is complete, the market document understates the component and should not be treated as a current feature inventory.
+
+### Remaining M2 release work
+
+Priority P0:
+
+- prove end-to-end enrollment and authentication through the public API and Twig/browser surfaces;
+- verify host-generated Doctrine migrations for `access_passkey_credential` and `access_passkey_challenge`;
+- run the complete local pipeline and PostgreSQL contour against the committed tree;
+- document relying-party ID, origin, HTTPS, proxy, and multi-host configuration;
+- confirm stable external error semantics for verification failure, unavailable verifier, expired challenge, replay, revoked credential, and counter regression.
+
+Priority P1:
+
+- add browser-capability fallback and progressive enhancement guidance;
+- add credential-management UX for list, rename, revoke, and recovery-safe removal;
+- add interoperability coverage for representative platform and roaming authenticators;
+- decide whether passkeys are accepted as primary passwordless authentication, second factor, or both in each host profile.
+
+M2 release acceptance criteria:
+
+- a host can install the bundle, generate schema, configure RP values, enroll a credential, authenticate, revoke it, and recover without repository-specific patches;
+- challenge replay, origin/RP mismatch, duplicate credential, revoked credential, and sign-counter regression fail deterministically and emit security events;
+- unit, integration, functional, browser, static-analysis, dependency-audit, and PostgreSQL gates pass;
+- public documentation contains no claim that passkeys are absent.
+
+### Next milestones
+
+- **M3 / 0.7.0:** Google social sign-in and explicit, proof-backed account linking; GitHub and Apple only after the provider-neutral identity contract is stable.
+- **M4 / 0.8.0:** deterministic adaptive-authentication signals and optional asynchronous export of redacted security events to Administering.
+- **Deferred:** push-based second factor and enterprise SAML/SCIM remain separate evaluation tracks and must not displace M2 release acceptance.
+
+### Risks and dependencies
+
+- WebAuthn correctness depends on origin, RP ID, proxy, TLS, browser, authenticator, and persisted challenge semantics; service-level tests alone are insufficient.
+- Host-owned Doctrine migrations are an explicit dependency and must be validated before claiming installability.
+- Social-login work must not start by silently linking accounts on email equality.
+- Administering integration must remain failure-isolated so governance outages cannot block authentication.
+- The duplicate root and docs market-analysis files can drift; introduce a single-source or synchronization check before the next analysis cycle.
