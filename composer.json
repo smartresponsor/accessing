@@ -64,6 +64,7 @@
     "cs:fix": "php-cs-fixer fix --verbose",
     "stan": "phpstan analyse",
     "test": "vendor/bin/simple-phpunit --testsuite Accessing",
+    "test:object-identity": "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
     "test:panther": "vendor/bin/simple-phpunit --testsuite Panther",
     "pipeline:local:full": [
       "@lint",

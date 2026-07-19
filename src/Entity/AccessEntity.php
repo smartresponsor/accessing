@@ -6,6 +6,10 @@ declare(strict_types=1);
 namespace App\Accessing\Entity;
 
 use App\Accessing\Repository\AccessRepository;
+use App\Objecting\EntityInterface\ObjectAuditedInterface;
+use App\Objecting\EntityInterface\ObjectIdentifiedInterface;
+use App\Objecting\EntityTrait\Embeddable\ObjectAuditEmbeddableTrait;
+use App\Objecting\EntityTrait\Embeddable\ObjectIdentityEmbeddableTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -16,8 +20,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: AccessRepository::class)]
 #[ORM\Table(name: 'access')]
 #[ORM\UniqueConstraint(name: 'uniq_access_email', columns: ['email'])]
-class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
+class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface, ObjectIdentifiedInterface, ObjectAuditedInterface
 {
+    use ObjectIdentityEmbeddableTrait;
+    use ObjectAuditEmbeddableTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -51,12 +57,6 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $lockedUntil = null;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private \DateTimeImmutable $createdAt;
-
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private \DateTimeImmutable $updatedAt;
-
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $lastSignInAt = null;
 
@@ -80,9 +80,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct(?string $email = null, ?string $displayName = null)
     {
-        $now = new \DateTimeImmutable();
-        $this->createdAt = $now;
-        $this->updatedAt = $now;
+        $this->initializeObjectIdentity();
         $this->recoveryCodes = new ArrayCollection();
         $this->verificationChallenges = new ArrayCollection();
         $this->userSessions = new ArrayCollection();
@@ -94,6 +92,8 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
         if (null !== $displayName) {
             $this->setDisplayName($displayName);
         }
+
+        $this->initializeObjectAudit();
     }
 
     public function getId(): ?int
@@ -114,7 +114,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = mb_strtolower(trim($email));
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -137,7 +137,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): self
     {
         $this->roles = array_values(array_unique($roles));
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -164,7 +164,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDisplayName(?string $displayName): self
     {
         $this->displayName = null !== $displayName ? trim($displayName) : null;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -177,7 +177,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhoneNumber(?string $phoneNumber): self
     {
         $this->phoneNumber = null !== $phoneNumber ? trim($phoneNumber) : null;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -205,7 +205,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function markEmailVerified(?\DateTimeImmutable $verifiedAt = null): self
     {
         $this->emailVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -223,7 +223,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function markPhoneVerified(?\DateTimeImmutable $verifiedAt = null): self
     {
         $this->phoneVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -246,7 +246,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
             $secondFactor->setUser($this);
         }
 
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -264,7 +264,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
             $credential->setUser($this);
         }
 
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -282,7 +282,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
             $recoveryCode->setUser($this);
         }
 
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -300,7 +300,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
             $verificationChallenge->setUser($this);
         }
 
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -318,7 +318,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
             $userSession->setUser($this);
         }
 
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -340,7 +340,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function lock(): self
     {
         $this->locked = true;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -349,7 +349,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->locked = true;
         $this->lockedUntil = $lockedUntil;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -359,7 +359,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
         $this->locked = false;
         $this->lockedUntil = null;
         $this->failedLoginCount = 0;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -377,7 +377,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function increaseFailedLoginCount(): self
     {
         ++$this->failedLoginCount;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -390,7 +390,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
     public function resetFailedLoginCount(): self
     {
         $this->failedLoginCount = 0;
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
@@ -401,19 +401,14 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
         $this->locked = false;
         $this->lockedUntil = null;
         $this->lastSignInAt = new \DateTimeImmutable();
-        $this->touch();
+        $this->touchModified();
 
         return $this;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
     public function getRegisteredAt(): \DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->getCreatedAt();
     }
 
     public function getLastSignInAt(): ?\DateTimeImmutable
@@ -423,11 +418,6 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUpdatedAt(): \DateTimeImmutable
     {
-        return $this->updatedAt;
-    }
-
-    private function touch(): void
-    {
-        $this->updatedAt = new \DateTimeImmutable();
+        return $this->getModifiedAt() ?? $this->getCreatedAt();
     }
 }
