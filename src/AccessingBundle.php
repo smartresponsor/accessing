@@ -20,4 +20,9 @@ final class AccessingBundle extends Bundle
     {
         return parent::getContainerExtension() ?? new AccessingExtension();
     }
+
+    public function getPath(): string
+    {
+        return \dirname(__DIR__);
+    }
 }
