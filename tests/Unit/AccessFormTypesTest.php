@@ -13,10 +13,13 @@ use App\Accessing\Form\Access\AccessRegistrationType;
 use App\Accessing\Form\Access\AccessResetPasswordRequestType;
 use App\Accessing\Form\Access\AccessSignInType;
 use App\Accessing\Form\Access\AccessVerificationCodeType;
+use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 use Symfony\Component\Form\Test\TypeTestCase;
 
 final class AccessFormTypesTest extends TypeTestCase
 {
+    use ValidatorExtensionTrait;
+
     /** @return array<string, mixed> */
     private function fieldAttributes(string $formType, string $fieldName): array
     {
@@ -57,8 +60,9 @@ final class AccessFormTypesTest extends TypeTestCase
     {
         $registration = $this->factory->create(AccessRegistrationType::class);
         self::assertSame('Email address', $registration->get('email')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $this->fieldAttributes(AccessRegistrationType::class, 'plainPassword')['autocomplete'] ?? null);
-        self::assertTrue($registration->has('submit'));
+        self::assertSame('new-password', $registration->get('plainPassword')->get('first')->getConfig()->getOption('attr')['autocomplete'] ?? null);
+        self::assertSame('new-password', $registration->get('plainPassword')->get('second')->getConfig()->getOption('attr')['autocomplete'] ?? null);
+        self::assertTrue($registration->has('phoneNumber'));
 
         $signIn = $this->factory->create(AccessSignInType::class);
         self::assertSame('Email address', $signIn->get('emailAddress')->getConfig()->getOption('label'));

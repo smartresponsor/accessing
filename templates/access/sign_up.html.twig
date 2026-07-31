@@ -8,16 +8,79 @@
 {% block access_body %}
   <div class="interfacing-access-stack">
     <div>
-      <p class="interfacing-eyebrow">Access</p>
       <h1>Register access</h1>
       <p class="interfacing-muted">Create access credentials.</p>
     </div>
 
     {% if form is defined %}
       {{ form_start(form) }}
-      {{ form_widget(form) }}
-      <button class="interfacing-button-primary" type="submit">Continue</button>
-      {{ form_end(form) }}
+      {{ form_row(form.email) }}
+      <script type="application/json" data-interfacing-provider-control-schema="access-register-email">{{ {
+        provider: 'antd-pro',
+        secondaryProvider: 'primereact',
+        control: 'email-input',
+        nativeComponent: 'ProFormText',
+        secondaryNativeComponent: 'InputText',
+        field: 'email',
+        size: 'large'
+      }|json_encode|raw }}</script>
+
+      {{ form_row(form.plainPassword.first) }}
+      <div class="interfacing-password-feedback" data-access-password-feedback aria-live="polite">
+        <div class="interfacing-password-feedback__header">
+          <span>Password quality</span>
+          <strong data-access-password-score>Not entered</strong>
+        </div>
+        <div class="interfacing-password-meter" aria-hidden="true">
+          <span data-access-password-meter></span>
+        </div>
+        <ul class="interfacing-password-requirements">
+          <li data-access-password-rule="length">At least 10 characters</li>
+          <li data-access-password-rule="lowercase">One lowercase letter</li>
+          <li data-access-password-rule="uppercase">One uppercase letter</li>
+          <li data-access-password-rule="number">One number</li>
+          <li data-access-password-rule="symbol">One symbol</li>
+          <li data-access-password-rule="email">Different from email</li>
+        </ul>
+      </div>
+      <script type="application/json" data-interfacing-provider-control-schema="access-register-password">{{ {
+        provider: 'antd-pro',
+        secondaryProvider: 'primereact',
+        control: 'password-input',
+        nativeComponent: 'ProFormText.Password',
+        secondaryNativeComponent: 'Password',
+        field: 'plainPassword.first',
+        size: 'large',
+        interactiveQuality: true
+      }|json_encode|raw }}</script>
+
+      {{ form_row(form.plainPassword.second) }}
+      <p class="interfacing-password-match" data-access-password-match aria-live="polite">Enter the password again.</p>
+      <script type="application/json" data-interfacing-provider-control-schema="access-register-password-confirmation">{{ {
+        provider: 'antd-pro',
+        secondaryProvider: 'primereact',
+        control: 'password-confirmation',
+        nativeComponent: 'ProFormText.Password',
+        secondaryNativeComponent: 'Password',
+        field: 'plainPassword.second',
+        size: 'large'
+      }|json_encode|raw }}</script>
+
+      {{ form_row(form.phoneNumber) }}
+      <p class="interfacing-phone-feedback" data-access-phone-feedback aria-live="polite">Phone is optional. Include country code for international use.</p>
+      <script type="application/json" data-interfacing-provider-control-schema="access-register-phone">{{ {
+        provider: 'antd-pro',
+        secondaryProvider: 'primereact',
+        control: 'telephone-input',
+        nativeComponent: 'ProFormText',
+        secondaryNativeComponent: 'InputMask',
+        field: 'phoneNumber',
+        size: 'large'
+      }|json_encode|raw }}</script>
+
+      {{ form_rest(form) }}
+      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact">Continue</button>
+      {{ form_end(form, { render_rest: false }) }}
     {% elseif request_form is defined %}
       {{ form_start(request_form) }}
       {{ form_widget(request_form) }}
@@ -49,4 +112,128 @@
       </ul>
     {% endif %}
   </div>
+
+  <script>
+    (() => {
+      const email = document.querySelector('input[type="email"]');
+      const primary = document.querySelector('[data-access-password-primary]');
+      const confirmation = document.querySelector('[data-access-password-confirmation]');
+      const score = document.querySelector('[data-access-password-score]');
+      const meter = document.querySelector('[data-access-password-meter]');
+      const match = document.querySelector('[data-access-password-match]');
+      const phone = document.querySelector('[data-access-phone]');
+      const phoneFeedback = document.querySelector('[data-access-phone-feedback]');
+
+      if (!email || !primary || !confirmation || !score || !meter || !match || !phone || !phoneFeedback) {
+        return;
+      }
+
+      const installVisibilityToggle = input => {
+        const wrapper = document.createElement('span');
+        wrapper.className = 'interfacing-password-control ant-input-affix-wrapper ant-input-affix-wrapper-lg p-password p-component';
+
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'interfacing-password-toggle ant-input-password-icon p-password-toggle-mask-icon';
+        toggle.setAttribute('aria-label', 'Show password');
+        toggle.setAttribute('aria-pressed', 'false');
+        toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6-9.9-6Zm9.9 3.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/></svg>';
+
+        toggle.addEventListener('click', () => {
+          const visible = input.type === 'text';
+          input.type = visible ? 'password' : 'text';
+          toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+          toggle.setAttribute('aria-pressed', visible ? 'false' : 'true');
+          wrapper.classList.toggle('is-password-visible', !visible);
+        });
+
+        wrapper.appendChild(toggle);
+      };
+
+      installVisibilityToggle(primary);
+      installVisibilityToggle(confirmation);
+
+      const rules = {
+        length: value => value.length >= 10,
+        lowercase: value => /[a-z]/.test(value),
+        uppercase: value => /[A-Z]/.test(value),
+        number: value => /\d/.test(value),
+        symbol: value => /[^A-Za-z0-9]/.test(value),
+      };
+
+      const renderPhone = () => {
+        const raw = phone.value;
+        const cleaned = raw
+          .replace(/(?!^)\+/g, '')
+          .replace(/[^\d+\s().-]/g, '')
+          .replace(/\s{2,}/g, ' ');
+
+        if (cleaned !== raw) {
+          phone.value = cleaned;
+        }
+
+        const digits = cleaned.replace(/\D/g, '');
+        const valid = cleaned === '' || (/^\+?[1-9](?:[\s().-]*\d){7,14}$/.test(cleaned) && digits.length >= 8 && digits.length <= 15);
+
+        phone.classList.toggle('is-valid', cleaned !== '' && valid);
+        phone.classList.toggle('is-invalid', cleaned !== '' && !valid);
+
+        if (cleaned === '') {
+          phoneFeedback.textContent = 'Phone is optional. Include country code for international use.';
+          phoneFeedback.className = 'interfacing-phone-feedback';
+        } else if (valid) {
+          phoneFeedback.textContent = `Valid international number · ${digits.length} digits.`;
+          phoneFeedback.className = 'interfacing-phone-feedback is-valid';
+        } else {
+          phoneFeedback.textContent = 'Use 8–15 digits and include the country code, for example +1 555 123 4567.';
+          phoneFeedback.className = 'interfacing-phone-feedback is-invalid';
+        }
+      };
+
+      const render = () => {
+        const value = primary.value;
+        let passed = 0;
+
+        Object.entries(rules).forEach(([name, test]) => {
+          const item = document.querySelector(`[data-access-password-rule="${name}"]`);
+          const valid = test(value);
+          passed += valid ? 1 : 0;
+          item?.classList.toggle('is-valid', valid);
+        });
+
+        const emailRule = document.querySelector('[data-access-password-rule="email"]');
+        const differsFromEmail = value !== '' && value.toLocaleLowerCase() !== email.value.trim().toLocaleLowerCase();
+        passed += differsFromEmail ? 1 : 0;
+        emailRule?.classList.toggle('is-valid', differsFromEmail);
+        primary.classList.toggle('is-invalid', value !== '' && !differsFromEmail);
+
+        const labels = ['Not entered', 'Very weak', 'Weak', 'Fair', 'Good', 'Strong', 'Strong'];
+        score.textContent = value === '' ? labels[0] : labels[passed];
+        meter.style.width = `${Math.round((passed / 6) * 100)}%`;
+        meter.dataset.score = String(Math.min(passed, 5));
+
+        if (confirmation.value === '') {
+          match.textContent = 'Enter the password again.';
+          match.className = 'interfacing-password-match';
+        } else if (confirmation.value === value) {
+          match.textContent = 'Passwords match.';
+          match.className = 'interfacing-password-match is-valid';
+        } else {
+          match.textContent = 'Passwords do not match.';
+          match.className = 'interfacing-password-match is-invalid';
+        }
+      };
+
+      email.addEventListener('input', render);
+      primary.addEventListener('input', render);
+      confirmation.addEventListener('input', render);
+      phone.addEventListener('input', renderPhone);
+      phone.addEventListener('blur', renderPhone);
+      render();
+      renderPhone();
+    })();
+  </script>
 {% endblock %}
