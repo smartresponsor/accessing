@@ -27,7 +27,7 @@ final readonly class AccessSessionService implements AccessSessionServiceInterfa
     /**
      * Ensure the current request session is registered and marked as active.
      */
-    public function registerSession(AccessEntity $user, Request $request): void
+    public function registerSession(AccessEntity $user, Request $request, bool $flush = true): void
     {
         $session = $request->getSession();
         $sessionIdentifier = $session->getId();
@@ -46,7 +46,7 @@ final readonly class AccessSessionService implements AccessSessionServiceInterfa
         }
 
         $userSession->touch();
-        $this->userSessionRepository->save($userSession, true);
+        $this->userSessionRepository->save($userSession, false);
 
         $this->securityEventService->record(
             AccessSecurityEventType::SessionRegistered,
@@ -54,7 +54,12 @@ final readonly class AccessSessionService implements AccessSessionServiceInterfa
             $user,
             $request,
             ['sessionIdentifier' => $sessionIdentifier],
+            false,
         );
+
+        if ($flush) {
+            $this->userSessionRepository->save($userSession, true);
+        }
     }
 
     /**

@@ -199,7 +199,21 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
 
         $user->markSuccessfulSignIn();
         $user->unlock();
-        $this->userRepository->save($user, true);
+        $this->userRepository->save($user, false);
+
+        if (str_starts_with($request->getPathInfo(), '/api/access/')) {
+            $this->securityEventService->record(
+                AccessSecurityEventType::SignInSucceeded,
+                AccessSecurityEventSeverity::Info,
+                $user,
+                $request,
+                ['transport' => 'mobile_token'],
+                false,
+            );
+            $this->userRepository->save($user, true);
+
+            return;
+        }
 
         $pushedRequest = $this->requestStack->getCurrentRequest() !== $request;
         if ($pushedRequest) {
@@ -218,12 +232,15 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
             }
         }
 
-        $this->userSessionService->registerSession($user, $request);
+        $this->userSessionService->registerSession($user, $request, false);
         $this->securityEventService->record(
             AccessSecurityEventType::SignInSucceeded,
             AccessSecurityEventSeverity::Info,
             $user,
             $request,
+            [],
+            false,
         );
+        $this->userRepository->save($user, true);
     }
 }

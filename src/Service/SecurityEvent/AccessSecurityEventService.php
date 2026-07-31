@@ -29,6 +29,7 @@ final readonly class AccessSecurityEventService implements AccessSecurityEventSe
         ?AccessEntity $user = null,
         ?Request $request = null,
         array $context = [],
+        bool $flush = true,
     ): AccessSecurityEventEntity {
         $requestContext = $this->contextFactory->fromRequest($request);
         $securityEvent = new AccessSecurityEventEntity(
@@ -40,7 +41,7 @@ final readonly class AccessSecurityEventService implements AccessSecurityEventSe
             $context,
         );
 
-        $this->securityEventRepository->save($securityEvent, true);
+        $this->securityEventRepository->save($securityEvent, $flush);
 
         return $securityEvent;
     }

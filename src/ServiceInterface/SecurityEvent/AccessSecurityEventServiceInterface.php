@@ -20,5 +20,6 @@ interface AccessSecurityEventServiceInterface
         ?AccessEntity $user = null,
         ?Request $request = null,
         array $context = [],
+        bool $flush = true,
     ): AccessSecurityEventEntity;
 }

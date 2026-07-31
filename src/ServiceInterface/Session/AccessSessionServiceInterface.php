@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 interface AccessSessionServiceInterface
 {
-    public function registerSession(AccessEntity $user, Request $request): void;
+    public function registerSession(AccessEntity $user, Request $request, bool $flush = true): void;
 
     public function invalidateCurrentSession(AccessEntity $user, SessionInterface $session): void;
 
