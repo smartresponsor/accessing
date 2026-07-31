@@ -53,7 +53,11 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
     public function findOneByEmailAddress(string $emailAddress): ?AccessEntity
     {
         $user = $this->createQueryBuilder('user')
-            ->andWhere('LOWER(user.email) = :email')
+            ->leftJoin('user.credential', 'credential')
+            ->addSelect('credential')
+            ->leftJoin('user.secondFactor', 'secondFactor')
+            ->addSelect('secondFactor')
+            ->andWhere('user.email = :email')
             ->setParameter('email', mb_strtolower(trim($emailAddress)))
             ->setMaxResults(1)
             ->getQuery()
