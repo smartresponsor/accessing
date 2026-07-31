@@ -2,29 +2,21 @@
 
 declare(strict_types=1);
 
-namespace App\Accessing\Factory\Surface;
+namespace App\Accessing\Resolver\Rendering;
 
-use App\Accessing\Dto\AccessPageView;
-use App\Accessing\Value\Surface\AccessPageSurfaceContract;
-
-final readonly class AccessPageSurfaceContractFactory
+final readonly class AccessPageTemplateResolver
 {
-    public function create(AccessPageView $pageView): AccessPageSurfaceContract
+    public function resolve(string $view): string
     {
-        $templateMap = $this->templateMap();
-
-        return new AccessPageSurfaceContract(
-            view: $pageView->view,
-            templateName: $templateMap[$pageView->view] ?? throw new \LogicException(sprintf('No template mapping configured for page view "%s".', $pageView->view)),
-            parameters: $pageView->parameters,
-            statusCode: $pageView->statusCode,
-        );
+        return $this->templateMap()[$view]
+            ?? throw new \LogicException(sprintf('No template mapping configured for page view "%s".', $view));
     }
 
     /** @return array<string, string> */
     private function templateMap(): array
     {
-        $credentialReset = 'reset_password';
+        $credentialResetView = 'reset_password';
+        $credentialResetTemplate = 'reset-password';
 
         return [
             'access.overview' => 'access/overview.html.twig',
@@ -43,9 +35,9 @@ final readonly class AccessPageSurfaceContractFactory
             'access.recover_reset' => 'access/recover_reset.html.twig',
             'access.security_event_index' => 'access/security-event/index.html.twig',
             'access.operator_security_event_index' => 'access/operator-security-event/index.html.twig',
-            'access.'.$credentialReset.'_request' => 'access/'.$credentialReset.'/request.html.twig',
-            'access.'.$credentialReset.'_check_email' => 'access/'.$credentialReset.'/check_email.html.twig',
-            'access.'.$credentialReset.'_reset' => 'access/'.$credentialReset.'/reset.html.twig',
+            'access.'.$credentialResetView.'_request' => 'access/'.$credentialResetTemplate.'/request.html.twig',
+            'access.'.$credentialResetView.'_check_email' => 'access/'.$credentialResetTemplate.'/check-email.html.twig',
+            'access.'.$credentialResetView.'_reset' => 'access/'.$credentialResetTemplate.'/reset.html.twig',
         ];
     }
 }

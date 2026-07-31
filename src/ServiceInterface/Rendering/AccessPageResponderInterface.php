@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
-use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 interface AccessPageResponderInterface
 {
-    public function respond(AccessPageView $pageView): InterfaceTemplateRenderableInterface;
+    public function respond(AccessPageView $pageView): Response;
 }

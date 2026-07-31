@@ -5,12 +5,10 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\Form\Access\AccessRegistrationType;
 use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -25,12 +23,7 @@ final readonly class AccessRegisterService
 
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
-        $form = $this->formFactory->createBuilder()
-            ->add('email', EmailType::class)
-            ->add('plainPassword', PasswordType::class)
-            ->add('displayName', TextType::class, ['required' => false])
-            ->add('phoneNumber', TextType::class, ['required' => false])
-            ->getForm();
+        $form = $this->formFactory->create(AccessRegistrationType::class);
 
         return $this->pageResponder->respond($this->pageViewFactory->register($form->createView()));
     }

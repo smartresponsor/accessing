@@ -102,7 +102,17 @@ services:
   App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface: '@App\Accessing\Responder\Rendering\AccessTwigPageResponder'
   App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface: '@App\Accessing\Factory\Rendering\AccessPageViewFactory'
 
+  App\Accessing\Controller\Api\Access\ApiAccessController:
+    public: true
+    tags: ['controller.service_arguments']
+
   App\Accessing\Service\Http\Access\AccessIndexService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessSignInService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessRegisterService:
     public: true
     tags: ['controller.service_arguments']
   App\Accessing\Service\Http\Access\AccessSecurityFlowService:
@@ -112,6 +122,9 @@ services:
     public: true
     tags: ['controller.service_arguments']
   App\Accessing\Service\Http\Access\AccessResetPasswordFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Api\Access\ApiAccessFlowService:
     public: true
     tags: ['controller.service_arguments']
 

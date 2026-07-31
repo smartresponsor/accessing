@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPageView;
-use App\Accessing\Factory\Surface\AccessPageSurfaceContractFactory;
+use App\Accessing\Resolver\Rendering\AccessPageTemplateResolver;
 use PHPUnit\Framework\TestCase;
 
-final class AccessPageSurfaceContractFactoryTest extends TestCase
+final class AccessPageTemplateResolverTest extends TestCase
 {
     /**
      * @dataProvider mappedViews
      */
     public function testItMapsPageViewsToCanonicalInterfacingTemplates(string $view, string $expectedTemplate): void
     {
-        $factory = new AccessPageSurfaceContractFactory();
+        $resolver = new AccessPageTemplateResolver();
 
-        self::assertSame($expectedTemplate, $factory->create(new AccessPageView($view))->templateName());
+        self::assertSame($expectedTemplate, $resolver->resolve($view));
     }
 
     public function testItRejectsUnmappedViews(): void
     {
-        $factory = new AccessPageSurfaceContractFactory();
+        $resolver = new AccessPageTemplateResolver();
 
         $this->expectException(\LogicException::class);
-        $factory->create(new AccessPageView('access.unknown'));
+        $resolver->resolve('access.unknown');
     }
 
     /**
@@ -36,7 +35,7 @@ final class AccessPageSurfaceContractFactoryTest extends TestCase
         return [
             'access overview' => ['access.overview', 'access/overview.html.twig'],
             'verify email' => ['access.verify_email', 'access/verify_email.html.twig'],
-            'reset request' => ['access.reset_password_request', 'access/reset_password/request.html.twig'],
+            'reset request' => ['access.reset_password_request', 'access/reset-password/request.html.twig'],
             'sign in' => ['access.signin', 'access/signin/index.html.twig'],
         ];
     }

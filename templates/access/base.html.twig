@@ -12,10 +12,12 @@
 
 {% set accessPage = accessPage|default('welcome') %}
 {% set accessTitle = accessTitle|default('Welcome') %}
-{% set accessSubtitle = accessSubtitle|default('Continue to Smart Responsor.') %}
+{% set accessSubtitle = accessSubtitle|default('Continue to Marketing America Corp.') %}
 {% set accessFooterMode = accessFooterMode|default('welcome-only') %}
-{% set title = accessTitle ~ ' · Smart Responsor' %}
-{% set shell = shell|default({
+{% set accessBrandName = accessBrandName|default('Marketing America Corp') %}
+{% set title = accessTitle ~ ' · ' ~ accessBrandName %}
+{% set shell = shell|default({})|merge({
+  guestSurface: true,
   shellCompact: true,
   locations: {},
   navigation: { locations: {}, active: {} },
@@ -28,7 +30,7 @@
     <section class="interfacing-access-panel" data-interfacing-access-panel="single-card" aria-labelledby="interfacing-access-title">
       <a href="/interfacing" class="interfacing-access-brand" data-interfacing-access-brand>
         <img class="interfacing-access-brand__logo" src="{{ asset('mandala.svg') }}" alt="">
-        <span>Smart Responsor</span>
+        <span>{{ accessBrandName }}</span>
       </a>
       <div class="interfacing-access-card" data-interfacing-access-card data-interfacing-access-footer-mode="{{ accessFooterMode }}">
         {% for label, messages in app.flashes %}
