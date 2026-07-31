@@ -29,8 +29,8 @@ final class AccessDemoFixtures extends Fixture
             ->setRoles(['ROLE_USER']);
         $user->markEmailVerified();
 
-        $this->credentialService->changePassword($user, 'AccessingDemo123!');
         $manager->persist($user);
+        $this->credentialService->changePassword($user, 'AccessingDemo123!');
 
         $emailChallenge = new AccessVerificationChallengeEntity()
             ->setUser($user)

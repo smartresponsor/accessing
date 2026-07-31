@@ -85,11 +85,12 @@ final class AccessEnsureAdminCommand extends Command
             return Command::SUCCESS;
         }
 
+        $this->entityManager->persist($user);
+
         if ($isNew || $resetPassword) {
             $this->credentialService->changePassword($user, $password);
         }
 
-        $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         $io->success(sprintf(

@@ -47,7 +47,6 @@ services:
       - ../src/Contract/
       - ../src/Event/
       - ../src/Message/
-      - '../src/Command/AccessDemoResetCommand.php'
       - '../src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php'
       - '../src/ServiceInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
       - '../src/Kernel.php'

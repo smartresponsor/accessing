@@ -30,12 +30,14 @@ use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\ValueObject\AccessMobilePendingPurpose;
+use Symfony\Bundle\FrameworkBundle\Controller\AsController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
+#[AsController]
 final readonly class ApiAccessFlowService
 {
     public function __construct(

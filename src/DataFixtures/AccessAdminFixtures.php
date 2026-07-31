@@ -45,9 +45,8 @@ final class AccessAdminFixtures extends Fixture
             ->resetFailedLoginCount()
             ->markEmailVerified();
 
-        $this->credentialService->changePassword($user, $adminPassword);
-
         $manager->persist($user);
+        $this->credentialService->changePassword($user, $adminPassword);
         $manager->flush();
     }
 }

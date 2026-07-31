@@ -26,6 +26,7 @@ final class AccessSessionAndRecoveryFixtures extends Fixture
             ->setDisplayName('Accessing Session Demo')
             ->setRoles(['ROLE_USER']);
         $user->markEmailVerified();
+        $manager->persist($user);
         $this->credentialService->changePassword($user, 'AccessingSession123!');
 
         $userSession = new AccessSessionEntity()
