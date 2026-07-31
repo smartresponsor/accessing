@@ -1,2 +1,136 @@
-# Producer route declarations intentionally empty.
-# Accessing surfaces are resolved through Cruding/View/Interfacing in the host application.
+access.signin:
+  path: /access/signin
+  controller: App\Accessing\Service\Http\Access\AccessSignInService
+  methods: [GET]
+
+access.signin_submit:
+  path: /access/signin/submit
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::signInSubmit
+  methods: [POST]
+
+access.register:
+  path: /access/register
+  controller: App\Accessing\Service\Http\Access\AccessRegisterService
+  methods: [GET]
+
+access.signup:
+  path: /access/signup
+  controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+  defaults:
+    route: access.register
+    permanent: true
+  methods: [GET]
+
+access.register_submit:
+  path: /access/register
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::register
+  methods: [POST]
+
+access.passkey_authentication_options:
+  path: /access/passkeys/authentication/options
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::passkeyAuthenticationOptions
+  methods: [POST]
+
+access.passkey_authentication_complete:
+  path: /access/passkeys/authentication/complete
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::passkeyAuthenticationComplete
+  methods: [POST]
+
+api_access_controllers:
+  resource: '../src/Controller/Api/Access/'
+  type: attribute
+
+api_access_refresh:
+  path: /api/access/refresh
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::refresh
+  methods: [POST]
+
+api_access_register:
+  path: /api/access/register
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::register
+  methods: [POST]
+
+api_access_logout:
+  path: /api/access/logout
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::logout
+  methods: [POST]
+
+api_access_verification_resend:
+  path: /api/access/verification/resend
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::resendVerification
+  methods: [POST]
+
+api_access_verification_confirm:
+  path: /api/access/verification/confirm
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::confirmVerification
+  methods: [POST]
+
+api_access_second_factor_challenge:
+  path: /api/access/second-factor/challenge
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::challengeSecondFactor
+  methods: [POST]
+
+api_access_second_factor_verify:
+  path: /api/access/second-factor/verify
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::verifySecondFactor
+  methods: [POST]
+
+api_access_passkey_registration_options:
+  path: /api/access/passkeys/registration/options
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyRegistrationOptions
+  methods: [POST]
+
+api_access_passkey_registration_complete:
+  path: /api/access/passkeys/registration/complete
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyRegistrationComplete
+  methods: [POST]
+
+api_access_passkey_authentication_options:
+  path: /api/access/passkeys/authentication/options
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyAuthenticationOptions
+  methods: [POST]
+
+api_access_passkey_authentication_complete:
+  path: /api/access/passkeys/authentication/complete
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyAuthenticationComplete
+  methods: [POST]
+
+api_access_recovery_request:
+  path: /api/access/recovery/request
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::requestRecovery
+  methods: [POST]
+
+api_access_recovery_reset:
+  path: /api/access/recovery/reset
+  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::resetRecovery
+  methods: [POST]
+
+access.recover_request:
+  path: /access/recover
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::requestRecovery
+  methods: [GET, POST]
+
+access.recover_reset:
+  path: /access/recover/reset
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::resetRecovery
+  methods: [GET, POST]
+
+access.second_factor_challenge:
+  path: /access/second-factor/challenge
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::secondFactorChallenge
+  methods: [GET, POST]
+
+access.reset_password_request:
+  path: /access/reset-password/request
+  controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::request
+  methods: [GET, POST]
+
+access.reset_password_check_email:
+  path: /access/reset-password/check-email
+  controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::checkEmail
+  methods: [GET]
+
+access.reset_password_reset:
+  path: /access/reset-password/reset
+  controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::reset
+  methods: [GET, POST]
