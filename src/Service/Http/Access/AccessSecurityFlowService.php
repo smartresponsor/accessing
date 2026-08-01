@@ -64,7 +64,7 @@ final readonly class AccessSecurityFlowService
     public function register(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -116,7 +116,7 @@ final readonly class AccessSecurityFlowService
     public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -136,7 +136,7 @@ final readonly class AccessSecurityFlowService
     public function signInSubmit(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
@@ -152,7 +152,7 @@ final readonly class AccessSecurityFlowService
             );
 
             if ($result->authenticated) {
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             if ($result->requiresSecondFactor) {
@@ -184,7 +184,7 @@ final readonly class AccessSecurityFlowService
     public function passkeyAuthenticationComplete(Request $request): JsonResponse
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         }
 
         try {
@@ -205,7 +205,7 @@ final readonly class AccessSecurityFlowService
             $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
             $this->userAuthenticationService->completePasskeySignIn($user, $request);
 
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         } catch (\Throwable) {
             return new JsonResponse(['error' => 'passkey_authentication_failed'], Response::HTTP_UNAUTHORIZED);
         }
@@ -238,7 +238,7 @@ final readonly class AccessSecurityFlowService
                 $this->userAuthenticationService->completePendingSecondFactor($user, $request);
                 $this->flash($request, 'success', 'Signed in successfully.');
 
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             $this->flash($request, 'danger', 'The second factor code was not accepted.');
@@ -357,6 +357,16 @@ final readonly class AccessSecurityFlowService
     private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
     {
         return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
+    }
+
+    private function redirectAfterSignIn(): RedirectResponse
+    {
+        return new RedirectResponse($this->postSignInUrl());
+    }
+
+    private function postSignInUrl(): string
+    {
+        return '/';
     }
 
     private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
