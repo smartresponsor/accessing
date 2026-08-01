@@ -62,7 +62,7 @@ interface AccessPageViewFactoryInterface
 
     public function register(FormView $form, int $statusCode = 200): AccessPageView;
 
-    public function signIn(FormView $form): AccessPageView;
+    public function signIn(FormView $form, int $statusCode = 200): AccessPageView;
 
     public function secondFactorChallenge(AccessEntity $user, FormView $form): AccessPageView;
 

@@ -138,11 +138,11 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ], $statusCode);
     }
 
-    public function signIn(FormView $form): AccessPageView
+    public function signIn(FormView $form, int $statusCode = 200): AccessPageView
     {
         return $this->page('access.signin', [
             'form' => $form,
-        ]);
+        ], $statusCode);
     }
 
     public function secondFactorChallenge(AccessEntity $user, FormView $form): AccessPageView
