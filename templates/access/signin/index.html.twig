@@ -14,26 +14,23 @@
     </div>
 
     {{ form_start(form, { action: path('access.signin_submit'), attr: form.vars.attr|merge({ 'data-access-submit-surface': 'signin' }) }) }}
-      {{ form_row(form.emailAddress) }}
-      <div class="interfacing-form-row ant-form-item p-field">
-        {{ form_label(form.plainPassword) }}
-        <span class="interfacing-password-control ant-input-affix-wrapper ant-input-affix-wrapper-lg p-password p-component">
-          {{ form_widget(form.plainPassword) }}
-          <button type="button" class="interfacing-password-toggle ant-input-password-icon p-password-toggle-mask-icon" data-access-password-toggle aria-label="Show password" aria-pressed="false">
-            <svg class="interfacing-password-eye interfacing-password-eye--closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9.3 4.4 10.5 6.1a1.5 1.5 0 0 1 0 1.8 14.8 14.8 0 0 1-3 3.2M6.1 6.2A15.7 15.7 0 0 0 1.5 11a1.5 1.5 0 0 0 0 1.8C2.7 14.6 6.8 19 12 19a10.6 10.6 0 0 0 3.1-.5"/></svg><svg class="interfacing-password-eye interfacing-password-eye--open" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </span>
-        {{ form_errors(form.plainPassword) }}
-      </div>
-      <div class="interfacing-inline-row">
-        <span></span>
-        <a href="{{ path('access.recover_request') }}">Forgot password?</a>
-      </div>
-      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-access-submit data-access-submitting-label="Signing in…" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact">
-        <span class="interfacing-submit-spinner" aria-hidden="true"></span>
-        <span data-access-submit-label>Sign in</span>
-      </button>
-    {{ form_end(form) }}
+      {% do form.emailAddress.setRendered %}
+      {% do form.plainPassword.setRendered %}
+      <div
+        data-interfacing-provider="antd-pro"
+        data-interfacing-component="access-signin-form"
+        data-interfacing-payload="{{ {
+          emailName: form.emailAddress.vars.full_name,
+          passwordName: form.plainPassword.vars.full_name,
+          emailValue: form.emailAddress.vars.value|default('')
+        }|json_encode|e('html_attr') }}"
+      ></div>
+      {{ form_rest(form) }}
+    {{ form_end(form, { render_rest: false }) }}
+    <div class="interfacing-inline-row">
+      <span></span>
+      <a href="{{ path('access.recover_request') }}">Forgot password?</a>
+    </div>
 
     <button class="interfacing-button-secondary" type="button" data-access-passkey-signin>Sign in with a passkey</button>
     <p class="interfacing-muted" data-access-passkey-status hidden></p>
