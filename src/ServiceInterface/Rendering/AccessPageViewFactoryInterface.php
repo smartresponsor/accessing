@@ -60,7 +60,7 @@ interface AccessPageViewFactoryInterface
      */
     public function operatorSecurityEvents(array $events): AccessPageView;
 
-    public function register(FormView $form): AccessPageView;
+    public function register(FormView $form, int $statusCode = 200): AccessPageView;
 
     public function signIn(FormView $form): AccessPageView;
 

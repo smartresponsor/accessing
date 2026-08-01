@@ -13,21 +13,36 @@
       <p class="interfacing-muted">Request a recovery code.</p>
     </div>
 
-    {% if form is defined %}
-      {{ form_start(form) }}
-      {{ form_widget(form) }}
-      <button class="interfacing-button-primary" type="submit">Continue</button>
-      {{ form_end(form) }}
-    {% elseif request_form is defined %}
-      {{ form_start(request_form) }}
-      {{ form_widget(request_form) }}
-      <button class="interfacing-button-primary" type="submit">Continue</button>
-      {{ form_end(request_form) }}
-    {% elseif reset_form is defined %}
-      {{ form_start(reset_form) }}
-      {{ form_widget(reset_form) }}
-      <button class="interfacing-button-primary" type="submit">Continue</button>
-      {{ form_end(reset_form) }}
+    {% set recoveryForm = form|default(request_form|default(reset_form|default(null))) %}
+    {% if recoveryForm %}
+      <div data-access-submit-surface>
+        {{ form_start(recoveryForm, {
+          attr: {
+            class: 'interfacing-form ant-form ant-form-vertical p-fluid',
+            'data-interfacing-provider-form': 'access-recover',
+            'data-interfacing-provider': 'ant-design-pro',
+            'data-interfacing-secondary-provider': 'primereact'
+          }
+        }) }}
+
+        {% set emailField = recoveryForm.emailAddress is defined ? recoveryForm.emailAddress : recoveryForm.email %}
+        <div class="interfacing-form-row ant-form-item p-field">
+          {{ form_label(emailField, null, {label_attr: {class: 'interfacing-form-label ant-form-item-label'}}) }}
+          {{ form_widget(emailField, {attr: {
+            class: 'interfacing-form-control ant-input ant-input-lg p-inputtext p-component',
+            autocomplete: 'email',
+            'data-interfacing-provider-control': 'input',
+            'data-interfacing-provider-control-provider': 'antd-pro',
+            'data-interfacing-provider-control-secondary-provider': 'primereact'
+          }}) }}
+          {{ form_errors(emailField) }}
+        </div>
+
+        <button class="ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-access-submit data-access-submitting-label="Sending recovery code…">
+          <span data-access-submit-label>Send recovery code</span>
+        </button>
+        {{ form_end(recoveryForm, {render_rest: false}) }}
+      </div>
     {% endif %}
 
     {% if events is defined and events is iterable %}

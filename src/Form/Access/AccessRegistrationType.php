@@ -48,14 +48,6 @@ final class AccessRegistrationType extends AbstractType
                 'invalid_message' => 'The passwords must match.',
                 'first_options' => [
                     'label' => 'Password',
-                    'constraints' => [
-                        new Assert\NotBlank(message: 'Enter a password.'),
-                        new Assert\Length(min: 10, max: 255, minMessage: 'Use at least {{ limit }} characters.'),
-                        new Assert\Regex(pattern: '/[a-z]/', message: 'Add a lowercase letter.'),
-                        new Assert\Regex(pattern: '/[A-Z]/', message: 'Add an uppercase letter.'),
-                        new Assert\Regex(pattern: '/\d/', message: 'Add a number.'),
-                        new Assert\Regex(pattern: '/[^A-Za-z0-9]/', message: 'Add a symbol.'),
-                    ],
                     'attr' => [
                         'class' => $controlClass,
                         'data-interfacing-provider-control' => 'password',
@@ -115,6 +107,9 @@ final class AccessRegistrationType extends AbstractType
         $resolver->setDefaults([
             'csrf_protection' => true,
             'data_class' => AccessRegistrationRequest::class,
+            'error_mapping' => [
+                'plainPassword' => 'plainPassword.first',
+            ],
             'attr' => [
                 'class' => 'interfacing-form ant-form ant-form-vertical p-fluid',
                 'data-interfacing-provider-form' => 'access-register',

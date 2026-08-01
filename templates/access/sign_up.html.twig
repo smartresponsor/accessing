@@ -13,7 +13,11 @@
     </div>
 
     {% if form is defined %}
-      {{ form_start(form) }}
+      <turbo-frame id="access-register-frame">
+      {{ form_start(form, {
+        action: path('access.register_submit'),
+        attr: form.vars.attr|merge({ 'data-turbo-frame': 'access-register-frame' })
+      }) }}
       {{ form_row(form.email) }}
       <script type="application/json" data-interfacing-provider-control-schema="access-register-email">{{ {
         provider: 'antd-pro',
@@ -25,7 +29,16 @@
         size: 'large'
       }|json_encode|raw }}</script>
 
-      {{ form_row(form.plainPassword.first) }}
+      <div class="interfacing-form-row ant-form-item p-field">
+        {{ form_label(form.plainPassword.first) }}
+        <span class="interfacing-password-control ant-input-affix-wrapper ant-input-affix-wrapper-lg p-password p-component">
+          {{ form_widget(form.plainPassword.first) }}
+          <button type="button" class="interfacing-password-toggle ant-input-password-icon p-password-toggle-mask-icon" data-access-password-toggle aria-label="Show password" aria-pressed="false">
+            <svg class="interfacing-password-eye interfacing-password-eye--closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9.3 4.4 10.5 6.1a1.5 1.5 0 0 1 0 1.8 14.8 14.8 0 0 1-3 3.2M6.1 6.2A15.7 15.7 0 0 0 1.5 11a1.5 1.5 0 0 0 0 1.8C2.7 14.6 6.8 19 12 19a10.6 10.6 0 0 0 3.1-.5"/></svg><svg class="interfacing-password-eye interfacing-password-eye--open" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </span>
+        {{ form_errors(form.plainPassword.first) }}
+      </div>
       <div class="interfacing-password-feedback" data-access-password-feedback aria-live="polite">
         <div class="interfacing-password-feedback__header">
           <span>Password quality</span>
@@ -54,7 +67,16 @@
         interactiveQuality: true
       }|json_encode|raw }}</script>
 
-      {{ form_row(form.plainPassword.second) }}
+      <div class="interfacing-form-row ant-form-item p-field">
+        {{ form_label(form.plainPassword.second) }}
+        <span class="interfacing-password-control ant-input-affix-wrapper ant-input-affix-wrapper-lg p-password p-component">
+          {{ form_widget(form.plainPassword.second) }}
+          <button type="button" class="interfacing-password-toggle ant-input-password-icon p-password-toggle-mask-icon" data-access-password-toggle aria-label="Show password" aria-pressed="false">
+            <svg class="interfacing-password-eye interfacing-password-eye--closed" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3l18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 5.2A10.8 10.8 0 0 1 12 5c5.2 0 9.3 4.4 10.5 6.1a1.5 1.5 0 0 1 0 1.8 14.8 14.8 0 0 1-3 3.2M6.1 6.2A15.7 15.7 0 0 0 1.5 11a1.5 1.5 0 0 0 0 1.8C2.7 14.6 6.8 19 12 19a10.6 10.6 0 0 0 3.1-.5"/></svg><svg class="interfacing-password-eye interfacing-password-eye--open" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M1.5 12s3.8-7 10.5-7 10.5 7 10.5 7-3.8 7-10.5 7S1.5 12 1.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </span>
+        {{ form_errors(form.plainPassword.second) }}
+      </div>
       <p class="interfacing-password-match" data-access-password-match aria-live="polite">Enter the password again.</p>
       <script type="application/json" data-interfacing-provider-control-schema="access-register-password-confirmation">{{ {
         provider: 'antd-pro',
@@ -79,8 +101,12 @@
       }|json_encode|raw }}</script>
 
       {{ form_rest(form) }}
-      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact">Continue</button>
+      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact" data-access-submit>
+        <span class="interfacing-submit-spinner" aria-hidden="true"></span>
+        <span data-access-submit-label>Continue</span>
+      </button>
       {{ form_end(form, { render_rest: false }) }}
+      </turbo-frame>
     {% elseif request_form is defined %}
       {{ form_start(request_form) }}
       {{ form_widget(request_form) }}
@@ -128,33 +154,20 @@
         return;
       }
 
-      const installVisibilityToggle = input => {
-        const wrapper = document.createElement('span');
-        wrapper.className = 'interfacing-password-control ant-input-affix-wrapper ant-input-affix-wrapper-lg p-password p-component';
+      document.addEventListener('click', event => {
+        const toggle = event.target.closest('[data-access-password-toggle]');
+        if (!toggle) return;
 
-        input.parentNode.insertBefore(wrapper, input);
-        wrapper.appendChild(input);
+        const wrapper = toggle.closest('.interfacing-password-control');
+        const input = wrapper?.querySelector('input');
+        if (!input) return;
 
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'interfacing-password-toggle ant-input-password-icon p-password-toggle-mask-icon';
-        toggle.setAttribute('aria-label', 'Show password');
-        toggle.setAttribute('aria-pressed', 'false');
-        toggle.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6-9.9-6Zm9.9 3.25A3.25 3.25 0 1 0 12 8.75a3.25 3.25 0 0 0 0 6.5Z"/></svg>';
-
-        toggle.addEventListener('click', () => {
-          const visible = input.type === 'text';
-          input.type = visible ? 'password' : 'text';
-          toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
-          toggle.setAttribute('aria-pressed', visible ? 'false' : 'true');
-          wrapper.classList.toggle('is-password-visible', !visible);
-        });
-
-        wrapper.appendChild(toggle);
-      };
-
-      installVisibilityToggle(primary);
-      installVisibilityToggle(confirmation);
+        const visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+        toggle.setAttribute('aria-pressed', visible ? 'false' : 'true');
+        wrapper.classList.toggle('is-password-visible', !visible);
+      });
 
       const rules = {
         length: value => value.length >= 10,

@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 
 access.register:
-  path: "/access/signup"
+  path: "/access/register"
   type: App\Accessing\Form\Access\AccessRegistrationType
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: register

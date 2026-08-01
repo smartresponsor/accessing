@@ -34,7 +34,7 @@ final readonly class AccessRegistrationService implements AccessRegistrationServ
             ->setPhoneNumber($request->phoneNumber);
 
         if (null !== $this->userRepository->findOneByEmailAddress($user->getEmail())) {
-            throw new \DomainException(sprintf('An user with email "%s" already exists.', $user->getEmail()));
+            throw new \DomainException(sprintf('An account already exists for %s. Sign in instead or reset the password.', $user->getEmail()));
         }
 
         $this->credentialService->createCredential($user, $request->plainPassword);
@@ -42,7 +42,7 @@ final readonly class AccessRegistrationService implements AccessRegistrationServ
         try {
             $this->userRepository->save($user, true);
         } catch (UniqueConstraintViolationException $exception) {
-            throw new \DomainException(sprintf('An user with email "%s" already exists.', $user->getEmail()), 0, $exception);
+            throw new \DomainException(sprintf('An account already exists for %s. Sign in instead or reset the password.', $user->getEmail()), 0, $exception);
         }
 
         $challenge = $this->verificationChallengeService->issueEmailVerification($user);

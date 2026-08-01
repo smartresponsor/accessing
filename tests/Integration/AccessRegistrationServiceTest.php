@@ -47,7 +47,7 @@ final class AccessRegistrationServiceTest extends AccessDatabaseTestCase
         self::assertArrayNotHasKey('email', $registrationEvents[0]->getContext());
 
         $this->expectException(\DomainException::class);
-        $this->expectExceptionMessage('An user with email "duplicate@accessing.local" already exists.');
+        $this->expectExceptionMessage('An account already exists for duplicate@accessing.local. Sign in instead or reset the password.');
 
         $registrationService->register($request);
     }

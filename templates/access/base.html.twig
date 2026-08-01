@@ -26,6 +26,31 @@
 }) %}
 
 {% block body %}
+  {% set accessFlashes = app.flashes %}
+  {% if accessFlashes is not empty %}
+    <aside class="interfacing-toast-stack" aria-live="polite" aria-atomic="false" data-access-toast-stack>
+      {% for label, messages in accessFlashes %}
+        {% set flashTone = label == 'account_exists' ? 'danger' : (label in ['danger', 'warning', 'success'] ? label : 'neutral') %}
+        {% set flashTitle = label == 'account_exists' ? 'Account already exists' : (label == 'danger' ? 'Unable to continue' : (label == 'success' ? 'Completed' : (label == 'warning' ? 'Action needed' : 'Notice'))) %}
+        {% for message in messages %}
+          <section class="interfacing-toast interfacing-toast--{{ flashTone }}" role="{{ label in ['danger', 'account_exists'] ? 'alert' : 'status' }}" data-access-toast>
+            <span class="interfacing-toast__icon" aria-hidden="true">{% if flashTone == 'success' %}✓{% elseif flashTone == 'warning' %}!{% elseif flashTone == 'danger' %}×{% else %}i{% endif %}</span>
+            <div class="interfacing-toast__body">
+              <strong class="interfacing-toast__title">{{ flashTitle }}</strong>
+              <p class="interfacing-toast__message">{{ message }}</p>
+              {% if label == 'account_exists' and accessPage == 'access-sign_up.html' %}
+                <div class="interfacing-toast__actions">
+                  <a class="interfacing-toast__action interfacing-toast__action--primary" href="{{ path('access.signin') }}">Sign in instead</a>
+                  <a class="interfacing-toast__action" href="{{ path('access.reset_password_request') }}">Reset password</a>
+                </div>
+              {% endif %}
+            </div>
+            <button class="interfacing-toast__close" type="button" aria-label="Dismiss notification" data-access-toast-close>×</button>
+          </section>
+        {% endfor %}
+      {% endfor %}
+    </aside>
+  {% endif %}
   <main class="interfacing-access-body-slot" data-interfacing-access-slot="body" data-interfacing-access-page="{{ accessPage }}">
     <section class="interfacing-access-panel" data-interfacing-access-panel="single-card" aria-labelledby="interfacing-access-title">
       <a href="/interfacing" class="interfacing-access-brand" data-interfacing-access-brand>
@@ -33,13 +58,6 @@
         <span>{{ accessBrandName }}</span>
       </a>
       <div class="interfacing-access-card" data-interfacing-access-card data-interfacing-access-footer-mode="{{ accessFooterMode }}">
-        {% for label, messages in app.flashes %}
-          {% for message in messages %}
-            <div class="alert alert-{{ label == 'danger' ? 'danger' : (label == 'success' ? 'success' : 'secondary') }} interfacing-access-flash" role="alert">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endfor %}
         {% block access_body %}
           <div class="interfacing-access-heading">
             <h1 id="interfacing-access-title">{{ accessTitle }}</h1>
@@ -49,4 +67,81 @@
       </div>
     </section>
   </main>
+  <script>
+    (() => {
+      const accessFrameSelector = 'turbo-frame#access-register-frame, turbo-frame#access-signin-frame';
+      const accessSubmitSurfaceSelector = `${accessFrameSelector}, [data-access-submit-surface]`;
+
+      const markSubmitting = form => {
+        const surface = form.closest?.(accessSubmitSurfaceSelector);
+        if (!surface || surface.dataset.accessSubmitting === 'true') return;
+
+        surface.style.minHeight = `${Math.ceil(surface.getBoundingClientRect().height)}px`;
+        surface.dataset.accessSubmitting = 'true';
+
+        const submit = form.querySelector('[data-access-submit]');
+        const label = submit?.querySelector('[data-access-submit-label]');
+        if (submit) {
+          submit.disabled = true;
+          submit.setAttribute('aria-busy', 'true');
+        }
+        if (label) {
+          label.dataset.accessSubmitOriginalLabel ??= label.textContent;
+          label.textContent = submit?.dataset.accessSubmittingLabel || 'Working…';
+        }
+      };
+
+      document.addEventListener('submit', event => {
+        if (event.target instanceof HTMLFormElement) {
+          markSubmitting(event.target);
+        }
+      }, true);
+
+      document.addEventListener('turbo:submit-start', event => {
+        if (event.target instanceof HTMLFormElement) {
+          markSubmitting(event.target);
+        }
+      });
+
+      document.addEventListener('turbo:before-fetch-response', event => {
+        const response = event.detail?.fetchResponse?.response;
+        const frame = document.querySelector(`${accessFrameSelector}[data-access-submitting="true"]`);
+        if (!frame || !response?.redirected) return;
+
+        const destination = new URL(response.url, window.location.href);
+        if (destination.pathname === window.location.pathname) return;
+
+        event.preventDefault();
+        window.location.assign(destination.href);
+      });
+
+      const dismissToast = toast => {
+        if (!(toast instanceof HTMLElement) || toast.classList.contains('is-leaving')) return;
+        toast.classList.add('is-leaving');
+        window.setTimeout(() => toast.remove(), 180);
+      };
+
+      document.addEventListener('click', event => {
+        const close = event.target.closest?.('[data-access-toast-close]');
+        if (close) {
+          dismissToast(close.closest('[data-access-toast]'));
+        }
+      });
+
+      document.querySelectorAll('[data-access-toast]:not(.interfacing-toast--danger)').forEach(toast => {
+        window.setTimeout(() => dismissToast(toast), 6000);
+      });
+
+      document.addEventListener('turbo:frame-load', event => {
+        const frame = event.target.matches?.(accessFrameSelector) ? event.target : null;
+        if (!frame) return;
+
+        frame.dataset.accessSubmitting = 'false';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          frame.style.minHeight = '';
+          delete frame.dataset.accessSubmitting;
+        }));
+      });
+    })();
+  </script>
 {% endblock %}

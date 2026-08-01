@@ -131,11 +131,11 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ]);
     }
 
-    public function register(FormView $form): AccessPageView
+    public function register(FormView $form, int $statusCode = 200): AccessPageView
     {
         return $this->page('access.register', [
             'form' => $form,
-        ]);
+        ], $statusCode);
     }
 
     public function signIn(FormView $form): AccessPageView

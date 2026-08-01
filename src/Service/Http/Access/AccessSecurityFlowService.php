@@ -83,22 +83,34 @@ final readonly class AccessSecurityFlowService
             if (!$this->accessingSignUpLimiter->create($limiterKey)->consume()->isAccepted()) {
                 $this->flash($request, 'warning', 'Too many registration attempts. Please wait before trying again.');
 
-                return $this->pageResponder->respond($this->pageViewFactory->register($form->createView()));
+                return $this->pageResponder->respond($this->pageViewFactory->register(
+                    $form->createView(),
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
+                ));
             }
 
             try {
                 $this->userRegistrationService->register($data);
-                $this->flash($request, 'success', 'Registration complete. Verify your email address to finish activation.');
+                $this->flash($request, 'success', 'Your account has been created. Sign in to continue with email verification.');
 
-                return $this->redirectTo('access.signin');
+                return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
             } catch (AccessNotificationDeliveryException) {
-                $this->flash($request, 'warning', 'Registration was saved, but verification delivery is temporarily unavailable. Please retry verification later.');
+                $this->flash($request, 'success', 'Your account has been created.');
+                $this->flash($request, 'warning', 'The verification email could not be delivered yet. Sign in now to resend it and continue activation.');
+
+                return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
             } catch (\DomainException $exception) {
-                $this->flash($request, 'danger', $exception->getMessage());
+                $flashType = str_starts_with($exception->getMessage(), 'An account already exists for ')
+                    ? 'account_exists'
+                    : 'danger';
+                $this->flash($request, $flashType, $exception->getMessage());
             }
         }
 
-        return $this->pageResponder->respond($this->pageViewFactory->register($form->createView()));
+        return $this->pageResponder->respond($this->pageViewFactory->register(
+            $form->createView(),
+            $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK,
+        ));
     }
 
     public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
