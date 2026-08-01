@@ -85,6 +85,13 @@
       };
 
       button.addEventListener('click', async () => {
+        if ('127.0.0.1' === window.location.hostname) {
+          const localUrl = new URL(window.location.href);
+          localUrl.hostname = 'localhost';
+          window.location.assign(localUrl.toString());
+          return;
+        }
+
         button.disabled = true;
         status.hidden = false;
         status.textContent = 'Waiting for your passkey…';
