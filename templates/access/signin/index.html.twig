@@ -85,15 +85,21 @@
             headers: { 'Accept': 'application/json' },
             credentials: 'same-origin'
           });
-          if (!optionsResponse.ok) throw new Error('options');
-          const publicKey = await optionsResponse.json();
-          publicKey.challenge = decode(publicKey.challenge);
+          const optionsPayload = await optionsResponse.json();
+          if (!optionsResponse.ok || !optionsPayload.publicKey) {
+            throw new Error(optionsPayload.message || optionsPayload.error || 'Passkey options could not be loaded.');
+          }
+          const publicKey = optionsPayload.publicKey;
+          const challenge = publicKey.challenge;
+          publicKey.challenge = decode(challenge);
           if (Array.isArray(publicKey.allowCredentials)) {
             publicKey.allowCredentials = publicKey.allowCredentials.map(item => ({ ...item, id: decode(item.id) }));
           }
           const assertion = await navigator.credentials.get({ publicKey });
           if (!assertion) throw new Error('cancelled');
           const credential = {
+            challenge,
+            credentialId: assertion.id,
             id: assertion.id,
             rawId: encode(assertion.rawId),
             type: assertion.type,
@@ -111,10 +117,16 @@
             body: JSON.stringify({ credential })
           });
           const result = await completeResponse.json();
-          if (!completeResponse.ok || !result.redirect) throw new Error('complete');
+          if (!completeResponse.ok || !result.redirect) {
+            throw new Error(result.message || result.error || 'Passkey sign-in could not be completed.');
+          }
           window.location.assign(result.redirect);
         } catch (error) {
-          status.textContent = 'Passkey sign-in was cancelled or could not be completed.';
+          if (error instanceof DOMException && 'NotAllowedError' === error.name) {
+            status.textContent = 'Passkey sign-in was cancelled or timed out.';
+          } else {
+            status.textContent = error instanceof Error ? error.message : 'Passkey sign-in could not be completed.';
+          }
           button.disabled = false;
         }
       });
