@@ -47,4 +47,25 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
                 $ttlMinutes,
             )));
     }
+
+    public function sendPasswordResetLink(
+        AccessEntity $user,
+        string $resetUrl,
+        \DateTimeImmutable $expiresAt,
+    ): void {
+        $displayName = trim((string) $user->getDisplayName());
+        $greeting = '' !== $displayName ? sprintf('Hello %s,', $displayName) : 'Hello,';
+
+        $this->mailer->send((new Email())
+            ->from($this->accessingMailerSender)
+            ->to($user->getEmailAddress())
+            ->subject(sprintf('Reset your %s password', $this->accessingProductName))
+            ->text(sprintf(
+                "%s\n\nUse the secure link below to reset your %s password:\n\n%s\n\nThis link expires at %s UTC. If you did not request this, you can ignore this message.",
+                $greeting,
+                $this->accessingProductName,
+                $resetUrl,
+                $expiresAt->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i'),
+            )));
+    }
 }

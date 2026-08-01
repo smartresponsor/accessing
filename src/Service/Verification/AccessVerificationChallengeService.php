@@ -113,8 +113,6 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      */
     public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
     {
-        $user->changePhoneNumber($phoneNumber);
-
         $issuedChallenge = $this->issueChallenge(
             $user,
             AccessVerificationChallengeType::PhoneVerification,
@@ -149,8 +147,6 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             $request,
             ['channel' => 'phone', 'purpose' => 'verification'],
         );
-
-        $this->userRepository->save($user, true);
 
         return $issuedChallenge;
     }
@@ -224,10 +220,17 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      */
     public function completePhoneVerification(AccessEntity $user, string $code): bool
     {
-        if (!$this->consumeChallenge($user, AccessVerificationChallengeType::PhoneVerification, $code)) {
+        $verificationChallenge = $this->consumeChallengeEntity(
+            $user,
+            AccessVerificationChallengeType::PhoneVerification,
+            $code,
+        );
+
+        if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
             return false;
         }
 
+        $user->changePhoneNumber($verificationChallenge->getTarget());
         $user->markPhoneVerified();
         $this->userRepository->save($user, true);
 
@@ -284,10 +287,18 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
 
     private function consumeChallenge(AccessEntity $user, AccessVerificationChallengeType $challengeType, string $code): bool
     {
+        return $this->consumeChallengeEntity($user, $challengeType, $code) instanceof AccessVerificationChallengeEntity;
+    }
+
+    private function consumeChallengeEntity(
+        AccessEntity $user,
+        AccessVerificationChallengeType $challengeType,
+        string $code,
+    ): ?AccessVerificationChallengeEntity {
         $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForUser($user, $challengeType);
 
         if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
-            return false;
+            return null;
         }
 
         $verificationChallenge->registerAttempt();
@@ -305,13 +316,13 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
 
             $this->verificationChallengeRepository->save($verificationChallenge, true);
 
-            return false;
+            return null;
         }
 
         $verificationChallenge->consume();
         $this->verificationChallengeRepository->save($verificationChallenge, true);
 
-        return true;
+        return $verificationChallenge;
     }
 
     private function hashCode(string $code): string
