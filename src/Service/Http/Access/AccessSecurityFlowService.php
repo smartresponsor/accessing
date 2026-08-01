@@ -162,9 +162,14 @@ final readonly class AccessSecurityFlowService
             }
 
             $this->flash($request, 'danger', $result->message);
+
+            return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
+        return $this->pageResponder->respond($this->pageViewFactory->signIn(
+            $form->createView(),
+            $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK,
+        ));
     }
 
     public function passkeyAuthenticationOptions(Request $request): JsonResponse

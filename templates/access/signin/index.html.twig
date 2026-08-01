@@ -13,8 +13,7 @@
       <p class="interfacing-muted">This Accessing page owns the credential form surface. The actual credential check remains in the Accessing/security component.</p>
     </div>
 
-    <turbo-frame id="access-signin-frame">
-    {{ form_start(form, { action: path('access.signin_submit'), attr: form.vars.attr|merge({ 'data-turbo-frame': 'access-signin-frame' }) }) }}
+    {{ form_start(form, { action: path('access.signin_submit'), attr: form.vars.attr|merge({ 'data-access-submit-surface': 'signin' }) }) }}
       {{ form_row(form.emailAddress) }}
       <div class="interfacing-form-row ant-form-item p-field">
         {{ form_label(form.plainPassword) }}
@@ -30,9 +29,11 @@
         <span></span>
         <a href="{{ path('access.recover_request') }}">Forgot password?</a>
       </div>
-      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact">Sign in</button>
+      <button class="interfacing-button-primary ant-btn ant-btn-primary ant-btn-lg p-button p-component" type="submit" data-access-submit data-access-submitting-label="Signing in…" data-interfacing-provider-control="submit" data-interfacing-provider-control-provider="antd-pro" data-interfacing-provider-control-secondary-provider="primereact">
+        <span class="interfacing-submit-spinner" aria-hidden="true"></span>
+        <span data-access-submit-label>Sign in</span>
+      </button>
     {{ form_end(form) }}
-    </turbo-frame>
 
     <button class="interfacing-button-secondary" type="button" data-access-passkey-signin>Sign in with a passkey</button>
     <p class="interfacing-muted" data-access-passkey-status hidden></p>
