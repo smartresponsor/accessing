@@ -39,6 +39,10 @@ Thumbs.db
 /test-results/
 /playwright-report/
 
+# Local tooling runtime
+/.console-mcp/
+/tool/
+
 # AI
 /Domain/Ai/agent-trigger/worker/.dev.vars
 /Domain/Ai/agent-trigger/worker/.dev.vars.*
