@@ -120,6 +120,16 @@ access.second_factor_challenge:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::secondFactorChallenge
   methods: [GET, POST]
 
+access.verify_phone_request:
+  path: /access/verify-phone
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::requestPhone
+  methods: [GET, POST]
+
+access.verify_phone_confirm:
+  path: /access/verify-phone/confirm
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::confirmPhone
+  methods: [GET, POST]
+
 access.reset_password_request:
   path: /access/reset-password/request
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::request
