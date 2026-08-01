@@ -26,6 +26,16 @@ access.register_submit:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::register
   methods: [POST]
 
+access.google_start:
+  path: /access/oauth/google
+  controller: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService::start
+  methods: [GET]
+
+access.google_callback:
+  path: /access/oauth/google/callback
+  controller: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService::callback
+  methods: [GET]
+
 access.passkey_authentication_options:
   path: /access/passkeys/authentication/options
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::passkeyAuthenticationOptions

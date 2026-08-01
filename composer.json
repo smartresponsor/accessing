@@ -36,6 +36,7 @@
     "ext-pdo": "*",
     "configuring/config": "dev-master",
     "interfacing/interface": "dev-master",
+    "league/oauth2-google": "^4.0",
     "objecting/object": "dev-master"
   },
   "require-dev": {

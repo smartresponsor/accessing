@@ -21,6 +21,14 @@ parameters:
   accessing.passkey_rp_id: '%env(default:accessing.passkey_rp_id.default:ACCESSING_PASSKEY_RP_ID)%'
   accessing.passkey_origin.default: ''
   accessing.passkey_origin: '%env(default:accessing.passkey_origin.default:ACCESSING_PASSKEY_ORIGIN)%'
+  accessing.google_oauth_enabled.default: false
+  accessing.google_oauth_enabled: '%env(bool:default:accessing.google_oauth_enabled.default:ACCESSING_GOOGLE_OAUTH_ENABLED)%'
+  accessing.google_oauth_client_id.default: ''
+  accessing.google_oauth_client_id: '%env(default:accessing.google_oauth_client_id.default:ACCESSING_GOOGLE_OAUTH_CLIENT_ID)%'
+  accessing.google_oauth_client_secret.default: ''
+  accessing.google_oauth_client_secret: '%env(default:accessing.google_oauth_client_secret.default:ACCESSING_GOOGLE_OAUTH_CLIENT_SECRET)%'
+  accessing.google_oauth_redirect_origin.default: ''
+  accessing.google_oauth_redirect_origin: '%env(default:accessing.google_oauth_redirect_origin.default:ACCESSING_GOOGLE_OAUTH_REDIRECT_ORIGIN)%'
 
 services:
   _defaults:
@@ -38,6 +46,10 @@ services:
       int $accessingPasskeyChallengeTtlSeconds: 300
       string $accessingPasskeyRelyingPartyId: '%accessing.passkey_rp_id%'
       string $accessingPasskeyOrigin: '%accessing.passkey_origin%'
+      bool $accessingGoogleOAuthEnabled: '%accessing.google_oauth_enabled%'
+      string $accessingGoogleOAuthClientId: '%accessing.google_oauth_client_id%'
+      string $accessingGoogleOAuthClientSecret: '%accessing.google_oauth_client_secret%'
+      string $accessingGoogleOAuthRedirectOrigin: '%accessing.google_oauth_redirect_origin%'
       int $accessingMobileAccessTtlSeconds: 900
       int $accessingMobileRefreshTtlSeconds: 2592000
       int $accessingMobilePendingAuthTtlSeconds: 600
@@ -88,10 +100,12 @@ services:
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyChallengeService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyRegistrationService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService'
+  App\Accessing\ServiceInterface\OAuth\AccessExternalAuthenticationServiceInterface: '@App\Accessing\Service\OAuth\AccessExternalAuthenticationService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAttestationVerifier'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAssertionVerifier'
   App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface: '@App\Accessing\Service\Mobile\AccessMobileTokenService'
   App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface: '@App\Accessing\Service\Mobile\AccessMobilePendingAuthService'
+  App\Accessing\RepositoryInterface\AccessExternalIdentityRepositoryInterface: '@App\Accessing\Repository\AccessExternalIdentityRepository'
   App\Accessing\RepositoryInterface\AccessPasskeyChallengeRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyChallengeRepository'
   App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyCredentialRepository'
   App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface: '@App\Accessing\Repository\AccessMobileSessionRepository'
@@ -124,6 +138,9 @@ services:
     public: true
     tags: ['controller.service_arguments']
   App\Accessing\Service\Http\Access\AccessResetPasswordFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService:
     public: true
     tags: ['controller.service_arguments']
   App\Accessing\Service\Http\Api\Access\ApiAccessFlowService:

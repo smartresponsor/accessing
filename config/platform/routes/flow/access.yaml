@@ -23,6 +23,16 @@ access.signin_submit:
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: signInSubmit
 
+access.google_start:
+  path: "/access/oauth/google"
+  service: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService
+  action: start
+
+access.google_callback:
+  path: "/access/oauth/google/callback"
+  service: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService
+  action: callback
+
 access.passkey_authentication_options:
   path: "/access/passkeys/authentication/options"
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService

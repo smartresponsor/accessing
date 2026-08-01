@@ -20,6 +20,8 @@ interface AccessAuthenticationServiceInterface
 
     public function completePasskeySignIn(AccessEntity $user, Request $request): void;
 
+    public function completeExternalSignIn(AccessEntity $user, Request $request): void;
+
     public function signOut(?AccessEntity $user, Request $request): void;
 
     public function getPendingSecondFactorUserId(SessionInterface $session): ?int;
