@@ -43,8 +43,8 @@ access.passkey_authentication_complete:
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: passkeyAuthenticationComplete
 
-access.sign_out:
-  path: "/access/sign-out"
+access.signout:
+  path: "/access/signout"
   service: App\Accessing\Service\Http\Access\AccessSecurityFlowService
   action: signOut
 

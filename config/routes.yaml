@@ -140,8 +140,8 @@ access.switch:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::switchUser
   methods: [POST]
 
-access.sign_out:
-  path: /access/sign-out
+access.signout:
+  path: /access/signout
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::signOut
   methods: [POST]
 
