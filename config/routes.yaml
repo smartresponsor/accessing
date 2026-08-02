@@ -130,6 +130,21 @@ access.second_factor_challenge:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::secondFactorChallenge
   methods: [GET, POST]
 
+access.password:
+  path: /access/password
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::password
+  methods: [GET, POST]
+
+access.switch:
+  path: /access/switch
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::switchUser
+  methods: [POST]
+
+access.sign_out:
+  path: /access/sign-out
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::signOut
+  methods: [POST]
+
 access.verify_phone_request:
   path: /access/verify-phone
   controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::requestPhone
