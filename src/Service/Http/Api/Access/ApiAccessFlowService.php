@@ -30,12 +30,13 @@ use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\ValueObject\AccessMobilePendingPurpose;
-use Symfony\Bundle\FrameworkBundle\Controller\AsController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
+use Symfony\Component\Uid\Uuid;
 
 #[AsController]
 final readonly class ApiAccessFlowService
@@ -88,13 +89,7 @@ final readonly class ApiAccessFlowService
             return $this->responder->session(
                 new ApiAccessSessionPayload(
                     'authenticated',
-                    new ApiAccessIdentityPayload(
-                        $result->user->getId(),
-                        $result->user->getDisplayName(),
-                        $result->user->getEmail(),
-                        $result->user->isEmailVerified(),
-                        $result->user->isSecondFactorEnabled(),
-                    ),
+                    $this->identityFromUser($result->user),
                     $tokens->accessToken,
                     $tokens->refreshToken,
                     $tokens->accessExpiresAt->format(DATE_ATOM),
@@ -159,7 +154,7 @@ final readonly class ApiAccessFlowService
 
         return $this->responder->session(new ApiAccessSessionPayload(
             'authenticated',
-            new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+            $this->identityFromUser($user),
             $tokens->accessToken,
             $tokens->refreshToken,
             $tokens->accessExpiresAt->format(DATE_ATOM),
@@ -236,7 +231,7 @@ final readonly class ApiAccessFlowService
         return $this->responder->session(
             new ApiAccessSessionPayload(
                 'verification_pending',
-                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                $this->identityFromUser($user),
                 null,
                 null,
                 $pending->expiresAt->format(DATE_ATOM),
@@ -347,7 +342,7 @@ final readonly class ApiAccessFlowService
 
             return $this->responder->session(new ApiAccessSessionPayload(
                 'verification_pending',
-                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                $this->identityFromUser($user),
                 null,
                 null,
                 $replacement->expiresAt->format(DATE_ATOM),
@@ -440,7 +435,7 @@ final readonly class ApiAccessFlowService
 
             return $this->responder->session(new ApiAccessSessionPayload(
                 'second_factor_pending',
-                new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+                $this->identityFromUser($user),
                 null,
                 null,
                 $pendingAuth->getExpiresAt()->format(DATE_ATOM),
@@ -847,17 +842,23 @@ final readonly class ApiAccessFlowService
         );
     }
 
+    private function identityFromUser(AccessEntity $user): ApiAccessIdentityPayload
+    {
+        return new ApiAccessIdentityPayload(
+            $user->getId(),
+            $user->getDisplayName(),
+            $user->getEmail(),
+            $user->isEmailVerified(),
+            $user->isSecondFactorEnabled(),
+            Uuid::fromString($user->getObjectUuid())->toRfc4122(),
+        );
+    }
+
     private function sessionFromUser(string $status, AccessEntity $user, bool $requiresVerification, bool $requiresSecondFactor): ApiAccessSessionPayload
     {
         return new ApiAccessSessionPayload(
             $status,
-            new ApiAccessIdentityPayload(
-                $user->getId(),
-                $user->getDisplayName(),
-                $user->getEmail(),
-                $user->isEmailVerified(),
-                $user->isSecondFactorEnabled(),
-            ),
+            $this->identityFromUser($user),
             null,
             null,
             null,
@@ -923,7 +924,7 @@ final readonly class ApiAccessFlowService
 
         return $this->responder->session(new ApiAccessSessionPayload(
             'authenticated',
-            new ApiAccessIdentityPayload($user->getId(), $user->getDisplayName(), $user->getEmail(), $user->isEmailVerified(), $user->isSecondFactorEnabled()),
+            $this->identityFromUser($user),
             $tokens->accessToken,
             $tokens->refreshToken,
             $tokens->accessExpiresAt->format(DATE_ATOM),

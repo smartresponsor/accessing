@@ -56,6 +56,7 @@ final class ApiAccessDtoContractTest extends TestCase
                 'email' => 'demo@example.test',
                 'emailVerified' => true,
                 'secondFactorEnabled' => false,
+                'userUuid' => null,
             ],
             $payload->toArray(),
         );

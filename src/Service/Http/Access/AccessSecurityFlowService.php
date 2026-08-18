@@ -366,7 +366,7 @@ final readonly class AccessSecurityFlowService
 
     private function postSignInUrl(): string
     {
-        return '/';
+        return '/product/index';
     }
 
     private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig

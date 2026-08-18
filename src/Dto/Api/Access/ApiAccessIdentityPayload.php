@@ -12,11 +12,12 @@ final readonly class ApiAccessIdentityPayload
         public ?string $email,
         public bool $emailVerified,
         public bool $secondFactorEnabled,
+        public ?string $userUuid = null,
     ) {
     }
 
     /**
-     * @return array{userId: int|string|null, displayName: ?string, email: ?string, emailVerified: bool, secondFactorEnabled: bool}
+     * @return array{userId: int|string|null, displayName: ?string, email: ?string, emailVerified: bool, secondFactorEnabled: bool, userUuid: ?string}
      */
     public function toArray(): array
     {
@@ -26,6 +27,7 @@ final readonly class ApiAccessIdentityPayload
             'email' => $this->email,
             'emailVerified' => $this->emailVerified,
             'secondFactorEnabled' => $this->secondFactorEnabled,
+            'userUuid' => $this->userUuid,
         ];
     }
 }

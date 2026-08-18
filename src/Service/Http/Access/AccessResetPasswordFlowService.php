@@ -87,7 +87,7 @@ final readonly class AccessResetPasswordFlowService
                     $this->securityNotificationService->sendPasswordResetLink(
                         $user,
                         $resetUrl,
-                        $resetToken->getExpiresAt(),
+                        \DateTimeImmutable::createFromInterface($resetToken->getExpiresAt()),
                     );
 
                     if (in_array($this->kernel->getEnvironment(), ['dev', 'test'], true)) {

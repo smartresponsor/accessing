@@ -32,6 +32,7 @@ final class ApiAccessJsonResponderTest extends TestCase
                     'email' => 'demo@example.test',
                     'emailVerified' => true,
                     'secondFactorEnabled' => true,
+                    'userUuid' => null,
                 ],
                 'accessToken' => null,
                 'refreshToken' => null,
