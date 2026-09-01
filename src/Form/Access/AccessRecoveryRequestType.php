@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessRecoveryRequestDto;
+use App\Accessing\Dto\AccessRecoveryRequest;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,7 +33,7 @@ final class AccessRecoveryRequestType extends AbstractType
 
         $resolver->setDefaults([
             'csrf_protection' => false,
-            'data_class' => AccessRecoveryRequestDto::class,
+            'data_class' => AccessRecoveryRequest::class,
         ]);
     }
 }

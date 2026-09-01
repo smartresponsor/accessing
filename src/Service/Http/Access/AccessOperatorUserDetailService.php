@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

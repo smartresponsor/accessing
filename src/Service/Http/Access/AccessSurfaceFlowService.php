@@ -5,20 +5,20 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\Dto\AccessPasswordChangeDto;
-use App\Accessing\Dto\AccessPhoneVerificationRequestDto;
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\Dto\AccessPasswordChange;
+use App\Accessing\Dto\AccessPhoneVerificationRequest;
+use App\Accessing\Dto\AccessVerificationCode;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\Form\Access\AccessPasswordChangeType;
 use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
 use App\Accessing\Form\Access\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
@@ -78,7 +78,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCode $data */
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completeEmailVerification($user, $data->code)) {
@@ -115,7 +115,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessPhoneVerificationRequestDto $data */
+            /** @var AccessPhoneVerificationRequest $data */
             $data = $form->getData();
             $issuedChallenge = $this->verificationChallengeService->issuePhoneVerification($user, $data->phoneNumber, $request);
 
@@ -141,7 +141,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCode $data */
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completePhoneVerification($user, $data->code)) {
@@ -170,7 +170,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCode $data */
             $data = $form->getData();
             $confirmedEnrollment = $this->secondFactorService->confirmEnrollment($user, $data->code);
 
@@ -254,7 +254,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessPasswordChangeDto $data */
+            /** @var AccessPasswordChange $data */
             $data = $form->getData();
 
             if (!$this->credentialService->verifyPassword($user, $data->currentPassword)) {

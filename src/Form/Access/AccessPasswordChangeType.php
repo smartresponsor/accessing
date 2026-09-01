@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessPasswordChangeDto;
+use App\Accessing\Dto\AccessPasswordChange;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -33,7 +33,7 @@ final class AccessPasswordChangeType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'data_class' => AccessPasswordChangeDto::class,
+            'data_class' => AccessPasswordChange::class,
         ]);
     }
 }

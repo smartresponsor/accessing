@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
+use App\Accessing\Clock\AccessSystemClock;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
-use App\Accessing\Service\Clock\AccessSystemClock;
 use App\Accessing\Service\SecondFactor\AccessSecondFactorService;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;

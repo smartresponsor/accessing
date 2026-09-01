@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\Exception\AccessCrudSkeletonException;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class AccessCreateService

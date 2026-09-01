@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessRecoveryResetDto;
+use App\Accessing\Dto\AccessRecoveryReset;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -43,7 +43,7 @@ final class AccessRecoveryResetType extends AbstractType
 
         $resolver->setDefaults([
             'csrf_protection' => false,
-            'data_class' => AccessRecoveryResetDto::class,
+            'data_class' => AccessRecoveryReset::class,
         ]);
     }
 }

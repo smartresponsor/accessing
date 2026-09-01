@@ -12,14 +12,14 @@ use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\Exception\AccessPasskeyVerificationUnavailableException;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\Service\Passkey\AccessPasskeyRegistrationService;
-use App\Accessing\Service\Passkey\AccessUnavailablePasskeyAttestationVerifier;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
+use App\Accessing\Verifier\Passkey\AccessUnavailablePasskeyAttestationVerifier;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPasskeyRegistrationServiceTest extends TestCase

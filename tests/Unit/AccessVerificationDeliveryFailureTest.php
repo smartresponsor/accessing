@@ -7,12 +7,12 @@ namespace App\Accessing\Tests\Unit;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
+use App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\Service\Verification\AccessVerificationChallengeService;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
-use App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -48,7 +48,7 @@ final class AccessVerificationDeliveryFailureTest extends TestCase
             $repository,
             $this->createMock(AccessRepositoryInterface::class),
             $events,
-            $this->createMock(AccessPhoneVerificationProviderServiceInterface::class),
+            $this->createMock(AccessPhoneVerificationProviderInterface::class),
             $notification,
             new RateLimiterFactory(['id' => 'test', 'policy' => 'fixed_window', 'limit' => 10, 'interval' => '1 minute'], new InMemoryStorage()),
             'test-secret',
@@ -77,7 +77,7 @@ final class AccessVerificationDeliveryFailureTest extends TestCase
                 $saved[] = $challenge->isCompleted();
             });
 
-        $phone = $this->createMock(AccessPhoneVerificationProviderServiceInterface::class);
+        $phone = $this->createMock(AccessPhoneVerificationProviderInterface::class);
         $phone->method('sendVerificationMessage')->willThrowException(new \RuntimeException('sms provider failure'));
 
         $service = new AccessVerificationChallengeService(

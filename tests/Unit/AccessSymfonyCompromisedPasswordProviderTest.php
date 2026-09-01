@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Service\Password\AccessSymfonyCompromisedPasswordProvider;
+use App\Accessing\Provider\Password\AccessSymfonyCompromisedPasswordProvider;
 use App\Accessing\ValueObject\AccessPasswordSafetyStatus;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Constraints\NotCompromisedPassword;

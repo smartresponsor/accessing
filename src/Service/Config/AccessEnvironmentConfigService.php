@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Config;
 
+use App\Accessing\Dto\Config\AccessEnvironmentConfigData;
 use App\Accessing\Form\Config\AccessEnvironmentConfigType;
-use App\Accessing\Value\Config\AccessEnvironmentConfigData;
 use App\Configuring\ServiceInterface\Config\ConfigToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ConfigVariableToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ManagedConfigVariablesProviderInterface;

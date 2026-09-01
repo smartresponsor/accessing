@@ -6,27 +6,27 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
-use App\Accessing\Dto\AccessRecoveryRequestDto;
-use App\Accessing\Dto\AccessRecoveryResetDto;
+use App\Accessing\Dto\AccessRecoveryRequest;
+use App\Accessing\Dto\AccessRecoveryReset;
 use App\Accessing\Dto\AccessRegistrationRequest;
-use App\Accessing\Dto\AccessSignInRequestDto;
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\Dto\AccessSignInRequest;
+use App\Accessing\Dto\AccessVerificationCode;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\Form\Access\AccessRecoveryRequestType;
 use App\Accessing\Form\Access\AccessRecoveryResetType;
 use App\Accessing\Form\Access\AccessRegistrationType;
 use App\Accessing\Form\Access\AccessSignInType;
 use App\Accessing\Form\Access\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -143,7 +143,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessSignInRequestDto $data */
+            /** @var AccessSignInRequest $data */
             $data = $form->getData();
             $result = $this->userAuthenticationService->attemptPasswordSignIn(
                 $data->emailAddress,
@@ -231,7 +231,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCode $data */
             $data = $form->getData();
 
             if ($this->secondFactorService->verifyChallenge($user, $data->code)) {
@@ -275,7 +275,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryRequestDto $data */
+            /** @var AccessRecoveryRequest $data */
             $data = $form->getData();
             try {
                 $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
@@ -300,7 +300,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryResetDto $data */
+            /** @var AccessRecoveryReset $data */
             $data = $form->getData();
 
             try {

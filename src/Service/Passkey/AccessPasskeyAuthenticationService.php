@@ -9,7 +9,6 @@ use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
@@ -17,6 +16,7 @@ use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInter
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class AccessPasskeyAuthenticationService implements AccessPasskeyAuthenticationServiceInterface

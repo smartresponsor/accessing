@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Tests\Integration;
 
 use App\Accessing\Recorder\SecurityEvent\AccessSecurityEventRecorder;
-use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
+use App\Accessing\RecorderInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +31,7 @@ final class AccessSecurityEventRecorderTest extends TestCase
 
     public function testLegacyRecorderFilesContainNoFreeFormRecordContract(): void
     {
-        $interfaceSource = file_get_contents(__DIR__.'/../../src/ServiceInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php');
+        $interfaceSource = file_get_contents(__DIR__.'/../../src/RecorderInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php');
         $recorderSource = file_get_contents(__DIR__.'/../../src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php');
 
         self::assertIsString($interfaceSource);

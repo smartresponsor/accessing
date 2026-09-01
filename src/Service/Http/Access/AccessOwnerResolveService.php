@@ -6,8 +6,8 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
-use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class AccessOwnerResolveService

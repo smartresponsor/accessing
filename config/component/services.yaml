@@ -67,12 +67,11 @@ services:
     exclude:
       - '../../src/Kernel.php'
       - '../../src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php'
-      - '../../src/ServiceInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
+      - '../../src/RecorderInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
       - '../../src/DependencyInjection/'
       - '../../src/Entity/'
       - ../../src/Dto/
       - ../../src/ValueObject/
-      - ../../src/Value/
       - ../../src/Contract/
       - ../../src/Event/
       - ../../src/Message/
@@ -83,8 +82,8 @@ services:
       - ../../src/Service/Config/
 
 
-  Psr\Clock\ClockInterface: '@App\Accessing\Service\Clock\AccessSystemClock'
-  App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
+  Psr\Clock\ClockInterface: '@App\Accessing\Clock\AccessSystemClock'
+  App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
   App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface: '@App\Accessing\Service\Access\AccessAuthenticationService'
   App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface: '@App\Accessing\Service\Access\AccessRegistrationService'
   App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface: '@App\Accessing\Service\Session\AccessSessionService'
@@ -93,16 +92,16 @@ services:
   App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessSecondFactorService'
   App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessSecurityEventService'
   App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService'
-  App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService'
+  App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface: '@App\Accessing\Service\PhoneVerification\AccessPhoneVerificationGatewayService'
   App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessVerificationChallengeService'
-  App\Accessing\ServiceInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Service\Password\AccessSymfonyCompromisedPasswordProvider'
+  App\Accessing\ProviderInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Provider\Password\AccessSymfonyCompromisedPasswordProvider'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyCredentialService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyChallengeService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyRegistrationService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService'
   App\Accessing\ServiceInterface\OAuth\AccessExternalAuthenticationServiceInterface: '@App\Accessing\Service\OAuth\AccessExternalAuthenticationService'
-  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAttestationVerifier'
-  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAssertionVerifier'
+  App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Verifier\Passkey\AccessWebauthnAttestationVerifier'
+  App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Verifier\Passkey\AccessWebauthnAssertionVerifier'
   App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface: '@App\Accessing\Service\Mobile\AccessMobileTokenService'
   App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface: '@App\Accessing\Service\Mobile\AccessMobilePendingAuthService'
   App\Accessing\RepositoryInterface\AccessExternalIdentityRepositoryInterface: '@App\Accessing\Repository\AccessExternalIdentityRepository'
@@ -115,10 +114,10 @@ services:
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-  App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface: '@App\Accessing\Responder\Rendering\AccessTwigPageResponder'
-  App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface: '@App\Accessing\Factory\Rendering\AccessPageViewFactory'
+  App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface: '@App\Accessing\Responder\Rendering\AccessTwigPageResponder'
+  App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface: '@App\Accessing\Factory\Rendering\AccessPageViewFactory'
 
-  App\Accessing\Controller\Api\Access\ApiAccessController:
+  App\Accessing\Controller\Api\Access\AccessApiController:
     public: true
     tags: ['controller.service_arguments']
 
@@ -143,19 +142,19 @@ services:
   App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService:
     public: true
     tags: ['controller.service_arguments']
-  App\Accessing\Service\Http\Api\Access\ApiAccessFlowService:
+  App\Accessing\Service\Http\Api\Access\AccessApiFlowService:
     public: true
     tags: ['controller.service_arguments']
 
-  App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService:
+  App\Accessing\Service\PhoneVerification\AccessPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
       $selectedProvider: '%accessing.phone_verification_provider%'
 
-  App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService:
+  App\Accessing\Provider\PhoneVerification\AccessFakePhoneVerificationProvider:
     tags: ['app.accessing.phone_provider']
 
-  App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService:
+  App\Accessing\Provider\PhoneVerification\AccessNullPhoneVerificationProvider:
     tags: ['app.accessing.phone_provider']
 
   App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:

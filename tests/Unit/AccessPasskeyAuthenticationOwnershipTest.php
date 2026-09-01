@@ -10,11 +10,11 @@ use App\Accessing\Entity\AccessPasskeyChallengeEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPasskeyAuthenticationOwnershipTest extends TestCase
