@@ -6,14 +6,14 @@ namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Dto\AccessMobilePendingToken;
 use App\Accessing\Dto\AccessMobileTokenPair;
-use App\Accessing\Dto\AccessSignInResultDto;
+use App\Accessing\Dto\AccessSignInResult;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
-use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
-use App\Accessing\Service\Http\Api\Access\ApiAccessFlowService;
+use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
+use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
-use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
@@ -30,7 +30,7 @@ final class AccessMobileContinuationApiTest extends TestCase
     {
         $user = new AccessEntity('second-factor@example.test', 'Second Factor');
         $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
-        $authentication->method('attemptPasswordSignIn')->willReturn(AccessSignInResultDto::pendingSecondFactor($user));
+        $authentication->method('attemptPasswordSignIn')->willReturn(AccessSignInResult::pendingSecondFactor($user));
         $pending = $this->createMock(AccessMobilePendingAuthServiceInterface::class);
         $pending->expects(self::once())
             ->method('issue')
@@ -114,12 +114,12 @@ final class AccessMobileContinuationApiTest extends TestCase
         ?AccessMobileTokenServiceInterface $tokens = null,
         ?AccessVerificationChallengeServiceInterface $verification = null,
         ?AccessSecondFactorServiceInterface $secondFactor = null,
-    ): ApiAccessFlowService {
-        return new ApiAccessFlowService(
+    ): AccessApiFlowService {
+        return new AccessApiFlowService(
             $authentication,
             $this->createMock(AccessRegistrationServiceInterface::class),
             $this->createMock(AccessCurrentContextProviderInterface::class),
-            new ApiAccessJsonResponder(),
+            new AccessApiJsonResponder(),
             $this->createMock(Security::class),
             verificationChallengeService: $verification,
             secondFactorService: $secondFactor,

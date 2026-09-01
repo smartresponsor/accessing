@@ -2,103 +2,103 @@ api.access.signin:
   path: /api/access/signin
   routeKey: api.access.signin
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: signIn
 
 api.access.refresh:
   path: /api/access/refresh
   routeKey: api.access.refresh
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: refresh
 
 api.access.register:
   path: /api/access/register
   routeKey: api.access.register
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: register
 
 api.access.logout:
   path: /api/access/logout
   routeKey: api.access.logout
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: logout
 
 api.access.session:
   path: /api/access/session
   routeKey: api.access.session
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: session
 
 api.access.verification.resend:
   path: /api/access/verification/resend
   routeKey: api.access.verification.resend
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: resendVerification
 
 api.access.verification.confirm:
   path: /api/access/verification/confirm
   routeKey: api.access.verification.confirm
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: confirmVerification
 
 api.access.second_factor.challenge:
   path: /api/access/second-factor/challenge
   routeKey: api.access.second_factor.challenge
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: challengeSecondFactor
 
 api.access.second_factor.verify:
   path: /api/access/second-factor/verify
   routeKey: api.access.second_factor.verify
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: verifySecondFactor
 
 api.access.passkey.registration.options:
   path: /api/access/passkeys/registration/options
   routeKey: api.access.passkey.registration.options
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: passkeyRegistrationOptions
 
 api.access.passkey.registration.complete:
   path: /api/access/passkeys/registration/complete
   routeKey: api.access.passkey.registration.complete
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: passkeyRegistrationComplete
 
 api.access.passkey.authentication.options:
   path: /api/access/passkeys/authentication/options
   routeKey: api.access.passkey.authentication.options
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: passkeyAuthenticationOptions
 
 api.access.passkey.authentication.complete:
   path: /api/access/passkeys/authentication/complete
   routeKey: api.access.passkey.authentication.complete
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: passkeyAuthenticationComplete
 
 api.access.recovery.request:
   path: /api/access/recovery/request
   routeKey: api.access.recovery.request
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: requestRecovery
 
 api.access.recovery.reset:
   path: /api/access/recovery/reset
   routeKey: api.access.recovery.reset
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
   action: resetRecovery

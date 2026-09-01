@@ -60,8 +60,12 @@ final class AccessFormTypesTest extends TypeTestCase
     {
         $registration = $this->factory->create(AccessRegistrationType::class);
         self::assertSame('Email address', $registration->get('email')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $registration->get('plainPassword')->get('first')->getConfig()->getOption('attr')['autocomplete'] ?? null);
-        self::assertSame('new-password', $registration->get('plainPassword')->get('second')->getConfig()->getOption('attr')['autocomplete'] ?? null);
+        $firstPasswordAttributes = $registration->get('plainPassword')->get('first')->getConfig()->getOption('attr');
+        $secondPasswordAttributes = $registration->get('plainPassword')->get('second')->getConfig()->getOption('attr');
+        self::assertIsArray($firstPasswordAttributes);
+        self::assertIsArray($secondPasswordAttributes);
+        self::assertSame('new-password', $firstPasswordAttributes['autocomplete'] ?? null);
+        self::assertSame('new-password', $secondPasswordAttributes['autocomplete'] ?? null);
         self::assertTrue($registration->has('phoneNumber'));
 
         $signIn = $this->factory->create(AccessSignInType::class);

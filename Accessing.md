@@ -23,7 +23,7 @@ Accessing is a well-typed, `declare(strict_types=1)`, mostly `final readonly` Sy
 
 ## Bugs & Potential Bugs
 
-1. **CRITICAL — Obfuscated dynamic property/method call in the password-recovery API path** (`src/Service/Http/Api/Access/ApiAccessFlowService.php:397-437`):
+1. **CRITICAL — Obfuscated dynamic property/method call in the password-recovery API path** (`src/Service/Http/Api/Access/AccessApiFlowService.php:397-437`):
    ```php
    private function completeRecoveryThroughService(array $payload, array $fieldErrors): JsonResponse
    {
@@ -58,7 +58,7 @@ Accessing is a well-typed, `declare(strict_types=1)`, mostly `final readonly` Sy
 
 ## Logging
 
-1. **Systemic absence of application-level logging.** Across the ~130 PHP files under `Accessing/src`, `Psr\Log\LoggerInterface` is only injected/used in **one** file: `src/Service/Vendor/AccessFakePhoneVerificationProviderService.php:9,14,25` (a fake/dev stub). Every other service — sign-in, registration, recovery, 2FA, session management, verification challenges — has zero operational log statements. The only durable trail is the `AccessSecurityEventEntity` table, which is a domain audit log, not an operational one: it captures *what happened to a user* but not *why the system failed* (exceptions, mailer errors, DB errors, DI misconfiguration). In production this means on-call engineers debugging an auth incident have no structured logs to grep — only the DB-persisted security events (see finding above about locked-account attempts not even being recorded there) and framework default error logs.
+1. **Systemic absence of application-level logging.** Across the ~130 PHP files under `Accessing/src`, `Psr\Log\LoggerInterface` is only injected/used in **one** file: `src/Provider/PhoneVerification/AccessFakePhoneVerificationProvider.php:9,14,25` (a fake/dev stub). Every other service — sign-in, registration, recovery, 2FA, session management, verification challenges — has zero operational log statements. The only durable trail is the `AccessSecurityEventEntity` table, which is a domain audit log, not an operational one: it captures *what happened to a user* but not *why the system failed* (exceptions, mailer errors, DB errors, DI misconfiguration). In production this means on-call engineers debugging an auth incident have no structured logs to grep — only the DB-persisted security events (see finding above about locked-account attempts not even being recorded there) and framework default error logs.
 
 2. **Inconsistent event taxonomy makes the one audit trail that exists harder to query** (see Architecture #1) — enum-typed `AccessSecurityEventType` values mixed with ad-hoc strings like `'user.registered'` in the same table/column.
 
@@ -68,7 +68,7 @@ Accessing is a well-typed, `declare(strict_types=1)`, mostly `final readonly` Sy
 
 1. **SRP/duplication** — `AccessSecurityEventService` and `AccessSecurityEventRecorder` (see Architecture #1) are two implementations of "record a security event," with different signatures, doing the same job against the same storage. This is a clear single-responsibility split that should be one abstraction.
 
-2. **ISP/DIP smell in `ApiAccessFlowService`** (`src/Service/Http/Api/Access/ApiAccessFlowService.php:30-40`): the constructor takes **nine** dependencies, four of them nullable with `= null` defaults (`$accessRepository`, `$recoveryService`, `$verificationChallengeService`, `$secondFactorService`). A class needing optional/nullable collaborators to do its job is a sign it's covering too many use cases (sign-in, register, logout, session, verification, 2FA challenge, recovery) that could be split into smaller flow-specific controllers, consistent with how `Service/Http/Access/*` already splits the Twig-rendered flows into one class per action.
+2. **ISP/DIP smell in `AccessApiFlowService`** (`src/Service/Http/Api/Access/AccessApiFlowService.php:30-40`): the constructor takes **nine** dependencies, four of them nullable with `= null` defaults (`$accessRepository`, `$recoveryService`, `$verificationChallengeService`, `$secondFactorService`). A class needing optional/nullable collaborators to do its job is a sign it's covering too many use cases (sign-in, register, logout, session, verification, 2FA challenge, recovery) that could be split into smaller flow-specific controllers, consistent with how `Service/Http/Access/*` already splits the Twig-rendered flows into one class per action.
 
 3. **LSP-adjacent risk from dynamic dispatch** — the `applyAccessEngine`/obfuscated call in Bug #1 bypasses the interface contract (`AccessRecoveryServiceInterface`) entirely via `$this->{$slot}->{$operation}(...)`; static analysis tools (PHPStan, which is present in `composer.json` dev deps) cannot verify this call site at all, defeating the purpose of the typed interface.
 
@@ -82,7 +82,7 @@ Accessing is a well-typed, `declare(strict_types=1)`, mostly `final readonly` Sy
 
 ## Prioritized Recommendations
 
-1. **(Critical, do first)** Have a human reviewer manually inspect `ApiAccessFlowService::completeRecoveryThroughService`/`applyAccessEngine` (lines 397-437). Confirm intent, then replace the obfuscated `base64_decode`/`str_rot13`/dynamic-property-and-method-call chain with a direct, typed call to `$this->recoveryService->resetPassword($email, $code, $password)`. Treat as a security review item, not just a style fix.
+1. **(Critical, do first)** Have a human reviewer manually inspect `AccessApiFlowService::completeRecoveryThroughService`/`applyAccessEngine` (lines 397-437). Confirm intent, then replace the obfuscated `base64_decode`/`str_rot13`/dynamic-property-and-method-call chain with a direct, typed call to `$this->recoveryService->resetPassword($email, $code, $password)`. Treat as a security review item, not just a style fix.
 2. **(High)** Fix `AccessEnsureAdminCommand` so it only sets the admin password on first creation (or requires an explicit `--reset-password` flag), and stop using a hardcoded literal (`'admin'`) — generate a random password and print/store it once, or require an env var.
 3. **(High)** Add an environment guard (refuse to run outside `dev`/`test`) and a confirmation/`--force` flag to `AccessDemoResetCommand` before `dropDatabase()`.
 4. **(Medium)** Consolidate `AccessSecurityEventService` and `AccessSecurityEventRecorder` into one interface/implementation with a single event-type taxonomy (enum-only).

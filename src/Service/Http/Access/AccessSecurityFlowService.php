@@ -6,27 +6,27 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
-use App\Accessing\Dto\AccessRecoveryRequestDto;
-use App\Accessing\Dto\AccessRecoveryResetDto;
+use App\Accessing\Dto\AccessRecoveryRequest;
+use App\Accessing\Dto\AccessRecoveryReset;
 use App\Accessing\Dto\AccessRegistrationRequest;
-use App\Accessing\Dto\AccessSignInRequestDto;
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\Dto\AccessSignInRequest;
+use App\Accessing\Dto\AccessVerificationCode;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\Form\Access\AccessRecoveryRequestType;
 use App\Accessing\Form\Access\AccessRecoveryResetType;
 use App\Accessing\Form\Access\AccessRegistrationType;
 use App\Accessing\Form\Access\AccessSignInType;
 use App\Accessing\Form\Access\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -64,7 +64,7 @@ final readonly class AccessSecurityFlowService
     public function register(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -116,7 +116,7 @@ final readonly class AccessSecurityFlowService
     public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -136,14 +136,14 @@ final readonly class AccessSecurityFlowService
     public function signInSubmit(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessSignInRequestDto $data */
+            /** @var AccessSignInRequest $data */
             $data = $form->getData();
             $result = $this->userAuthenticationService->attemptPasswordSignIn(
                 $data->emailAddress,
@@ -152,7 +152,7 @@ final readonly class AccessSecurityFlowService
             );
 
             if ($result->authenticated) {
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             if ($result->requiresSecondFactor) {
@@ -162,9 +162,14 @@ final readonly class AccessSecurityFlowService
             }
 
             $this->flash($request, 'danger', $result->message);
+
+            return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
+        return $this->pageResponder->respond($this->pageViewFactory->signIn(
+            $form->createView(),
+            $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK,
+        ));
     }
 
     public function passkeyAuthenticationOptions(Request $request): JsonResponse
@@ -179,7 +184,7 @@ final readonly class AccessSecurityFlowService
     public function passkeyAuthenticationComplete(Request $request): JsonResponse
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         }
 
         try {
@@ -200,7 +205,7 @@ final readonly class AccessSecurityFlowService
             $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
             $this->userAuthenticationService->completePasskeySignIn($user, $request);
 
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         } catch (\Throwable) {
             return new JsonResponse(['error' => 'passkey_authentication_failed'], Response::HTTP_UNAUTHORIZED);
         }
@@ -226,14 +231,14 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCode $data */
             $data = $form->getData();
 
             if ($this->secondFactorService->verifyChallenge($user, $data->code)) {
                 $this->userAuthenticationService->completePendingSecondFactor($user, $request);
                 $this->flash($request, 'success', 'Signed in successfully.');
 
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             $this->flash($request, 'danger', 'The second factor code was not accepted.');
@@ -270,7 +275,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryRequestDto $data */
+            /** @var AccessRecoveryRequest $data */
             $data = $form->getData();
             try {
                 $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
@@ -295,7 +300,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryResetDto $data */
+            /** @var AccessRecoveryReset $data */
             $data = $form->getData();
 
             try {
@@ -352,6 +357,16 @@ final readonly class AccessSecurityFlowService
     private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
     {
         return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
+    }
+
+    private function redirectAfterSignIn(): RedirectResponse
+    {
+        return new RedirectResponse($this->postSignInUrl());
+    }
+
+    private function postSignInUrl(): string
+    {
+        return '/product/index';
     }
 
     private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig

@@ -26,6 +26,16 @@ access.register_submit:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::register
   methods: [POST]
 
+access.google_start:
+  path: /access/oauth/google
+  controller: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService::start
+  methods: [GET]
+
+access.google_callback:
+  path: /access/oauth/google/callback
+  controller: App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService::callback
+  methods: [GET]
+
 access.passkey_authentication_options:
   path: /access/passkeys/authentication/options
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::passkeyAuthenticationOptions
@@ -42,67 +52,67 @@ api_access_controllers:
 
 api_access_refresh:
   path: /api/access/refresh
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::refresh
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::refresh
   methods: [POST]
 
 api_access_register:
   path: /api/access/register
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::register
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::register
   methods: [POST]
 
 api_access_logout:
   path: /api/access/logout
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::logout
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::logout
   methods: [POST]
 
 api_access_verification_resend:
   path: /api/access/verification/resend
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::resendVerification
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::resendVerification
   methods: [POST]
 
 api_access_verification_confirm:
   path: /api/access/verification/confirm
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::confirmVerification
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::confirmVerification
   methods: [POST]
 
 api_access_second_factor_challenge:
   path: /api/access/second-factor/challenge
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::challengeSecondFactor
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::challengeSecondFactor
   methods: [POST]
 
 api_access_second_factor_verify:
   path: /api/access/second-factor/verify
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::verifySecondFactor
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::verifySecondFactor
   methods: [POST]
 
 api_access_passkey_registration_options:
   path: /api/access/passkeys/registration/options
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyRegistrationOptions
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::passkeyRegistrationOptions
   methods: [POST]
 
 api_access_passkey_registration_complete:
   path: /api/access/passkeys/registration/complete
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyRegistrationComplete
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::passkeyRegistrationComplete
   methods: [POST]
 
 api_access_passkey_authentication_options:
   path: /api/access/passkeys/authentication/options
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyAuthenticationOptions
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::passkeyAuthenticationOptions
   methods: [POST]
 
 api_access_passkey_authentication_complete:
   path: /api/access/passkeys/authentication/complete
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::passkeyAuthenticationComplete
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::passkeyAuthenticationComplete
   methods: [POST]
 
 api_access_recovery_request:
   path: /api/access/recovery/request
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::requestRecovery
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::requestRecovery
   methods: [POST]
 
 api_access_recovery_reset:
   path: /api/access/recovery/reset
-  controller: App\Accessing\Service\Http\Api\Access\ApiAccessFlowService::resetRecovery
+  controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::resetRecovery
   methods: [POST]
 
 access.recover_request:
@@ -120,6 +130,31 @@ access.second_factor_challenge:
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::secondFactorChallenge
   methods: [GET, POST]
 
+access.password:
+  path: /access/password
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::password
+  methods: [GET, POST]
+
+access.switch:
+  path: /access/switch
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::switchUser
+  methods: [POST]
+
+access.signout:
+  path: /access/signout
+  controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::signOut
+  methods: [POST]
+
+access.verify_phone_request:
+  path: /access/verify-phone
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::requestPhone
+  methods: [GET, POST]
+
+access.verify_phone_confirm:
+  path: /access/verify-phone/confirm
+  controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::confirmPhone
+  methods: [GET, POST]
+
 access.reset_password_request:
   path: /access/reset-password/request
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::request
@@ -128,6 +163,11 @@ access.reset_password_request:
 access.reset_password_check_email:
   path: /access/reset-password/check-email
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::checkEmail
+  methods: [GET]
+
+access.reset_password_reset_token:
+  path: /access/reset-password/reset/{token}
+  controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::reset
   methods: [GET]
 
 access.reset_password_reset:

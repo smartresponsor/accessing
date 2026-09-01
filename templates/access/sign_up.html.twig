@@ -12,6 +12,8 @@
       <p class="interfacing-muted">Create access credentials.</p>
     </div>
 
+    <a class="interfacing-button-secondary interfacing-button--full" href="{{ path('access.google_start') }}">Continue with Google</a>
+
     {% if form is defined %}
       <turbo-frame id="access-register-frame">
       {{ form_start(form, {

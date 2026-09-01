@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessPhoneVerificationRequestDto;
+use App\Accessing\Dto\AccessPhoneVerificationRequest;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,7 +27,7 @@ final class AccessPhoneVerificationRequestType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'data_class' => AccessPhoneVerificationRequestDto::class,
+            'data_class' => AccessPhoneVerificationRequest::class,
         ]);
     }
 }

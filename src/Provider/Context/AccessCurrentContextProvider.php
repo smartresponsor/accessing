@@ -6,7 +6,7 @@ namespace App\Accessing\Provider\Context;
 
 use App\Accessing\Context\AccessCurrentContext;
 use App\Accessing\Entity\AccessEntity;
-use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
 final class AccessCurrentContextProvider implements AccessCurrentContextProviderInterface

@@ -8,13 +8,14 @@ namespace App\Accessing\Service\Http\Access;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\Form\Access\AccessChangePasswordType;
 use App\Accessing\Form\Access\AccessResetPasswordRequestType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
+use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
@@ -38,6 +39,7 @@ final readonly class AccessResetPasswordFlowService
         private AccessCredentialServiceInterface $credentialService,
         private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventServiceInterface $securityEventService,
+        private AccessSecurityNotificationServiceInterface $securityNotificationService,
         private RateLimiterFactory $accessingForgotPasswordLimiter,
         private FormFactoryInterface $formFactory,
         private UrlGeneratorInterface $urlGenerator,
@@ -77,15 +79,19 @@ final readonly class AccessResetPasswordFlowService
                         $request,
                     );
 
+                    $resetUrl = $this->urlGenerator->generate(
+                        'access.reset_password_reset_token',
+                        ['token' => $resetToken->getToken()],
+                        UrlGeneratorInterface::ABSOLUTE_URL,
+                    );
+                    $this->securityNotificationService->sendPasswordResetLink(
+                        $user,
+                        $resetUrl,
+                        \DateTimeImmutable::createFromInterface($resetToken->getExpiresAt()),
+                    );
+
                     if (in_array($this->kernel->getEnvironment(), ['dev', 'test'], true)) {
-                        $this->flash($request, 'info', sprintf(
-                            'Owner-oriented preview link: %s',
-                            $this->urlGenerator->generate(
-                                'access.reset_password_reset',
-                                ['token' => $resetToken->getToken()],
-                                UrlGeneratorInterface::ABSOLUTE_URL,
-                            )
-                        ));
+                        $this->flash($request, 'info', sprintf('Owner-oriented preview link: %s', $resetUrl));
                     }
                 } catch (ResetPasswordExceptionInterface) {
                     $this->flash($request, 'warning', 'A reset request could not be created right now.');

@@ -5,8 +5,10 @@ parameters:
   accessing.verification_code_ttl_minutes: '%env(int:default:accessing.verification_code_ttl_minutes.default:ACCESSING_VERIFICATION_CODE_TTL_MINUTES)%'
   accessing.session_max_idle_days.default: 30
   accessing.session_max_idle_days: '%env(int:default:accessing.session_max_idle_days.default:ACCESSING_SESSION_MAX_IDLE_DAYS)%'
-  accessing.product_name: 'Accessing'
-  accessing.mailer_sender: 'no-reply@example.test'
+  accessing.product_name.default: 'Accessing'
+  accessing.product_name: '%env(default:accessing.product_name.default:ACCESSING_PRODUCT_NAME)%'
+  accessing.mailer_sender.default: 'no-reply@example.test'
+  accessing.mailer_sender: '%env(default:accessing.mailer_sender.default:ACCESSING_MAILER_SENDER)%'
   accessing.phone_verification_provider.default: 'fake'
   accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
   accessing.user_lock_threshold.default: 5
@@ -19,6 +21,14 @@ parameters:
   accessing.passkey_rp_id: '%env(default:accessing.passkey_rp_id.default:ACCESSING_PASSKEY_RP_ID)%'
   accessing.passkey_origin.default: ''
   accessing.passkey_origin: '%env(default:accessing.passkey_origin.default:ACCESSING_PASSKEY_ORIGIN)%'
+  accessing.google_oauth_enabled.default: false
+  accessing.google_oauth_enabled: '%env(bool:default:accessing.google_oauth_enabled.default:ACCESSING_GOOGLE_OAUTH_ENABLED)%'
+  accessing.google_oauth_client_id.default: ''
+  accessing.google_oauth_client_id: '%env(default:accessing.google_oauth_client_id.default:ACCESSING_GOOGLE_OAUTH_CLIENT_ID)%'
+  accessing.google_oauth_client_secret.default: ''
+  accessing.google_oauth_client_secret: '%env(default:accessing.google_oauth_client_secret.default:ACCESSING_GOOGLE_OAUTH_CLIENT_SECRET)%'
+  accessing.google_oauth_redirect_origin.default: ''
+  accessing.google_oauth_redirect_origin: '%env(default:accessing.google_oauth_redirect_origin.default:ACCESSING_GOOGLE_OAUTH_REDIRECT_ORIGIN)%'
 
 services:
   _defaults:
@@ -36,6 +46,10 @@ services:
       int $accessingPasskeyChallengeTtlSeconds: 300
       string $accessingPasskeyRelyingPartyId: '%accessing.passkey_rp_id%'
       string $accessingPasskeyOrigin: '%accessing.passkey_origin%'
+      bool $accessingGoogleOAuthEnabled: '%accessing.google_oauth_enabled%'
+      string $accessingGoogleOAuthClientId: '%accessing.google_oauth_client_id%'
+      string $accessingGoogleOAuthClientSecret: '%accessing.google_oauth_client_secret%'
+      string $accessingGoogleOAuthRedirectOrigin: '%accessing.google_oauth_redirect_origin%'
       int $accessingMobileAccessTtlSeconds: 900
       int $accessingMobileRefreshTtlSeconds: 2592000
       int $accessingMobilePendingAuthTtlSeconds: 600
@@ -53,12 +67,11 @@ services:
     exclude:
       - '../../src/Kernel.php'
       - '../../src/Recorder/SecurityEvent/AccessSecurityEventRecorder.php'
-      - '../../src/ServiceInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
+      - '../../src/RecorderInterface/SecurityEvent/AccessSecurityEventRecorderInterface.php'
       - '../../src/DependencyInjection/'
       - '../../src/Entity/'
       - ../../src/Dto/
       - ../../src/ValueObject/
-      - ../../src/Value/
       - ../../src/Contract/
       - ../../src/Event/
       - ../../src/Message/
@@ -69,8 +82,8 @@ services:
       - ../../src/Service/Config/
 
 
-  Psr\Clock\ClockInterface: '@App\Accessing\Service\Clock\AccessSystemClock'
-  App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
+  Psr\Clock\ClockInterface: '@App\Accessing\Clock\AccessSystemClock'
+  App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
   App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface: '@App\Accessing\Service\Access\AccessAuthenticationService'
   App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface: '@App\Accessing\Service\Access\AccessRegistrationService'
   App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface: '@App\Accessing\Service\Session\AccessSessionService'
@@ -79,17 +92,19 @@ services:
   App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface: '@App\Accessing\Service\SecondFactor\AccessSecondFactorService'
   App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface: '@App\Accessing\Service\SecurityEvent\AccessSecurityEventService'
   App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface: '@App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService'
-  App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface: '@App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService'
+  App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface: '@App\Accessing\Service\PhoneVerification\AccessPhoneVerificationGatewayService'
   App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface: '@App\Accessing\Service\Verification\AccessVerificationChallengeService'
-  App\Accessing\ServiceInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Service\Password\AccessSymfonyCompromisedPasswordProvider'
+  App\Accessing\ProviderInterface\Password\AccessCompromisedPasswordProviderInterface: '@App\Accessing\Provider\Password\AccessSymfonyCompromisedPasswordProvider'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyCredentialService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyChallengeService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyRegistrationService'
   App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface: '@App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService'
-  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAttestationVerifier'
-  App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Service\Passkey\AccessWebauthnAssertionVerifier'
+  App\Accessing\ServiceInterface\OAuth\AccessExternalAuthenticationServiceInterface: '@App\Accessing\Service\OAuth\AccessExternalAuthenticationService'
+  App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface: '@App\Accessing\Verifier\Passkey\AccessWebauthnAttestationVerifier'
+  App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface: '@App\Accessing\Verifier\Passkey\AccessWebauthnAssertionVerifier'
   App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface: '@App\Accessing\Service\Mobile\AccessMobileTokenService'
   App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface: '@App\Accessing\Service\Mobile\AccessMobilePendingAuthService'
+  App\Accessing\RepositoryInterface\AccessExternalIdentityRepositoryInterface: '@App\Accessing\Repository\AccessExternalIdentityRepository'
   App\Accessing\RepositoryInterface\AccessPasskeyChallengeRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyChallengeRepository'
   App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface: '@App\Accessing\Repository\AccessPasskeyCredentialRepository'
   App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface: '@App\Accessing\Repository\AccessMobileSessionRepository'
@@ -99,10 +114,10 @@ services:
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
-  App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface: '@App\Accessing\Responder\Rendering\AccessTwigPageResponder'
-  App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface: '@App\Accessing\Factory\Rendering\AccessPageViewFactory'
+  App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface: '@App\Accessing\Responder\Rendering\AccessTwigPageResponder'
+  App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface: '@App\Accessing\Factory\Rendering\AccessPageViewFactory'
 
-  App\Accessing\Controller\Api\Access\ApiAccessController:
+  App\Accessing\Controller\Api\Access\AccessApiController:
     public: true
     tags: ['controller.service_arguments']
 
@@ -124,19 +139,22 @@ services:
   App\Accessing\Service\Http\Access\AccessResetPasswordFlowService:
     public: true
     tags: ['controller.service_arguments']
-  App\Accessing\Service\Http\Api\Access\ApiAccessFlowService:
+  App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Api\Access\AccessApiFlowService:
     public: true
     tags: ['controller.service_arguments']
 
-  App\Accessing\Service\Vendor\AccessPhoneVerificationGatewayService:
+  App\Accessing\Service\PhoneVerification\AccessPhoneVerificationGatewayService:
     arguments:
       $providers: !tagged_iterator 'app.accessing.phone_provider'
       $selectedProvider: '%accessing.phone_verification_provider%'
 
-  App\Accessing\Service\Vendor\AccessFakePhoneVerificationProviderService:
+  App\Accessing\Provider\PhoneVerification\AccessFakePhoneVerificationProvider:
     tags: ['app.accessing.phone_provider']
 
-  App\Accessing\Service\Vendor\AccessNullPhoneVerificationProviderService:
+  App\Accessing\Provider\PhoneVerification\AccessNullPhoneVerificationProvider:
     tags: ['app.accessing.phone_provider']
 
   App\Accessing\Service\SecurityNotification\AccessSecurityNotificationService:

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Config;
 
-use App\Accessing\Value\Config\AccessEnvironmentConfigData;
+use App\Accessing\Dto\Config\AccessEnvironmentConfigData;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;

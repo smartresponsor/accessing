@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecondFactor;
 
-use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
+use App\Accessing\Dto\AccessSecondFactorEnrollment;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
@@ -30,7 +30,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     ) {
     }
 
-    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollmentDto
+    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollment
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -45,7 +45,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
             $this->entityManager->persist($secondFactor);
             $this->entityManager->flush();
 
-            return new AccessSecondFactorEnrollmentDto($totp->getSecret(), $totp->getProvisioningUri());
+            return new AccessSecondFactorEnrollment($totp->getSecret(), $totp->getProvisioningUri());
         }
 
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
@@ -54,13 +54,13 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $totp->setLabel($label);
         $totp->setIssuer('Accessing');
 
-        return new AccessSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri());
+        return new AccessSecondFactorEnrollment($secondFactor->getSecret(), $totp->getProvisioningUri());
     }
 
     /**
      * @throws RandomException
      */
-    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollmentDto
+    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollment
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -105,7 +105,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $totp->setLabel($this->nonEmptyLabel($user->getEmailAddress()));
         $totp->setIssuer('Accessing');
 
-        return new AccessSecondFactorEnrollmentDto($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
+        return new AccessSecondFactorEnrollment($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
     }
 
     public function verifyChallenge(AccessEntity $user, string $code): bool

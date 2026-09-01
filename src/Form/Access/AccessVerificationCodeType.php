@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\Dto\AccessVerificationCode;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,7 +27,7 @@ final class AccessVerificationCodeType extends AbstractType
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'data_class' => AccessVerificationCodeDto::class,
+            'data_class' => AccessVerificationCode::class,
         ]);
     }
 }

@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
-#[AsCommand(name: 'accessing:demo:reset', description: 'Rebuild the schema and load demo fixtures for Accessing.')]
+#[AsCommand(name: 'accessing:dev:fixtures:load', description: 'Load Accessing demo fixtures without purge; schema reset requires explicit --reset --force.', aliases: ['accessing:demo:reset'])]
 final class AccessDemoResetCommand extends Command
 {
     public function __construct(
@@ -35,7 +35,9 @@ final class AccessDemoResetCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('force', null, InputOption::VALUE_NONE, 'Confirm destructive demo database reset.');
+        $this
+            ->addOption('reset', null, InputOption::VALUE_NONE, 'Explicitly request the destructive demo database reset path.')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Confirm destructive demo database reset.');
     }
 
     /** @noinspection PhpMissingParentCallCommonInspection */
@@ -48,6 +50,27 @@ final class AccessDemoResetCommand extends Command
             $io->error(sprintf('Refusing to reset the Accessing demo database in the "%s" environment.', $environment));
 
             return Command::FAILURE;
+        }
+
+        if (!(bool) $input->getOption('reset')) {
+            if (!$this->fixturesLoader instanceof SymfonyFixturesLoader) {
+                $io->error('Doctrine fixtures loader is not available in this environment.');
+
+                return Command::FAILURE;
+            }
+
+            $loader = clone $this->fixturesLoader;
+            $loader->addFixture($this->accessingDemoFixtures);
+
+            $executor = new ORMExecutor($this->entityManager, new ORMPurger());
+            $executor->execute($loader->getFixtures(), true);
+
+            $io->success(sprintf(
+                'Accessing demo identity for the "%s" environment has been loaded without schema reset or purge.',
+                $environment,
+            ));
+
+            return Command::SUCCESS;
         }
 
         if (!(bool) $input->getOption('force')) {

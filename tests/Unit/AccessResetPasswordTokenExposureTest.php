@@ -23,7 +23,7 @@ final class AccessResetPasswordTokenExposureTest extends TestCase
 
     public function testPasswordMutationCodeDoesNotLogOrPersistProviderFailureDetails(): void
     {
-        $providerSource = file_get_contents(__DIR__.'/../../src/Service/Password/AccessSymfonyCompromisedPasswordProvider.php');
+        $providerSource = file_get_contents(__DIR__.'/../../src/Provider/Password/AccessSymfonyCompromisedPasswordProvider.php');
 
         self::assertIsString($providerSource);
         self::assertStringContainsString('catch (\\Throwable)', $providerSource);

@@ -6,9 +6,9 @@ declare(strict_types=1);
 namespace App\Accessing\Factory\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
-use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
+use App\Accessing\Dto\AccessSecondFactorEnrollment;
 use App\Accessing\Entity\AccessEntity;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use Symfony\Component\Form\FormView;
 
 final class AccessPageViewFactory implements AccessPageViewFactoryInterface
@@ -62,7 +62,7 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
     public function secondFactor(
         AccessEntity $user,
         FormView $form,
-        ?AccessSecondFactorEnrollmentDto $enrollment,
+        ?AccessSecondFactorEnrollment $enrollment,
         bool $enabled,
         bool $showRecoveryCodes,
     ): AccessPageView {
@@ -138,11 +138,11 @@ final class AccessPageViewFactory implements AccessPageViewFactoryInterface
         ], $statusCode);
     }
 
-    public function signIn(FormView $form): AccessPageView
+    public function signIn(FormView $form, int $statusCode = 200): AccessPageView
     {
         return $this->page('access.signin', [
             'form' => $form,
-        ]);
+        ], $statusCode);
     }
 
     public function secondFactorChallenge(AccessEntity $user, FormView $form): AccessPageView

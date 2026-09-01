@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Access;
 
 use App\Accessing\Authenticator\AccessProgrammaticAuthenticator;
-use App\Accessing\Dto\AccessSignInResultDto;
+use App\Accessing\Dto\AccessSignInResult;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
@@ -45,13 +45,13 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
     /**
      * @throws \DateMalformedStringException
      */
-    public function attemptPasswordSignIn(string $emailAddress, string $plainPassword, Request $request): AccessSignInResultDto
+    public function attemptPasswordSignIn(string $emailAddress, string $plainPassword, Request $request): AccessSignInResult
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
         $limiter = $this->accessingSignInLimiter->create(sprintf('%s|%s', $normalizedEmailAddress, $request->getClientIp() ?? 'unknown'));
 
         if (!$limiter->consume()->isAccepted()) {
-            return AccessSignInResultDto::failed('Too many sign in attempts. Please wait before trying again.');
+            return AccessSignInResult::failed('Too many sign in attempts. Please wait before trying again.');
         }
 
         $user = $this->userRepository->findOneByEmailAddress($normalizedEmailAddress->toString());
@@ -65,7 +65,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
                 ['emailAddress' => $normalizedEmailAddress->toString(), 'reason' => 'user_not_found'],
             );
 
-            return AccessSignInResultDto::failed('Invalid sign in credentials.');
+            return AccessSignInResult::failed('Invalid sign in credentials.');
         }
 
         if ($user->getLockedUntil() instanceof \DateTimeImmutable && !$user->isLocked()) {
@@ -85,7 +85,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
                 ],
             );
 
-            return AccessSignInResultDto::failed(sprintf(
+            return AccessSignInResult::failed(sprintf(
                 'This user is locked until %s.',
                 $lockedUntil?->format('Y-m-d H:i'),
             ));
@@ -115,7 +115,7 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
 
             $this->userRepository->save($user, true);
 
-            return AccessSignInResultDto::failed('Invalid sign in credentials.');
+            return AccessSignInResult::failed('Invalid sign in credentials.');
         }
 
         if ($user->getSecondFactor()?->isEnabled()) {
@@ -127,12 +127,12 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
                 $request,
             );
 
-            return AccessSignInResultDto::pendingSecondFactor($user);
+            return AccessSignInResult::pendingSecondFactor($user);
         }
 
         $this->signIn($user, $request);
 
-        return AccessSignInResultDto::authenticated($user);
+        return AccessSignInResult::authenticated($user);
     }
 
     public function completePendingSecondFactor(AccessEntity $user, Request $request): void
@@ -155,6 +155,11 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
     }
 
     public function completePasskeySignIn(AccessEntity $user, Request $request): void
+    {
+        $this->signIn($user, $request);
+    }
+
+    public function completeExternalSignIn(AccessEntity $user, Request $request): void
     {
         $this->signIn($user, $request);
     }

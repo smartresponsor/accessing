@@ -7,7 +7,7 @@ namespace App\Accessing\Responder\Rendering;
 
 use App\Accessing\Dto\AccessPageView;
 use App\Accessing\Resolver\Rendering\AccessPageTemplateResolver;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\ServiceInterface\Rendering\InterfaceRendererInterface;
 use Symfony\Component\HttpFoundation\Response;
 

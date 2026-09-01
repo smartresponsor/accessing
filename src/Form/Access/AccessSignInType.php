@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Access;
 
-use App\Accessing\Dto\AccessSignInRequestDto;
+use App\Accessing\Dto\AccessSignInRequest;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -61,7 +61,7 @@ final class AccessSignInType extends AbstractType
 
         $resolver->setDefaults([
             'csrf_protection' => false,
-            'data_class' => AccessSignInRequestDto::class,
+            'data_class' => AccessSignInRequest::class,
             'attr' => [
                 'class' => 'interfacing-form ant-form ant-form-vertical p-fluid',
                 'data-interfacing-provider-form' => 'access-signin',

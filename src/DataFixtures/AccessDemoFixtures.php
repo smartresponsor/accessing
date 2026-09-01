@@ -9,6 +9,7 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
+use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -16,21 +17,38 @@ use Doctrine\Persistence\ObjectManager;
 final class AccessDemoFixtures extends Fixture
 {
     public function __construct(
+        private readonly AccessRepositoryInterface $accessRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
     ) {
     }
 
     public function load(ObjectManager $manager): void
     {
-        $user = new AccessEntity()
+        $user = $this->accessRepository->findOneByEmailAddress('demo@smartresponsor.local');
+        $created = null === $user;
+        $user ??= new AccessEntity();
+        $user
             ->setEmail('demo@smartresponsor.local')
             ->setDisplayName('Accessing Demo')
             ->setPhoneNumber('+13468832743')
-            ->setRoles(['ROLE_USER']);
-        $user->markEmailVerified();
+            ->setRoles(['ROLE_USER'])
+            ->unlock()
+            ->resetFailedLoginCount();
+
+        if (!$user->isEmailVerified()) {
+            $user->markEmailVerified();
+        }
 
         $manager->persist($user);
-        $this->credentialService->changePassword($user, 'AccessingDemo123!');
+        $manager->flush();
+
+        if ($created || !$this->credentialService->verifyPassword($user, 'AccessingDemo123!')) {
+            $this->credentialService->changePassword($user, 'AccessingDemo123!');
+        }
+
+        if (!$created) {
+            return;
+        }
 
         $emailChallenge = new AccessVerificationChallengeEntity()
             ->setUser($user)

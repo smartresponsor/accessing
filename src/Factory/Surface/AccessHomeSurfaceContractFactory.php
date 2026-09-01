@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Factory\Surface;
 
+use App\Accessing\Contract\Surface\AccessHomeSurfaceContract;
 use App\Accessing\Entity\AccessEntity;
-use App\Accessing\Value\Surface\AccessHomeSurfaceContract;
 
 final readonly class AccessHomeSurfaceContractFactory
 {

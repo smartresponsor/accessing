@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Recovery;
 
-use App\Accessing\Dto\AccessIssuedChallengeDto;
+use App\Accessing\Dto\AccessIssuedChallenge;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
@@ -28,7 +28,7 @@ final readonly class AccessRecoveryService implements AccessRecoveryServiceInter
     ) {
     }
 
-    public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallengeDto
+    public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallenge
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
         $limiterKey = sprintf('%s|%s', $normalizedEmailAddress, $request?->getClientIp() ?? 'unknown');

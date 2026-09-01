@@ -1,0 +1,78 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Accessing\Tests\Unit;
+
+use App\Accessing\Dto\Api\Access\AccessApiErrorPayload;
+use App\Accessing\Dto\Api\Access\AccessApiIdentityPayload;
+use App\Accessing\Dto\Api\Access\AccessApiRegisterRequest;
+use App\Accessing\Dto\Api\Access\AccessApiSessionPayload;
+use App\Accessing\Dto\Api\Access\AccessApiSignInRequest;
+use PHPUnit\Framework\TestCase;
+
+final class AccessApiDtoContractTest extends TestCase
+{
+    public function testRegisterRequestUsesDisplayNameEmailAndPasswordOnly(): void
+    {
+        $request = new AccessApiRegisterRequest();
+
+        self::assertObjectHasProperty('displayName', $request);
+        self::assertObjectHasProperty('email', $request);
+        self::assertObjectHasProperty('password', $request);
+        self::assertFalse((new \ReflectionObject($request))->hasProperty('companyName'));
+    }
+
+    public function testSignInRequestUsesEmailAndPasswordOnly(): void
+    {
+        $request = new AccessApiSignInRequest();
+
+        self::assertObjectHasProperty('email', $request);
+        self::assertObjectHasProperty('password', $request);
+    }
+
+    public function testSessionPayloadDoesNotFakeTokensOrIdentity(): void
+    {
+        $payload = new AccessApiSessionPayload('unauthenticated');
+
+        self::assertNull($payload->identity);
+        self::assertNull($payload->accessToken);
+        self::assertNull($payload->refreshToken);
+        self::assertNull($payload->expiresAt);
+        self::assertNull($payload->pendingToken);
+        self::assertFalse($payload->requiresVerification);
+        self::assertFalse($payload->requiresSecondFactor);
+        self::assertSame('unauthenticated', $payload->status);
+    }
+
+    public function testIdentityPayloadSerializesCanonicalFields(): void
+    {
+        $payload = new AccessApiIdentityPayload('42', 'Demo User', 'demo@example.test', true, false);
+
+        self::assertSame(
+            [
+                'userId' => '42',
+                'displayName' => 'Demo User',
+                'email' => 'demo@example.test',
+                'emailVerified' => true,
+                'secondFactorEnabled' => false,
+                'userUuid' => null,
+            ],
+            $payload->toArray(),
+        );
+    }
+
+    public function testErrorPayloadSerializesFieldErrors(): void
+    {
+        $payload = new AccessApiErrorPayload('invalid_request', 'Bad request', ['email' => ['Required']]);
+
+        self::assertSame(
+            [
+                'code' => 'invalid_request',
+                'message' => 'Bad request',
+                'fieldErrors' => ['email' => ['Required']],
+            ],
+            $payload->toArray(),
+        );
+    }
+}

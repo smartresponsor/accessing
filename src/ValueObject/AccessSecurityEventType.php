@@ -37,4 +37,8 @@ enum AccessSecurityEventType: string
     case MobileSessionRefreshed = 'mobile_session_refreshed';
     case MobileSessionRevoked = 'mobile_session_revoked';
     case MobileRefreshReuseDetected = 'mobile_refresh_reuse_detected';
+    case ExternalIdentityLinked = 'external_identity_linked';
+    case ExternalSignInSucceeded = 'external_sign_in_succeeded';
+    case ExternalSignInFailed = 'external_sign_in_failed';
+    case ExternalIdentityConflict = 'external_identity_conflict';
 }
