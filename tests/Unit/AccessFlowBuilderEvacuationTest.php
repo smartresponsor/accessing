@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AccessFlowBuilderEvacuationTest extends TestCase
@@ -20,11 +21,8 @@ final class AccessFlowBuilderEvacuationTest extends TestCase
         yield 'operator surface builder' => ['App\\Accessing\\Builder\\AccessOperatorSurfaceBuilder'];
     }
 
-    /**
-     * @dataProvider evacuatedAccessFlowBuilders
-     *
-     * @param class-string|string $builderClass
-     */
+    /** @param class-string|string $builderClass */
+    #[DataProvider('evacuatedAccessFlowBuilders')]
     public function testAccessFlowBuildersArePhysicallyEvacuated(string $builderClass): void
     {
         self::assertFalse(

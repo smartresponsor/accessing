@@ -6,6 +6,11 @@
         <server name="MAILER_DSN" value="null://null" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
     </php>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>

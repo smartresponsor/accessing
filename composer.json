@@ -47,6 +47,7 @@
                         "fakerphp/faker":  "^1.24",
                         "friendsofphp/php-cs-fixer":  "3.94",
                         "phpstan/phpstan":  "^2.1",
+                        "phpunit/phpunit":  "^12.0",
                         "symfony/browser-kit":  "^8.1",
                         "symfony/css-selector":  "^8.1",
                         "symfony/panther":  "^2.2",
@@ -67,7 +68,11 @@
                     "cs:check":  "php-cs-fixer fix --dry-run --diff --verbose",
                     "cs:fix":  "php-cs-fixer fix --verbose",
                     "stan":  "phpstan analyse",
-                    "test":  "vendor/bin/simple-phpunit --testsuite Accessing",
+                    "test":  "vendor/bin/phpunit --testsuite Accessing",
+                    "test:coverage":  [
+                                              "@putenv XDEBUG_MODE=coverage",
+                                              "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage.txt --path-coverage"
+                                          ],
                     "test:object-identity":  "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
                     "test:panther":  "vendor/bin/simple-phpunit --testsuite Panther",
                     "pipeline:local:full":  [

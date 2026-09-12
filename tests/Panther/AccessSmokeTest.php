@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Panther;
 
-use PHPUnit\Framework\SkippedTestError;
 use Symfony\Component\Panther\PantherTestCase;
 use Symfony\Component\Process\ExecutableFinder;
 
@@ -15,11 +14,11 @@ final class AccessSmokeTest extends PantherTestCase
     {
         $enabled = getenv('ACCESSING_ENABLE_PANTHER');
         if (!is_string($enabled) || '1' !== $enabled) {
-            throw new SkippedTestError('Panther suite is opt-in. Set ACCESSING_ENABLE_PANTHER=1 to enable it.');
+            self::markTestSkipped('Panther suite is opt-in. Set ACCESSING_ENABLE_PANTHER=1 to enable it.');
         }
 
         if (null === (new ExecutableFinder())->find('geckodriver')) {
-            throw new SkippedTestError('geckodriver is not installed in this environment.');
+            self::markTestSkipped('geckodriver is not installed in this environment.');
         }
 
         $client = static::createPantherClient();

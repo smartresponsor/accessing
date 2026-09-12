@@ -1,0 +1,22 @@
+component:
+  name: Accessing
+  nameEntity: access
+  namespace: App\Accessing
+  business_prefix: Access
+  subject_prefix: Access
+  subject_tokens:
+    - Access
+  database_prefix: access_
+  typed_layers_required: true
+  service_interface_mirror: true
+
+  route_owner_root: access
+  route_owner_roots:
+    - access
+  mutation_mode: forbidden
+
+  secret_scan: enabled
+  release:
+    evidence_required: false
+    required_files:
+      - composer.json

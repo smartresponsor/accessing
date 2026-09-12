@@ -7,7 +7,7 @@ namespace App\Accessing\Tests\Unit;
 use App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO;
 use PHPUnit\Framework\TestCase;
 
-final class AccessPasskeyAuthenticationOptionsDTOTest extends TestCase
+final class AccessPasskeyAuthenticationOptionsTest extends TestCase
 {
     public function testSerializesUserBoundOptions(): void
     {
