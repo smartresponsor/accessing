@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:diagnostics', description: 'Show bootstrap diagnostics for the Accessing component.')]
+/**
+ * Defines the diagnostics command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessDiagnosticsCommand extends Command
 {
     /** @noinspection PhpMissingParentCallCommonInspection */
@@ -32,11 +35,17 @@ final class AccessDiagnosticsCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Executes the bool label operation within the canonical Accessing component workflow.
+     */
     private function boolLabel(string $value): string
     {
         return '' !== trim($value) ? 'yes' : 'no';
     }
 
+    /**
+     * Executes the string env value operation within the canonical Accessing component workflow.
+     */
     private function stringEnvValue(string $key, string $default = ''): string
     {
         $value = $_SERVER[$key] ?? $_ENV[$key] ?? $default;

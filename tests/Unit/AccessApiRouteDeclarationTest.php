@@ -11,7 +11,7 @@ final class AccessApiRouteDeclarationTest extends TestCase
 {
     public function testAccessApiRouteDeclarationContainsTheCanonicalRoutes(): void
     {
-        $routes = Yaml::parseFile(__DIR__.'/../../config/platform/routes/api/access.yaml');
+        $routes = Yaml::parseFile(__DIR__.'/../../config/platform/routes/api/access_api.yaml');
 
         self::assertIsArray($routes);
         $signinRoute = $routes['api.access.signin'] ?? null;

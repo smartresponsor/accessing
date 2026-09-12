@@ -9,8 +9,14 @@ use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificati
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
+/**
+ * Defines the security notification service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecurityNotificationService implements AccessSecurityNotificationServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private MailerInterface $mailer,
         private string $accessingProductName,
@@ -18,6 +24,9 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
     ) {
     }
 
+    /**
+     * Executes the send email verification code operation within the canonical Accessing component workflow.
+     */
     public function sendEmailVerificationCode(AccessEntity $user, string $plainCode, int $ttlMinutes): void
     {
         $this->mailer->send((new Email())
@@ -33,6 +42,9 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
             )));
     }
 
+    /**
+     * Executes the send password recovery code operation within the canonical Accessing component workflow.
+     */
     public function sendPasswordRecoveryCode(AccessEntity $user, string $plainCode, int $ttlMinutes): void
     {
         $this->mailer->send((new Email())
@@ -48,6 +60,9 @@ final readonly class AccessSecurityNotificationService implements AccessSecurity
             )));
     }
 
+    /**
+     * Executes the send password reset link operation within the canonical Accessing component workflow.
+     */
     public function sendPasswordResetLink(
         AccessEntity $user,
         string $resetUrl,

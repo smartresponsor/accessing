@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit\Entity;
 
-use App\Accessing\Dto\AccessExternalIdentityProfile;
+use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessExternalIdentityEntity;
 use PHPUnit\Framework\TestCase;
@@ -46,6 +46,6 @@ final class AccessExternalIdentityEntityTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new AccessExternalIdentityProfile('google', '', 'owner@example.com', true);
+        new AccessExternalIdentityProfileDTO('google', '', 'owner@example.com', true);
     }
 }

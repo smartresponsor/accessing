@@ -76,12 +76,12 @@ api_access_verification_confirm:
   methods: [POST]
 
 api_access_second_factor_challenge:
-  path: /api/access/second-factor/challenge
+  path: /api/access/second/factor/challenge
   controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::challengeSecondFactor
   methods: [POST]
 
 api_access_second_factor_verify:
-  path: /api/access/second-factor/verify
+  path: /api/access/second/factor/verify
   controller: App\Accessing\Service\Http\Api\Access\AccessApiFlowService::verifySecondFactor
   methods: [POST]
 
@@ -126,7 +126,7 @@ access.recover_reset:
   methods: [GET, POST]
 
 access.second_factor_challenge:
-  path: /access/second-factor/challenge
+  path: /access/second/factor/challenge
   controller: App\Accessing\Service\Http\Access\AccessSecurityFlowService::secondFactorChallenge
   methods: [GET, POST]
 
@@ -146,31 +146,31 @@ access.signout:
   methods: [POST]
 
 access.verify_phone_request:
-  path: /access/verify-phone
+  path: /access/verify/phone
   controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::requestPhone
   methods: [GET, POST]
 
 access.verify_phone_confirm:
-  path: /access/verify-phone/confirm
+  path: /access/verify/phone/confirm
   controller: App\Accessing\Service\Http\Access\AccessSurfaceFlowService::confirmPhone
   methods: [GET, POST]
 
 access.reset_password_request:
-  path: /access/reset-password/request
+  path: /access/reset/password/request
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::request
   methods: [GET, POST]
 
 access.reset_password_check_email:
-  path: /access/reset-password/check-email
+  path: /access/reset/password/check/email
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::checkEmail
   methods: [GET]
 
 access.reset_password_reset_token:
-  path: /access/reset-password/reset/{token}
+  path: /access/reset/password/reset/{token}
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::reset
   methods: [GET]
 
 access.reset_password_reset:
-  path: /access/reset-password/reset
+  path: /access/reset/password/reset
   controller: App\Accessing\Service\Http\Access\AccessResetPasswordFlowService::reset
   methods: [GET, POST]

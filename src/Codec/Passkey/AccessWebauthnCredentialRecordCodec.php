@@ -11,10 +11,16 @@ use Webauthn\CredentialRecord;
 use Webauthn\Denormalizer\WebauthnSerializerFactory;
 use Webauthn\PublicKeyCredential;
 
+/**
+ * Defines the webauthn credential record codec type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessWebauthnCredentialRecordCodec
 {
     private SerializerInterface $serializer;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct()
     {
         $manager = AttestationStatementSupportManager::create();
@@ -22,11 +28,17 @@ final readonly class AccessWebauthnCredentialRecordCodec
         $this->serializer = (new WebauthnSerializerFactory($manager))->create();
     }
 
+    /**
+     * Executes the encode operation within the canonical Accessing component workflow.
+     */
     public function encode(CredentialRecord $credentialRecord): string
     {
         return $this->serializer->serialize($credentialRecord, 'json');
     }
 
+    /**
+     * Executes the decode operation within the canonical Accessing component workflow.
+     */
     public function decode(string $serializedCredentialRecord): CredentialRecord
     {
         if ('' === trim($serializedCredentialRecord)) {

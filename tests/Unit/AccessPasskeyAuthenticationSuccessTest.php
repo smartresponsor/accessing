@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasskeyAssertionResult;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyAssertionResultDTO;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyChallengeEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
@@ -26,7 +26,7 @@ final class AccessPasskeyAuthenticationSuccessTest extends TestCase
     {
         $user = new AccessEntity('auth@example.test', 'Auth');
         $credential = new AccessPasskeyCredentialEntity($user, 'credential-id', 'handle', 'key', ['internal'], 'Laptop', 2);
-        $config = new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'https://example.test');
+        $config = new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test');
         $state = new AccessPasskeyChallengeEntity(
             'challenge',
             AccessPasskeyCeremonyPurpose::Authentication,
@@ -42,7 +42,7 @@ final class AccessPasskeyAuthenticationSuccessTest extends TestCase
         $repository = $this->createMock(AccessPasskeyCredentialRepositoryInterface::class);
         $repository->method('findOneByCredentialId')->willReturn($credential);
         $verifier = $this->createMock(AccessPasskeyAssertionVerifierInterface::class);
-        $verifier->method('verify')->willReturn(new AccessPasskeyAssertionResult('credential-id', 'handle', 3));
+        $verifier->method('verify')->willReturn(new AccessPasskeyAssertionResultDTO('credential-id', 'handle', 3));
         $credentials = $this->createMock(AccessPasskeyCredentialServiceInterface::class);
         $credentials->expects(self::once())->method('recordSuccessfulAssertion')->with('credential-id', 3)->willReturn($credential);
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);

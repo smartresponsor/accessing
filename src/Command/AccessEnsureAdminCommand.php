@@ -16,10 +16,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:admin:ensure', description: 'Ensure the Accessing bootstrap admin identity exists.')]
+/**
+ * Defines the ensure admin command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessEnsureAdminCommand extends Command
 {
     private const ADMIN_EMAIL = 'admin@smartresponsor.local';
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
         private readonly EntityManagerInterface $entityManager,
@@ -28,6 +34,9 @@ final class AccessEnsureAdminCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * Executes the configure operation within the canonical Accessing component workflow.
+     */
     protected function configure(): void
     {
         $this
@@ -36,6 +45,9 @@ final class AccessEnsureAdminCommand extends Command
             ->addOption('reset-password', null, InputOption::VALUE_NONE, 'Explicitly replace the password of an existing administrator.');
     }
 
+    /**
+     * Executes the execute operation within the canonical Accessing component workflow.
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -103,6 +115,9 @@ final class AccessEnsureAdminCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Executes the password option operation within the canonical Accessing component workflow.
+     */
     private function passwordOption(InputInterface $input): ?string
     {
         $password = $input->getOption('password');

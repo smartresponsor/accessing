@@ -7,8 +7,14 @@ namespace App\Accessing\Factory\Surface;
 use App\Accessing\Contract\Surface\AccessHomeSurfaceContract;
 use App\Accessing\Entity\AccessEntity;
 
+/**
+ * Defines the home surface contract factory type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessHomeSurfaceContractFactory
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private string $accessingProductName,
     ) {

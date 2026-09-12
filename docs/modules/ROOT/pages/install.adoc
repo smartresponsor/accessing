@@ -27,9 +27,9 @@ Accessing validates every password mutation through the canonical credential ser
 
 The provider has three stable outcomes:
 
-* `safe` — password mutation may continue.
-* `compromised` — mutation is rejected as `password_compromised`.
-* `unavailable` — mutation is rejected as `password_safety_unavailable`.
+* `safe` вЂ” password mutation may continue.
+* `compromised` вЂ” mutation is rejected as `password_compromised`.
+* `unavailable` вЂ” mutation is rejected as `password_safety_unavailable`.
 
 Provider outages intentionally fail closed. Hosts must therefore allow outbound HTTPS for the validator's range service and monitor availability without logging candidate passwords, full hashes, provider payloads, or exception details. Development and test environments may bind the always-safe provider explicitly; production must use the real provider.
 

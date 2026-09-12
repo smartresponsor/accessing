@@ -4,18 +4,27 @@ declare(strict_types=1);
 
 namespace App\Accessing\Responder\Api\Access;
 
-use App\Accessing\Dto\Api\Access\AccessApiErrorPayload;
-use App\Accessing\Dto\Api\Access\AccessApiSessionPayload;
+use App\Accessing\DTO\Api\Access\AccessApiErrorDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+/**
+ * Defines the api json responder type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessApiJsonResponder
 {
-    public function session(AccessApiSessionPayload $payload, int $statusCode = JsonResponse::HTTP_OK): JsonResponse
+    /**
+     * Executes the session operation within the canonical Accessing component workflow.
+     */
+    public function session(AccessApiSessionDTO $payload, int $statusCode = JsonResponse::HTTP_OK): JsonResponse
     {
         return new JsonResponse($payload->toArray(), $statusCode);
     }
 
-    public function error(AccessApiErrorPayload $payload, int $statusCode = JsonResponse::HTTP_BAD_REQUEST): JsonResponse
+    /**
+     * Executes the error operation within the canonical Accessing component workflow.
+     */
+    public function error(AccessApiErrorDTO $payload, int $statusCode = JsonResponse::HTTP_BAD_REQUEST): JsonResponse
     {
         return new JsonResponse($payload->toArray(), $statusCode);
     }

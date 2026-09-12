@@ -11,8 +11,14 @@ use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterfac
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Defines the passkey challenge service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessPasskeyChallengeService implements AccessPasskeyChallengeServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessPasskeyChallengeRepositoryInterface $challengeRepository,
         private ClockInterface $clock,
@@ -46,6 +52,9 @@ final readonly class AccessPasskeyChallengeService implements AccessPasskeyChall
         return ['challenge' => $plainChallenge, 'state' => $challenge];
     }
 
+    /**
+     * Executes the consume operation within the canonical Accessing component workflow.
+     */
     public function consume(
         string $plainChallenge,
         AccessPasskeyCeremonyPurpose $purpose,
@@ -66,6 +75,9 @@ final readonly class AccessPasskeyChallengeService implements AccessPasskeyChall
         return $challenge;
     }
 
+    /**
+     * Executes the base64 url encode operation within the canonical Accessing component workflow.
+     */
     private function base64UrlEncode(string $value): string
     {
         return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');

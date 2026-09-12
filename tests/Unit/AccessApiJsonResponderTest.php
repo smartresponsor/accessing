@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\Api\Access\AccessApiIdentityPayload;
-use App\Accessing\Dto\Api\Access\AccessApiSessionPayload;
+use App\Accessing\DTO\Api\Access\AccessApiIdentityDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use PHPUnit\Framework\TestCase;
 
@@ -15,9 +15,9 @@ final class AccessApiJsonResponderTest extends TestCase
     {
         $responder = new AccessApiJsonResponder();
         $response = $responder->session(
-            new AccessApiSessionPayload(
+            new AccessApiSessionDTO(
                 'authenticated',
-                new AccessApiIdentityPayload('7', 'Demo', 'demo@example.test', true, true),
+                new AccessApiIdentityDTO('7', 'Demo', 'demo@example.test', true, true),
             ),
             200,
         );

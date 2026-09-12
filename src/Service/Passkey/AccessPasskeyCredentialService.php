@@ -9,12 +9,21 @@ use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
 
+/**
+ * Defines the passkey credential service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessPasskeyCredentialService implements AccessPasskeyCredentialServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(private AccessPasskeyCredentialRepositoryInterface $credentialRepository)
     {
     }
 
+    /**
+     * Executes the register operation within the canonical Accessing component workflow.
+     */
     public function register(
         AccessEntity $user,
         string $credentialId,
@@ -35,6 +44,9 @@ final readonly class AccessPasskeyCredentialService implements AccessPasskeyCred
         return $credential;
     }
 
+    /**
+     * Executes the record successful assertion operation within the canonical Accessing component workflow.
+     */
     public function recordSuccessfulAssertion(string $credentialId, int $signCount, ?string $credentialRecord = null): AccessPasskeyCredentialEntity
     {
         $credential = $this->credentialRepository->findOneByCredentialId($credentialId);
@@ -57,6 +69,9 @@ final readonly class AccessPasskeyCredentialService implements AccessPasskeyCred
         return $credential;
     }
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(AccessEntity $user, string $credentialId): bool
     {
         $credential = $this->credentialRepository->findOneByCredentialId($credentialId);

@@ -21,8 +21,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 #[AsCommand(name: 'accessing:dev:fixtures:load', description: 'Load Accessing demo fixtures without purge; schema reset requires explicit --reset --force.', aliases: ['accessing:demo:reset'])]
+/**
+ * Defines the demo reset command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessDemoResetCommand extends Command
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly AccessAdminFixtures $accessingAdminFixtures,
@@ -33,6 +39,9 @@ final class AccessDemoResetCommand extends Command
         parent::__construct();
     }
 
+    /**
+     * Executes the configure operation within the canonical Accessing component workflow.
+     */
     protected function configure(): void
     {
         $this

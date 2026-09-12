@@ -4,17 +4,23 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\OAuth;
 
-use App\Accessing\Dto\AccessExternalIdentityProfile;
+use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
 use League\OAuth2\Client\Provider\Google;
 use League\OAuth2\Client\Provider\GoogleUser;
 use League\OAuth2\Client\Token\AccessToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Defines the google o auth service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessGoogleOAuthService
 {
     private const string STATE_SESSION_KEY = 'accessing.google_oauth_state';
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
         private bool $accessingGoogleOAuthEnabled,
@@ -24,6 +30,9 @@ final readonly class AccessGoogleOAuthService
     ) {
     }
 
+    /**
+     * Executes the is enabled operation within the canonical Accessing component workflow.
+     */
     public function isEnabled(): bool
     {
         return $this->accessingGoogleOAuthEnabled
@@ -31,6 +40,9 @@ final readonly class AccessGoogleOAuthService
             && '' !== trim($this->accessingGoogleOAuthClientSecret);
     }
 
+    /**
+     * Executes the authorization url operation within the canonical Accessing component workflow.
+     */
     public function authorizationUrl(Request $request): string
     {
         $provider = $this->provider($request);
@@ -43,7 +55,10 @@ final readonly class AccessGoogleOAuthService
         return $authorizationUrl;
     }
 
-    public function complete(Request $request): AccessExternalIdentityProfile
+    /**
+     * Executes the complete operation within the canonical Accessing component workflow.
+     */
+    public function complete(Request $request): AccessExternalIdentityProfileDTO
     {
         $code = trim((string) $request->query->get('code', ''));
         $state = trim((string) $request->query->get('state', ''));
@@ -75,7 +90,7 @@ final readonly class AccessGoogleOAuthService
             throw new \DomainException('Google identity profile is missing its subject or email.');
         }
 
-        return new AccessExternalIdentityProfile(
+        return new AccessExternalIdentityProfileDTO(
             'google',
             $subject,
             $email,
@@ -85,6 +100,9 @@ final readonly class AccessGoogleOAuthService
         );
     }
 
+    /**
+     * Executes the provider operation within the canonical Accessing component workflow.
+     */
     private function provider(Request $request): Google
     {
         if (!$this->isEnabled()) {
@@ -98,6 +116,9 @@ final readonly class AccessGoogleOAuthService
         ]);
     }
 
+    /**
+     * Executes the redirect uri operation within the canonical Accessing component workflow.
+     */
     private function redirectUri(Request $request): string
     {
         $path = $this->urlGenerator->generate('access.google_callback');

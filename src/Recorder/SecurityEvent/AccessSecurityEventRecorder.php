@@ -15,10 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 /** @deprecated Use AccessSecurityEventServiceInterface directly. */
 final readonly class AccessSecurityEventRecorder implements AccessSecurityEventRecorderInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(private AccessSecurityEventServiceInterface $securityEventService)
     {
     }
 
+    /**
+     * Executes the record operation within the canonical Accessing component workflow.
+     */
     public function record(
         AccessSecurityEventType $eventType,
         AccessSecurityEventSeverity $severity,

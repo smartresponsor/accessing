@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Access;
 
 use App\Accessing\Service\OAuth\AccessGoogleOAuthService;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\OAuth\AccessExternalAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
@@ -16,8 +16,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Defines the google o auth flow service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessGoogleOAuthFlowService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessGoogleOAuthService $googleOAuthService,
         private AccessExternalAuthenticationServiceInterface $externalAuthenticationService,
@@ -27,6 +33,9 @@ final readonly class AccessGoogleOAuthFlowService
     ) {
     }
 
+    /**
+     * Executes the start operation within the canonical Accessing component workflow.
+     */
     public function start(Request $request): RedirectResponse
     {
         try {
@@ -38,6 +47,9 @@ final readonly class AccessGoogleOAuthFlowService
         }
     }
 
+    /**
+     * Executes the callback operation within the canonical Accessing component workflow.
+     */
     public function callback(Request $request): RedirectResponse
     {
         if ($request->query->has('error')) {
@@ -73,11 +85,17 @@ final readonly class AccessGoogleOAuthFlowService
         }
     }
 
+    /**
+     * Executes the redirect to sign in operation within the canonical Accessing component workflow.
+     */
     private function redirectToSignIn(): RedirectResponse
     {
         return new RedirectResponse($this->urlGenerator->generate('access.signin'), Response::HTTP_SEE_OTHER);
     }
 
+    /**
+     * Executes the flash operation within the canonical Accessing component workflow.
+     */
     private function flash(Request $request, string $type, string $message): void
     {
         $session = $request->getSession();

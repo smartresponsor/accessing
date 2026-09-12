@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessMobilePendingToken;
-use App\Accessing\Dto\AccessMobileTokenPair;
-use App\Accessing\Dto\AccessSignInResult;
+use App\Accessing\DTO\AccessMobilePendingTokenDTO;
+use App\Accessing\DTO\AccessMobileTokenPairDTO;
+use App\Accessing\DTO\AccessSignInResultDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
@@ -39,12 +39,12 @@ final class AccessApiFlowServiceTest extends TestCase
         $authenticationService = $this->createMock(AccessAuthenticationServiceInterface::class);
         $authenticationService->expects(self::once())
             ->method('attemptPasswordSignIn')
-            ->willReturn(AccessSignInResult::authenticated($user));
+            ->willReturn(AccessSignInResultDTO::authenticated($user));
         $mobileTokenService = $this->createMock(AccessMobileTokenServiceInterface::class);
         $mobileTokenService->expects(self::once())
             ->method('issue')
             ->with($user, 'Test iPhone')
-            ->willReturn(new AccessMobileTokenPair(
+            ->willReturn(new AccessMobileTokenPairDTO(
                 'access-token',
                 'refresh-token',
                 new \DateTimeImmutable('2026-07-12T00:15:00+00:00'),
@@ -89,7 +89,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $mobileTokenService->expects(self::once())
             ->method('rotate')
             ->with('refresh-old')
-            ->willReturn(new AccessMobileTokenPair(
+            ->willReturn(new AccessMobileTokenPairDTO(
                 'access-new',
                 'refresh-new',
                 new \DateTimeImmutable('2026-07-12T00:15:00+00:00'),
@@ -148,7 +148,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $pendingAuthService->expects(self::once())
             ->method('issue')
             ->with($user, AccessMobilePendingPurpose::EmailVerification, 'Symfony')
-            ->willReturn(new AccessMobilePendingToken('pending-token', new \DateTimeImmutable('2026-07-12T00:10:00+00:00')));
+            ->willReturn(new AccessMobilePendingTokenDTO('pending-token', new \DateTimeImmutable('2026-07-12T00:10:00+00:00')));
 
         $service = new AccessApiFlowService(
             $this->createMock(AccessAuthenticationServiceInterface::class),

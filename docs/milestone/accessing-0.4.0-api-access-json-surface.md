@@ -8,11 +8,11 @@
   - `POST /api/access/logout`
   - `GET /api/access/session`
 - Payload classes:
-  - `AccessApiSignInRequest`
-  - `AccessApiRegisterRequest`
-  - `AccessApiIdentityPayload`
-  - `AccessApiSessionPayload`
-  - `AccessApiErrorPayload`
+  - `AccessApiSignInRequestDTO`
+  - `AccessApiRegisterRequestDTO`
+  - `AccessApiIdentityDTO`
+  - `AccessApiSessionDTO`
+  - `AccessApiErrorDTO`
 - Explicit limitations:
   - route parser gap remains intentionally open; this YAML map is declaration-only for now
   - no fake token

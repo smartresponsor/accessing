@@ -12,8 +12,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the credential reset service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessCredentialResetService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private FormFactoryInterface $formFactory,
         private AccessPageViewFactoryInterface $pageViewFactory,
@@ -21,6 +27,9 @@ final readonly class AccessCredentialResetService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->createBuilder()

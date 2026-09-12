@@ -5,6 +5,8 @@ parameters:
   accessing.phone_verification_provider: '%env(default:accessing.phone_verification_provider.default:ACCESSING_PHONE_VERIFICATION_PROVIDER)%'
   accessing.admin_password.default: ''
   accessing.admin_password: '%env(default:accessing.admin_password.default:ACCESSING_ADMIN_PASSWORD)%'
+  accessing.marketplace_fixture_password.default: ''
+  accessing.marketplace_fixture_password: '%env(default:accessing.marketplace_fixture_password.default:ACCESSING_MARKETPLACE_FIXTURE_PASSWORD)%'
   accessing.passkey_rp_id.default: ''
   accessing.passkey_rp_id: '%env(default:accessing.passkey_rp_id.default:ACCESSING_PASSKEY_RP_ID)%'
   accessing.passkey_origin.default: ''
@@ -53,7 +55,7 @@ services:
     exclude:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
-      - ../src/Dto/
+      - ../src/DTO/
       - ../src/ValueObject/
       - ../src/Contract/
       - ../src/Event/
@@ -64,10 +66,13 @@ services:
       - '../src/Provider/Configuration/'
       - '../src/Service/Config/'
 
+  App\Interfacing\Service\Rendering\InterfaceTwigRendererService: ~
+  App\Interfacing\ServiceInterface\Rendering\InterfaceRendererInterface: '@App\Interfacing\Service\Rendering\InterfaceTwigRendererService'
+
   Psr\Clock\ClockInterface: '@App\Accessing\Clock\AccessSystemClock'
   App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface: '@App\Accessing\Provider\Context\AccessCurrentContextProvider'
-  App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface: '@App\Accessing\Service\Access\AccessAuthenticationService'
-  App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface: '@App\Accessing\Service\Access\AccessRegistrationService'
+  App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface: '@App\Accessing\Service\AccessAuthenticationService'
+  App\Accessing\ServiceInterface\AccessRegistrationServiceInterface: '@App\Accessing\Service\AccessRegistrationService'
   App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface: '@App\Accessing\Service\Session\AccessSessionService'
   App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface: '@App\Accessing\Service\Credential\AccessCredentialService'
   App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface: '@App\Accessing\Service\Recovery\AccessRecoveryService'

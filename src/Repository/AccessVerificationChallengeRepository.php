@@ -17,11 +17,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AccessVerificationChallengeRepository extends ServiceEntityRepository implements AccessVerificationChallengeRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessVerificationChallengeEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessVerificationChallengeEntity $verificationChallenge, bool $flush = false): void
     {
         $this->getEntityManager()->persist($verificationChallenge);
@@ -31,6 +37,9 @@ final class AccessVerificationChallengeRepository extends ServiceEntityRepositor
         }
     }
 
+    /**
+     * Executes the find latest active for user operation within the canonical Accessing component workflow.
+     */
     public function findLatestActiveForUser(AccessEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity
     {
         $challenge = $this->createQueryBuilder('challenge')
@@ -45,7 +54,7 @@ final class AccessVerificationChallengeRepository extends ServiceEntityRepositor
                 AccessVerificationChallengeType::PasswordRecovery => 'recovery',
             })
             ->setParameter('now', new \DateTimeImmutable())
-            ->orderBy('challenge.createdAt', 'DESC')
+            ->orderBy('challenge.createdAt', \SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -61,13 +70,16 @@ final class AccessVerificationChallengeRepository extends ServiceEntityRepositor
             ->andWhere('challenge.completed = false')
             ->andWhere('challenge.expiresAt <= :before')
             ->setParameter('before', $before)
-            ->orderBy('challenge.expiresAt', 'ASC')
+            ->orderBy('challenge.expiresAt', \SortDirection::Ascending)
             ->getQuery()
             ->getResult();
 
         return $results;
     }
 
+    /**
+     * Executes the cleanup expired consumed before operation within the canonical Accessing component workflow.
+     */
     public function cleanupExpiredConsumedBefore(\DateTimeImmutable $before): int
     {
         /** @var int $deletedCount */

@@ -12,11 +12,17 @@ use Doctrine\Persistence\ManagerRegistry;
 /** @extends ServiceEntityRepository<AccessExternalIdentityEntity> */
 final class AccessExternalIdentityRepository extends ServiceEntityRepository implements AccessExternalIdentityRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessExternalIdentityEntity::class);
     }
 
+    /**
+     * Executes the find one by provider and subject operation within the canonical Accessing component workflow.
+     */
     public function findOneByProviderAndSubject(string $provider, string $subject): ?AccessExternalIdentityEntity
     {
         $identity = $this->createQueryBuilder('identity')
@@ -33,6 +39,9 @@ final class AccessExternalIdentityRepository extends ServiceEntityRepository imp
         return $identity instanceof AccessExternalIdentityEntity ? $identity : null;
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessExternalIdentityEntity $identity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($identity);

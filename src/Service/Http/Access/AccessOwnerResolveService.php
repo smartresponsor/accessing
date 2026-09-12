@@ -10,14 +10,23 @@ use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterfac
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Defines the owner resolve service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessOwnerResolveService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessCurrentContextProviderInterface $contextProvider,
         private AccessRepositoryInterface $accessRepository,
     ) {
     }
 
+    /**
+     * Executes the require access operation within the canonical Accessing component workflow.
+     */
     public function requireAccess(): AccessEntity
     {
         $context = $this->contextProvider->current();

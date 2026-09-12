@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
@@ -85,12 +85,12 @@ final class AccessPasskeyCredentialServiceTest extends TestCase
     public function testRelyingPartyRejectsNonLocalHttpOrigin(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'http://example.test');
+        new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'http://example.test');
     }
 
     public function testRelyingPartyAllowsLocalhostHttpOrigin(): void
     {
-        $config = new AccessPasskeyRelyingPartyConfig('localhost', 'Local Accessing', 'http://localhost:8000');
+        $config = new AccessPasskeyRelyingPartyConfigDTO('localhost', 'Local Accessing', 'http://localhost:8000');
 
         self::assertSame('localhost', $config->id);
     }

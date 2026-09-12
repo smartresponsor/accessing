@@ -13,8 +13,14 @@ use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Defines the operator user detail service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessOperatorUserDetailService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
@@ -23,6 +29,9 @@ final readonly class AccessOperatorUserDetailService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(int $id): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->userRepository->findById($id);

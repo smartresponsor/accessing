@@ -12,9 +12,9 @@ Remove dangerous, unverifiable, or non-observable behavior from recovery, admini
 
 P0 patches block release. P1 patches are required to close this milestone. P2 items may move to a follow-up hardening milestone only after active-path safety is proven.
 
-## P0 — immediate blockers
+## P0 вЂ” immediate blockers
 
-### P0-1 — Replace obfuscated recovery dispatch
+### P0-1 вЂ” Replace obfuscated recovery dispatch
 
 - Replace `base64_decode()`, `str_rot13()`, and dynamic property/method dispatch with a direct typed `AccessRecoveryServiceInterface::resetPassword()` call.
 - Read `password` directly from the payload and remove `applyAccessEngine()`.
@@ -24,7 +24,7 @@ P0 patches block release. P1 patches are required to close this milestone. P2 it
 
 Acceptance: PHPStan resolves the call statically and no obfuscated recovery dispatch remains.
 
-### P0-2 — Stop implicit admin password reset
+### P0-2 вЂ” Stop implicit admin password reset
 
 - Remove the hardcoded `admin` password.
 - Set credentials only when creating a new administrator.
@@ -35,7 +35,7 @@ Acceptance: PHPStan resolves the call statically and no obfuscated recovery disp
 
 Acceptance: repeated `accessing:admin:ensure` never changes existing credentials and no default password exists.
 
-### P0-3 — Guard destructive demo reset
+### P0-3 вЂ” Guard destructive demo reset
 
 - Refuse execution outside `dev` and `test`.
 - Require `--force` and interactive confirmation.
@@ -46,16 +46,16 @@ Acceptance: repeated `accessing:admin:ensure` never changes existing credentials
 
 Acceptance: production cannot reach `SchemaTool::dropDatabase()` and accidental invocation exits non-zero without mutation.
 
-## P1 — required bug fixes
+## P1 вЂ” required bug fixes
 
-### P1-1 — Record locked-account sign-in attempts
+### P1-1 вЂ” Record locked-account sign-in attempts
 
 - Emit a dedicated typed security event before the locked-user return.
 - Distinguish it from normal invalid-credential failures.
 - Include only normalized/redacted investigation metadata.
 - Test event type, severity, and secret exclusion.
 
-### P1-2 — Handle mail and SMS delivery failure consistently
+### P1-2 вЂ” Handle mail and SMS delivery failure consistently
 
 - Define challenge persistence-versus-delivery lifecycle semantics.
 - Catch transport failures at the application boundary.
@@ -64,7 +64,7 @@ Acceptance: production cannot reach `SchemaTool::dropDatabase()` and accidental 
 - Return a stable user-safe response.
 - Test mail failure, SMS failure, retry behavior, and orphan prevention.
 
-### P1-3 — Consolidate security-event recording
+### P1-3 вЂ” Consolidate security-event recording
 
 - Retire the free-form `AccessSecurityEventRecorderInterface` path.
 - Route registration through `AccessSecurityEventServiceInterface`.
@@ -75,14 +75,14 @@ Acceptance: production cannot reach `SchemaTool::dropDatabase()` and accidental 
 
 Acceptance: one security-event write abstraction remains and all event types are consistently queryable.
 
-### P1-4 — Add focused operational logging and redaction
+### P1-4 вЂ” Add focused operational logging and redaction
 
 - Add a dedicated Accessing logger/channel to authentication, recovery, verification, 2FA, session, and administrative command boundaries.
 - Log failures and degraded states, not secret-bearing payloads.
 - Centralize redaction for email, phone, IP, reset codes, TOTP data, recovery codes, tokens, and session identifiers.
 - Document retention and PII policy for operational logs and `AccessSecurityEventEntity.context`.
 
-### P1-5 — Harden rate-limit identity derivation
+### P1-5 вЂ” Harden rate-limit identity derivation
 
 - Centralize rate-limit key construction.
 - Honor trusted-proxy configuration.
@@ -90,21 +90,21 @@ Acceptance: one security-event write abstraction remains and all event types are
 - Use a bounded fallback without retaining raw sensitive data.
 - Test direct, proxied, missing-IP, and multi-attacker cases.
 
-## P2 — architectural cleanup after active-path safety
+## P2 вЂ” architectural cleanup after active-path safety
 
-### P2-1 — Retire legacy entity-level 2FA fields
+### P2-1 вЂ” Retire legacy entity-level 2FA fields
 
 Verify production usage, migrate active values to `AccessSecondFactorEntity`, then remove `totpSecret`, `secondFactorEnabled`, fallback behavior, and obsolete schema columns.
 
-### P2-2 — Resolve dormant configuration integration
+### P2-2 вЂ” Resolve dormant configuration integration
 
 Move the excluded configuration integration behind an explicit optional boundary or documented feature flag. Missing `config/component/services.yaml` must fail clearly instead of silently registering zero services.
 
-### P2-3 — Remove or relocate unsupported CRUD scaffolding
+### P2-3 вЂ” Remove or relocate unsupported CRUD scaffolding
 
 Verify reachability of the eleven throw-only CRUD services. Remove them from Accessing when CRUD responsibility belongs to Cruding, retaining only real Accessing business-flow services and supported contracts.
 
-### P2-4 — Remove duplicate hashing and repository aliases
+### P2-4 вЂ” Remove duplicate hashing and repository aliases
 
 Introduce purpose-separated keys for challenge and recovery-code hashing, document rotation behavior, and consolidate `findOneByEmail()` / `findOneByEmailAddress()` behind one canonical repository method.
 

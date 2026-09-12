@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Config;
 
-use App\Accessing\Dto\Config\AccessEnvironmentConfigData;
+use App\Accessing\DTO\Config\AccessEnvironmentConfigDTO;
 use App\Accessing\Form\Config\AccessEnvironmentConfigType;
 use App\Configuring\ServiceInterface\Config\ConfigToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ConfigVariableToolServiceInterface;
@@ -19,6 +19,9 @@ use Symfony\Component\Yaml\Yaml;
  */
 final readonly class AccessEnvironmentConfigService implements ConfigToolServiceInterface, ManagedConfigVariablesProviderInterface, ConfigVariableToolServiceInterface
 {
+    /**
+     * Executes the descriptor operation within the canonical Accessing component workflow.
+     */
     public function descriptor(): ConfigToolDescriptor
     {
         return new ConfigToolDescriptor(
@@ -78,9 +81,12 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
             ->required();
     }
 
+    /**
+     * Executes the load data operation within the canonical Accessing component workflow.
+     */
     public function loadData(): object
     {
-        $data = new AccessEnvironmentConfigData();
+        $data = new AccessEnvironmentConfigDTO();
         $runtime = $this->runtimeManifest();
 
         $data->mailerSender = self::stringValue($runtime['accessing_mailer_sender'] ?? null, $data->mailerSender);
@@ -94,6 +100,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return $data;
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
@@ -107,6 +116,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
+    /**
+     * Executes the apply operation within the canonical Accessing component workflow.
+     */
     public function apply(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
@@ -185,10 +197,13 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
-    private function assertData(object $data): AccessEnvironmentConfigData
+    /**
+     * Executes the assert data operation within the canonical Accessing component workflow.
+     */
+    private function assertData(object $data): AccessEnvironmentConfigDTO
     {
-        if (!$data instanceof AccessEnvironmentConfigData) {
-            throw new \InvalidArgumentException('Accessing environment config expects AccessEnvironmentConfigData.');
+        if (!$data instanceof AccessEnvironmentConfigDTO) {
+            throw new \InvalidArgumentException('Accessing environment config expects AccessEnvironmentConfigDTO.');
         }
 
         return $data;
@@ -203,6 +218,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return is_array($parsed) ? self::stringKeyMap($parsed) : [];
     }
 
+    /**
+     * Executes the runtime manifest path operation within the canonical Accessing component workflow.
+     */
     private function runtimeManifestPath(): string
     {
         return dirname(__DIR__, 3).'/config/component/runtime.yaml';
@@ -242,7 +260,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
     /**
      * @return array<string, mixed>
      */
-    private function runtimePatch(AccessEnvironmentConfigData $data): array
+    private function runtimePatch(AccessEnvironmentConfigDTO $data): array
     {
         return [
             'accessing_mailer_sender' => $data->mailerSender,
@@ -255,6 +273,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
+    /**
+     * Executes the string value operation within the canonical Accessing component workflow.
+     */
     private static function stringValue(mixed $value, string $default): string
     {
         if (is_string($value)) {
@@ -268,6 +289,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return $default;
     }
 
+    /**
+     * Executes the int value operation within the canonical Accessing component workflow.
+     */
     private static function intValue(mixed $value, int $default): int
     {
         if (is_int($value)) {

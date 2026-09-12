@@ -5,10 +5,16 @@ declare(strict_types=1);
 
 namespace App\Accessing\ResponderInterface\Rendering;
 
-use App\Accessing\Dto\AccessPageView;
+use App\Accessing\DTO\AccessPageViewDTO;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the page responder interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessPageResponderInterface
 {
-    public function respond(AccessPageView $pageView): Response;
+    /**
+     * Executes the respond operation within the canonical Accessing component workflow.
+     */
+    public function respond(AccessPageViewDTO $pageView): Response;
 }

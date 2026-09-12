@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\Api\Access\AccessApiErrorPayload;
-use App\Accessing\Dto\Api\Access\AccessApiIdentityPayload;
-use App\Accessing\Dto\Api\Access\AccessApiRegisterRequest;
-use App\Accessing\Dto\Api\Access\AccessApiSessionPayload;
-use App\Accessing\Dto\Api\Access\AccessApiSignInRequest;
+use App\Accessing\DTO\Api\Access\AccessApiErrorDTO;
+use App\Accessing\DTO\Api\Access\AccessApiIdentityDTO;
+use App\Accessing\DTO\Api\Access\AccessApiRegisterRequestDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSignInRequestDTO;
 use PHPUnit\Framework\TestCase;
 
 final class AccessApiDtoContractTest extends TestCase
 {
     public function testRegisterRequestUsesDisplayNameEmailAndPasswordOnly(): void
     {
-        $request = new AccessApiRegisterRequest();
+        $request = new AccessApiRegisterRequestDTO();
 
         self::assertObjectHasProperty('displayName', $request);
         self::assertObjectHasProperty('email', $request);
@@ -25,7 +25,7 @@ final class AccessApiDtoContractTest extends TestCase
 
     public function testSignInRequestUsesEmailAndPasswordOnly(): void
     {
-        $request = new AccessApiSignInRequest();
+        $request = new AccessApiSignInRequestDTO();
 
         self::assertObjectHasProperty('email', $request);
         self::assertObjectHasProperty('password', $request);
@@ -33,7 +33,7 @@ final class AccessApiDtoContractTest extends TestCase
 
     public function testSessionPayloadDoesNotFakeTokensOrIdentity(): void
     {
-        $payload = new AccessApiSessionPayload('unauthenticated');
+        $payload = new AccessApiSessionDTO('unauthenticated');
 
         self::assertNull($payload->identity);
         self::assertNull($payload->accessToken);
@@ -47,7 +47,7 @@ final class AccessApiDtoContractTest extends TestCase
 
     public function testIdentityPayloadSerializesCanonicalFields(): void
     {
-        $payload = new AccessApiIdentityPayload('42', 'Demo User', 'demo@example.test', true, false);
+        $payload = new AccessApiIdentityDTO('42', 'Demo User', 'demo@example.test', true, false);
 
         self::assertSame(
             [
@@ -64,7 +64,7 @@ final class AccessApiDtoContractTest extends TestCase
 
     public function testErrorPayloadSerializesFieldErrors(): void
     {
-        $payload = new AccessApiErrorPayload('invalid_request', 'Bad request', ['email' => ['Required']]);
+        $payload = new AccessApiErrorDTO('invalid_request', 'Bad request', ['email' => ['Required']]);
 
         self::assertSame(
             [

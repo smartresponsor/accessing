@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Passkey;
 
-use App\Accessing\Dto\AccessPasskeyRegistrationOptions;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyRegistrationOptionsDTO;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
@@ -19,8 +19,14 @@ use App\Accessing\ValueObject\AccessSecurityEventType;
 use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the passkey registration service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessPasskeyRegistrationService implements AccessPasskeyRegistrationServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessPasskeyChallengeServiceInterface $challengeService,
         private AccessPasskeyAttestationVerifierInterface $attestationVerifier,
@@ -30,10 +36,13 @@ final readonly class AccessPasskeyRegistrationService implements AccessPasskeyRe
     ) {
     }
 
+    /**
+     * Executes the issue options operation within the canonical Accessing component workflow.
+     */
     public function issueOptions(
         AccessEntity $user,
-        AccessPasskeyRelyingPartyConfig $relyingParty,
-    ): AccessPasskeyRegistrationOptions {
+        AccessPasskeyRelyingPartyConfigDTO $relyingParty,
+    ): AccessPasskeyRegistrationOptionsDTO {
         $issued = $this->challengeService->issue(
             AccessPasskeyCeremonyPurpose::Registration,
             $relyingParty->id,
@@ -50,7 +59,7 @@ final readonly class AccessPasskeyRegistrationService implements AccessPasskeyRe
             $this->credentialRepository->findActiveForUser($user),
         );
 
-        return new AccessPasskeyRegistrationOptions(
+        return new AccessPasskeyRegistrationOptionsDTO(
             $issued['challenge'],
             ['id' => $relyingParty->id, 'name' => $relyingParty->name],
             [
@@ -67,9 +76,12 @@ final readonly class AccessPasskeyRegistrationService implements AccessPasskeyRe
         );
     }
 
+    /**
+     * Executes the complete operation within the canonical Accessing component workflow.
+     */
     public function complete(
         AccessEntity $user,
-        AccessPasskeyRelyingPartyConfig $relyingParty,
+        AccessPasskeyRelyingPartyConfigDTO $relyingParty,
         array $credentialResponse,
         string $name,
         ?Request $request = null,
@@ -116,6 +128,9 @@ final readonly class AccessPasskeyRegistrationService implements AccessPasskeyRe
         return $credential;
     }
 
+    /**
+     * Executes the user handle operation within the canonical Accessing component workflow.
+     */
     private static function userHandle(AccessEntity $user): string
     {
         return rtrim(strtr(base64_encode(hash('sha256', $user->getUserIdentifier(), true)), '+/', '-_'), '=');

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Accessing\Verifier\Passkey;
 
 use App\Accessing\Codec\Passkey\AccessWebauthnCredentialRecordCodec;
-use App\Accessing\Dto\AccessPasskeyAttestationResult;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessPasskeyVerificationException;
 use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
@@ -19,13 +19,22 @@ use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredentialRpEntity;
 use Webauthn\PublicKeyCredentialUserEntity;
 
+/**
+ * Defines the webauthn attestation verifier type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessWebauthnAttestationVerifier implements AccessPasskeyAttestationVerifierInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(private AccessWebauthnCredentialRecordCodec $codec)
     {
     }
 
-    public function verify(array $credentialResponse, string $expectedChallenge, AccessPasskeyRelyingPartyConfig $relyingParty, AccessEntity $user): AccessPasskeyAttestationResult
+    /**
+     * Executes the verify operation within the canonical Accessing component workflow.
+     */
+    public function verify(array $credentialResponse, string $expectedChallenge, AccessPasskeyRelyingPartyConfigDTO $relyingParty, AccessEntity $user): AccessPasskeyAttestationResultDTO
     {
         try {
             $publicKeyCredential = $this->codec->decodePublicKeyCredential($credentialResponse);
@@ -46,7 +55,7 @@ final readonly class AccessWebauthnAttestationVerifier implements AccessPasskeyA
             );
             $record = $validator->check($publicKeyCredential->response, $options, self::host($relyingParty));
 
-            return new AccessPasskeyAttestationResult(
+            return new AccessPasskeyAttestationResultDTO(
                 Base64UrlSafe::encodeUnpadded($record->publicKeyCredentialId),
                 Base64UrlSafe::encodeUnpadded($record->userHandle),
                 Base64UrlSafe::encodeUnpadded($record->credentialPublicKey),
@@ -59,13 +68,19 @@ final readonly class AccessWebauthnAttestationVerifier implements AccessPasskeyA
         }
     }
 
-    private static function host(AccessPasskeyRelyingPartyConfig $relyingParty): string
+    /**
+     * Executes the host operation within the canonical Accessing component workflow.
+     */
+    private static function host(AccessPasskeyRelyingPartyConfigDTO $relyingParty): string
     {
         $host = parse_url($relyingParty->origin, PHP_URL_HOST);
 
         return is_string($host) && '' !== $host ? $host : $relyingParty->id;
     }
 
+    /**
+     * Executes the user handle operation within the canonical Accessing component workflow.
+     */
     private static function userHandle(AccessEntity $user): string
     {
         return rtrim(strtr(base64_encode(hash('sha256', $user->getUserIdentifier(), true)), '+/', '-_'), '=');

@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Dto\AccessRegistrationRequest;
+use App\Accessing\DTO\AccessRegistrationRequestDTO;
 use App\Accessing\Repository\AccessRepository;
 use App\Accessing\Repository\AccessSecurityEventRepository;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
@@ -31,7 +31,7 @@ final class AccessAuthenticationServiceTest extends AccessDatabaseTestCase
         $email = sprintf('auth-%s@example.test', bin2hex(random_bytes(6)));
         $password = sprintf('Auth-pass-%s', bin2hex(random_bytes(6)));
 
-        $request = new AccessRegistrationRequest();
+        $request = new AccessRegistrationRequestDTO();
         $request->email = $email;
         $request->plainPassword = $password;
         $request->displayName = 'Auth Check';
@@ -68,7 +68,7 @@ final class AccessAuthenticationServiceTest extends AccessDatabaseTestCase
         $email = sprintf('locked-%s@example.test', bin2hex(random_bytes(6)));
         $password = sprintf('Locked-pass-%s', bin2hex(random_bytes(6)));
 
-        $registration = new AccessRegistrationRequest();
+        $registration = new AccessRegistrationRequestDTO();
         $registration->email = $email;
         $registration->plainPassword = $password;
         $registration->displayName = 'Locked Account';

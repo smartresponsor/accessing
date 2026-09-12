@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasswordSafetyResult;
+use App\Accessing\DTO\AccessPasswordSafetyResultDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
@@ -23,7 +23,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
         $provider->expects(self::once())
             ->method('check')
             ->with('compromised-password')
-            ->willReturn(new AccessPasswordSafetyResult(AccessPasswordSafetyStatus::Compromised));
+            ->willReturn(new AccessPasswordSafetyResultDTO(AccessPasswordSafetyStatus::Compromised));
 
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->expects(self::never())->method('hashPassword');
@@ -42,7 +42,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
         $provider->expects(self::once())
             ->method('check')
             ->with('candidate-password')
-            ->willReturn(new AccessPasswordSafetyResult(AccessPasswordSafetyStatus::Unavailable));
+            ->willReturn(new AccessPasswordSafetyResultDTO(AccessPasswordSafetyStatus::Unavailable));
 
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->expects(self::never())->method('hashPassword');
@@ -61,7 +61,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
         $provider->expects(self::once())
             ->method('check')
             ->with('replacement-password')
-            ->willReturn(new AccessPasswordSafetyResult(AccessPasswordSafetyStatus::Safe));
+            ->willReturn(new AccessPasswordSafetyResultDTO(AccessPasswordSafetyStatus::Safe));
 
         $user = new AccessEntity();
         $hasher = $this->createMock(UserPasswordHasherInterface::class);

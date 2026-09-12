@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Form\Access\AccessChangePasswordType;
-use App\Accessing\Form\Access\AccessPasswordChangeType;
-use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
-use App\Accessing\Form\Access\AccessRecoveryRequestType;
-use App\Accessing\Form\Access\AccessRecoveryResetType;
-use App\Accessing\Form\Access\AccessRegistrationType;
-use App\Accessing\Form\Access\AccessResetPasswordRequestType;
-use App\Accessing\Form\Access\AccessSignInType;
-use App\Accessing\Form\Access\AccessVerificationCodeType;
+use App\Accessing\Form\AccessChangePasswordType;
+use App\Accessing\Form\AccessPasswordChangeType;
+use App\Accessing\Form\AccessPhoneVerificationRequestType;
+use App\Accessing\Form\AccessRecoveryRequestType;
+use App\Accessing\Form\AccessRecoveryResetType;
+use App\Accessing\Form\AccessRegistrationType;
+use App\Accessing\Form\AccessResetPasswordRequestType;
+use App\Accessing\Form\AccessSignInType;
+use App\Accessing\Form\AccessVerificationCodeType;
 use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 use Symfony\Component\Form\Test\TypeTestCase;
 

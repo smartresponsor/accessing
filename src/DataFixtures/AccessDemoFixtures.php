@@ -14,14 +14,23 @@ use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * Defines the demo fixtures type and its canonical responsibility within the Accessing component.
+ */
 final class AccessDemoFixtures extends Fixture
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessRepositoryInterface $accessRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
     ) {
     }
 
+    /**
+     * Executes the load operation within the canonical Accessing component workflow.
+     */
     public function load(ObjectManager $manager): void
     {
         $user = $this->accessRepository->findOneByEmailAddress('demo@smartresponsor.local');

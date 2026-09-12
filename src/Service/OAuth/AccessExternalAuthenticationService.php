@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\OAuth;
 
-use App\Accessing\Dto\AccessExternalIdentityProfile;
+use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessExternalIdentityEntity;
 use App\Accessing\RepositoryInterface\AccessExternalIdentityRepositoryInterface;
@@ -15,8 +15,14 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the external authentication service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessExternalAuthenticationService implements AccessExternalAuthenticationServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessExternalIdentityRepositoryInterface $externalIdentityRepository,
         private AccessRepositoryInterface $accessRepository,
@@ -24,7 +30,10 @@ final readonly class AccessExternalAuthenticationService implements AccessExtern
     ) {
     }
 
-    public function resolve(AccessExternalIdentityProfile $profile, Request $request): AccessEntity
+    /**
+     * Executes the resolve operation within the canonical Accessing component workflow.
+     */
+    public function resolve(AccessExternalIdentityProfileDTO $profile, Request $request): AccessEntity
     {
         $identity = $this->externalIdentityRepository->findOneByProviderAndSubject($profile->provider, $profile->subject);
 

@@ -12,8 +12,14 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the credential request service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessCredentialRequestService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private FormFactoryInterface $formFactory,
         private AccessPageViewFactoryInterface $pageViewFactory,
@@ -21,6 +27,9 @@ final readonly class AccessCredentialRequestService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->createBuilder()->add('email', EmailType::class)->getForm();

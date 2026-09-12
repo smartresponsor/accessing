@@ -12,6 +12,9 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
 #[ORM\Entity(repositoryClass: AccessResetPasswordRequestRepository::class)]
 #[ORM\Table(name: 'access_reset_password_request')]
+/**
+ * Defines the reset password request entity type and its canonical responsibility within the Accessing component.
+ */
 class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
 {
     use ResetPasswordRequestTrait;
@@ -25,17 +28,26 @@ class AccessResetPasswordRequestEntity implements ResetPasswordRequestInterface
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private AccessEntity $user;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(AccessEntity $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         $this->user = $user;
         $this->initialize($expiresAt, $selector, $hashedToken);
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): AccessEntity
     {
         return $this->user;

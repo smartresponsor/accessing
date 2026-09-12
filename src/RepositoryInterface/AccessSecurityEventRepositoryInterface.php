@@ -8,8 +8,14 @@ namespace App\Accessing\RepositoryInterface;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
 
+/**
+ * Defines the security event repository interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessSecurityEventRepositoryInterface
 {
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void;
 
     /**

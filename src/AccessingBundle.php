@@ -16,11 +16,17 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 final class AccessingBundle extends Bundle
 {
+    /**
+     * Executes the get container extension operation within the canonical Accessing component workflow.
+     */
     public function getContainerExtension(): ExtensionInterface
     {
         return parent::getContainerExtension() ?? new AccessingExtension();
     }
 
+    /**
+     * Executes the get path operation within the canonical Accessing component workflow.
+     */
     public function getPath(): string
     {
         return \dirname(__DIR__);

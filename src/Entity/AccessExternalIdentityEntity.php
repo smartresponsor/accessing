@@ -16,8 +16,11 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessExternalIdentityRepository::class)]
 #[ORM\Table(name: 'access_external_identity')]
-#[ORM\UniqueConstraint(name: 'uniq_access_external_identity_provider_subject', columns: ['object_provider', 'object_external_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_external_identity_provider_subject', columns: ['provider', 'external_id'])]
 #[ORM\Index(name: 'idx_access_external_identity_user', columns: ['user_id'])]
+/**
+ * Defines the external identity entity type and its canonical responsibility within the Accessing component.
+ */
 final class AccessExternalIdentityEntity implements ObjectIdentifiedInterface, ObjectAuditedInterface, ObjectSourcedInterface
 {
     use ObjectIdentityEmbeddableTrait;
@@ -48,6 +51,9 @@ final class AccessExternalIdentityEntity implements ObjectIdentifiedInterface, O
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $lastAuthenticatedAt;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         AccessEntity $user,
         string $provider,
@@ -68,41 +74,65 @@ final class AccessExternalIdentityEntity implements ObjectIdentifiedInterface, O
         $this->lastAuthenticatedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the get email operation within the canonical Accessing component workflow.
+     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
+    /**
+     * Executes the is email verified operation within the canonical Accessing component workflow.
+     */
     public function isEmailVerified(): bool
     {
         return $this->emailVerified;
     }
 
+    /**
+     * Executes the get display name operation within the canonical Accessing component workflow.
+     */
     public function getDisplayName(): ?string
     {
         return $this->displayName;
     }
 
+    /**
+     * Executes the get avatar url operation within the canonical Accessing component workflow.
+     */
     public function getAvatarUrl(): ?string
     {
         return $this->avatarUrl;
     }
 
+    /**
+     * Executes the get last authenticated at operation within the canonical Accessing component workflow.
+     */
     public function getLastAuthenticatedAt(): \DateTimeImmutable
     {
         return $this->lastAuthenticatedAt;
     }
 
+    /**
+     * Executes the record authentication operation within the canonical Accessing component workflow.
+     */
     public function recordAuthentication(
         string $email,
         bool $emailVerified,
@@ -118,6 +148,9 @@ final class AccessExternalIdentityEntity implements ObjectIdentifiedInterface, O
         $this->touchModified($this->lastAuthenticatedAt);
     }
 
+    /**
+     * Executes the nullable trim operation within the canonical Accessing component workflow.
+     */
     private static function nullableTrim(?string $value): ?string
     {
         if (null === $value) {

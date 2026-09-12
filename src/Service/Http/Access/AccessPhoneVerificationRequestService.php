@@ -12,8 +12,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the phone verification request service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessPhoneVerificationRequestService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessOwnerResolveService $ownerResolveService,
         private FormFactoryInterface $formFactory,
@@ -22,6 +28,9 @@ final readonly class AccessPhoneVerificationRequestService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->createBuilder()->add('phoneNumber', TextType::class)->getForm();

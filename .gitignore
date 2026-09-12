@@ -3,6 +3,10 @@
 /report/
 composer.lock
 
+# Local environment
+/.env.local
+/.env.*.local
+
 # Logs and caches
 /var/logs/
 /var/cache/
@@ -47,3 +51,7 @@ Thumbs.db
 /Domain/Ai/agent-trigger/worker/.dev.vars
 /Domain/Ai/agent-trigger/worker/.dev.vars.*
 !/Domain/Ai/agent-trigger/worker/.dev.vars.example
+
+# Generated Symfony reference
+/config/reference.php
+/config/reference.php.*

@@ -5,6 +5,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\ValueObject;
 
+/**
+ * Defines the verification challenge type type and its canonical responsibility within the Accessing component.
+ */
 enum AccessVerificationChallengeType: string
 {
     case EmailVerification = 'email_verification';

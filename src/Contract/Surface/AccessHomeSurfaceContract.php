@@ -6,6 +6,9 @@ namespace App\Accessing\Contract\Surface;
 
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 
+/**
+ * Defines the home surface contract type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessHomeSurfaceContract implements InterfaceTemplateRenderableInterface
 {
     public const WORD = 'access';
@@ -66,6 +69,9 @@ final readonly class AccessHomeSurfaceContract implements InterfaceTemplateRende
         ];
     }
 
+    /**
+     * Executes the template name operation within the canonical Accessing component workflow.
+     */
     public function templateName(): string
     {
         return $this->templateName;

@@ -5,6 +5,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\ValueObject;
 
+/**
+ * Defines the security event type type and its canonical responsibility within the Accessing component.
+ */
 enum AccessSecurityEventType: string
 {
     case UserRegistered = 'user_registered';

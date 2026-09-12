@@ -11,10 +11,16 @@ use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
+/**
+ * Defines the admin fixtures type and its canonical responsibility within the Accessing component.
+ */
 final class AccessAdminFixtures extends Fixture
 {
     private const ADMIN_EMAIL = 'admin@smartresponsor.local';
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
@@ -22,6 +28,9 @@ final class AccessAdminFixtures extends Fixture
     ) {
     }
 
+    /**
+     * Executes the assert configured operation within the canonical Accessing component workflow.
+     */
     public function assertConfigured(): void
     {
         if ('' === trim($this->adminPassword)) {
@@ -29,6 +38,9 @@ final class AccessAdminFixtures extends Fixture
         }
     }
 
+    /**
+     * Executes the load operation within the canonical Accessing component workflow.
+     */
     public function load(ObjectManager $manager): void
     {
         $this->assertConfigured();

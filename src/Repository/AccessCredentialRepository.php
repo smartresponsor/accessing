@@ -16,11 +16,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AccessCredentialRepository extends ServiceEntityRepository implements AccessCredentialRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessCredentialEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessCredentialEntity $credential, bool $flush = false): void
     {
         $this->getEntityManager()->persist($credential);
@@ -30,6 +36,9 @@ final class AccessCredentialRepository extends ServiceEntityRepository implement
         }
     }
 
+    /**
+     * Executes the find one for user operation within the canonical Accessing component workflow.
+     */
     public function findOneForUser(AccessEntity $user): ?AccessCredentialEntity
     {
         $credential = $this->findOneBy(['user' => $user]);

@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Api\Access;
 
 use App\Accessing\Authenticator\AccessBearerAuthenticator;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
-use App\Accessing\Dto\AccessRegistrationRequest;
-use App\Accessing\Dto\AccessSignInResult;
-use App\Accessing\Dto\Api\Access\AccessApiErrorPayload;
-use App\Accessing\Dto\Api\Access\AccessApiIdentityPayload;
-use App\Accessing\Dto\Api\Access\AccessApiRegisterRequest;
-use App\Accessing\Dto\Api\Access\AccessApiSessionPayload;
-use App\Accessing\Dto\Api\Access\AccessApiSignInRequest;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
+use App\Accessing\DTO\AccessRegistrationRequestDTO;
+use App\Accessing\DTO\AccessSignInResultDTO;
+use App\Accessing\DTO\Api\Access\AccessApiErrorDTO;
+use App\Accessing\DTO\Api\Access\AccessApiIdentityDTO;
+use App\Accessing\DTO\Api\Access\AccessApiRegisterRequestDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
+use App\Accessing\DTO\Api\Access\AccessApiSignInRequestDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
@@ -20,8 +20,8 @@ use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
@@ -39,8 +39,14 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Uid\Uuid;
 
 #[AsController]
+/**
+ * Defines the api flow service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessApiFlowService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessAuthenticationServiceInterface $authenticationService,
         private AccessRegistrationServiceInterface $registrationService,
@@ -61,6 +67,9 @@ final readonly class AccessApiFlowService
     ) {
     }
 
+    /**
+     * Executes the sign in operation within the canonical Accessing component workflow.
+     */
     public function signIn(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -68,7 +77,7 @@ final readonly class AccessApiFlowService
 
         if ([] !== $fieldErrors) {
             return $this->responder->error(
-                new AccessApiErrorPayload(
+                new AccessApiErrorDTO(
                     'invalid_request',
                     'Access API JSON surface is materialized, but request validation failed.',
                     $fieldErrors,
@@ -87,7 +96,7 @@ final readonly class AccessApiFlowService
             $tokens = $this->mobileTokenService->issue($result->user, $this->deviceName($request));
 
             return $this->responder->session(
-                new AccessApiSessionPayload(
+                new AccessApiSessionDTO(
                     'authenticated',
                     $this->identityFromUser($result->user),
                     $tokens->accessToken,
@@ -108,7 +117,7 @@ final readonly class AccessApiFlowService
             $pending = $this->mobilePendingAuthService->issue($result->user, AccessMobilePendingPurpose::SecondFactor, $this->deviceName($request));
 
             return $this->responder->session(
-                new AccessApiSessionPayload(
+                new AccessApiSessionDTO(
                     'second_factor_pending',
                     null,
                     null,
@@ -123,7 +132,7 @@ final readonly class AccessApiFlowService
         }
 
         return $this->responder->error(
-            new AccessApiErrorPayload(
+            new AccessApiErrorDTO(
                 $this->errorCodeForSignInResult($result),
                 $result->message,
             ),
@@ -131,6 +140,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the refresh operation within the canonical Accessing component workflow.
+     */
     public function refresh(Request $request): JsonResponse
     {
         if (null === $this->mobileTokenService) {
@@ -152,7 +164,7 @@ final readonly class AccessApiFlowService
             return $this->unauthorizedResponse('invalid_refresh_token', 'The mobile refresh token is invalid, expired, or reused.');
         }
 
-        return $this->responder->session(new AccessApiSessionPayload(
+        return $this->responder->session(new AccessApiSessionDTO(
             'authenticated',
             $this->identityFromUser($user),
             $tokens->accessToken,
@@ -163,6 +175,9 @@ final readonly class AccessApiFlowService
         ));
     }
 
+    /**
+     * Executes the register operation within the canonical Accessing component workflow.
+     */
     public function register(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -170,7 +185,7 @@ final readonly class AccessApiFlowService
 
         if ([] !== $fieldErrors) {
             return $this->responder->error(
-                new AccessApiErrorPayload(
+                new AccessApiErrorDTO(
                     'invalid_request',
                     'Access API JSON surface is materialized, but request validation failed.',
                     $fieldErrors,
@@ -184,13 +199,13 @@ final readonly class AccessApiFlowService
 
             if (!$this->accessingSignUpLimiter->create($limiterKey)->consume()->isAccepted()) {
                 return $this->responder->error(
-                    new AccessApiErrorPayload('registration_rate_limited', 'Too many registration attempts.'),
+                    new AccessApiErrorDTO('registration_rate_limited', 'Too many registration attempts.'),
                     Response::HTTP_TOO_MANY_REQUESTS,
                 );
             }
         }
 
-        $registrationRequest = new AccessRegistrationRequest();
+        $registrationRequest = new AccessRegistrationRequestDTO();
         $registrationRequest->displayName = $input->displayName;
         $registrationRequest->email = $input->email;
         $registrationRequest->plainPassword = $input->password;
@@ -199,22 +214,22 @@ final readonly class AccessApiFlowService
             $user = $this->registrationService->register($registrationRequest);
         } catch (AccessCompromisedPasswordException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload('password_compromised', $exception->getMessage()),
+                new AccessApiErrorDTO('password_compromised', $exception->getMessage()),
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (AccessPasswordSafetyUnavailableException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload('password_safety_unavailable', $exception->getMessage()),
+                new AccessApiErrorDTO('password_safety_unavailable', $exception->getMessage()),
                 Response::HTTP_SERVICE_UNAVAILABLE,
             );
         } catch (AccessNotificationDeliveryException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload('notification_delivery_unavailable', $exception->getMessage()),
+                new AccessApiErrorDTO('notification_delivery_unavailable', $exception->getMessage()),
                 Response::HTTP_SERVICE_UNAVAILABLE,
             );
         } catch (\DomainException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload(
+                new AccessApiErrorDTO(
                     'access_register_failed',
                     $exception->getMessage(),
                 ),
@@ -229,7 +244,7 @@ final readonly class AccessApiFlowService
         $pending = $this->mobilePendingAuthService->issue($user, AccessMobilePendingPurpose::EmailVerification, $this->deviceName($request));
 
         return $this->responder->session(
-            new AccessApiSessionPayload(
+            new AccessApiSessionDTO(
                 'verification_pending',
                 $this->identityFromUser($user),
                 null,
@@ -243,6 +258,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the logout operation within the canonical Accessing component workflow.
+     */
     public function logout(Request $request): JsonResponse
     {
         $accessToken = $request->attributes->get(AccessBearerAuthenticator::REQUEST_ATTRIBUTE);
@@ -256,6 +274,9 @@ final readonly class AccessApiFlowService
         return $this->responder->session($this->unauthenticatedSession());
     }
 
+    /**
+     * Executes the session operation within the canonical Accessing component workflow.
+     */
     public function session(Request $request): JsonResponse
     {
         $user = $this->security->getUser();
@@ -269,7 +290,7 @@ final readonly class AccessApiFlowService
             return $this->responder->session($this->unauthenticatedSession());
         }
 
-        $identity = new AccessApiIdentityPayload(
+        $identity = new AccessApiIdentityDTO(
             (string) $current->userId(),
             $current->displayName(),
             $current->userIdentifier(),
@@ -278,7 +299,7 @@ final readonly class AccessApiFlowService
         );
 
         return $this->responder->session(
-            new AccessApiSessionPayload(
+            new AccessApiSessionDTO(
                 'authenticated',
                 $identity,
                 null,
@@ -290,6 +311,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the resend verification operation within the canonical Accessing component workflow.
+     */
     public function resendVerification(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -331,7 +355,7 @@ final readonly class AccessApiFlowService
 
         if (null === $issuedChallenge) {
             return $this->responder->error(
-                new AccessApiErrorPayload('verification_resend_rate_limited', 'Too many verification resend attempts.'),
+                new AccessApiErrorDTO('verification_resend_rate_limited', 'Too many verification resend attempts.'),
                 Response::HTTP_TOO_MANY_REQUESTS,
             );
         }
@@ -340,7 +364,7 @@ final readonly class AccessApiFlowService
             $this->mobilePendingAuthService->consume($pendingToken, AccessMobilePendingPurpose::EmailVerification);
             $replacement = $this->mobilePendingAuthService->issue($user, AccessMobilePendingPurpose::EmailVerification, $pendingAuth->getDeviceName());
 
-            return $this->responder->session(new AccessApiSessionPayload(
+            return $this->responder->session(new AccessApiSessionDTO(
                 'verification_pending',
                 $this->identityFromUser($user),
                 null,
@@ -358,6 +382,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the confirm verification operation within the canonical Accessing component workflow.
+     */
     public function confirmVerification(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -394,7 +421,7 @@ final readonly class AccessApiFlowService
 
         if (!$this->verificationChallengeService->completeEmailVerification($user, $code)) {
             return $this->responder->error(
-                new AccessApiErrorPayload('invalid_verification_code', 'The verification code is invalid or expired.'),
+                new AccessApiErrorDTO('invalid_verification_code', 'The verification code is invalid or expired.'),
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
@@ -411,6 +438,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the challenge second factor operation within the canonical Accessing component workflow.
+     */
     public function challengeSecondFactor(Request $request): JsonResponse
     {
         $payload = [];
@@ -433,7 +463,7 @@ final readonly class AccessApiFlowService
 
             $user = $pendingAuth->getUser();
 
-            return $this->responder->session(new AccessApiSessionPayload(
+            return $this->responder->session(new AccessApiSessionDTO(
                 'second_factor_pending',
                 $this->identityFromUser($user),
                 null,
@@ -461,6 +491,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the verify second factor operation within the canonical Accessing component workflow.
+     */
     public function verifySecondFactor(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -499,7 +532,7 @@ final readonly class AccessApiFlowService
 
         if (!$this->secondFactorService->verifyChallenge($user, $code)) {
             return $this->responder->error(
-                new AccessApiErrorPayload('invalid_second_factor_code', 'The second-factor code is invalid.'),
+                new AccessApiErrorDTO('invalid_second_factor_code', 'The second-factor code is invalid.'),
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         }
@@ -519,6 +552,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the passkey registration options operation within the canonical Accessing component workflow.
+     */
     public function passkeyRegistrationOptions(Request $request): JsonResponse
     {
         $user = $this->authenticatedUser();
@@ -532,6 +568,9 @@ final readonly class AccessApiFlowService
         return new JsonResponse($this->passkeyRegistrationService->issueOptions($user, $this->passkeyRelyingParty($request))->toArray());
     }
 
+    /**
+     * Executes the passkey registration complete operation within the canonical Accessing component workflow.
+     */
     public function passkeyRegistrationComplete(Request $request): JsonResponse
     {
         $user = $this->authenticatedUser();
@@ -553,7 +592,7 @@ final readonly class AccessApiFlowService
         try {
             $registered = $this->passkeyRegistrationService->complete($user, $this->passkeyRelyingParty($request), $credential, $name, $request);
         } catch (\DomainException $exception) {
-            return $this->responder->error(new AccessApiErrorPayload('passkey_registration_failed', $exception->getMessage()), Response::HTTP_UNPROCESSABLE_ENTITY);
+            return $this->responder->error(new AccessApiErrorDTO('passkey_registration_failed', $exception->getMessage()), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse([
@@ -566,6 +605,9 @@ final readonly class AccessApiFlowService
         ], Response::HTTP_CREATED);
     }
 
+    /**
+     * Executes the passkey authentication options operation within the canonical Accessing component workflow.
+     */
     public function passkeyAuthenticationOptions(Request $request): JsonResponse
     {
         if (null === $this->passkeyAuthenticationService) {
@@ -575,6 +617,9 @@ final readonly class AccessApiFlowService
         return new JsonResponse($this->passkeyAuthenticationService->issueOptions($this->passkeyRelyingParty($request))->toArray());
     }
 
+    /**
+     * Executes the passkey authentication complete operation within the canonical Accessing component workflow.
+     */
     public function passkeyAuthenticationComplete(Request $request): JsonResponse
     {
         if (null === $this->passkeyAuthenticationService) {
@@ -591,12 +636,15 @@ final readonly class AccessApiFlowService
         try {
             $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
         } catch (\DomainException $exception) {
-            return $this->responder->error(new AccessApiErrorPayload('passkey_authentication_failed', $exception->getMessage()), Response::HTTP_UNAUTHORIZED);
+            return $this->responder->error(new AccessApiErrorDTO('passkey_authentication_failed', $exception->getMessage()), Response::HTTP_UNAUTHORIZED);
         }
 
         return $this->mobileAuthenticatedResponse($user, $this->deviceName($request));
     }
 
+    /**
+     * Executes the request recovery operation within the canonical Accessing component workflow.
+     */
     public function requestRecovery(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -617,11 +665,14 @@ final readonly class AccessApiFlowService
         }
 
         return $this->responder->session(
-            new AccessApiSessionPayload('recovery_requested', null, null, null, null, false, false),
+            new AccessApiSessionDTO('recovery_requested', null, null, null, null, false, false),
             Response::HTTP_ACCEPTED,
         );
     }
 
+    /**
+     * Executes the reset recovery operation within the canonical Accessing component workflow.
+     */
     public function resetRecovery(Request $request): JsonResponse
     {
         $fieldErrors = [];
@@ -640,6 +691,9 @@ final readonly class AccessApiFlowService
         return $this->stringField($payload, 'email', $fieldErrors);
     }
 
+    /**
+     * Executes the pending second factor user operation within the canonical Accessing component workflow.
+     */
     private function pendingSecondFactorUser(Request $request): ?AccessEntity
     {
         $userId = $this->authenticationService->getPendingSecondFactorUserId($request->getSession());
@@ -654,11 +708,11 @@ final readonly class AccessApiFlowService
     /**
      * @param array<string, list<string>> $fieldErrors
      */
-    private function readSignInRequest(Request $request, array &$fieldErrors): AccessApiSignInRequest
+    private function readSignInRequest(Request $request, array &$fieldErrors): AccessApiSignInRequestDTO
     {
         $payload = $this->decodeJsonPayload($request, $fieldErrors);
 
-        return new AccessApiSignInRequest(
+        return new AccessApiSignInRequestDTO(
             $this->stringField($payload, 'email', $fieldErrors),
             $this->stringField($payload, 'password', $fieldErrors),
         );
@@ -667,11 +721,11 @@ final readonly class AccessApiFlowService
     /**
      * @param array<string, list<string>> $fieldErrors
      */
-    private function readRegisterRequest(Request $request, array &$fieldErrors): AccessApiRegisterRequest
+    private function readRegisterRequest(Request $request, array &$fieldErrors): AccessApiRegisterRequestDTO
     {
         $payload = $this->decodeJsonPayload($request, $fieldErrors);
 
-        return new AccessApiRegisterRequest(
+        return new AccessApiRegisterRequestDTO(
             $this->stringField($payload, 'displayName', $fieldErrors),
             $this->stringField($payload, 'email', $fieldErrors),
             $this->stringField($payload, 'password', $fieldErrors),
@@ -763,7 +817,7 @@ final readonly class AccessApiFlowService
 
         if (null === $this->recoveryService) {
             return $this->responder->error(
-                new AccessApiErrorPayload(
+                new AccessApiErrorDTO(
                     'recovery_unavailable',
                     'Access recovery is temporarily unavailable.',
                 ),
@@ -775,32 +829,35 @@ final readonly class AccessApiFlowService
             $completed = $this->recoveryService->resetPassword($email, $code, $password);
         } catch (AccessCompromisedPasswordException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload('password_compromised', $exception->getMessage()),
+                new AccessApiErrorDTO('password_compromised', $exception->getMessage()),
                 Response::HTTP_UNPROCESSABLE_ENTITY,
             );
         } catch (AccessPasswordSafetyUnavailableException $exception) {
             return $this->responder->error(
-                new AccessApiErrorPayload('password_safety_unavailable', $exception->getMessage()),
+                new AccessApiErrorDTO('password_safety_unavailable', $exception->getMessage()),
                 Response::HTTP_SERVICE_UNAVAILABLE,
             );
         }
 
         if ($completed) {
             return $this->responder->session(
-                new AccessApiSessionPayload('recovery_completed', null, null, null, null, false, false),
+                new AccessApiSessionDTO('recovery_completed', null, null, null, null, false, false),
                 Response::HTTP_ACCEPTED,
             );
         }
 
         return $this->responder->error(
-            new AccessApiErrorPayload('invalid_recovery', 'Access recovery was rejected.'),
+            new AccessApiErrorDTO('invalid_recovery', 'Access recovery was rejected.'),
             Response::HTTP_UNPROCESSABLE_ENTITY,
         );
     }
 
-    private function unauthenticatedSession(): AccessApiSessionPayload
+    /**
+     * Executes the unauthenticated session operation within the canonical Accessing component workflow.
+     */
+    private function unauthenticatedSession(): AccessApiSessionDTO
     {
-        return new AccessApiSessionPayload(
+        return new AccessApiSessionDTO(
             'unauthenticated',
             null,
             null,
@@ -817,7 +874,7 @@ final readonly class AccessApiFlowService
     private function invalidRequestResponse(array $fieldErrors): JsonResponse
     {
         return $this->responder->error(
-            new AccessApiErrorPayload(
+            new AccessApiErrorDTO(
                 'invalid_request',
                 'Access API JSON surface request validation failed.',
                 $fieldErrors,
@@ -826,25 +883,34 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the unavailable response operation within the canonical Accessing component workflow.
+     */
     private function unavailableResponse(string $code, string $message): JsonResponse
     {
         return $this->responder->error(
-            new AccessApiErrorPayload($code, $message),
+            new AccessApiErrorDTO($code, $message),
             Response::HTTP_SERVICE_UNAVAILABLE,
         );
     }
 
+    /**
+     * Executes the unauthorized response operation within the canonical Accessing component workflow.
+     */
     private function unauthorizedResponse(string $code, string $message): JsonResponse
     {
         return $this->responder->error(
-            new AccessApiErrorPayload($code, $message),
+            new AccessApiErrorDTO($code, $message),
             Response::HTTP_UNAUTHORIZED,
         );
     }
 
-    private function identityFromUser(AccessEntity $user): AccessApiIdentityPayload
+    /**
+     * Executes the identity from user operation within the canonical Accessing component workflow.
+     */
+    private function identityFromUser(AccessEntity $user): AccessApiIdentityDTO
     {
-        return new AccessApiIdentityPayload(
+        return new AccessApiIdentityDTO(
             $user->getId(),
             $user->getDisplayName(),
             $user->getEmail(),
@@ -854,9 +920,12 @@ final readonly class AccessApiFlowService
         );
     }
 
-    private function sessionFromUser(string $status, AccessEntity $user, bool $requiresVerification, bool $requiresSecondFactor): AccessApiSessionPayload
+    /**
+     * Executes the session from user operation within the canonical Accessing component workflow.
+     */
+    private function sessionFromUser(string $status, AccessEntity $user, bool $requiresVerification, bool $requiresSecondFactor): AccessApiSessionDTO
     {
-        return new AccessApiSessionPayload(
+        return new AccessApiSessionDTO(
             $status,
             $this->identityFromUser($user),
             null,
@@ -867,6 +936,9 @@ final readonly class AccessApiFlowService
         );
     }
 
+    /**
+     * Executes the authenticated user operation within the canonical Accessing component workflow.
+     */
     private function authenticatedUser(): ?AccessEntity
     {
         $user = $this->security->getUser();
@@ -874,12 +946,15 @@ final readonly class AccessApiFlowService
         return $user instanceof AccessEntity ? $user : null;
     }
 
-    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
+    /**
+     * Executes the passkey relying party operation within the canonical Accessing component workflow.
+     */
+    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfigDTO
     {
         $relyingPartyId = '' !== trim($this->accessingPasskeyRelyingPartyId) ? trim($this->accessingPasskeyRelyingPartyId) : $request->getHost();
         $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
 
-        return new AccessPasskeyRelyingPartyConfig(
+        return new AccessPasskeyRelyingPartyConfigDTO(
             $relyingPartyId,
             'SmartResponsor Access',
             $origin,
@@ -914,6 +989,9 @@ final readonly class AccessApiFlowService
         return $result;
     }
 
+    /**
+     * Executes the mobile authenticated response operation within the canonical Accessing component workflow.
+     */
     private function mobileAuthenticatedResponse(AccessEntity $user, string $deviceName): JsonResponse
     {
         if (null === $this->mobileTokenService) {
@@ -922,7 +1000,7 @@ final readonly class AccessApiFlowService
 
         $tokens = $this->mobileTokenService->issue($user, $deviceName);
 
-        return $this->responder->session(new AccessApiSessionPayload(
+        return $this->responder->session(new AccessApiSessionDTO(
             'authenticated',
             $this->identityFromUser($user),
             $tokens->accessToken,
@@ -933,6 +1011,9 @@ final readonly class AccessApiFlowService
         ));
     }
 
+    /**
+     * Executes the device name operation within the canonical Accessing component workflow.
+     */
     private function deviceName(Request $request): string
     {
         $deviceName = trim((string) $request->headers->get('X-Device-Name', ''));
@@ -946,7 +1027,10 @@ final readonly class AccessApiFlowService
         return '' === $userAgent ? 'Mobile device' : mb_substr($userAgent, 0, 255);
     }
 
-    private function errorCodeForSignInResult(AccessSignInResult $result): string
+    /**
+     * Executes the error code for sign in result operation within the canonical Accessing component workflow.
+     */
+    private function errorCodeForSignInResult(AccessSignInResultDTO $result): string
     {
         if (str_contains($result->message, 'Too many sign in attempts')) {
             return 'rate_limited';
@@ -959,7 +1043,10 @@ final readonly class AccessApiFlowService
         return 'invalid_credentials';
     }
 
-    private function statusCodeForSignInResult(AccessSignInResult $result): int
+    /**
+     * Executes the status code for sign in result operation within the canonical Accessing component workflow.
+     */
+    private function statusCodeForSignInResult(AccessSignInResultDTO $result): int
     {
         if (str_contains($result->message, 'Too many sign in attempts')) {
             return Response::HTTP_TOO_MANY_REQUESTS;

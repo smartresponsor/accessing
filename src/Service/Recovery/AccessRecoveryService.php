@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Recovery;
 
-use App\Accessing\Dto\AccessIssuedChallenge;
+use App\Accessing\DTO\AccessIssuedChallengeDTO;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
@@ -17,8 +17,14 @@ use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
+/**
+ * Defines the recovery service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessRecoveryService implements AccessRecoveryServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessRepositoryInterface $userRepository,
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
@@ -28,7 +34,10 @@ final readonly class AccessRecoveryService implements AccessRecoveryServiceInter
     ) {
     }
 
-    public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallenge
+    /**
+     * Executes the request password recovery operation within the canonical Accessing component workflow.
+     */
+    public function requestPasswordRecovery(string $emailAddress, ?Request $request = null): ?AccessIssuedChallengeDTO
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);
         $limiterKey = sprintf('%s|%s', $normalizedEmailAddress, $request?->getClientIp() ?? 'unknown');
@@ -54,6 +63,9 @@ final readonly class AccessRecoveryService implements AccessRecoveryServiceInter
         return $this->verificationChallengeService->issuePasswordRecovery($user, $request);
     }
 
+    /**
+     * Executes the reset password operation within the canonical Accessing component workflow.
+     */
     public function resetPassword(string $emailAddress, string $code, string $newPassword): bool
     {
         $normalizedEmailAddress = new AccessEmailAddress($emailAddress);

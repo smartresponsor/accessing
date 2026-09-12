@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecondFactor;
 
-use App\Accessing\Dto\AccessSecondFactorEnrollment;
+use App\Accessing\DTO\AccessSecondFactorEnrollmentDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
@@ -19,8 +19,14 @@ use Psr\Clock\ClockInterface;
 use Random\RandomException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
+/**
+ * Defines the second factor service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecondFactorService implements AccessSecondFactorServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private EntityManagerInterface $entityManager,
         private AccessSecurityEventServiceInterface $securityEventService,
@@ -30,7 +36,10 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
     ) {
     }
 
-    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollment
+    /**
+     * Executes the begin enrollment operation within the canonical Accessing component workflow.
+     */
+    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollmentDTO
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -45,7 +54,7 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
             $this->entityManager->persist($secondFactor);
             $this->entityManager->flush();
 
-            return new AccessSecondFactorEnrollment($totp->getSecret(), $totp->getProvisioningUri());
+            return new AccessSecondFactorEnrollmentDTO($totp->getSecret(), $totp->getProvisioningUri());
         }
 
         $secret = $this->nonEmptySecret($secondFactor->getSecret());
@@ -54,13 +63,13 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $totp->setLabel($label);
         $totp->setIssuer('Accessing');
 
-        return new AccessSecondFactorEnrollment($secondFactor->getSecret(), $totp->getProvisioningUri());
+        return new AccessSecondFactorEnrollmentDTO($secondFactor->getSecret(), $totp->getProvisioningUri());
     }
 
     /**
      * @throws RandomException
      */
-    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollment
+    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollmentDTO
     {
         $secondFactor = $user->getSecondFactor();
 
@@ -105,9 +114,12 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         $totp->setLabel($this->nonEmptyLabel($user->getEmailAddress()));
         $totp->setIssuer('Accessing');
 
-        return new AccessSecondFactorEnrollment($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
+        return new AccessSecondFactorEnrollmentDTO($secondFactor->getSecret(), $totp->getProvisioningUri(), $plainRecoveryCodes);
     }
 
+    /**
+     * Executes the verify challenge operation within the canonical Accessing component workflow.
+     */
     public function verifyChallenge(AccessEntity $user, string $code): bool
     {
         $secondFactor = $user->getSecondFactor();
@@ -164,6 +176,9 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         return false;
     }
 
+    /**
+     * Executes the disable second factor operation within the canonical Accessing component workflow.
+     */
     public function disableSecondFactor(AccessEntity $user): void
     {
         $secondFactor = $user->getSecondFactor();
@@ -185,6 +200,9 @@ final readonly class AccessSecondFactorService implements AccessSecondFactorServ
         );
     }
 
+    /**
+     * Executes the hash recovery code operation within the canonical Accessing component workflow.
+     */
     private function hashRecoveryCode(string $code): string
     {
         return hash_hmac('sha256', $code, $this->appSecret);

@@ -30,7 +30,7 @@
         </span>
         {{ form_errors(form.plainPassword) }}
       </div>
-      <button class="interfacing-button interfacing-button-primary interfacing-button--full" type="submit" data-access-submit data-access-submitting-label="Signing in…">
+      <button class="interfacing-button interfacing-button-primary interfacing-button--full" type="submit" data-access-submit data-access-submitting-label="Signing inвЂ¦">
         <span class="interfacing-submit-spinner" aria-hidden="true"></span>
         <span data-access-submit-label>Sign in</span>
       </button>
@@ -96,7 +96,7 @@
 
         button.disabled = true;
         status.hidden = false;
-        status.textContent = 'Waiting for your passkey…';
+        status.textContent = 'Waiting for your passkeyвЂ¦';
         try {
           const optionsResponse = await fetch('{{ path('access.passkey_authentication_options') }}', {
             method: 'POST',
