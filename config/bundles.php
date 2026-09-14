@@ -6,6 +6,8 @@ declare(strict_types=1);
 return [
     App\Accessing\AccessingBundle::class => ['all' => true],
     App\Cruding\CrudingBundle::class => ['all' => true],
+    App\Collectioning\CollectioningBundle::class => ['all' => true],
+    App\Tabling\TablingBundle::class => ['all' => true],
     App\Viewing\ViewingBundle::class => ['all' => true],
     EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle::class => ['all' => true],
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],

@@ -40,6 +40,8 @@
                     "objecting/object":  "dev-master",
                     "easycorp/easyadmin-bundle":  "^5.0",
                     "cruding/crud":  "dev-master",
+                    "collectioning/collection":  "dev-master",
+                    "tabling/table":  "dev-master",
                     "viewing/view":  "dev-master"
                 },
     "require-dev":  {
@@ -68,6 +70,7 @@
                     "cs:check":  "php-cs-fixer fix --dry-run --diff --verbose",
                     "cs:fix":  "php-cs-fixer fix --verbose",
                     "stan":  "phpstan analyse",
+                    "phpstan":  "@stan",
                     "test":  "vendor/bin/phpunit --testsuite Accessing",
                     "test:coverage":  [
                                               "@putenv XDEBUG_MODE=coverage",
@@ -99,7 +102,7 @@
                   "product-name":  "Accessing",
                   "core-entity":  "User"
               },
-    "minimum-stability":  "stable",
+    "minimum-stability":  "dev",
     "prefer-stable":  true,
     "config":  {
                    "allow-plugins":  {
@@ -113,35 +116,56 @@
                              "type":  "path",
                              "url":  "../Objecting",
                              "options":  {
-                                             "symlink":  true
+                                             "symlink":  true,
+                                             "versions":  {"objecting/object": "dev-master"}
                                          }
                          },
                          {
                              "type":  "path",
                              "url":  "../Configuring",
                              "options":  {
-                                             "symlink":  true
+                                             "symlink":  true,
+                                             "versions":  {"configuring/config": "dev-master"}
                                          }
                          },
                          {
                              "type":  "path",
                              "url":  "../Interfacing",
                              "options":  {
-                                             "symlink":  true
+                                             "symlink":  true,
+                                             "versions":  {"interfacing/interface": "dev-master"}
                                          }
                          },
                          {
                              "type":  "path",
                              "url":  "../Cruding",
                              "options":  {
-                                             "symlink":  true
+                                             "symlink":  true,
+                                             "versions":  {"cruding/crud": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Collectioning",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"collectioning/collection": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Tabling",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"tabling/table": "dev-master"}
                                          }
                          },
                          {
                              "type":  "path",
                              "url":  "../Viewing",
                              "options":  {
-                                             "symlink":  true
+                                             "symlink":  true,
+                                             "versions":  {"viewing/view": "dev-master"}
                                          }
                          }
                      ]

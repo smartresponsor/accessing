@@ -40,6 +40,8 @@
                     "objecting/object":  "dev-master",
                     "easycorp/easyadmin-bundle":  "^5.0",
                     "cruding/crud":  "dev-master",
+                    "collectioning/collection":  "dev-master",
+                    "tabling/table":  "dev-master",
                     "viewing/view":  "dev-master"
                 },
     "require-dev":  {
@@ -119,6 +121,14 @@
                          {
                              "type":  "vcs",
                              "url":  "git@github.com:smartresponsor/cruding.git"
+                         },
+                         {
+                             "type":  "vcs",
+                             "url":  "git@github.com:smartresponsor/collectioning.git"
+                         },
+                         {
+                             "type":  "vcs",
+                             "url":  "git@github.com:smartresponsor/tabling-.git"
                          },
                          {
                              "type":  "vcs",

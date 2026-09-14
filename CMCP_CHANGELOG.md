@@ -74,3 +74,41 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Main code/test/static-analysis gates are green.
 - No sibling repository was modified.
 - Final Git stage/commit/push/PR decision follows this journal update and final status inspection.
+
+## 2026-09-14 — RC dependency and runtime integration pass
+
+### Reconnaissance
+- Re-read Accessing root manifests and Composer/runtime surfaces.
+- Re-read Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contract sources relevant to Accessing.
+- Consulted Canon003, Canon007, Canon018, Canon022, Canon023, Canon024, Canon030, Canon033, Canon038, Canon043, and Canon045.
+- Market/peer baseline reviewed against Symfony Security, ZITADEL, and Ory: MFA/passkeys, throttling, recovery, session/audit lifecycle are RC-relevant; federation/SCIM/enterprise IdP breadth remains growth scope.
+
+### Target-to-canon mapping
+- Canon022: Accessing is standalone (`bin/console` + `config/bundles.php`) and must directly require Cruding, Collectioning, Tabling, Viewing, Interfacing, Objecting, and EasyAdmin.
+- Canon023: all local first-party path repositories must use `symlink: true`.
+- Canon043: local first-party dependencies use exact `dev-master`; development stability is `dev`; each path repository pins `options.versions[package] = dev-master`.
+- Canon045: root development Composer must expose transitive local repository closure, including Collectioning and Tabling required through Cruding/Tabling.
+- Canon024/033: production remains path-independent and retains the same Accessing package identity.
+- Canon030: mapping/schema validation is green, but the existing two-process in-memory SQLite parity script cannot establish migration currentness because each command receives a fresh database; full PostgreSQL migration-chain proof remains environment-dependent.
+
+### Material implementation
+- Added direct `collectioning/collection` and `tabling/table` runtime dependencies.
+- Added Collectioning/Tabling local path repositories and canonical `dev-master` path-version pins for all first-party local repositories.
+- Set development `minimum-stability` to `dev` while preserving `prefer-stable: true`.
+- Added canonical `phpstan` Composer script alias used by repository tooling.
+- Added packaged production VCS resolution for Collectioning and Tabling without introducing production path/symlink repositories.
+- Registered `CollectioningBundle` and `TablingBundle` in standalone Accessing runtime after schema validation exposed the missing Tabling service registration.
+- Updated `composer.lock` through Composer; installed the resolved dependency graph locally.
+
+### Verification
+- `composer validate --strict --check-lock`: PASS.
+- PHP lint: PASS.
+- PHP-CS-Fixer dry run: PASS, 254 files, 0 fixable.
+- PHPStan: PASS, 252 files, 0 errors.
+- PHPUnit: PASS, 176 tests / 1980 assertions; 75 PHPUnit notices remain non-failing test debt.
+- Doctrine mapping/schema validation: PASS.
+- `schema:parity`: mapping/schema phase PASS; migration-currentness phase BLOCKED by the existing fresh in-memory SQLite-per-process harness rather than a mapping drift finding.
+
+### Worktree boundary
+- Pre-existing test changes and the anomalous `.gating/` replacement/copy remain untouched and are not part of this pass.
+- Files intentionally changed by this pass: `composer.json`, `composer.lock`, `composer.prod.json`, `config/bundles.php`, `CMCP_CHANGELOG.md`.
