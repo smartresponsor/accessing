@@ -112,3 +112,23 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 ### Worktree boundary
 - Pre-existing test changes and the anomalous `.gating/` replacement/copy remain untouched and are not part of this pass.
 - Files intentionally changed by this pass: `composer.json`, `composer.lock`, `composer.prod.json`, `config/bundles.php`, `CMCP_CHANGELOG.md`.
+
+## 2026-09-14 — Canon030 parity harness hardening
+
+### Material implementation
+- Replaced the invalid two-process in-memory SQLite `schema:parity` script with an explicit PostgreSQL parity mode in the existing bounded PostgreSQL runner.
+- The parity mode targets the dedicated `accessing_test` database and executes: database drop/create, full migration chain, Doctrine schema validation, then migration-currentness verification.
+- The default PostgreSQL PHPUnit mode is unchanged.
+
+### Verification
+- Runner PHP syntax: PASS.
+- `composer validate --strict --check-lock`: PASS.
+- PHP-CS-Fixer dry run: PASS, 254 files, 0 fixable.
+- PHPStan: PASS, 252 files, 0 errors.
+- PHPUnit: PASS, 176 tests / 1980 assertions; 75 non-failing PHPUnit notices remain.
+- `schema:parity`: correctly BLOCKED before mutation because PostgreSQL at `127.0.0.1:54329` is unavailable; Docker Desktop Linux engine is not running.
+- The previous SQLite false-negative/false-positive topology is removed: Canon030 evidence now requires the canonical PostgreSQL engine and clean migration-chain execution.
+
+### RC diagnostic note
+- The generic RC validator misclassified repeated text `No syntax errors detected` as `false_green_suspected`; direct lint execution is exit 0 and the output contains no PHP syntax error. This is tooling classifier noise, not an Accessing lint failure.
+- Remaining runtime blocker is external infrastructure only: start Docker Desktop/PostgreSQL and rerun `composer schema:parity` for the final migration-chain proof.

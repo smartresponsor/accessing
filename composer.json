@@ -92,10 +92,7 @@
                                           "php deploy/docker/bin/run-postgres-tests.php"
                                       ],
                     "test:docker":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env --profile app run --rm php",
-                    "schema:parity":  [
-                                          "php bin/console doctrine:schema:validate --env=test",
-                                          "php bin/console doctrine:migrations:up-to-date --env=test"
-                                      ]
+                    "schema:parity":  "php deploy/docker/bin/run-postgres-tests.php --schema-parity"
                 },
     "extra":  {
                   "public-dir":  "public",

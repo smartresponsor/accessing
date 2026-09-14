@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 $projectDir = dirname(__DIR__, 3);
 $insideDocker = in_array('--inside-docker', $argv, true);
+$schemaParity = in_array('--schema-parity', $argv, true);
 
 $env = load_env($projectDir . '/deploy/docker/.env');
 
@@ -41,6 +42,36 @@ $processEnv = norm_env(array_merge($_ENV, $_SERVER, [
 ]));
 
 wait_pg($databaseUrl, 30);
+
+if ($schemaParity) {
+    $console = $projectDir . '/bin/console';
+    $commands = [
+        ['doctrine:database:drop', '--if-exists', '--force', '--env=test'],
+        ['doctrine:database:create', '--if-not-exists', '--env=test'],
+        ['doctrine:migrations:migrate', '--no-interaction', '--env=test'],
+        ['doctrine:schema:validate', '--env=test'],
+        ['doctrine:migrations:up-to-date', '--env=test'],
+    ];
+
+    foreach ($commands as $arguments) {
+        $label = implode(' ', $arguments);
+        fwrite(STDOUT, "[schema-parity] $label\n");
+        $exitCode = run_proc(
+            array_merge([PHP_BINARY, $console], $arguments),
+            $projectDir,
+            $processEnv,
+            120,
+            $label,
+        );
+
+        if ($exitCode !== 0) {
+            exit($exitCode);
+        }
+    }
+
+    fwrite(STDOUT, "PostgreSQL schema parity completed successfully.\n");
+    exit(0);
+}
 
 $phpunit = $projectDir . '/vendor/symfony/phpunit-bridge/bin/simple-phpunit';
 if (!is_file($phpunit)) {
