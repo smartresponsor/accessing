@@ -14,8 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:identity:diagnostics', description: 'Print a concise Accessing identity and trust summary.')]
+/**
+ * Defines the identity diagnostics command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessIdentityDiagnosticsCommand extends Command
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
         private readonly AccessSecurityEventRepositoryInterface $securityEventRepository,

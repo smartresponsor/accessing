@@ -12,6 +12,8 @@
       <p class="interfacing-muted">Create access credentials.</p>
     </div>
 
+    <a class="interfacing-button-secondary interfacing-button--full" href="{{ path('access.google_start') }}">Continue with Google</a>
+
     {% if form is defined %}
       <turbo-frame id="access-register-frame">
       {{ form_start(form, {
@@ -198,10 +200,10 @@
           phoneFeedback.textContent = 'Phone is optional. Include country code for international use.';
           phoneFeedback.className = 'interfacing-phone-feedback';
         } else if (valid) {
-          phoneFeedback.textContent = `Valid international number · ${digits.length} digits.`;
+          phoneFeedback.textContent = `Valid international number В· ${digits.length} digits.`;
           phoneFeedback.className = 'interfacing-phone-feedback is-valid';
         } else {
-          phoneFeedback.textContent = 'Use 8–15 digits and include the country code, for example +1 555 123 4567.';
+          phoneFeedback.textContent = 'Use 8вЂ“15 digits and include the country code, for example +1 555 123 4567.';
           phoneFeedback.className = 'interfacing-phone-feedback is-invalid';
         }
       };

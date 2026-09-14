@@ -15,20 +15,32 @@ use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
+/**
+ * Defines the bearer authenticator type and its canonical responsibility within the Accessing component.
+ */
 final class AccessBearerAuthenticator extends AbstractAuthenticator
 {
     public const REQUEST_ATTRIBUTE = '_accessing_bearer_token';
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessMobileTokenServiceInterface $mobileTokenService,
     ) {
     }
 
+    /**
+     * Executes the supports operation within the canonical Accessing component workflow.
+     */
     public function supports(Request $request): bool
     {
         return str_starts_with(trim((string) $request->headers->get('Authorization', '')), 'Bearer ');
     }
 
+    /**
+     * Executes the authenticate operation within the canonical Accessing component workflow.
+     */
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $authorization = trim((string) $request->headers->get('Authorization', ''));
@@ -51,11 +63,17 @@ final class AccessBearerAuthenticator extends AbstractAuthenticator
         ));
     }
 
+    /**
+     * Executes the on authentication success operation within the canonical Accessing component workflow.
+     */
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return null;
     }
 
+    /**
+     * Executes the on authentication failure operation within the canonical Accessing component workflow.
+     */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
     {
         return new JsonResponse([

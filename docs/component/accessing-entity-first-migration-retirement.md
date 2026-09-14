@@ -1,6 +1,6 @@
-# Accessing entity-first migration retirement
+# Accessing entity-first migration history
 
-This patch retires Accessing schema-first migration sources and keeps the Accessing model as Doctrine entity-first.
+This document records the earlier migration-retirement phase. It is historical context only. Current policy follows Canon030: Doctrine metadata remains the schema source of truth, and Accessing ships a complete PostgreSQL migration chain that must reproduce the current metadata schema from an empty database.
 
 ## Retired schema-first source
 
@@ -30,7 +30,7 @@ The current component already has entity coverage for those concepts:
 
 ## Host schema delivery contract
 
-Accessing remains entity-first and does not ship component-owned Doctrine migration classes. Host applications that persist Accessing entities are responsible for producing and applying schema migrations from the installed Accessing metadata before deploying a release that changes persistence.
+Accessing remains entity-first, but the current repository now ships a component-owned PostgreSQL baseline migration generated from current Doctrine metadata. Hosts must apply the shipped migration chain and verify that the resulting schema remains symmetric with the installed metadata before deployment.
 
 For the current hardening line, existing hosts must add the following column before running code that persists verification attempts:
 
@@ -56,7 +56,7 @@ The M2 persistence foundation adds `access_passkey_credential`. Host application
 
 The M2 ceremony-state slice also adds `access_passkey_challenge` with a unique SHA-256 `challenge_hash`, nullable user ownership for authentication ceremonies, enum-backed purpose, relying-party ID, origin, creation/expiry timestamps, and nullable consumption timestamp. Hosts must index expiry and review uniqueness/index-length support on the selected database platform.
 
-The component still does not ship migration classes. Production hosts must review generated column sizes and index support for their selected database platform before deployment.
+The current component ships the canonical PostgreSQL baseline migration. Production hosts must still review generated column sizes and index support and must verify the complete migration chain against the selected PostgreSQL version before deployment.
 
 ## Entity-first additions
 

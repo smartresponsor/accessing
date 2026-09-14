@@ -30,11 +30,17 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
     // ConfigurationToolProviderInterface
     // ------------------------------------------------------------------
 
+    /**
+     * Executes the component key operation within the canonical Accessing component workflow.
+     */
     public function componentKey(): string
     {
         return 'Accessing';
     }
 
+    /**
+     * Executes the component token operation within the canonical Accessing component workflow.
+     */
     public function componentToken(): string
     {
         return 'accessing';
@@ -62,7 +68,7 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
         );
 
         // Add more tools here as Accessing grows.
-        // Each yield is a new EasyAdmin tool row — zero Administering changes.
+        // Each yield is a new EasyAdmin tool row РІР‚вЂќ zero Administering changes.
     }
 
     // ------------------------------------------------------------------
@@ -72,7 +78,7 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
     /**
      * Accessing's typed integration contract.
      *
-     * Loaded from Accessing's OWN component.yaml — the source of truth
+     * Loaded from Accessing's OWN component.yaml РІР‚вЂќ the source of truth
      * stays in Accessing's repository, not in Administering's.
      */
     public function integrationContract(): AccessIntegrationContract
@@ -91,7 +97,7 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
      *
      * Note: Accessing uses 'integration' (singular) as the top-level key,
      * matching its schema_version: 1 format. Rolling uses 'integrations.rolling'.
-     * Both patterns are valid — the provider adapts to its own yaml shape.
+     * Both patterns are valid РІР‚вЂќ the provider adapts to its own yaml shape.
      *
      * @return array<string, mixed>
      */

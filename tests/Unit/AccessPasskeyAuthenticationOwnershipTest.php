@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyChallengeEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\Service\Passkey\AccessPasskeyAuthenticationService;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPasskeyAuthenticationOwnershipTest extends TestCase
 {
     public function testRejectsCredentialOwnedByAnotherUser(): void
     {
-        $config = new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'https://example.test');
+        $config = new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test');
         $challengeUser = new AccessEntity('challenge@example.test', 'Challenge');
         $credentialUser = new AccessEntity('credential@example.test', 'Credential');
         $state = new AccessPasskeyChallengeEntity('challenge', AccessPasskeyCeremonyPurpose::Authentication, $config->id, $config->origin, new \DateTimeImmutable(), new \DateTimeImmutable('+5 minutes'), $challengeUser);

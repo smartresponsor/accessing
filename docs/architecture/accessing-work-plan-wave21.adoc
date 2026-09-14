@@ -1,4 +1,4 @@
-= Accessing User Administration Work Plan — Wave 21
+= Accessing User Administration Work Plan вЂ” Wave 21
 
 Wave 21 adds a safe work-plan provider for Accessing user administration hardening.
 

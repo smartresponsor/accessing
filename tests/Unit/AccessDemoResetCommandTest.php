@@ -35,7 +35,7 @@ final class AccessDemoResetCommandTest extends TestCase
 
         $tester = new CommandTester($this->command('test', $entityManager));
 
-        self::assertSame(Command::INVALID, $tester->execute([]));
+        self::assertSame(Command::INVALID, $tester->execute(['--reset' => true]));
         self::assertStringContainsString('--force', $tester->getDisplay());
     }
 
@@ -47,7 +47,7 @@ final class AccessDemoResetCommandTest extends TestCase
         $tester = new CommandTester($this->command('dev', $entityManager));
         $tester->setInputs(['no']);
 
-        self::assertSame(Command::FAILURE, $tester->execute(['--force' => true], ['interactive' => true]));
+        self::assertSame(Command::FAILURE, $tester->execute(['--reset' => true, '--force' => true], ['interactive' => true]));
         self::assertStringContainsString('cancelled', $tester->getDisplay());
     }
 
@@ -63,7 +63,10 @@ final class AccessDemoResetCommandTest extends TestCase
                 $this->createMock(AccessCredentialServiceInterface::class),
                 'test-only-admin-password',
             ),
-            new AccessDemoFixtures($this->createMock(AccessCredentialServiceInterface::class)),
+            new AccessDemoFixtures(
+                $this->createMock(AccessRepositoryInterface::class),
+                $this->createMock(AccessCredentialServiceInterface::class),
+            ),
             $kernel,
         );
     }

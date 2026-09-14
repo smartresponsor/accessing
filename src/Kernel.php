@@ -8,10 +8,16 @@ namespace App\Accessing;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
+/**
+ * Defines the kernel type and its canonical responsibility within the Accessing component.
+ */
 final class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+    /**
+     * Executes the get cache dir operation within the canonical Accessing component workflow.
+     */
     public function getCacheDir(): string
     {
         if ('test' === $this->environment) {

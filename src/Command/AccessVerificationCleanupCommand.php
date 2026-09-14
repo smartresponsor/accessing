@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:verification:cleanup', description: 'Remove expired and spent verification challenges.')]
+/**
+ * Defines the verification cleanup command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessVerificationCleanupCommand extends Command
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessVerificationChallengeServiceInterface $verificationChallengeService,
     ) {

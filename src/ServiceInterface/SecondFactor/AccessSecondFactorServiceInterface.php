@@ -5,16 +5,31 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\SecondFactor;
 
-use App\Accessing\Dto\AccessSecondFactorEnrollmentDto;
+use App\Accessing\DTO\AccessSecondFactorEnrollmentDTO;
 use App\Accessing\Entity\AccessEntity;
 
+/**
+ * Defines the second factor service interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessSecondFactorServiceInterface
 {
-    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollmentDto;
+    /**
+     * Executes the begin enrollment operation within the canonical Accessing component workflow.
+     */
+    public function beginEnrollment(AccessEntity $user): AccessSecondFactorEnrollmentDTO;
 
-    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollmentDto;
+    /**
+     * Executes the confirm enrollment operation within the canonical Accessing component workflow.
+     */
+    public function confirmEnrollment(AccessEntity $user, string $code): ?AccessSecondFactorEnrollmentDTO;
 
+    /**
+     * Executes the verify challenge operation within the canonical Accessing component workflow.
+     */
     public function verifyChallenge(AccessEntity $user, string $code): bool;
 
+    /**
+     * Executes the disable second factor operation within the canonical Accessing component workflow.
+     */
     public function disableSecondFactor(AccessEntity $user): void;
 }

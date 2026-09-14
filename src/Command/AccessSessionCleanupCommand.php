@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:session:cleanup', description: 'Remove stale invalidated user sessions.')]
+/**
+ * Defines the session cleanup command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessSessionCleanupCommand extends Command
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessSessionServiceInterface $userSessionService,
     ) {

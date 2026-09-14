@@ -21,11 +21,17 @@ final class AccessResetPasswordRequestRepository extends ServiceEntityRepository
 {
     use ResetPasswordRequestRepositoryTrait;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessResetPasswordRequestEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessResetPasswordRequestEntity $resetPasswordRequest, bool $flush = false): void
     {
         $this->getEntityManager()->persist($resetPasswordRequest);
@@ -35,6 +41,9 @@ final class AccessResetPasswordRequestRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Executes the create reset password request operation within the canonical Accessing component workflow.
+     */
     public function createResetPasswordRequest(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken): ResetPasswordRequestInterface
     {
         return new AccessResetPasswordRequestEntity($user instanceof AccessEntity ? $user : throw new \InvalidArgumentException('Expected AccessEntity user.'), $expiresAt, $selector, $hashedToken);

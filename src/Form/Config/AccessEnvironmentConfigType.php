@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Form\Config;
 
-use App\Accessing\Value\Config\AccessEnvironmentConfigData;
+use App\Accessing\DTO\Config\AccessEnvironmentConfigDTO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -12,8 +12,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Defines the environment config type type and its canonical responsibility within the Accessing component.
+ */
 final class AccessEnvironmentConfigType extends AbstractType
 {
+    /**
+     * Executes the build form operation within the canonical Accessing component workflow.
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
@@ -33,16 +39,22 @@ final class AccessEnvironmentConfigType extends AbstractType
             ->add('userLockMinutes', IntegerType::class);
     }
 
+    /**
+     * Executes the configure options operation within the canonical Accessing component workflow.
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
 
         $resolver->setDefaults([
-            'data_class' => AccessEnvironmentConfigData::class,
+            'data_class' => AccessEnvironmentConfigDTO::class,
             'csrf_protection' => false,
         ]);
     }
 
+    /**
+     * Executes the get block prefix operation within the canonical Accessing component workflow.
+     */
     public function getBlockPrefix(): string
     {
         return 'access_environment_config';

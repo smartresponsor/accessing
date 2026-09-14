@@ -1,121 +1,169 @@
 {
-  "name": "accessing/access",
-  "description": "Accessing process app",
-  "type": "symfony-bundle",
-  "license": "proprietary",
-  "require": {
-    "php": "^8.4",
-    "ext-ctype": "*",
-    "ext-iconv": "*",
-    "doctrine/doctrine-bundle": "^3.2",
-    "doctrine/doctrine-migrations-bundle": "^4.0",
-    "doctrine/orm": "^3.3",
-    "spomky-labs/otphp": "^11.5",
-    "symfony/console": "^8.1",
-    "symfony/dotenv": "^8.1",
-    "symfony/form": "^8.1",
-    "symfony/framework-bundle": "^8.1",
-    "symfony/mailer": "^8.1",
-    "symfony/monolog-bundle": "^4.0",
-    "symfony/notifier": "^8.1",
-    "symfony/password-hasher": "^8.1",
-    "symfony/rate-limiter": "^8.1",
-    "symfony/runtime": "^8.1",
-    "symfony/security-bundle": "^8.1",
-    "symfony/security-csrf": "^8.1",
-    "symfony/serializer": "^8.1",
-    "symfony/twig-bundle": "^8.1",
-    "symfony/translation": "^8.1",
-    "symfony/validator": "^8.1",
-    "symfony/yaml": "^8.1",
-    "symfonycasts/reset-password-bundle": "^1.23",
-    "symfonycasts/verify-email-bundle": "^1.17",
-    "twig/extra-bundle": "^3.15",
-    "twig/twig": "^3.15",
-    "web-auth/webauthn-lib": "^5.3.5",
-    "ext-pdo": "*",
-    "configuring/config": "dev-master",
-    "interfacing/interface": "dev-master",
-    "objecting/object": "dev-master"
-  },
-  "require-dev": {
-    "doctrine/doctrine-fixtures-bundle": "^4.3",
-    "fakerphp/faker": "^1.24",
-    "friendsofphp/php-cs-fixer": "3.94",
-    "phpstan/phpstan": "^2.1",
-    "symfony/browser-kit": "^8.1",
-    "symfony/css-selector": "^8.1",
-    "symfony/panther": "^2.2",
-    "symfony/phpunit-bridge": "^8.1"
-  },
-  "autoload": {
-    "psr-4": {
-      "App\\Accessing\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "App\\Accessing\\Tests\\": "tests/"
-    }
-  },
-  "scripts": {
-    "lint": "php bin/lint-php.php",
-    "cs:check": "php-cs-fixer fix --dry-run --diff --verbose",
-    "cs:fix": "php-cs-fixer fix --verbose",
-    "stan": "phpstan analyse",
-    "test": "vendor/bin/simple-phpunit --testsuite Accessing",
-    "test:object-identity": "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
-    "test:panther": "vendor/bin/simple-phpunit --testsuite Panther",
-    "pipeline:local:full": [
-      "@lint",
-      "@cs:check",
-      "@stan",
-      "@test"
-    ],
-    "docker:up": "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env up -d postgres",
-    "docker:down": "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env down",
-    "docker:down:volumes": "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env down -v",
-    "test:postgres": [
-      "Composer\\Config::disableProcessTimeout",
-      "php deploy/docker/bin/run-postgres-tests.php"
-    ],
-    "test:docker": "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env --profile app run --rm php"
-  },
-  "extra": {
-    "public-dir": "public",
-    "product-name": "Accessing",
-    "core-entity": "User"
-  },
-  "minimum-stability": "stable",
-  "prefer-stable": true,
-  "config": {
-    "allow-plugins": {
-      "symfony/runtime": true,
-      "symfony/flex": true
-    },
-    "process-timeout": 0
-  },
-  "repositories": [
-    {
-      "type": "path",
-      "url": "../Objecting",
-      "options": {
-        "symlink": true
-      }
-    },
-    {
-      "type": "path",
-      "url": "../Configuring",
-      "options": {
-        "symlink": true
-      }
-    },
-    {
-      "type": "path",
-      "url": "../Interfacing",
-      "options": {
-        "symlink": true
-      }
-    }
-  ]
+    "name":  "accessing/access",
+    "description":  "Accessing process app",
+    "type":  "symfony-bundle",
+    "license":  "proprietary",
+    "require":  {
+                    "php":  "^8.4",
+                    "ext-ctype":  "*",
+                    "ext-iconv":  "*",
+                    "doctrine/doctrine-bundle":  "^3.2",
+                    "doctrine/doctrine-migrations-bundle":  "^4.0",
+                    "doctrine/orm":  "^3.3",
+                    "spomky-labs/otphp":  "^11.5",
+                    "symfony/console":  "^8.1",
+                    "symfony/dotenv":  "^8.1",
+                    "symfony/form":  "^8.1",
+                    "symfony/framework-bundle":  "^8.1",
+                    "symfony/mailer":  "^8.1",
+                    "symfony/monolog-bundle":  "^4.0",
+                    "symfony/notifier":  "^8.1",
+                    "symfony/password-hasher":  "^8.1",
+                    "symfony/rate-limiter":  "^8.1",
+                    "symfony/runtime":  "^8.1",
+                    "symfony/security-bundle":  "^8.1",
+                    "symfony/security-csrf":  "^8.1",
+                    "symfony/serializer":  "^8.1",
+                    "symfony/twig-bundle":  "^8.1",
+                    "symfony/translation":  "^8.1",
+                    "symfony/validator":  "^8.1",
+                    "symfony/yaml":  "^8.1",
+                    "symfonycasts/reset-password-bundle":  "^1.23",
+                    "symfonycasts/verify-email-bundle":  "^1.17",
+                    "twig/extra-bundle":  "^3.15",
+                    "twig/twig":  "^3.15",
+                    "web-auth/webauthn-lib":  "^5.3.5",
+                    "ext-pdo":  "*",
+                    "configuring/config":  "dev-master",
+                    "interfacing/interface":  "dev-master",
+                    "league/oauth2-google":  "^4.0",
+                    "objecting/object":  "dev-master",
+                    "easycorp/easyadmin-bundle":  "^5.0",
+                    "cruding/crud":  "dev-master",
+                    "collectioning/collection":  "dev-master",
+                    "tabling/table":  "dev-master",
+                    "viewing/view":  "dev-master"
+                },
+    "require-dev":  {
+                        "doctrine/doctrine-fixtures-bundle":  "^4.3",
+                        "fakerphp/faker":  "^1.24",
+                        "friendsofphp/php-cs-fixer":  "3.94",
+                        "phpstan/phpstan":  "^2.1",
+                        "phpunit/phpunit":  "^12.0",
+                        "symfony/browser-kit":  "^8.1",
+                        "symfony/css-selector":  "^8.1",
+                        "symfony/panther":  "^2.2",
+                        "symfony/phpunit-bridge":  "^8.1"
+                    },
+    "autoload":  {
+                     "psr-4":  {
+                                   "App\\Accessing\\":  "src/"
+                               }
+                 },
+    "autoload-dev":  {
+                         "psr-4":  {
+                                       "App\\Accessing\\Tests\\":  "tests/"
+                                   }
+                     },
+    "scripts":  {
+                    "lint":  "php bin/lint-php.php",
+                    "cs:check":  "php-cs-fixer fix --dry-run --diff --verbose",
+                    "cs:fix":  "php-cs-fixer fix --verbose",
+                    "stan":  "phpstan analyse",
+                    "phpstan":  "@stan",
+                    "test":  "vendor/bin/phpunit --testsuite Accessing",
+                    "test:coverage":  [
+                                              "@putenv XDEBUG_MODE=coverage",
+                                              "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage.txt --path-coverage"
+                                          ],
+                    "test:object-identity":  "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
+                    "test:panther":  "vendor/bin/simple-phpunit --testsuite Panther",
+                    "pipeline:local:full":  [
+                                                "@lint",
+                                                "@cs:check",
+                                                "@stan",
+                                                "@test"
+                                            ],
+                    "docker:up":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env up -d postgres",
+                    "docker:down":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env down",
+                    "docker:down:volumes":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env down -v",
+                    "test:postgres":  [
+                                          "Composer\\Config::disableProcessTimeout",
+                                          "php deploy/docker/bin/run-postgres-tests.php"
+                                      ],
+                    "test:docker":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env --profile app run --rm php",
+                    "schema:parity":  "php deploy/docker/bin/run-postgres-tests.php --schema-parity"
+                },
+    "extra":  {
+                  "public-dir":  "public",
+                  "product-name":  "Accessing",
+                  "core-entity":  "User"
+              },
+    "minimum-stability":  "dev",
+    "prefer-stable":  true,
+    "config":  {
+                   "allow-plugins":  {
+                                         "symfony/runtime":  true,
+                                         "symfony/flex":  true
+                                     },
+                   "process-timeout":  0
+               },
+    "repositories":  [
+                         {
+                             "type":  "path",
+                             "url":  "../Objecting",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"objecting/object": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Configuring",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"configuring/config": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Interfacing",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"interfacing/interface": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Cruding",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"cruding/crud": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Collectioning",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"collectioning/collection": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Tabling",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"tabling/table": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Viewing",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"viewing/view": "dev-master"}
+                                         }
+                         }
+                     ]
 }

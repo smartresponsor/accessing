@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasskeyAuthenticationOptions;
+use App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPasskeyAuthenticationOptionsTest extends TestCase
 {
     public function testSerializesUserBoundOptions(): void
     {
-        $options = new AccessPasskeyAuthenticationOptions(
+        $options = new AccessPasskeyAuthenticationOptionsDTO(
             'challenge',
             'example.test',
             [['type' => 'public-key', 'id' => 'credential-id', 'transports' => ['internal']]],
@@ -30,7 +30,7 @@ final class AccessPasskeyAuthenticationOptionsTest extends TestCase
 
     public function testSupportsUsernamelessOptions(): void
     {
-        $options = new AccessPasskeyAuthenticationOptions('challenge', 'example.test', []);
+        $options = new AccessPasskeyAuthenticationOptionsDTO('challenge', 'example.test', []);
 
         self::assertSame([], $options->toArray()['publicKey']['allowCredentials']);
     }
@@ -39,6 +39,6 @@ final class AccessPasskeyAuthenticationOptionsTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new AccessPasskeyAuthenticationOptions('', 'example.test', []);
+        new AccessPasskeyAuthenticationOptionsDTO('', 'example.test', []);
     }
 }

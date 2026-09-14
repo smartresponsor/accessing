@@ -5,20 +5,20 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\Dto\AccessPasswordChangeDto;
-use App\Accessing\Dto\AccessPhoneVerificationRequestDto;
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\DTO\AccessPasswordChangeDTO;
+use App\Accessing\DTO\AccessPhoneVerificationRequestDTO;
+use App\Accessing\DTO\AccessVerificationCodeDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
-use App\Accessing\Form\Access\AccessPasswordChangeType;
-use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
-use App\Accessing\Form\Access\AccessVerificationCodeType;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\Form\AccessPasswordChangeType;
+use App\Accessing\Form\AccessPhoneVerificationRequestType;
+use App\Accessing\Form\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
@@ -33,8 +33,14 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Defines the surface flow service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSurfaceFlowService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private Security $security,
         private FormFactoryInterface $formFactory,
@@ -78,7 +84,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCodeDTO $data */
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completeEmailVerification($user, $data->code)) {
@@ -115,7 +121,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessPhoneVerificationRequestDto $data */
+            /** @var AccessPhoneVerificationRequestDTO $data */
             $data = $form->getData();
             $issuedChallenge = $this->verificationChallengeService->issuePhoneVerification($user, $data->phoneNumber, $request);
 
@@ -141,7 +147,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCodeDTO $data */
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completePhoneVerification($user, $data->code)) {
@@ -170,7 +176,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCodeDTO $data */
             $data = $form->getData();
             $confirmedEnrollment = $this->secondFactorService->confirmEnrollment($user, $data->code);
 
@@ -207,6 +213,9 @@ final readonly class AccessSurfaceFlowService
         return new Response('', Response::HTTP_METHOD_NOT_ALLOWED);
     }
 
+    /**
+     * Executes the disable second factor operation within the canonical Accessing component workflow.
+     */
     public function disableSecondFactor(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->secondFactorService->disableSecondFactor($this->requireUser());
@@ -254,7 +263,7 @@ final readonly class AccessSurfaceFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessPasswordChangeDto $data */
+            /** @var AccessPasswordChangeDTO $data */
             $data = $form->getData();
 
             if (!$this->credentialService->verifyPassword($user, $data->currentPassword)) {
@@ -281,6 +290,9 @@ final readonly class AccessSurfaceFlowService
         return $this->pageResponder->respond($this->pageViewFactory->password($user, $form->createView()));
     }
 
+    /**
+     * Executes the require user operation within the canonical Accessing component workflow.
+     */
     private function requireUser(): AccessEntity
     {
         $user = $this->currentUser();
@@ -292,6 +304,9 @@ final readonly class AccessSurfaceFlowService
         return $user;
     }
 
+    /**
+     * Executes the current user operation within the canonical Accessing component workflow.
+     */
     private function currentUser(): ?AccessEntity
     {
         $user = $this->security->getUser();
@@ -299,6 +314,9 @@ final readonly class AccessSurfaceFlowService
         return $user instanceof AccessEntity ? $user : null;
     }
 
+    /**
+     * Executes the flash operation within the canonical Accessing component workflow.
+     */
     private function flash(Request $request, string $type, string $message): void
     {
         $session = $request->getSession();
@@ -310,6 +328,9 @@ final readonly class AccessSurfaceFlowService
         $session->getFlashBag()->add($type, $message);
     }
 
+    /**
+     * Executes the add demo code flash operation within the canonical Accessing component workflow.
+     */
     private function addDemoCodeFlash(Request $request, string $label, string $code): void
     {
         if ('prod' === $this->kernel->getEnvironment()) {

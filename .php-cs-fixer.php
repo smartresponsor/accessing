@@ -41,7 +41,7 @@ $config
         ],
         'single_import_per_statement' => true,
 
-        // risky (category 1) — force OFF
+        // risky (category 1) вЂ” force OFF
         'no_unreachable_default_argument_value' => false,
         'logical_operators' => false,
         'error_suppression' => false,

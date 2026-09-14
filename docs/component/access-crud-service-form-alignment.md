@@ -16,7 +16,7 @@ Canonical physical tree:
 Canonical component namespace:
 
 - `App\Accessing\Service\Http\Access\User`
-- `App\Accessing\Form\Access\User`
+- `App\Accessing\Form\User`
 
 ## Form mapping status
 

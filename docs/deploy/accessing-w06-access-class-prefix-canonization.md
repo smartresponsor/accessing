@@ -1,4 +1,4 @@
-# Accessing W06 — Access class prefix canonization
+# Accessing W06 вЂ” Access class prefix canonization
 
 This wave normalizes component-owned runtime, business, value, form, repository, provider, recorder, validator, factory, responder, builder, interface, fixture, command, and test classes to the `Access*` class-name prefix while preserving the package namespace `App\\Accessing`.
 

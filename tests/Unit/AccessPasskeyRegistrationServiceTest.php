@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessPasskeyAttestationResult;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyChallengeEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\Exception\AccessPasskeyVerificationUnavailableException;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\Service\Passkey\AccessPasskeyRegistrationService;
-use App\Accessing\Service\Passkey\AccessUnavailablePasskeyAttestationVerifier;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
+use App\Accessing\Verifier\Passkey\AccessUnavailablePasskeyAttestationVerifier;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPasskeyRegistrationServiceTest extends TestCase
@@ -57,7 +57,7 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
             $this->createMock(AccessSecurityEventServiceInterface::class),
         );
 
-        $options = $service->issueOptions($user, new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'https://example.test'))->toArray();
+        $options = $service->issueOptions($user, new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test'))->toArray();
 
         self::assertSame('registration-challenge', $options['publicKey']['challenge']);
         self::assertSame('example.test', $options['publicKey']['rp']['id']);
@@ -69,7 +69,7 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
     public function testCompletesVerifiedRegistrationAndRecordsSecurityEvent(): void
     {
         $user = new AccessEntity('complete@example.test', 'Complete User');
-        $config = new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'https://example.test');
+        $config = new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test');
         $challenge = 'registration-challenge';
         $state = new AccessPasskeyChallengeEntity(
             $challenge,
@@ -90,7 +90,7 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
 
         $userHandle = rtrim(strtr(base64_encode(hash('sha256', $user->getUserIdentifier(), true)), '+/', '-_'), '=');
         $verifier = $this->createMock(AccessPasskeyAttestationVerifierInterface::class);
-        $verifier->expects(self::once())->method('verify')->willReturn(new AccessPasskeyAttestationResult(
+        $verifier->expects(self::once())->method('verify')->willReturn(new AccessPasskeyAttestationResultDTO(
             'credential-id',
             $userHandle,
             'public-key',
@@ -138,7 +138,7 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
         (new AccessUnavailablePasskeyAttestationVerifier())->verify(
             [],
             'challenge',
-            new AccessPasskeyRelyingPartyConfig('example.test', 'Example', 'https://example.test'),
+            new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test'),
             new AccessEntity('unavailable@example.test', 'Unavailable'),
         );
     }

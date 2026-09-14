@@ -5,6 +5,9 @@ declare(strict_types=1);
 
 namespace App\Accessing\ValueObject;
 
+/**
+ * Defines the security event type type and its canonical responsibility within the Accessing component.
+ */
 enum AccessSecurityEventType: string
 {
     case UserRegistered = 'user_registered';
@@ -37,4 +40,8 @@ enum AccessSecurityEventType: string
     case MobileSessionRefreshed = 'mobile_session_refreshed';
     case MobileSessionRevoked = 'mobile_session_revoked';
     case MobileRefreshReuseDetected = 'mobile_refresh_reuse_detected';
+    case ExternalIdentityLinked = 'external_identity_linked';
+    case ExternalSignInSucceeded = 'external_sign_in_succeeded';
+    case ExternalSignInFailed = 'external_sign_in_failed';
+    case ExternalIdentityConflict = 'external_identity_conflict';
 }
