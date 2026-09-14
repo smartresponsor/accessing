@@ -126,9 +126,11 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - PHP-CS-Fixer dry run: PASS, 254 files, 0 fixable.
 - PHPStan: PASS, 252 files, 0 errors.
 - PHPUnit: PASS, 176 tests / 1980 assertions; 75 non-failing PHPUnit notices remain.
-- `schema:parity`: correctly BLOCKED before mutation because PostgreSQL at `127.0.0.1:54329` is unavailable; Docker Desktop Linux engine is not running.
-- The previous SQLite false-negative/false-positive topology is removed: Canon030 evidence now requires the canonical PostgreSQL engine and clean migration-chain execution.
+- `schema:parity`: PASS against the real local PostgreSQL service resolved through `www/app/tools/resolve-database-url.php`.
+- The runner checks server readiness through the existing `postgres` database, then recreates the dedicated `accessing_test` database, executes the full migration chain, validates Doctrine mapping/schema parity, and confirms migrations are up to date.
+- Canon030 execution proof: PASS — one baseline migration executed with 57 SQL queries; final schema validation is in sync and no migrations remain pending.
+- `pipeline:local:full`: PASS after host-PostgreSQL parity hardening; lint, PHP-CS-Fixer, PHPStan, and the full Accessing PHPUnit suite all exit successfully.
 
 ### RC diagnostic note
-- The generic RC validator misclassified repeated text `No syntax errors detected` as `false_green_suspected`; direct lint execution is exit 0 and the output contains no PHP syntax error. This is tooling classifier noise, not an Accessing lint failure.
-- Remaining runtime blocker is external infrastructure only: start Docker Desktop/PostgreSQL and rerun `composer schema:parity` for the final migration-chain proof.
+- The generic RC validator previously misclassified repeated text `No syntax errors detected` as `false_green_suspected`; direct lint/pipeline execution is exit 0 and contains no PHP syntax failure. This remains tooling classifier noise, not an Accessing defect.
+- Docker is not part of the Accessing RC database contour on this host. PostgreSQL credentials are resolved from the existing host application environment and are never copied into Accessing or persisted in the journal.

@@ -22,6 +22,14 @@ $dbPassword = $env['ACCESSING_POSTGRES_PASSWORD'] ?? 'app';
 $dbHost = $insideDocker ? 'postgres' : '127.0.0.1';
 $dbPort = $insideDocker ? '5432' : ($env['ACCESSING_POSTGRES_PORT'] ?? '54329');
 
+if ($schemaParity && !$insideDocker) {
+    $hostConnection = resolve_host_database_connection($projectDir);
+    $dbHost = $hostConnection['host'];
+    $dbPort = $hostConnection['port'];
+    $dbUser = $hostConnection['user'];
+    $dbPassword = $hostConnection['password'];
+}
+
 $databaseUrl = sprintf(
     'pgsql://%s:%s@%s:%s/%s?serverVersion=17&charset=utf8',
     rawurlencode($dbUser),
@@ -41,7 +49,18 @@ $processEnv = norm_env(array_merge($_ENV, $_SERVER, [
     'ACCESSING_PHONE_VERIFICATION_DSN' => '',
 ]));
 
-wait_pg($databaseUrl, 30);
+if ($schemaParity) {
+    $adminDatabaseUrl = sprintf(
+        'pgsql://%s:%s@%s:%s/postgres?serverVersion=17&charset=utf8',
+        rawurlencode($dbUser),
+        rawurlencode($dbPassword),
+        $dbHost,
+        $dbPort,
+    );
+    wait_pg($adminDatabaseUrl, 30);
+} else {
+    wait_pg($databaseUrl, 30);
+}
 
 if ($schemaParity) {
     $console = $projectDir . '/bin/console';
@@ -165,6 +184,70 @@ function norm_env(array $env): array
     return $normalized;
 }
 
+/**
+ * @return array{host: string, port: string, user: string, password: string}
+ */
+function resolve_host_database_connection(string $projectDir): array
+{
+    $resolver = dirname($projectDir) . '/app/tools/resolve-database-url.php';
+    if (!is_file($resolver)) {
+        fwrite(STDERR, "Host PostgreSQL resolver was not found at $resolver.\n");
+        exit(1);
+    }
+
+    $descriptorSpec = [
+        0 => ['pipe', 'r'],
+        1 => ['pipe', 'w'],
+        2 => ['pipe', 'w'],
+    ];
+    $process = proc_open([PHP_BINARY, $resolver], $descriptorSpec, $pipes, dirname($resolver));
+    if (!is_resource($process)) {
+        fwrite(STDERR, "Unable to execute host PostgreSQL resolver.\n");
+        exit(1);
+    }
+
+    fclose($pipes[0]);
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    $exitCode = proc_close($process);
+
+    if ($exitCode !== 0 || $stdout === false) {
+        fwrite(STDERR, "Host PostgreSQL resolver failed.\n");
+        if (is_string($stderr) && trim($stderr) !== '') {
+            fwrite(STDERR, trim($stderr) . "\n");
+        }
+        exit(1);
+    }
+
+    $values = [];
+    foreach (preg_split('/\R/', trim($stdout)) ?: [] as $line) {
+        if (!str_contains($line, '=')) {
+            continue;
+        }
+        [$key, $encoded] = explode('=', $line, 2);
+        $decoded = base64_decode($encoded, true);
+        if ($decoded !== false) {
+            $values[$key] = $decoded;
+        }
+    }
+
+    foreach (['host', 'port', 'user', 'password'] as $required) {
+        if (!isset($values[$required])) {
+            fwrite(STDERR, "Host PostgreSQL resolver did not return $required.\n");
+            exit(1);
+        }
+    }
+
+    return [
+        'host' => $values['host'],
+        'port' => $values['port'],
+        'user' => $values['user'],
+        'password' => $values['password'],
+    ];
+}
+
 function wait_pg(string $databaseUrl, int $timeoutSeconds): void
 {
     if (!extension_loaded('pdo_pgsql')) {
@@ -199,7 +282,7 @@ function wait_pg(string $databaseUrl, int $timeoutSeconds): void
     } while (time() < $deadline);
 
     fwrite(STDERR, 'PostgreSQL test runtime is not ready: ' . $lastMessage . "\n");
-    fwrite(STDERR, "Start it with: docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env up -d postgres\n");
+    fwrite(STDERR, "Ensure the local PostgreSQL service is running and that www/app DATABASE_URL resolves to a reachable host.\n");
     exit(1);
 }
 
