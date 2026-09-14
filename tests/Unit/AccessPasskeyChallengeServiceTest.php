@@ -14,6 +14,18 @@ use Psr\Clock\ClockInterface;
 
 final class AccessPasskeyChallengeServiceTest extends TestCase
 {
+    public function testRejectsChallengeTtlBelowCanonicalMinimum(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Passkey challenge TTL must be at least 30 seconds.');
+
+        new AccessPasskeyChallengeService(
+            $this->createMock(AccessPasskeyChallengeRepositoryInterface::class),
+            self::clock(new \DateTimeImmutable()),
+            29,
+        );
+    }
+
     public function testIssuesBoundRegistrationChallenge(): void
     {
         $now = new \DateTimeImmutable('2026-07-11T12:00:00+00:00');
@@ -56,6 +68,23 @@ final class AccessPasskeyChallengeServiceTest extends TestCase
 
         self::assertSame($entity, $consumed);
         self::assertEquals($now, $entity->getConsumedAt());
+    }
+
+    public function testRejectsMissingChallengeState(): void
+    {
+        $now = new \DateTimeImmutable('2026-07-11T12:00:00+00:00');
+        $repository = $this->createMock(AccessPasskeyChallengeRepositoryInterface::class);
+        $repository->method('findOneByChallengeHash')->willReturn(null);
+        $repository->expects(self::never())->method('save');
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Passkey challenge is invalid, expired, or already consumed.');
+        (new AccessPasskeyChallengeService($repository, self::clock($now), 300))->consume(
+            'missing-challenge',
+            AccessPasskeyCeremonyPurpose::Authentication,
+            'example.test',
+            'https://example.test',
+        );
     }
 
     public function testRejectsOriginMismatch(): void

@@ -512,6 +512,243 @@ final class AccessApiFlowServiceTest extends TestCase
         self::assertSame('verification_resend_rate_limited', $payload['code']);
     }
 
+    public function testLogoutRevokesBearerMobileSessionWhenTokenIsPresent(): void
+    {
+        $tokens = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $tokens->expects(self::once())->method('revoke')->with('opaque-token');
+        $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $authentication->expects(self::once())->method('signOut');
+        $security = $this->createMock(Security::class);
+        $security->method('getUser')->willReturn(null);
+        $service = new AccessApiFlowService(
+            $authentication,
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $security,
+            mobileTokenService: $tokens,
+        );
+        $request = Request::create('/api/access/logout', 'POST');
+        $request->attributes->set(\App\Accessing\Authenticator\AccessBearerAuthenticator::REQUEST_ATTRIBUTE, 'opaque-token');
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        $payload = $this->decodeResponse($service->logout($request));
+        self::assertSame('unauthenticated', $payload['status']);
+    }
+
+    public function testRequestRecoveryCoversValidationUnavailableDeliveryFailureAndSuccess(): void
+    {
+        $base = fn (?AccessRecoveryServiceInterface $recovery): AccessApiFlowService => new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            recoveryService: $recovery,
+        );
+
+        self::assertSame(422, $base($this->createMock(AccessRecoveryServiceInterface::class))
+            ->requestRecovery(Request::create('/api/access/recovery', 'POST', content: '{}'))->getStatusCode());
+        self::assertSame(503, $base(null)->requestRecovery(Request::create(
+            '/api/access/recovery',
+            'POST',
+            content: json_encode(['email' => 'recover@example.test'], JSON_THROW_ON_ERROR),
+        ))->getStatusCode());
+
+        $failing = $this->createMock(AccessRecoveryServiceInterface::class);
+        $failing->method('requestPasswordRecovery')->willThrowException(
+            new \App\Accessing\Exception\AccessNotificationDeliveryException(),
+        );
+        $failurePayload = $this->decodeResponse($base($failing)->requestRecovery(Request::create(
+            '/api/access/recovery',
+            'POST',
+            content: json_encode(['email' => 'recover@example.test'], JSON_THROW_ON_ERROR),
+        )));
+        self::assertSame('notification_delivery_unavailable', $failurePayload['code']);
+
+        $success = $this->createMock(AccessRecoveryServiceInterface::class);
+        $success->expects(self::once())->method('requestPasswordRecovery')->with(
+            'recover@example.test',
+            self::isInstanceOf(Request::class),
+        )->willReturn(null);
+        $successResponse = $base($success)->requestRecovery(Request::create(
+            '/api/access/recovery',
+            'POST',
+            content: json_encode(['email' => 'recover@example.test'], JSON_THROW_ON_ERROR),
+        ));
+        self::assertSame(202, $successResponse->getStatusCode());
+        self::assertSame('recovery_requested', $this->decodeResponse($successResponse)['status']);
+    }
+
+    public function testPasskeyAuthenticationOptionsCoversUnavailableAndSuccess(): void
+    {
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            passkeyAuthenticationService: $passkeys,
+        );
+        $request = Request::create('https://example.test/api/access/passkey/authentication/options', 'POST');
+        self::assertSame(503, $base(null)->passkeyAuthenticationOptions($request)->getStatusCode());
+
+        $passkeys = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface::class);
+        $passkeys->expects(self::once())->method('issueOptions')->with(
+            self::callback(static fn (\App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO $config): bool => 'example.test' === $config->id),
+        )->willReturn(new \App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO('challenge', 'example.test', []));
+        $payload = $this->decodeResponse($base($passkeys)->passkeyAuthenticationOptions($request));
+        $publicKey = $payload['publicKey'] ?? null;
+        self::assertIsArray($publicKey);
+        self::assertSame('challenge', $publicKey['challenge'] ?? null);
+    }
+
+    public function testPasskeyRegistrationOptionsCoversAuthServiceAndSuccessBranches(): void
+    {
+        $security = $this->createMock(Security::class);
+        $security->method('getUser')->willReturn(null);
+        $withoutUser = new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $security,
+        );
+        self::assertSame(401, $withoutUser->passkeyRegistrationOptions(Request::create('https://example.test/passkey'))->getStatusCode());
+
+        $user = new AccessEntity('passkey-options@example.test', 'Passkey Options');
+        $userSecurity = $this->createMock(Security::class);
+        $userSecurity->method('getUser')->willReturn($user);
+        $missingService = new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $userSecurity,
+        );
+        self::assertSame(503, $missingService->passkeyRegistrationOptions(Request::create('https://example.test/passkey'))->getStatusCode());
+
+        $passkeys = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface::class);
+        $passkeys->expects(self::once())->method('issueOptions')->willReturn(
+            new \App\Accessing\DTO\AccessPasskeyRegistrationOptionsDTO(
+                'registration-challenge',
+                ['id' => 'example.test', 'name' => 'Example'],
+                ['id' => 'handle', 'name' => 'passkey-options@example.test', 'displayName' => 'Passkey Options'],
+                [],
+                [],
+                300000,
+            ),
+        );
+        $service = new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $userSecurity,
+            passkeyRegistrationService: $passkeys,
+        );
+        $payload = $this->decodeResponse($service->passkeyRegistrationOptions(Request::create('https://example.test/passkey')));
+        $publicKey = $payload['publicKey'] ?? null;
+        self::assertIsArray($publicKey);
+        self::assertSame('registration-challenge', $publicKey['challenge'] ?? null);
+    }
+
+    public function testPasskeyRegistrationCompleteCoversValidationDomainFailureAndSuccess(): void
+    {
+        $user = new AccessEntity('passkey-complete@example.test', 'Passkey Complete');
+        $security = $this->createMock(Security::class);
+        $security->method('getUser')->willReturn($user);
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $security,
+            passkeyRegistrationService: $passkeys,
+        );
+        self::assertSame(503, $base(null)->passkeyRegistrationComplete(Request::create('https://example.test/passkey', 'POST'))->getStatusCode());
+
+        $passkeys = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface::class);
+        self::assertSame(422, $base($passkeys)->passkeyRegistrationComplete(Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: json_encode(['name' => 'Laptop'], JSON_THROW_ON_ERROR),
+        ))->getStatusCode());
+
+        $failing = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface::class);
+        $failing->method('complete')->willThrowException(new \DomainException('registration rejected'));
+        $failure = $base($failing)->passkeyRegistrationComplete(Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: json_encode(['name' => 'Laptop', 'credential' => ['challenge' => 'abc']], JSON_THROW_ON_ERROR),
+        ));
+        self::assertSame(422, $failure->getStatusCode());
+
+        $credential = new \App\Accessing\Entity\AccessPasskeyCredentialEntity($user, 'credential-id', 'handle', 'public-key', ['internal'], 'Laptop');
+        $success = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface::class);
+        $success->method('complete')->willReturn($credential);
+        $successResponse = $base($success)->passkeyRegistrationComplete(Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: json_encode(['name' => 'Laptop', 'credential' => ['challenge' => 'abc']], JSON_THROW_ON_ERROR),
+        ));
+        self::assertSame(201, $successResponse->getStatusCode());
+        $payload = $this->decodeResponse($successResponse);
+        $credentialPayload = $payload['credential'] ?? null;
+        self::assertIsArray($credentialPayload);
+        self::assertSame('credential-id', $credentialPayload['id'] ?? null);
+    }
+
+    public function testPasskeyAuthenticationCompleteCoversUnavailableValidationFailureAndSuccess(): void
+    {
+        $tokens = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $user = new AccessEntity('passkey-auth-api@example.test', 'Passkey Auth');
+        $tokens->method('issue')->willReturn(new AccessMobileTokenPairDTO(
+            'access-token',
+            'refresh-token',
+            new \DateTimeImmutable('+15 minutes'),
+            new \DateTimeImmutable('+30 days'),
+            'session-id',
+        ));
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            mobileTokenService: $tokens,
+            passkeyAuthenticationService: $passkeys,
+        );
+        self::assertSame(503, $base(null)->passkeyAuthenticationComplete(Request::create('https://example.test/passkey', 'POST'))->getStatusCode());
+
+        $passkeys = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface::class);
+        self::assertSame(422, $base($passkeys)->passkeyAuthenticationComplete(Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: '{}',
+        ))->getStatusCode());
+
+        $failing = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface::class);
+        $failing->method('complete')->willThrowException(new \DomainException('authentication rejected'));
+        self::assertSame(401, $base($failing)->passkeyAuthenticationComplete(Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: json_encode(['credential' => ['credentialId' => 'id']], JSON_THROW_ON_ERROR),
+        ))->getStatusCode());
+
+        $success = $this->createMock(\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface::class);
+        $success->method('complete')->willReturn($user);
+        $request = Request::create(
+            'https://example.test/passkey',
+            'POST',
+            content: json_encode(['credential' => ['credentialId' => 'id']], JSON_THROW_ON_ERROR),
+            server: ['HTTP_X_DEVICE_NAME' => 'Coverage Device'],
+        );
+        $successResponse = $base($success)->passkeyAuthenticationComplete($request);
+        self::assertSame(200, $successResponse->getStatusCode());
+        self::assertSame('authenticated', $this->decodeResponse($successResponse)['status']);
+    }
+
     private function registrationRequest(): Request
     {
         return Request::create(
