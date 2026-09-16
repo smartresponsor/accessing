@@ -24,10 +24,10 @@ final class AccessDiagnosticsCommand extends Command
 
         $io->title('Accessing diagnostics');
         $io->definitionList(
-            ['APP_ENV', $this->stringEnvValue('APP_ENV', 'unknown')],
-            ['Database configured', $this->boolLabel($this->stringEnvValue('DATABASE_URL'))],
-            ['Mailer configured', $this->boolLabel($this->stringEnvValue('MAILER_DSN'))],
-            ['Phone verification provider', $this->stringEnvValue('ACCESSING_PHONE_VERIFICATION_PROVIDER', 'not-set')],
+            ['APP_ENV' => $this->stringEnvValue('APP_ENV', 'unknown')],
+            ['Database configured' => $this->boolLabel($this->stringEnvValue('DATABASE_URL'))],
+            ['Mailer configured' => $this->boolLabel($this->stringEnvValue('MAILER_DSN'))],
+            ['Phone verification provider' => $this->stringEnvValue('ACCESSING_PHONE_VERIFICATION_PROVIDER', 'not-set')],
         );
 
         $io->comment('This command is intentionally small and safe so the component can expose meaningful CLI diagnostics early.');
