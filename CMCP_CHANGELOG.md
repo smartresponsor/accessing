@@ -134,3 +134,23 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 ### RC diagnostic note
 - The generic RC validator previously misclassified repeated text `No syntax errors detected` as `false_green_suspected`; direct lint/pipeline execution is exit 0 and contains no PHP syntax failure. This remains tooling classifier noise, not an Accessing defect.
 - Docker is not part of the Accessing RC database contour on this host. PostgreSQL credentials are resolved from the existing host application environment and are never copied into Accessing or persisted in the journal.
+
+## 2026-09-16 — Migration registration regression repair
+
+### Reconnaissance and canon mapping
+- Re-read Accessing `AGENTS.md`, `README.md`, Composer manifest, architecture/product/bounding manifests, Doctrine migration configuration and current migration, plus the required Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization root contracts.
+- Consulted authoritative Canonization rules Canon000, Canon001, Canon002, Canon003, Canon007, Canon008, Canon018, Canon019, Canon020, Canon021, Canon022, Canon023, Canon024, Canon025, Canon026, Canon029, Canon030, Canon032, Canon033, Canon034, Canon036, Canon038, Canon039, Canon041, Canon043, Canon044, and Canon045 as applicable to the current standalone component.
+- Canon030 mapping: the complete migration chain must be registered and executable from an empty database before schema parity can be claimed.
+- RC-critical workstream: repair migration namespace registration and verify the existing PostgreSQL parity contour. Growth remains adaptive-risk authentication, richer device/session self-service, and security-event analytics; those are not required for this correctness repair.
+
+### Factual baseline and material repair
+- `composer validate --strict`: PASS.
+- Full PHPUnit suite: PASS, 176 tests / 1980 assertions; 75 non-failing PHPUnit notices remain.
+- Initial `schema:parity` failed before migration execution because `config/packages/doctrine_migrations.yaml` registered `DoctrineMigrations`, while the actual baseline migration is `App\\Accessing\\Migrations\\Version20260912003630`.
+- Updated the Doctrine migrations path namespace to `App\\Accessing\\Migrations`; no migration SQL or Entity metadata was changed.
+- Re-run executed the baseline migration (57 SQL queries) and Doctrine reported both mapping correctness and database-schema synchronization.
+
+### Worktree boundary and residual evidence
+- Pre-existing `.gating/` deletions/copy remain untouched.
+- Parallel work appeared during this run in `src/Command/AccessDiagnosticsCommand.php` and `tests/Unit/AccessRcCoverageExpansionTest.php`; those files are not attributed to this repair and were not edited here.
+- The Console MCP Composer-script wrapper returned no final exit code after the last `doctrine:migrations:up-to-date` phase even though migration execution and schema validation were successful; final currentness should therefore be re-confirmed before integration rather than inferred.
