@@ -109,6 +109,73 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         self::assertTrue($active->isUsed());
     }
 
+    public function testVerifyChallengeRejectsUserWithoutEnabledSecondFactor(): void
+    {
+        $service = $this->service(
+            $this->createMock(EntityManagerInterface::class),
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+            new AccessSystemClock(),
+        );
+
+        self::assertFalse($service->verifyChallenge(new AccessEntity('no-factor@example.test'), '123456'));
+    }
+
+    public function testConfirmEnrollmentRemovesExistingRecoveryCodesBeforeRegeneration(): void
+    {
+        $clock = new AccessSystemClock();
+        $user = new AccessEntity('replace-recovery@example.test');
+        $secret = TOTP::create(clock: $clock)->getSecret();
+        $factor = new AccessSecondFactorEntity($user, $secret, $user->getEmailAddress());
+        $user->setSecondFactor($factor);
+        $old = new AccessRecoveryCodeEntity($user, 'old-hash', '0001');
+        $user->addRecoveryCode($old);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('remove')->with($old);
+        $entityManager->expects(self::once())->method('flush');
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::once())->method('record');
+
+        $confirmed = $this->service($entityManager, $events, $clock)->confirmEnrollment(
+            $user,
+            TOTP::create($secret, clock: $clock)->now(),
+        );
+
+        self::assertNotNull($confirmed);
+        self::assertCount(8, $confirmed->recoveryCodes);
+    }
+
+    public function testDisableSecondFactorWithoutEnrollmentStillFlushesAndRecordsAuditEvent(): void
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::never())->method('remove');
+        $entityManager->expects(self::once())->method('flush');
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::once())->method('record')->with(
+            AccessSecurityEventType::SecondFactorRevoked,
+            AccessSecurityEventSeverity::Warning,
+            self::isInstanceOf(AccessEntity::class),
+        );
+
+        $this->service($entityManager, $events, new AccessSystemClock())->disableSecondFactor(
+            new AccessEntity('disable-without-factor@example.test'),
+        );
+    }
+
+    public function testBeginEnrollmentUsesFallbackLabelWhenEmailIsEmpty(): void
+    {
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+        $entityManager->expects(self::once())->method('flush');
+        $enrollment = $this->service(
+            $entityManager,
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+            new AccessSystemClock(),
+        )->beginEnrollment(new AccessEntity());
+
+        self::assertStringContainsString('accessing', urldecode($enrollment->provisioningUri));
+    }
+
     public function testDisableSecondFactorRevokesAndRemovesRecoveryCodes(): void
     {
         $clock = new AccessSystemClock();

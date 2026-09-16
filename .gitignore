@@ -45,6 +45,7 @@ Thumbs.db
 
 # Local tooling runtime
 /.console-mcp/
+/.gating/
 /tool/
 
 # AI

@@ -56,17 +56,17 @@ final class AccessHttpServiceCoverageTest extends TestCase
         $owner = new AccessOwnerResolveService($contextProvider, $userRepository);
 
         self::assertSame($user, $owner->requireAccess());
-        self::assertSame(200, (new AccessRegisterService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessSignInService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessRecoveryRequestService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessRecoveryResetService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessCredentialRequestService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessCredentialNoticeService($factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessCredentialResetService($formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessEmailVerificationService($owner, $formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessPhoneVerificationRequestService($owner, $formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessPhoneVerificationConfirmService($owner, $formFactory, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessSessionsService($owner, $factory, $responder))()->getStatusCode());
+        self::assertResponseStatus(200, (new AccessRegisterService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessSignInService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessRecoveryRequestService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessRecoveryResetService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessCredentialRequestService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessCredentialNoticeService($factory, $responder))());
+        self::assertResponseStatus(200, (new AccessCredentialResetService($formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessEmailVerificationService($owner, $formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessPhoneVerificationRequestService($owner, $formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessPhoneVerificationConfirmService($owner, $formFactory, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessSessionsService($owner, $factory, $responder))());
 
         self::assertSame([
             'access.register',
@@ -99,15 +99,15 @@ final class AccessHttpServiceCoverageTest extends TestCase
         $events->method('findRecentEvents')->willReturn([]);
         $events->method('findRecentEventsForUser')->with($user)->willReturn([]);
 
-        self::assertSame(200, (new AccessIndexService($users, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessOperatorUsersService($users, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessSecurityEventsService($events, $factory, $responder))()->getStatusCode());
-        self::assertSame(200, (new AccessOperatorSecurityEventsService($events, $factory, $responder))()->getStatusCode());
+        self::assertResponseStatus(200, (new AccessIndexService($users, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessOperatorUsersService($users, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessSecurityEventsService($events, $factory, $responder))());
+        self::assertResponseStatus(200, (new AccessOperatorSecurityEventsService($events, $factory, $responder))());
 
         $show = new AccessShowService($users, $events, $factory, $responder);
-        self::assertSame(200, $show(7)->getStatusCode());
-        self::assertSame(200, $show->showById(7)->getStatusCode());
-        self::assertSame(200, (new AccessOperatorUserDetailService($users, $events, $factory, $responder))(7)->getStatusCode());
+        self::assertResponseStatus(200, $show(7));
+        self::assertResponseStatus(200, $show->showById(7));
+        self::assertResponseStatus(200, (new AccessOperatorUserDetailService($users, $events, $factory, $responder))(7));
 
         self::assertSame([
             'access.operator_index',
@@ -129,8 +129,8 @@ final class AccessHttpServiceCoverageTest extends TestCase
         try {
             (new AccessOwnerResolveService($contextProvider, $users))->requireAccess();
             self::fail('Missing current access context must be rejected.');
-        } catch (NotFoundHttpException) {
-            self::assertTrue(true);
+        } catch (NotFoundHttpException $exception) {
+            self::assertSame(404, $exception->getStatusCode());
         }
 
         $stringContextProvider = $this->createMock(AccessCurrentContextProviderInterface::class);
@@ -138,8 +138,8 @@ final class AccessHttpServiceCoverageTest extends TestCase
         try {
             (new AccessOwnerResolveService($stringContextProvider, $users))->requireAccess();
             self::fail('Non-integer local access identity must be rejected.');
-        } catch (NotFoundHttpException) {
-            self::assertTrue(true);
+        } catch (NotFoundHttpException $exception) {
+            self::assertSame(404, $exception->getStatusCode());
         }
 
         $missingContextProvider = $this->createMock(AccessCurrentContextProviderInterface::class);
@@ -148,8 +148,8 @@ final class AccessHttpServiceCoverageTest extends TestCase
         try {
             (new AccessOwnerResolveService($missingContextProvider, $users))->requireAccess();
             self::fail('Missing AccessEntity must be rejected.');
-        } catch (NotFoundHttpException) {
-            self::assertTrue(true);
+        } catch (NotFoundHttpException $exception) {
+            self::assertSame(404, $exception->getStatusCode());
         }
 
         $show = new AccessShowService(
@@ -168,6 +168,12 @@ final class AccessHttpServiceCoverageTest extends TestCase
 
         self::assertSame(302, $response->getStatusCode());
         self::assertSame('/access/signin', $response->getTargetUrl());
+    }
+
+    private static function assertResponseStatus(int $expectedStatus, mixed $response): void
+    {
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame($expectedStatus, $response->getStatusCode());
     }
 
     /** @return array{FormFactoryInterface, FormView} */

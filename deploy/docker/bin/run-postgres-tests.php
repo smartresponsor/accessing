@@ -342,6 +342,7 @@ function run_proc(array $command, string $cwd, array $env, int $timeoutSeconds, 
     }
 
     $deadline = microtime(true) + $timeoutSeconds;
+    $processExitCode = null;
 
     while (true) {
         foreach ([1 => STDOUT, 2 => STDERR] as $index => $target) {
@@ -353,6 +354,9 @@ function run_proc(array $command, string $cwd, array $env, int $timeoutSeconds, 
 
         $status = proc_get_status($process);
         if ($status['running'] !== true) {
+            if (is_int($status['exitcode']) && $status['exitcode'] >= 0) {
+                $processExitCode = $status['exitcode'];
+            }
             break;
         }
 
@@ -394,7 +398,9 @@ function run_proc(array $command, string $cwd, array $env, int $timeoutSeconds, 
         fclose($pipe);
     }
 
-    return proc_close($process);
+    $closeExitCode = proc_close($process);
+
+    return $processExitCode ?? $closeExitCode;
 }
 
 function rel_path(string $projectDir, string $path): string

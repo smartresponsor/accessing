@@ -89,7 +89,7 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
     {
         /** @var list<AccessEntity> $users */
         $users = $this->createQueryBuilder('user')
-            ->orderBy('user.createdAt', \SortDirection::Descending)
+            ->orderBy('user.objectAudit.createdAt', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

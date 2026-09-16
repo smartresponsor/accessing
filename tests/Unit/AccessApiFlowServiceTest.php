@@ -749,6 +749,132 @@ final class AccessApiFlowServiceTest extends TestCase
         self::assertSame('authenticated', $this->decodeResponse($successResponse)['status']);
     }
 
+    public function testConfirmVerificationCoversValidationUnavailableInvalidAndSuccess(): void
+    {
+        $user = new AccessEntity('confirm@example.test', 'Confirm');
+        $security = $this->createMock(Security::class);
+        $security->method('getUser')->willReturn($user);
+        $base = fn (?AccessVerificationChallengeServiceInterface $verification): AccessApiFlowService => new AccessApiFlowService(
+            $this->createMock(AccessAuthenticationServiceInterface::class),
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $security,
+            verificationChallengeService: $verification,
+        );
+
+        self::assertSame(422, $base($this->createMock(AccessVerificationChallengeServiceInterface::class))->confirmVerification(
+            Request::create('/api/access/verification/confirm', 'POST', content: '{}'),
+        )->getStatusCode());
+        self::assertSame(503, $base(null)->confirmVerification(Request::create(
+            '/api/access/verification/confirm', 'POST', content: json_encode(['code' => '123456'], JSON_THROW_ON_ERROR),
+        ))->getStatusCode());
+
+        $invalid = $this->createMock(AccessVerificationChallengeServiceInterface::class);
+        $invalid->method('completeEmailVerification')->willReturn(false);
+        self::assertSame(422, $base($invalid)->confirmVerification(Request::create(
+            '/api/access/verification/confirm', 'POST', content: json_encode(['code' => 'bad'], JSON_THROW_ON_ERROR),
+        ))->getStatusCode());
+
+        $success = $this->createMock(AccessVerificationChallengeServiceInterface::class);
+        $success->expects(self::once())->method('completeEmailVerification')->with($user, '123456')->willReturn(true);
+        $payload = $this->decodeResponse($base($success)->confirmVerification(Request::create(
+            '/api/access/verification/confirm', 'POST', content: json_encode(['code' => '123456'], JSON_THROW_ON_ERROR),
+        )));
+        self::assertSame('authenticated', $payload['status']);
+    }
+
+    public function testSecondFactorChallengeAndVerificationCoverMobileContinuation(): void
+    {
+        $user = new AccessEntity('second-factor@example.test', 'Second Factor');
+        $now = new \DateTimeImmutable('2026-09-16T12:00:00+00:00');
+        $pendingEntity = new \App\Accessing\Entity\AccessMobilePendingAuthEntity(
+            $user, 'pending-token', AccessMobilePendingPurpose::SecondFactor, 'iPhone', $now, $now->modify('+10 minutes'),
+        );
+        $pending = $this->createMock(AccessMobilePendingAuthServiceInterface::class);
+        $pending->method('resolve')->with('pending-token', AccessMobilePendingPurpose::SecondFactor)->willReturn($pendingEntity);
+        $pending->method('consume')->willReturn($pendingEntity);
+
+        $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $authentication->expects(self::once())->method('completeMobileSecondFactor')->with($user, self::isInstanceOf(Request::class));
+        $secondFactor = $this->createMock(\App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface::class);
+        $secondFactor->expects(self::once())->method('verifyChallenge')->with($user, '654321')->willReturn(true);
+        $tokens = $this->createMock(AccessMobileTokenServiceInterface::class);
+        $tokens->expects(self::once())->method('issue')->with($user, 'iPhone')->willReturn(new AccessMobileTokenPairDTO(
+            'mobile-access', 'mobile-refresh', $now->modify('+15 minutes'), $now->modify('+30 days'), 'session-id',
+        ));
+
+        $service = new AccessApiFlowService(
+            $authentication,
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            secondFactorService: $secondFactor,
+            mobileTokenService: $tokens,
+            mobilePendingAuthService: $pending,
+        );
+
+        $challenge = $service->challengeSecondFactor(Request::create(
+            '/api/access/second-factor/challenge', 'POST', content: json_encode(['pendingToken' => 'pending-token'], JSON_THROW_ON_ERROR),
+        ));
+        self::assertSame(202, $challenge->getStatusCode());
+        self::assertSame('second_factor_pending', $this->decodeResponse($challenge)['status']);
+
+        $verified = $service->verifySecondFactor(Request::create(
+            '/api/access/second-factor/verify', 'POST', content: json_encode(['pendingToken' => 'pending-token', 'code' => '654321'], JSON_THROW_ON_ERROR),
+        ));
+        self::assertSame(200, $verified->getStatusCode());
+        self::assertSame('mobile-access', $this->decodeResponse($verified)['accessToken']);
+    }
+
+    public function testSecondFactorVerificationRejectsMissingSessionUnavailableServiceAndInvalidCode(): void
+    {
+        $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $authentication->method('getPendingSecondFactorUserId')->willReturn(null);
+        $service = new AccessApiFlowService(
+            $authentication,
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+        );
+        $request = Request::create('/api/access/second-factor/verify', 'POST', content: json_encode(['code' => '123456'], JSON_THROW_ON_ERROR));
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        self::assertSame(401, $service->verifySecondFactor($request)->getStatusCode());
+
+        $user = new AccessEntity('pending@example.test');
+        $repository = $this->createMock(\App\Accessing\RepositoryInterface\AccessRepositoryInterface::class);
+        $repository->method('findById')->with(12)->willReturn($user);
+        $pendingAuthentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $pendingAuthentication->method('getPendingSecondFactorUserId')->willReturn(12);
+        $pendingRequest = Request::create('/api/access/second-factor/verify', 'POST', content: json_encode(['code' => '123456'], JSON_THROW_ON_ERROR));
+        $pendingRequest->setSession(new Session(new MockArraySessionStorage()));
+
+        $unavailable = new AccessApiFlowService(
+            $pendingAuthentication,
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            accessRepository: $repository,
+        );
+        self::assertSame(503, $unavailable->verifySecondFactor($pendingRequest)->getStatusCode());
+
+        $secondFactor = $this->createMock(\App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface::class);
+        $secondFactor->method('verifyChallenge')->willReturn(false);
+        $invalid = new AccessApiFlowService(
+            $pendingAuthentication,
+            $this->createMock(AccessRegistrationServiceInterface::class),
+            $this->createMock(AccessCurrentContextProviderInterface::class),
+            new AccessApiJsonResponder(),
+            $this->createMock(Security::class),
+            accessRepository: $repository,
+            secondFactorService: $secondFactor,
+        );
+        self::assertSame(422, $invalid->verifySecondFactor($pendingRequest)->getStatusCode());
+    }
+
     private function registrationRequest(): Request
     {
         return Request::create(

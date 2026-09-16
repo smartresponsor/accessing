@@ -154,3 +154,40 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Pre-existing `.gating/` deletions/copy remain untouched.
 - Parallel work appeared during this run in `src/Command/AccessDiagnosticsCommand.php` and `tests/Unit/AccessRcCoverageExpansionTest.php`; those files are not attributed to this repair and were not edited here.
 - The Console MCP Composer-script wrapper returned no final exit code after the last `doctrine:migrations:up-to-date` phase even though migration execution and schema validation were successful; final currentness should therefore be re-confirmed before integration rather than inferred.
+
+## 2026-09-16 — RC coverage hardening continuation
+
+### Reconnaissance and baseline
+- Re-read Accessing root manifests, Composer/dev-prod package contracts, current tests/scripts, prior CMCP journal, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contract contour.
+- Consulted textual Canonization rules Canon003, Canon007, Canon018, Canon022, Canon023, Canon024, Canon030, Canon033, Canon038, Canon040, Canon043, and Canon045.
+- Canon040 is the active RC-critical gap: methods >= 80%, lines >= 80%, branches >= 70%.
+- Fresh pre-change coverage baseline was 49.71% methods, 52.96% lines, and 54.25% branches while Composer validation, PHPStan, and the 176-test suite were green.
+- The `.gating/` replacement/deletion state originated in parallel work; this reconciliation pass validated and integrated that migration through the vendor-based Gating execution path.
+
+### Material implementation
+- Added behavior-focused tests for CLI diagnostics/cleanup, current context, lifecycle policy, page-view creation, Twig response wiring, and Accessing-owned HTTP service boundaries.
+- The diagnostics regression test exposed a production defect: `AccessDiagnosticsCommand` supplied Symfony `definitionList()` with numeric pairs, causing values to disappear from CLI output. The command now supplies associative label/value definitions.
+- Added coverage for registration, sign-in, recovery/reset, email/phone verification presentation, session/operator/security reads, owner-resolution negative paths, and sign-out behavior without widening production responsibility.
+
+### Current verification evidence
+- PHPUnit: PASS, 183 tests / 2064 assertions; existing non-failing PHPUnit notices remain.
+- Coverage after two waves: 61.24% methods (425/694), 59.17% lines (2209/3733), 59.16% branches (1308/2211).
+- Signed local commit `982f251` contains only the diagnostics fix and two new test files; the later authorized reconciliation integrates the validated Gating migration separately.
+
+### Remaining RC work
+- Canon040 remains warning-level debt after this reconciliation: lines 79.4%, methods 75.8%, branches 74.7%; future coverage work should prioritize full method path coverage rather than additional shallow execution.
+- Canon042 behavioral/UI inventory evidence remains warning-level debt and should be generated only from an explicit repository-owned surface inventory.
+- Repository integration itself is unblocked because executable Gating reports zero failed rules and the hard test/static/schema-validation gates are green.
+
+### Final concurrent-worktree reconciliation
+- Reconciled the parallel Gating migration: Accessing now executes `gating/gate` from Composer with repository-owned `config/access_gating_profile.yaml` and `config/access_gating_rules.yaml`; the repository-local `.gating/` runtime snapshot is ignored, while the two previously tracked legacy consumer files are retained unchanged for safe Git integration and are not used by the active gate command.
+- Fixed Doctrine/Objecting repository field paths and canonical Access-prefixed component/runtime YAML paths already introduced by the concurrent work, and retained the PostgreSQL runner exit-code repair.
+- Repaired one concurrent coverage regression that referenced nonexistent `AccessCurrentContext::roles()`; the canonical method is `bootstrapRoles()`.
+- Added submitted registration, sign-in, second-factor, and recovery behavior coverage and narrowed union response types so the expanded test corpus remains PHPStan-clean.
+- Final PHPUnit regression evidence: PASS, 233 tests / 2439 assertions; existing non-failing PHPUnit notices remain.
+- PHP-CS-Fixer check: PASS; PHPStan: PASS, 0 errors; Composer validate with lock check: PASS.
+- Doctrine schema validation after clean migration: mapping PASS and database schema in sync. The outer schema-parity wrapper still exceeded the Console MCP call window after migration, so its final wrapper exit is not claimed.
+- Vendor-based Gating: PASS, 36 rules, 0 failed, 2 warnings, 3 skipped. Canon040 evidence is 79.4% lines (2963/3733), 75.8% methods (526/694), 74.7% branches (1742/2333); Canon042 reports the expected missing behavioral/UI inventory warning.
+- Canon040 method/line thresholds remain measurable coverage debt, but they are warning-level in the executable Gating policy and no longer block repository integration or publication.
+
+### Growth workstream kept out of RC

@@ -130,6 +130,114 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
         self::assertSame($credential, $service->complete($user, $config, ['challenge' => $challenge], 'Phone'));
     }
 
+    public function testRegistrationRejectsMissingChallengeForeignUserAndMismatchedHandle(): void
+    {
+        $user = new AccessEntity('registration-branches@example.test');
+        $config = new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test');
+        $service = new AccessPasskeyRegistrationService(
+            $this->createMock(AccessPasskeyChallengeServiceInterface::class),
+            $this->createMock(AccessPasskeyAttestationVerifierInterface::class),
+            $this->createMock(AccessPasskeyCredentialServiceInterface::class),
+            $this->createMock(AccessPasskeyCredentialRepositoryInterface::class),
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+        );
+
+        try {
+            $service->complete($user, $config, [], 'Phone');
+            self::fail('Missing registration challenge must be rejected.');
+        } catch (\DomainException $exception) {
+            self::assertSame('Passkey registration response is missing its challenge.', $exception->getMessage());
+        }
+
+        $foreign = new AccessEntity('foreign-registration@example.test');
+        $state = new AccessPasskeyChallengeEntity(
+            'challenge',
+            AccessPasskeyCeremonyPurpose::Registration,
+            $config->id,
+            $config->origin,
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable('+5 minutes'),
+            $foreign,
+        );
+        $foreignChallenges = $this->createMock(AccessPasskeyChallengeServiceInterface::class);
+        $foreignChallenges->method('consume')->willReturn($state);
+        $foreignService = new AccessPasskeyRegistrationService(
+            $foreignChallenges,
+            $this->createMock(AccessPasskeyAttestationVerifierInterface::class),
+            $this->createMock(AccessPasskeyCredentialServiceInterface::class),
+            $this->createMock(AccessPasskeyCredentialRepositoryInterface::class),
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+        );
+
+        try {
+            $foreignService->complete($user, $config, ['challenge' => 'challenge'], 'Phone');
+            self::fail('Foreign registration challenge must be rejected.');
+        } catch (\DomainException $exception) {
+            self::assertSame('Passkey registration challenge belongs to a different user.', $exception->getMessage());
+        }
+
+        $ownState = new AccessPasskeyChallengeEntity(
+            'challenge-2',
+            AccessPasskeyCeremonyPurpose::Registration,
+            $config->id,
+            $config->origin,
+            new \DateTimeImmutable(),
+            new \DateTimeImmutable('+5 minutes'),
+            $user,
+        );
+        $ownChallenges = $this->createMock(AccessPasskeyChallengeServiceInterface::class);
+        $ownChallenges->method('consume')->willReturn($ownState);
+        $verifier = $this->createMock(AccessPasskeyAttestationVerifierInterface::class);
+        $verifier->method('verify')->willReturn(new AccessPasskeyAttestationResultDTO(
+            'credential-id',
+            'wrong-user-handle',
+            'public-key',
+            [],
+            0,
+        ));
+        $mismatchService = new AccessPasskeyRegistrationService(
+            $ownChallenges,
+            $verifier,
+            $this->createMock(AccessPasskeyCredentialServiceInterface::class),
+            $this->createMock(AccessPasskeyCredentialRepositoryInterface::class),
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+        );
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Verified passkey user handle does not match the registering user.');
+        $mismatchService->complete($user, $config, ['challenge' => 'challenge-2'], 'Phone');
+    }
+
+    public function testRegistrationOptionsFallBackToIdentifierWhenDisplayNameIsMissing(): void
+    {
+        $user = new AccessEntity('fallback-options@example.test');
+        $challengeService = $this->createMock(AccessPasskeyChallengeServiceInterface::class);
+        $challengeService->method('issue')->willReturn([
+            'challenge' => 'challenge',
+            'state' => new AccessPasskeyChallengeEntity(
+                'challenge',
+                AccessPasskeyCeremonyPurpose::Registration,
+                'example.test',
+                'https://example.test',
+                new \DateTimeImmutable(),
+                new \DateTimeImmutable('+5 minutes'),
+                $user,
+            ),
+        ]);
+        $repository = $this->createMock(AccessPasskeyCredentialRepositoryInterface::class);
+        $repository->method('findActiveForUser')->willReturn([]);
+        $service = new AccessPasskeyRegistrationService(
+            $challengeService,
+            $this->createMock(AccessPasskeyAttestationVerifierInterface::class),
+            $this->createMock(AccessPasskeyCredentialServiceInterface::class),
+            $repository,
+            $this->createMock(AccessSecurityEventServiceInterface::class),
+        );
+
+        $payload = $service->issueOptions($user, new AccessPasskeyRelyingPartyConfigDTO('example.test', 'Example', 'https://example.test'))->toArray();
+        self::assertSame('fallback-options@example.test', $payload['publicKey']['user']['displayName']);
+    }
+
     public function testDefaultVerifierFailsClosedWithStableError(): void
     {
         $this->expectException(AccessPasskeyVerificationUnavailableException::class);

@@ -13,6 +13,7 @@ use App\Accessing\Form\AccessRegistrationType;
 use App\Accessing\Form\AccessResetPasswordRequestType;
 use App\Accessing\Form\AccessSignInType;
 use App\Accessing\Form\AccessVerificationCodeType;
+use App\Accessing\Form\Config\AccessEnvironmentConfigType;
 use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 use Symfony\Component\Form\Test\TypeTestCase;
 
@@ -53,6 +54,7 @@ final class AccessFormTypesTest extends TypeTestCase
             new AccessRecoveryResetType(),
             new AccessResetPasswordRequestType(),
             new AccessVerificationCodeType(),
+            new AccessEnvironmentConfigType(),
         ];
     }
 
@@ -82,6 +84,26 @@ final class AccessFormTypesTest extends TypeTestCase
         $recoveryReset = $this->factory->create(AccessRecoveryResetType::class);
         self::assertSame('Recovery code', $recoveryReset->get('code')->getConfig()->getOption('label'));
         self::assertSame('new-password', $this->fieldAttributes(AccessRecoveryResetType::class, 'newPassword')['autocomplete'] ?? null);
+    }
+
+    public function testEnvironmentConfigFormExposesCanonicalManagedFields(): void
+    {
+        $form = $this->factory->create(AccessEnvironmentConfigType::class);
+
+        foreach ([
+            'mailerSender',
+            'phoneVerificationProvider',
+            'sessionMaxIdleDays',
+            'recoveryCodeTtlMinutes',
+            'verificationCodeTtlMinutes',
+            'userLockThreshold',
+            'userLockMinutes',
+        ] as $field) {
+            self::assertTrue($form->has($field), $field);
+        }
+
+        self::assertSame('access_environment_config', $form->getName());
+        self::assertFalse($form->getConfig()->getOption('csrf_protection'));
     }
 
     public function testSupportFormsKeepBusinessFriendlyHints(): void

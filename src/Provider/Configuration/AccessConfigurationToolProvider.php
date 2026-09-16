@@ -103,7 +103,7 @@ final class AccessConfigurationToolProvider implements ConfigurationToolProvider
      */
     private function integrationSection(): array
     {
-        $path = dirname(__DIR__, 3).'/config/component/component.yaml';
+        $path = dirname(__DIR__, 3).'/config/component/access_component.yaml';
 
         if (!is_file($path)) {
             return [];

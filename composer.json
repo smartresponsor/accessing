@@ -48,12 +48,14 @@
                         "doctrine/doctrine-fixtures-bundle":  "^4.3",
                         "fakerphp/faker":  "^1.24",
                         "friendsofphp/php-cs-fixer":  "3.94",
+                        "gating/gate":  "dev-master",
                         "phpstan/phpstan":  "^2.1",
                         "phpunit/phpunit":  "^12.0",
                         "symfony/browser-kit":  "^8.1",
                         "symfony/css-selector":  "^8.1",
                         "symfony/panther":  "^2.2",
-                        "symfony/phpunit-bridge":  "^8.1"
+                        "symfony/phpunit-bridge":  "^8.1",
+                        "symfony/test-pack":  "^1.2"
                     },
     "autoload":  {
                      "psr-4":  {
@@ -74,8 +76,10 @@
                     "test":  "vendor/bin/phpunit --testsuite Accessing",
                     "test:coverage":  [
                                               "@putenv XDEBUG_MODE=coverage",
-                                              "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage.txt --path-coverage"
+                                              "@php -r \"if (!is_dir('var/coverage')) { mkdir('var/coverage', 0777, true); }\"",
+                                              "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage/summary.txt --path-coverage"
                                           ],
+                    "gating:check":  "php vendor/bin/gating check --target=. --profile=config/access_gating_profile.yaml --rule-set=config/access_gating_rules.yaml --policy-root=vendor/gating/gate/.gating --severity-config=vendor/gating/gate/.gating/config/severity.yaml",
                     "test:object-identity":  "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
                     "test:panther":  "vendor/bin/simple-phpunit --testsuite Panther",
                     "pipeline:local:full":  [
@@ -92,6 +96,7 @@
                                           "php deploy/docker/bin/run-postgres-tests.php"
                                       ],
                     "test:docker":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env --profile app run --rm php",
+                    "schema:validate":  "php bin/console doctrine:schema:validate --env=test",
                     "schema:parity":  "php deploy/docker/bin/run-postgres-tests.php --schema-parity"
                 },
     "extra":  {
@@ -163,6 +168,14 @@
                              "options":  {
                                              "symlink":  true,
                                              "versions":  {"viewing/view": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Gating",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"gating/gate": "dev-master"}
                                          }
                          }
                      ]

@@ -42,8 +42,8 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
                 'userLockMinutes',
             ],
             sensitiveFields: [],
-            readableFiles: ['config/component/runtime.yaml'],
-            writableFiles: ['config/component/runtime.yaml'],
+            readableFiles: ['config/component/access_runtime.yaml'],
+            writableFiles: ['config/component/access_runtime.yaml'],
             metadata: [
                 'section' => 'Configuration',
                 'kind' => 'environment',
@@ -57,26 +57,26 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
     /** @return iterable<ConfigVariable> */
     public function managedVariables(): iterable
     {
-        yield ConfigVariable::yaml('accessing_mailer_sender', 'config/component/runtime.yaml')
+        yield ConfigVariable::yaml('accessing_mailer_sender', 'config/component/access_runtime.yaml')
             ->withLabel('Mailer sender')
             ->required();
-        yield ConfigVariable::yaml('accessing_phone_verification_provider', 'config/component/runtime.yaml')
+        yield ConfigVariable::yaml('accessing_phone_verification_provider', 'config/component/access_runtime.yaml')
             ->withLabel('Phone verification provider')
             ->required()
             ->withConstraints(['choices' => ['fake', 'null']]);
-        yield ConfigVariable::yaml('accessing_session_max_idle_days', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_session_max_idle_days', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Session max idle days')
             ->required();
-        yield ConfigVariable::yaml('accessing_recovery_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_recovery_code_ttl_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Recovery code TTL minutes')
             ->required();
-        yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Verification code TTL minutes')
             ->required();
-        yield ConfigVariable::yaml('accessing_user_lock_threshold', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_user_lock_threshold', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('User lock threshold')
             ->required();
-        yield ConfigVariable::yaml('accessing_user_lock_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_user_lock_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('User lock minutes')
             ->required();
     }
@@ -223,7 +223,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
      */
     private function runtimeManifestPath(): string
     {
-        return dirname(__DIR__, 3).'/config/component/runtime.yaml';
+        return dirname(__DIR__, 3).'/config/component/access_runtime.yaml';
     }
 
     /** @param array<string, mixed> $manifest */
