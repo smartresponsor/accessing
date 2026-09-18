@@ -6,6 +6,9 @@ namespace App\Accessing\Factory\SecurityEvent;
 
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the security event context factory type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecurityEventContextFactory
 {
     /** @return array{ipAddress: ?string, userAgent: ?string} */

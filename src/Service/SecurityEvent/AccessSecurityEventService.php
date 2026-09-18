@@ -14,8 +14,14 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the security event service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecurityEventService implements AccessSecurityEventServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
         private AccessSecurityEventContextFactory $contextFactory,

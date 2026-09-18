@@ -26,7 +26,7 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
         unset($configs);
 
         $configDirectory = __DIR__.'/../../config/component';
-        $runtimeConfigFile = $configDirectory.'/runtime.yaml';
+        $runtimeConfigFile = $configDirectory.'/access_runtime.yaml';
         if (is_file($runtimeConfigFile)) {
             $runtimeConfig = Yaml::parseFile($runtimeConfigFile);
             if (is_array($runtimeConfig)) {
@@ -34,19 +34,22 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
             }
         }
 
-        $servicesFile = $configDirectory.'/services.yaml';
+        $servicesFile = $configDirectory.'/access_services.yaml';
 
         if (!is_file($servicesFile)) {
             return;
         }
 
         $loader = new YamlFileLoader($container, new FileLocator($configDirectory));
-        $loader->load('services.yaml');
+        $loader->load('access_services.yaml');
     }
 
+    /**
+     * Executes the prepend operation within the canonical Accessing component workflow.
+     */
     public function prepend(ContainerBuilder $container): void
     {
-        $frameworkConfigFile = __DIR__.'/../../config/packages/accessing_rate_limiter.yaml';
+        $frameworkConfigFile = __DIR__.'/../../config/packages/access_rate_limiter.yaml';
         if (!is_file($frameworkConfigFile)) {
             return;
         }
@@ -58,7 +61,7 @@ final class AccessingExtension extends Extension implements PrependExtensionInte
 
         $container->prependExtensionConfig('framework', self::stringKeyMap($config['framework']));
 
-        $twigConfigFile = __DIR__.'/../../config/packages/accessing_twig.yaml';
+        $twigConfigFile = __DIR__.'/../../config/packages/access_twig.yaml';
         if (!is_file($twigConfigFile)) {
             return;
         }

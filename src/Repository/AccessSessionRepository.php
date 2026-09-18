@@ -16,11 +16,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AccessSessionRepository extends ServiceEntityRepository implements AccessSessionRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessSessionEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessSessionEntity $userSession, bool $flush = false): void
     {
         $this->getEntityManager()->persist($userSession);
@@ -30,6 +36,9 @@ final class AccessSessionRepository extends ServiceEntityRepository implements A
         }
     }
 
+    /**
+     * Executes the find one by session identifier operation within the canonical Accessing component workflow.
+     */
     public function findOneBySessionIdentifier(string $sessionIdentifier): ?AccessSessionEntity
     {
         $userSession = $this->findOneBy(['sessionIdentifier' => $sessionIdentifier]);
@@ -37,6 +46,9 @@ final class AccessSessionRepository extends ServiceEntityRepository implements A
         return $userSession instanceof AccessSessionEntity ? $userSession : null;
     }
 
+    /**
+     * Executes the find active for user operation within the canonical Accessing component workflow.
+     */
     public function findActiveForUser(AccessEntity $user): array
     {
         /** @var list<AccessSessionEntity> $results */
@@ -44,13 +56,16 @@ final class AccessSessionRepository extends ServiceEntityRepository implements A
             ->andWhere('userSession.user = :user')
             ->andWhere('userSession.revokedAt IS NULL')
             ->setParameter('user', $user)
-            ->orderBy('userSession.lastSeenAt', 'DESC')
+            ->orderBy('userSession.lastSeenAt', \SortDirection::Descending)
             ->getQuery()
             ->getResult();
 
         return $results;
     }
 
+    /**
+     * Executes the invalidate other active sessions operation within the canonical Accessing component workflow.
+     */
     public function invalidateOtherActiveSessions(AccessEntity $user, string $keepSessionIdentifier): int
     {
         /** @var int $updatedCount */
@@ -69,6 +84,9 @@ final class AccessSessionRepository extends ServiceEntityRepository implements A
         return $updatedCount;
     }
 
+    /**
+     * Executes the cleanup invalidated before operation within the canonical Accessing component workflow.
+     */
     public function cleanupInvalidatedBefore(\DateTimeImmutable $before): int
     {
         /** @var int $deletedCount */

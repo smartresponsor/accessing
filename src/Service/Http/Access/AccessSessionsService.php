@@ -5,13 +5,19 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the sessions service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSessionsService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessOwnerResolveService $ownerResolveService,
         private AccessPageViewFactoryInterface $pageViewFactory,
@@ -19,6 +25,9 @@ final readonly class AccessSessionsService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->sessions(

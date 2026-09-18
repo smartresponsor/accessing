@@ -8,6 +8,7 @@ namespace App\Accessing\Tests\Unit;
 use App\Accessing\Service\Http\Access\AccessResetPasswordFlowService;
 use App\Accessing\Service\Http\Access\AccessSecurityFlowService;
 use App\Accessing\Service\Http\Access\AccessSurfaceFlowService;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -23,11 +24,8 @@ final class AccessFlowServiceSelfContainedContractTest extends TestCase
         yield 'surface flow' => [AccessSurfaceFlowService::class];
     }
 
-    /**
-     * @dataProvider flowServices
-     *
-     * @param class-string $serviceClass
-     */
+    /** @param class-string $serviceClass */
+    #[DataProvider('flowServices')]
     public function testPublicFlowMethodsDoNotExposeContainerCollaborators(string $serviceClass): void
     {
         $reflectionClass = new \ReflectionClass($serviceClass);

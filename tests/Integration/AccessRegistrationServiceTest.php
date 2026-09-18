@@ -5,11 +5,11 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Dto\AccessRegistrationRequest;
+use App\Accessing\DTO\AccessRegistrationRequestDTO;
 use App\Accessing\Entity\AccessCredentialEntity;
 use App\Accessing\Repository\AccessRepository;
 use App\Accessing\Repository\AccessSecurityEventRepository;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\Tests\Support\AccessDatabaseTestCase;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 
@@ -26,7 +26,7 @@ final class AccessRegistrationServiceTest extends AccessDatabaseTestCase
         /** @var AccessSecurityEventRepository $securityEventRepository */
         $securityEventRepository = static::getContainer()->get(AccessSecurityEventRepository::class);
 
-        $request = new AccessRegistrationRequest();
+        $request = new AccessRegistrationRequestDTO();
         $request->email = 'duplicate@accessing.local';
         $request->plainPassword = 'duplicate-pass-123';
         $request->displayName = 'Duplicate Tester';

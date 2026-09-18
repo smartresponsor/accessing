@@ -22,13 +22,12 @@ final class AccessEntityObjectingContractTest extends TestCase
         self::assertSame($objectUuid, $access->getObjectSlug());
         self::assertSame($createdAt, $access->getRegisteredAt());
         self::assertSame($createdAt, $access->getUpdatedAt());
-        self::assertNull($access->getModifiedAt());
         self::assertNull($access->getId());
 
         $access->setDisplayName('Updated Owner');
 
         self::assertSame($objectUuid, $access->getObjectUuid());
-        self::assertNotNull($access->getModifiedAt());
-        self::assertSame($access->getModifiedAt(), $access->getUpdatedAt());
+        self::assertInstanceOf(\DateTimeImmutable::class, $access->getModifiedAt());
+        self::assertEquals($access->getModifiedAt(), $access->getUpdatedAt());
     }
 }

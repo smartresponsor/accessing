@@ -5,15 +5,21 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the email verification service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessEmailVerificationService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessOwnerResolveService $ownerResolveService,
         private FormFactoryInterface $formFactory,
@@ -22,6 +28,9 @@ final readonly class AccessEmailVerificationService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->createBuilder()->add('code', TextType::class)->getForm();

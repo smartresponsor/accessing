@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Dto\AccessMobilePendingToken;
-use App\Accessing\Dto\AccessMobileTokenPair;
-use App\Accessing\Dto\AccessSignInResultDto;
+use App\Accessing\DTO\AccessMobilePendingTokenDTO;
+use App\Accessing\DTO\AccessMobileTokenPairDTO;
+use App\Accessing\DTO\AccessSignInResultDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
-use App\Accessing\Responder\Api\Access\ApiAccessJsonResponder;
-use App\Accessing\Service\Http\Api\Access\ApiAccessFlowService;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
-use App\Accessing\ServiceInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
+use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
+use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
@@ -30,12 +30,12 @@ final class AccessMobileContinuationApiTest extends TestCase
     {
         $user = new AccessEntity('second-factor@example.test', 'Second Factor');
         $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
-        $authentication->method('attemptPasswordSignIn')->willReturn(AccessSignInResultDto::pendingSecondFactor($user));
+        $authentication->method('attemptPasswordSignIn')->willReturn(AccessSignInResultDTO::pendingSecondFactor($user));
         $pending = $this->createMock(AccessMobilePendingAuthServiceInterface::class);
         $pending->expects(self::once())
             ->method('issue')
             ->with($user, AccessMobilePendingPurpose::SecondFactor, 'Test iPhone')
-            ->willReturn(new AccessMobilePendingToken('pending-2fa', new \DateTimeImmutable('2026-07-12T00:10:00+00:00')));
+            ->willReturn(new AccessMobilePendingTokenDTO('pending-2fa', new \DateTimeImmutable('2026-07-12T00:10:00+00:00')));
 
         $service = $this->service($authentication, pending: $pending);
         $request = Request::create(
@@ -98,7 +98,7 @@ final class AccessMobileContinuationApiTest extends TestCase
 
         $service = $this->service($authentication, pending: $pending, tokens: $tokens, secondFactor: $secondFactor);
         $request = Request::create(
-            '/api/access/second-factor/verify',
+            '/api/access/second/factor/verify',
             'POST',
             content: json_encode(['code' => '654321', 'pendingToken' => 'pending-2fa'], JSON_THROW_ON_ERROR),
         );
@@ -114,12 +114,12 @@ final class AccessMobileContinuationApiTest extends TestCase
         ?AccessMobileTokenServiceInterface $tokens = null,
         ?AccessVerificationChallengeServiceInterface $verification = null,
         ?AccessSecondFactorServiceInterface $secondFactor = null,
-    ): ApiAccessFlowService {
-        return new ApiAccessFlowService(
+    ): AccessApiFlowService {
+        return new AccessApiFlowService(
             $authentication,
             $this->createMock(AccessRegistrationServiceInterface::class),
             $this->createMock(AccessCurrentContextProviderInterface::class),
-            new ApiAccessJsonResponder(),
+            new AccessApiJsonResponder(),
             $this->createMock(Security::class),
             verificationChallengeService: $verification,
             secondFactorService: $secondFactor,
@@ -135,9 +135,9 @@ final class AccessMobileContinuationApiTest extends TestCase
         return new AccessMobilePendingAuthEntity($user, $token, $purpose, $deviceName, $now, $now->modify('+10 minutes'));
     }
 
-    private function tokenPair(): AccessMobileTokenPair
+    private function tokenPair(): AccessMobileTokenPairDTO
     {
-        return new AccessMobileTokenPair(
+        return new AccessMobileTokenPairDTO(
             'access-token',
             'refresh-token',
             new \DateTimeImmutable('2026-07-12T00:15:00+00:00'),

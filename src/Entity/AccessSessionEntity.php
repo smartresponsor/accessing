@@ -12,6 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_session')]
 #[ORM\Index(name: 'idx_access_session_expires_at', columns: ['expires_at'])]
 #[ORM\Index(name: 'idx_access_session_revoked_at', columns: ['revoked_at'])]
+/**
+ * Defines the session entity type and its canonical responsibility within the Accessing component.
+ */
 class AccessSessionEntity
 {
     #[ORM\Id]
@@ -69,16 +72,25 @@ class AccessSessionEntity
         $this->userAgent = $userAgent;
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): ?AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the set user operation within the canonical Accessing component workflow.
+     */
     public function setUser(AccessEntity $user): self
     {
         $this->user = $user;
@@ -86,11 +98,17 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get session identifier operation within the canonical Accessing component workflow.
+     */
     public function getSessionIdentifier(): string
     {
         return $this->sessionIdentifier;
     }
 
+    /**
+     * Executes the set session identifier operation within the canonical Accessing component workflow.
+     */
     public function setSessionIdentifier(string $sessionIdentifier): self
     {
         $this->sessionIdentifier = trim($sessionIdentifier);
@@ -98,11 +116,17 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get ip address operation within the canonical Accessing component workflow.
+     */
     public function getIpAddress(): ?string
     {
         return $this->ipAddress;
     }
 
+    /**
+     * Executes the set ip address operation within the canonical Accessing component workflow.
+     */
     public function setIpAddress(?string $ipAddress): self
     {
         $this->ipAddress = $ipAddress;
@@ -110,11 +134,17 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get user agent operation within the canonical Accessing component workflow.
+     */
     public function getUserAgent(): ?string
     {
         return $this->userAgent;
     }
 
+    /**
+     * Executes the set user agent operation within the canonical Accessing component workflow.
+     */
     public function setUserAgent(?string $userAgent): self
     {
         $this->userAgent = $userAgent;
@@ -122,11 +152,17 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the is trusted operation within the canonical Accessing component workflow.
+     */
     public function isTrusted(): bool
     {
         return $this->trusted;
     }
 
+    /**
+     * Executes the set trusted operation within the canonical Accessing component workflow.
+     */
     public function setTrusted(bool $trusted): self
     {
         $this->trusted = $trusted;
@@ -134,21 +170,33 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get created at operation within the canonical Accessing component workflow.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get issued at operation within the canonical Accessing component workflow.
+     */
     public function getIssuedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get last seen at operation within the canonical Accessing component workflow.
+     */
     public function getLastSeenAt(): \DateTimeImmutable
     {
         return $this->lastSeenAt;
     }
 
+    /**
+     * Executes the touch operation within the canonical Accessing component workflow.
+     */
     public function touch(?\DateTimeImmutable $lastSeenAt = null): self
     {
         $this->lastSeenAt = $lastSeenAt ?? new \DateTimeImmutable();
@@ -156,11 +204,17 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get expires at operation within the canonical Accessing component workflow.
+     */
     public function getExpiresAt(): \DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
+    /**
+     * Executes the set expires at operation within the canonical Accessing component workflow.
+     */
     public function setExpiresAt(\DateTimeImmutable $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
@@ -168,21 +222,33 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the get revoked at operation within the canonical Accessing component workflow.
+     */
     public function getRevokedAt(): ?\DateTimeImmutable
     {
         return $this->revokedAt;
     }
 
+    /**
+     * Executes the get invalidated at operation within the canonical Accessing component workflow.
+     */
     public function getInvalidatedAt(): ?\DateTimeImmutable
     {
         return $this->revokedAt;
     }
 
+    /**
+     * Executes the is active operation within the canonical Accessing component workflow.
+     */
     public function isActive(): bool
     {
         return null === $this->revokedAt && $this->expiresAt > new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(?\DateTimeImmutable $revokedAt = null): self
     {
         $this->revokedAt = $revokedAt ?? new \DateTimeImmutable();
@@ -190,6 +256,9 @@ class AccessSessionEntity
         return $this;
     }
 
+    /**
+     * Executes the invalidate operation within the canonical Accessing component workflow.
+     */
     public function invalidate(?\DateTimeImmutable $invalidatedAt = null): self
     {
         return $this->revoke($invalidatedAt);

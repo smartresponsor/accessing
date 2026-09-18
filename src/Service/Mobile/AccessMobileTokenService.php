@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Mobile;
 
-use App\Accessing\Dto\AccessMobileTokenPair;
+use App\Accessing\DTO\AccessMobileTokenPairDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessMobileSessionEntity;
 use App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface;
@@ -14,8 +14,14 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Defines the mobile token service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessMobileTokenService implements AccessMobileTokenServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessMobileSessionRepositoryInterface $repository,
         private ClockInterface $clock,
@@ -23,12 +29,18 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         private int $accessingMobileAccessTtlSeconds = 900,
         private int $accessingMobileRefreshTtlSeconds = 2592000,
     ) {
-        if ($accessingMobileAccessTtlSeconds < 60 || $accessingMobileRefreshTtlSeconds <= $accessingMobileAccessTtlSeconds) {
+        if ($accessingMobileAccessTtlSeconds < 60) {
+            throw new \InvalidArgumentException('Mobile token TTL configuration is invalid.');
+        }
+        if ($accessingMobileRefreshTtlSeconds <= $accessingMobileAccessTtlSeconds) {
             throw new \InvalidArgumentException('Mobile token TTL configuration is invalid.');
         }
     }
 
-    public function issue(AccessEntity $user, string $deviceName): AccessMobileTokenPair
+    /**
+     * Executes the issue operation within the canonical Accessing component workflow.
+     */
+    public function issue(AccessEntity $user, string $deviceName): AccessMobileTokenPairDTO
     {
         $now = $this->clock->now();
         $accessToken = self::token();
@@ -45,20 +57,32 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
             ['sessionId' => $session->getSessionId(), 'deviceName' => $deviceName],
         );
 
-        return new AccessMobileTokenPair($accessToken, $refreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
+        return new AccessMobileTokenPairDTO($accessToken, $refreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
     }
 
+    /**
+     * Executes the authenticate operation within the canonical Accessing component workflow.
+     */
     public function authenticate(string $accessToken): AccessEntity
     {
         $session = $this->repository->findOneByAccessTokenHash(hash('sha256', trim($accessToken)));
-        if (!$session instanceof AccessMobileSessionEntity || !$session->hasAccessToken($accessToken) || !$session->isAccessActive($this->clock->now())) {
+        if (!$session instanceof AccessMobileSessionEntity) {
+            throw new \DomainException('Mobile access token is invalid.');
+        }
+        if (!$session->hasAccessToken($accessToken)) {
+            throw new \DomainException('Mobile access token is invalid.');
+        }
+        if (!$session->isAccessActive($this->clock->now())) {
             throw new \DomainException('Mobile access token is invalid.');
         }
 
         return $session->getUser();
     }
 
-    public function rotate(string $refreshToken): AccessMobileTokenPair
+    /**
+     * Executes the rotate operation within the canonical Accessing component workflow.
+     */
+    public function rotate(string $refreshToken): AccessMobileTokenPairDTO
     {
         $refreshTokenHash = hash('sha256', trim($refreshToken));
         $session = $this->repository->findOneByRefreshTokenHash($refreshTokenHash);
@@ -66,22 +90,27 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
 
         if (!$session instanceof AccessMobileSessionEntity) {
             $reusedSession = $this->repository->findOneByPreviousRefreshTokenHash($refreshTokenHash);
-            if ($reusedSession instanceof AccessMobileSessionEntity && $reusedSession->hasPreviousRefreshToken($refreshToken)) {
-                $reusedSession->markRefreshReuseDetected($now);
-                $this->repository->save($reusedSession, true);
-                $this->securityEventService->record(
-                    AccessSecurityEventType::MobileRefreshReuseDetected,
-                    AccessSecurityEventSeverity::Warning,
-                    $reusedSession->getUser(),
-                    null,
-                    ['sessionId' => $reusedSession->getSessionId()],
-                );
+            if ($reusedSession instanceof AccessMobileSessionEntity) {
+                if ($reusedSession->hasPreviousRefreshToken($refreshToken)) {
+                    $reusedSession->markRefreshReuseDetected($now);
+                    $this->repository->save($reusedSession, true);
+                    $this->securityEventService->record(
+                        AccessSecurityEventType::MobileRefreshReuseDetected,
+                        AccessSecurityEventSeverity::Warning,
+                        $reusedSession->getUser(),
+                        null,
+                        ['sessionId' => $reusedSession->getSessionId()],
+                    );
+                }
             }
 
             throw new \DomainException('Mobile refresh token is invalid.');
         }
 
-        if (!$session->hasRefreshToken($refreshToken) || !$session->isRefreshActive($now)) {
+        if (!$session->hasRefreshToken($refreshToken)) {
+            throw new \DomainException('Mobile refresh token is invalid.');
+        }
+        if (!$session->isRefreshActive($now)) {
             throw new \DomainException('Mobile refresh token is invalid.');
         }
 
@@ -99,9 +128,12 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
             ['sessionId' => $session->getSessionId()],
         );
 
-        return new AccessMobileTokenPair($accessToken, $newRefreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
+        return new AccessMobileTokenPairDTO($accessToken, $newRefreshToken, $accessExpiresAt, $refreshExpiresAt, $session->getSessionId());
     }
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(string $accessToken): void
     {
         $session = $this->repository->findOneByAccessTokenHash(hash('sha256', trim($accessToken)));
@@ -118,6 +150,9 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         }
     }
 
+    /**
+     * Executes the token operation within the canonical Accessing component workflow.
+     */
     private static function token(): string
     {
         return rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');

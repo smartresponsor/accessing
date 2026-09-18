@@ -5,16 +5,22 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * Defines the show service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessShowService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
@@ -23,11 +29,17 @@ final readonly class AccessShowService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(int $id): Response|InterfaceTemplateRenderableInterface
     {
         return $this->showById($id);
     }
 
+    /**
+     * Executes the show by id operation within the canonical Accessing component workflow.
+     */
     public function showById(int $id): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->userRepository->findById($id);
@@ -40,10 +52,5 @@ final readonly class AccessShowService
             $user,
             $this->securityEventRepository->findRecentEventsForUser($user),
         ));
-    }
-
-    public function showBySlug(string $slug): Response|InterfaceTemplateRenderableInterface
-    {
-        throw AccessCrudSkeletonException::unsupported('access.show_slug', $slug);
     }
 }

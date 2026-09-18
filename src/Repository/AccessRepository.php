@@ -15,11 +15,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AccessRepository extends ServiceEntityRepository implements AccessRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessEntity $user, bool $flush = false): void
     {
         $this->getEntityManager()->persist($user);
@@ -29,6 +35,9 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
         }
     }
 
+    /**
+     * Executes the remove operation within the canonical Accessing component workflow.
+     */
     public function remove(AccessEntity $user, bool $flush = false): void
     {
         $this->getEntityManager()->remove($user);
@@ -38,11 +47,17 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
         }
     }
 
+    /**
+     * Executes the find one by email operation within the canonical Accessing component workflow.
+     */
     public function findOneByEmail(string $email): ?AccessEntity
     {
         return $this->findOneByEmailAddress($email);
     }
 
+    /**
+     * Executes the find by id operation within the canonical Accessing component workflow.
+     */
     public function findById(int $id): ?AccessEntity
     {
         $user = $this->find($id);
@@ -50,6 +65,9 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
         return $user instanceof AccessEntity ? $user : null;
     }
 
+    /**
+     * Executes the find one by email address operation within the canonical Accessing component workflow.
+     */
     public function findOneByEmailAddress(string $emailAddress): ?AccessEntity
     {
         $user = $this->createQueryBuilder('user')
@@ -71,7 +89,7 @@ final class AccessRepository extends ServiceEntityRepository implements AccessRe
     {
         /** @var list<AccessEntity> $users */
         $users = $this->createQueryBuilder('user')
-            ->orderBy('user.createdAt', 'DESC')
+            ->orderBy('user.objectAudit.createdAt', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

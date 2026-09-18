@@ -5,15 +5,15 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Verification;
 
-use App\Accessing\Dto\AccessIssuedChallengeDto;
+use App\Accessing\DTO\AccessIssuedChallengeDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
+use App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
-use App\Accessing\ServiceInterface\Vendor\AccessPhoneVerificationProviderServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
@@ -23,13 +23,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
+/**
+ * Defines the verification challenge service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessVerificationChallengeService implements AccessVerificationChallengeServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessVerificationChallengeRepositoryInterface $verificationChallengeRepository,
         private AccessRepositoryInterface $userRepository,
         private AccessSecurityEventServiceInterface $securityEventService,
-        private AccessPhoneVerificationProviderServiceInterface $phoneVerificationProvider,
+        private AccessPhoneVerificationProviderInterface $phoneVerificationProvider,
         private AccessSecurityNotificationServiceInterface $securityNotificationService,
         private RateLimiterFactory $accessingVerificationResendLimiter,
         private string $appSecret,
@@ -45,7 +51,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issueEmailVerification(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto
+    public function issueEmailVerification(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDTO
     {
         $issuedChallenge = $this->issueChallenge(
             $user,
@@ -86,7 +92,10 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         return $issuedChallenge;
     }
 
-    public function resendEmailVerification(AccessEntity $user, ?Request $request = null): ?AccessIssuedChallengeDto
+    /**
+     * Executes the resend email verification operation within the canonical Accessing component workflow.
+     */
+    public function resendEmailVerification(AccessEntity $user, ?Request $request = null): ?AccessIssuedChallengeDTO
     {
         $limiterKey = sprintf('%s|%s', $user->getId() ?? $user->getEmailAddress(), $request?->getClientIp() ?? 'unknown');
 
@@ -111,10 +120,8 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws \DateMalformedStringException
      * @throws RandomException
      */
-    public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePhoneVerification(AccessEntity $user, string $phoneNumber, ?Request $request = null): AccessIssuedChallengeDTO
     {
-        $user->changePhoneNumber($phoneNumber);
-
         $issuedChallenge = $this->issueChallenge(
             $user,
             AccessVerificationChallengeType::PhoneVerification,
@@ -150,8 +157,6 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
             ['channel' => 'phone', 'purpose' => 'verification'],
         );
 
-        $this->userRepository->save($user, true);
-
         return $issuedChallenge;
     }
 
@@ -162,7 +167,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      * @throws RandomException
      * @throws TransportExceptionInterface
      */
-    public function issuePasswordRecovery(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDto
+    public function issuePasswordRecovery(AccessEntity $user, ?Request $request = null): AccessIssuedChallengeDTO
     {
         $issuedChallenge = $this->issueChallenge(
             $user,
@@ -224,10 +229,17 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
      */
     public function completePhoneVerification(AccessEntity $user, string $code): bool
     {
-        if (!$this->consumeChallenge($user, AccessVerificationChallengeType::PhoneVerification, $code)) {
+        $verificationChallenge = $this->consumeChallengeEntity(
+            $user,
+            AccessVerificationChallengeType::PhoneVerification,
+            $code,
+        );
+
+        if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
             return false;
         }
 
+        $user->changePhoneNumber($verificationChallenge->getTarget());
         $user->markPhoneVerified();
         $this->userRepository->save($user, true);
 
@@ -264,7 +276,7 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         string $destination,
         ?Request $request,
         int $ttlMinutes,
-    ): AccessIssuedChallengeDto {
+    ): AccessIssuedChallengeDTO {
         $plainCode = (string) random_int(100000, 999999);
 
         $verificationChallenge = new AccessVerificationChallengeEntity(
@@ -279,15 +291,29 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
         $user->addVerificationChallenge($verificationChallenge);
         $this->verificationChallengeRepository->save($verificationChallenge, true);
 
-        return new AccessIssuedChallengeDto($verificationChallenge, $plainCode);
+        return new AccessIssuedChallengeDTO($verificationChallenge, $plainCode);
     }
 
+    /**
+     * Executes the consume challenge operation within the canonical Accessing component workflow.
+     */
     private function consumeChallenge(AccessEntity $user, AccessVerificationChallengeType $challengeType, string $code): bool
     {
+        return $this->consumeChallengeEntity($user, $challengeType, $code) instanceof AccessVerificationChallengeEntity;
+    }
+
+    /**
+     * Executes the consume challenge entity operation within the canonical Accessing component workflow.
+     */
+    private function consumeChallengeEntity(
+        AccessEntity $user,
+        AccessVerificationChallengeType $challengeType,
+        string $code,
+    ): ?AccessVerificationChallengeEntity {
         $verificationChallenge = $this->verificationChallengeRepository->findLatestActiveForUser($user, $challengeType);
 
         if (!$verificationChallenge instanceof AccessVerificationChallengeEntity) {
-            return false;
+            return null;
         }
 
         $verificationChallenge->registerAttempt();
@@ -305,15 +331,18 @@ final readonly class AccessVerificationChallengeService implements AccessVerific
 
             $this->verificationChallengeRepository->save($verificationChallenge, true);
 
-            return false;
+            return null;
         }
 
         $verificationChallenge->consume();
         $this->verificationChallengeRepository->save($verificationChallenge, true);
 
-        return true;
+        return $verificationChallenge;
     }
 
+    /**
+     * Executes the hash code operation within the canonical Accessing component workflow.
+     */
     private function hashCode(string $code): string
     {
         return hash_hmac('sha256', $code, $this->appSecret);

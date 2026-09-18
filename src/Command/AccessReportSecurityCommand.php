@@ -13,8 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:report:security', description: 'Output the latest Accessing security events in a report-friendly table.')]
+/**
+ * Defines the report security command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessReportSecurityCommand extends Command
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private readonly AccessSecurityEventRepositoryInterface $securityEventRepository,
     ) {

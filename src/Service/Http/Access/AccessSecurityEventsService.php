@@ -5,14 +5,20 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Defines the security events service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecurityEventsService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
         private AccessPageViewFactoryInterface $pageViewFactory,
@@ -20,6 +26,9 @@ final readonly class AccessSecurityEventsService
     ) {
     }
 
+    /**
+     * Executes the __invoke operation within the canonical Accessing component workflow.
+     */
     public function __invoke(): Response|InterfaceTemplateRenderableInterface
     {
         return $this->pageResponder->respond($this->pageViewFactory->securityEvents(

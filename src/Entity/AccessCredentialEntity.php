@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessCredentialRepository::class)]
 #[ORM\Table(name: 'access_credential')]
+/**
+ * Defines the credential entity type and its canonical responsibility within the Accessing component.
+ */
 final class AccessCredentialEntity
 {
     #[ORM\Id]
@@ -27,6 +30,9 @@ final class AccessCredentialEntity
     #[ORM\Column]
     private \DateTimeImmutable $passwordChangedAt;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(AccessEntity $user, string $passwordHash)
     {
         $this->user = $user;
@@ -34,16 +40,25 @@ final class AccessCredentialEntity
         $this->passwordChangedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the set user operation within the canonical Accessing component workflow.
+     */
     public function setUser(AccessEntity $user): void
     {
         $this->user = $user;
@@ -53,17 +68,26 @@ final class AccessCredentialEntity
         }
     }
 
+    /**
+     * Executes the get password hash operation within the canonical Accessing component workflow.
+     */
     public function getPasswordHash(): string
     {
         return $this->passwordHash;
     }
 
+    /**
+     * Executes the update password hash operation within the canonical Accessing component workflow.
+     */
     public function updatePasswordHash(string $passwordHash): void
     {
         $this->passwordHash = $passwordHash;
         $this->passwordChangedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the get password changed at operation within the canonical Accessing component workflow.
+     */
     public function getPasswordChangedAt(): \DateTimeImmutable
     {
         return $this->passwordChangedAt;

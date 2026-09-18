@@ -21,6 +21,9 @@ final readonly class AccessIntegrationContract
      */
     public string $subjectPrefix;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         string $owns,
         string $subjectPrefix,
@@ -42,6 +45,9 @@ final readonly class AccessIntegrationContract
         );
     }
 
+    /**
+     * Executes the string value operation within the canonical Accessing component workflow.
+     */
     private static function stringValue(mixed $value, string $default): string
     {
         if (is_string($value)) {

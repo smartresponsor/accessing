@@ -13,11 +13,17 @@ use Doctrine\Persistence\ManagerRegistry;
 /** @extends ServiceEntityRepository<AccessPasskeyCredentialEntity> */
 final class AccessPasskeyCredentialRepository extends ServiceEntityRepository implements AccessPasskeyCredentialRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessPasskeyCredentialEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessPasskeyCredentialEntity $credential, bool $flush = false): void
     {
         $this->getEntityManager()->persist($credential);
@@ -27,6 +33,9 @@ final class AccessPasskeyCredentialRepository extends ServiceEntityRepository im
         }
     }
 
+    /**
+     * Executes the find one by credential id operation within the canonical Accessing component workflow.
+     */
     public function findOneByCredentialId(string $credentialId): ?AccessPasskeyCredentialEntity
     {
         $credential = $this->findOneBy(['credentialId' => $credentialId]);
@@ -34,6 +43,9 @@ final class AccessPasskeyCredentialRepository extends ServiceEntityRepository im
         return $credential instanceof AccessPasskeyCredentialEntity ? $credential : null;
     }
 
+    /**
+     * Executes the find active for user operation within the canonical Accessing component workflow.
+     */
     public function findActiveForUser(AccessEntity $user): array
     {
         return array_values(array_filter(

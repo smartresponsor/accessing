@@ -9,10 +9,19 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\ValueObject\AccessVerificationChallengeType;
 
+/**
+ * Defines the verification challenge repository interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessVerificationChallengeRepositoryInterface
 {
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessVerificationChallengeEntity $verificationChallenge, bool $flush = false): void;
 
+    /**
+     * Executes the find latest active for user operation within the canonical Accessing component workflow.
+     */
     public function findLatestActiveForUser(AccessEntity $user, AccessVerificationChallengeType $challengeType): ?AccessVerificationChallengeEntity;
 
     /**
@@ -20,5 +29,8 @@ interface AccessVerificationChallengeRepositoryInterface
      */
     public function findExpiredActiveChallenges(\DateTimeImmutable $before): array;
 
+    /**
+     * Executes the cleanup expired consumed before operation within the canonical Accessing component workflow.
+     */
     public function cleanupExpiredConsumedBefore(\DateTimeImmutable $before): int;
 }

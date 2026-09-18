@@ -5,28 +5,28 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
-use App\Accessing\Dto\AccessRecoveryRequestDto;
-use App\Accessing\Dto\AccessRecoveryResetDto;
-use App\Accessing\Dto\AccessRegistrationRequest;
-use App\Accessing\Dto\AccessSignInRequestDto;
-use App\Accessing\Dto\AccessVerificationCodeDto;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
+use App\Accessing\DTO\AccessRecoveryRequestDTO;
+use App\Accessing\DTO\AccessRecoveryResetDTO;
+use App\Accessing\DTO\AccessRegistrationRequestDTO;
+use App\Accessing\DTO\AccessSignInRequestDTO;
+use App\Accessing\DTO\AccessVerificationCodeDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
-use App\Accessing\Form\Access\AccessRecoveryRequestType;
-use App\Accessing\Form\Access\AccessRecoveryResetType;
-use App\Accessing\Form\Access\AccessRegistrationType;
-use App\Accessing\Form\Access\AccessSignInType;
-use App\Accessing\Form\Access\AccessVerificationCodeType;
+use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
+use App\Accessing\Form\AccessRecoveryRequestType;
+use App\Accessing\Form\AccessRecoveryResetType;
+use App\Accessing\Form\AccessRegistrationType;
+use App\Accessing\Form\AccessSignInType;
+use App\Accessing\Form\AccessVerificationCodeType;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
-use App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface;
+use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
+use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
+use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageResponderInterface;
-use App\Accessing\ServiceInterface\Rendering\AccessPageViewFactoryInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -40,8 +40,14 @@ use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * Defines the security flow service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSecurityFlowService
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private Security $security,
         private FormFactoryInterface $formFactory,
@@ -61,10 +67,13 @@ final readonly class AccessSecurityFlowService
     ) {
     }
 
+    /**
+     * Executes the register operation within the canonical Accessing component workflow.
+     */
     public function register(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -75,7 +84,7 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRegistrationRequest $data */
+            /** @var AccessRegistrationRequestDTO $data */
             $data = $form->getData();
 
             $limiterKey = sprintf('%s|%s', mb_strtolower(trim($data->email)), $request->getClientIp() ?? 'unknown');
@@ -113,10 +122,13 @@ final readonly class AccessSecurityFlowService
         ));
     }
 
+    /**
+     * Executes the sign in operation within the canonical Accessing component workflow.
+     */
     public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
@@ -128,22 +140,28 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
     }
 
+    /**
+     * Executes the sign in trailing slash operation within the canonical Accessing component workflow.
+     */
     public function signInTrailingSlash(): Response
     {
         return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
+    /**
+     * Executes the sign in submit operation within the canonical Accessing component workflow.
+     */
     public function signInSubmit(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.index');
+            return $this->redirectAfterSignIn();
         }
 
         $form = $this->formFactory->create(AccessSignInType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessSignInRequestDto $data */
+            /** @var AccessSignInRequestDTO $data */
             $data = $form->getData();
             $result = $this->userAuthenticationService->attemptPasswordSignIn(
                 $data->emailAddress,
@@ -152,7 +170,7 @@ final readonly class AccessSecurityFlowService
             );
 
             if ($result->authenticated) {
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             if ($result->requiresSecondFactor) {
@@ -162,11 +180,19 @@ final readonly class AccessSecurityFlowService
             }
 
             $this->flash($request, 'danger', $result->message);
+
+            return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
+        return $this->pageResponder->respond($this->pageViewFactory->signIn(
+            $form->createView(),
+            $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK,
+        ));
     }
 
+    /**
+     * Executes the passkey authentication options operation within the canonical Accessing component workflow.
+     */
     public function passkeyAuthenticationOptions(Request $request): JsonResponse
     {
         if ($this->getUser() instanceof AccessEntity) {
@@ -176,10 +202,13 @@ final readonly class AccessSecurityFlowService
         return new JsonResponse($this->passkeyAuthenticationService->issueOptions($this->passkeyRelyingParty($request))->toArray());
     }
 
+    /**
+     * Executes the passkey authentication complete operation within the canonical Accessing component workflow.
+     */
     public function passkeyAuthenticationComplete(Request $request): JsonResponse
     {
         if ($this->getUser() instanceof AccessEntity) {
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         }
 
         try {
@@ -200,12 +229,15 @@ final readonly class AccessSecurityFlowService
             $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
             $this->userAuthenticationService->completePasskeySignIn($user, $request);
 
-            return new JsonResponse(['redirect' => $this->urlGenerator->generate('access.index')]);
+            return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         } catch (\Throwable) {
             return new JsonResponse(['error' => 'passkey_authentication_failed'], Response::HTTP_UNAUTHORIZED);
         }
     }
 
+    /**
+     * Executes the second factor challenge operation within the canonical Accessing component workflow.
+     */
     public function secondFactorChallenge(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $pendingUserId = $this->userAuthenticationService->getPendingSecondFactorUserId($request->getSession());
@@ -226,14 +258,14 @@ final readonly class AccessSecurityFlowService
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessVerificationCodeDto $data */
+            /** @var AccessVerificationCodeDTO $data */
             $data = $form->getData();
 
             if ($this->secondFactorService->verifyChallenge($user, $data->code)) {
                 $this->userAuthenticationService->completePendingSecondFactor($user, $request);
                 $this->flash($request, 'success', 'Signed in successfully.');
 
-                return $this->redirectTo('access.index');
+                return $this->redirectAfterSignIn();
             }
 
             $this->flash($request, 'danger', 'The second factor code was not accepted.');
@@ -242,6 +274,9 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->secondFactorChallenge($user, $form->createView()));
     }
 
+    /**
+     * Executes the sign out operation within the canonical Accessing component workflow.
+     */
     public function signOut(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
@@ -252,6 +287,9 @@ final readonly class AccessSecurityFlowService
         return $this->redirectTo('access.signin');
     }
 
+    /**
+     * Executes the switch user operation within the canonical Accessing component workflow.
+     */
     public function switchUser(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
@@ -264,13 +302,16 @@ final readonly class AccessSecurityFlowService
         return $this->redirectTo('access.signin');
     }
 
+    /**
+     * Executes the request recovery operation within the canonical Accessing component workflow.
+     */
     public function requestRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->create(AccessRecoveryRequestType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryRequestDto $data */
+            /** @var AccessRecoveryRequestDTO $data */
             $data = $form->getData();
             try {
                 $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
@@ -289,13 +330,16 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->requestRecovery($form->createView()));
     }
 
+    /**
+     * Executes the reset recovery operation within the canonical Accessing component workflow.
+     */
     public function resetRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $form = $this->formFactory->create(AccessRecoveryResetType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var AccessRecoveryResetDto $data */
+            /** @var AccessRecoveryResetDTO $data */
             $data = $form->getData();
 
             try {
@@ -326,6 +370,9 @@ final readonly class AccessSecurityFlowService
         return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
     }
 
+    /**
+     * Executes the flash operation within the canonical Accessing component workflow.
+     */
     private function flash(Request $request, string $type, string $message): void
     {
         $session = $request->getSession();
@@ -337,6 +384,9 @@ final readonly class AccessSecurityFlowService
         $session->getFlashBag()->add($type, $message);
     }
 
+    /**
+     * Executes the add demo code flash operation within the canonical Accessing component workflow.
+     */
     private function addDemoCodeFlash(Request $request, string $label, string $code): void
     {
         if ('prod' === $this->kernel->getEnvironment()) {
@@ -354,14 +404,36 @@ final readonly class AccessSecurityFlowService
         return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
     }
 
-    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfig
+    /**
+     * Executes the redirect after sign in operation within the canonical Accessing component workflow.
+     */
+    private function redirectAfterSignIn(): RedirectResponse
+    {
+        return new RedirectResponse($this->postSignInUrl());
+    }
+
+    /**
+     * Executes the post sign in url operation within the canonical Accessing component workflow.
+     */
+    private function postSignInUrl(): string
+    {
+        return '/product/index';
+    }
+
+    /**
+     * Executes the passkey relying party operation within the canonical Accessing component workflow.
+     */
+    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfigDTO
     {
         $relyingPartyId = '' !== trim($this->accessingPasskeyRelyingPartyId) ? trim($this->accessingPasskeyRelyingPartyId) : $request->getHost();
         $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
 
-        return new AccessPasskeyRelyingPartyConfig($relyingPartyId, 'SmartResponsor Access', $origin);
+        return new AccessPasskeyRelyingPartyConfigDTO($relyingPartyId, 'SmartResponsor Access', $origin);
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     private function getUser(): ?AccessEntity
     {
         $user = $this->security->getUser();

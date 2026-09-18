@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'accessing:diagnostics', description: 'Show bootstrap diagnostics for the Accessing component.')]
+/**
+ * Defines the diagnostics command type and its canonical responsibility within the Accessing component.
+ */
 final class AccessDiagnosticsCommand extends Command
 {
     /** @noinspection PhpMissingParentCallCommonInspection */
@@ -21,10 +24,10 @@ final class AccessDiagnosticsCommand extends Command
 
         $io->title('Accessing diagnostics');
         $io->definitionList(
-            ['APP_ENV', $this->stringEnvValue('APP_ENV', 'unknown')],
-            ['Database configured', $this->boolLabel($this->stringEnvValue('DATABASE_URL'))],
-            ['Mailer configured', $this->boolLabel($this->stringEnvValue('MAILER_DSN'))],
-            ['Phone verification provider', $this->stringEnvValue('ACCESSING_PHONE_VERIFICATION_PROVIDER', 'not-set')],
+            ['APP_ENV' => $this->stringEnvValue('APP_ENV', 'unknown')],
+            ['Database configured' => $this->boolLabel($this->stringEnvValue('DATABASE_URL'))],
+            ['Mailer configured' => $this->boolLabel($this->stringEnvValue('MAILER_DSN'))],
+            ['Phone verification provider' => $this->stringEnvValue('ACCESSING_PHONE_VERIFICATION_PROVIDER', 'not-set')],
         );
 
         $io->comment('This command is intentionally small and safe so the component can expose meaningful CLI diagnostics early.');
@@ -32,11 +35,17 @@ final class AccessDiagnosticsCommand extends Command
         return Command::SUCCESS;
     }
 
+    /**
+     * Executes the bool label operation within the canonical Accessing component workflow.
+     */
     private function boolLabel(string $value): string
     {
         return '' !== trim($value) ? 'yes' : 'no';
     }
 
+    /**
+     * Executes the string env value operation within the canonical Accessing component workflow.
+     */
     private function stringEnvValue(string $key, string $default = ''): string
     {
         $value = $_SERVER[$key] ?? $_ENV[$key] ?? $default;

@@ -1,8 +1,8 @@
 services:
-  App\Accessing\ServiceInterface\Access\AccessAuthenticationServiceInterface:
-    alias: App\Accessing\Service\Access\AccessAuthenticationService
+  App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface:
+    alias: App\Accessing\Service\AccessAuthenticationService
     public: true
 
-  App\Accessing\ServiceInterface\Access\AccessRegistrationServiceInterface:
-    alias: App\Accessing\Service\Access\AccessRegistrationService
+  App\Accessing\ServiceInterface\AccessRegistrationServiceInterface:
+    alias: App\Accessing\Service\AccessRegistrationService
     public: true

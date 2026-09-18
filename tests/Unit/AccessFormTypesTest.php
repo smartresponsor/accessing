@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Form\Access\AccessChangePasswordType;
-use App\Accessing\Form\Access\AccessPasswordChangeType;
-use App\Accessing\Form\Access\AccessPhoneVerificationRequestType;
-use App\Accessing\Form\Access\AccessRecoveryRequestType;
-use App\Accessing\Form\Access\AccessRecoveryResetType;
-use App\Accessing\Form\Access\AccessRegistrationType;
-use App\Accessing\Form\Access\AccessResetPasswordRequestType;
-use App\Accessing\Form\Access\AccessSignInType;
-use App\Accessing\Form\Access\AccessVerificationCodeType;
+use App\Accessing\Form\AccessChangePasswordType;
+use App\Accessing\Form\AccessPasswordChangeType;
+use App\Accessing\Form\AccessPhoneVerificationRequestType;
+use App\Accessing\Form\AccessRecoveryRequestType;
+use App\Accessing\Form\AccessRecoveryResetType;
+use App\Accessing\Form\AccessRegistrationType;
+use App\Accessing\Form\AccessResetPasswordRequestType;
+use App\Accessing\Form\AccessSignInType;
+use App\Accessing\Form\AccessVerificationCodeType;
+use App\Accessing\Form\Config\AccessEnvironmentConfigType;
 use Symfony\Component\Form\Test\Traits\ValidatorExtensionTrait;
 use Symfony\Component\Form\Test\TypeTestCase;
 
@@ -53,6 +54,7 @@ final class AccessFormTypesTest extends TypeTestCase
             new AccessRecoveryResetType(),
             new AccessResetPasswordRequestType(),
             new AccessVerificationCodeType(),
+            new AccessEnvironmentConfigType(),
         ];
     }
 
@@ -60,8 +62,12 @@ final class AccessFormTypesTest extends TypeTestCase
     {
         $registration = $this->factory->create(AccessRegistrationType::class);
         self::assertSame('Email address', $registration->get('email')->getConfig()->getOption('label'));
-        self::assertSame('new-password', $registration->get('plainPassword')->get('first')->getConfig()->getOption('attr')['autocomplete'] ?? null);
-        self::assertSame('new-password', $registration->get('plainPassword')->get('second')->getConfig()->getOption('attr')['autocomplete'] ?? null);
+        $firstPasswordAttributes = $registration->get('plainPassword')->get('first')->getConfig()->getOption('attr');
+        $secondPasswordAttributes = $registration->get('plainPassword')->get('second')->getConfig()->getOption('attr');
+        self::assertIsArray($firstPasswordAttributes);
+        self::assertIsArray($secondPasswordAttributes);
+        self::assertSame('new-password', $firstPasswordAttributes['autocomplete'] ?? null);
+        self::assertSame('new-password', $secondPasswordAttributes['autocomplete'] ?? null);
         self::assertTrue($registration->has('phoneNumber'));
 
         $signIn = $this->factory->create(AccessSignInType::class);
@@ -78,6 +84,26 @@ final class AccessFormTypesTest extends TypeTestCase
         $recoveryReset = $this->factory->create(AccessRecoveryResetType::class);
         self::assertSame('Recovery code', $recoveryReset->get('code')->getConfig()->getOption('label'));
         self::assertSame('new-password', $this->fieldAttributes(AccessRecoveryResetType::class, 'newPassword')['autocomplete'] ?? null);
+    }
+
+    public function testEnvironmentConfigFormExposesCanonicalManagedFields(): void
+    {
+        $form = $this->factory->create(AccessEnvironmentConfigType::class);
+
+        foreach ([
+            'mailerSender',
+            'phoneVerificationProvider',
+            'sessionMaxIdleDays',
+            'recoveryCodeTtlMinutes',
+            'verificationCodeTtlMinutes',
+            'userLockThreshold',
+            'userLockMinutes',
+        ] as $field) {
+            self::assertTrue($form->has($field), $field);
+        }
+
+        self::assertSame('access_environment_config', $form->getName());
+        self::assertFalse($form->getConfig()->getOption('csrf_protection'));
     }
 
     public function testSupportFormsKeepBusinessFriendlyHints(): void
