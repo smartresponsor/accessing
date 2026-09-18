@@ -158,8 +158,21 @@ final class AccessHttpServiceCoverageTest extends TestCase
             new AccessPageViewFactory(),
             $this->createMock(AccessPageResponderInterface::class),
         );
+        try {
+            $show->showById(404);
+            self::fail('Missing operator target must be rejected.');
+        } catch (NotFoundHttpException $exception) {
+            self::assertSame(404, $exception->getStatusCode());
+        }
+
+        $detail = new AccessOperatorUserDetailService(
+            $users,
+            $this->createMock(AccessSecurityEventRepositoryInterface::class),
+            new AccessPageViewFactory(),
+            $this->createMock(AccessPageResponderInterface::class),
+        );
         $this->expectException(NotFoundHttpException::class);
-        $show->showById(404);
+        $detail(404);
     }
 
     public function testSignOutRedirectsToAccessSignIn(): void

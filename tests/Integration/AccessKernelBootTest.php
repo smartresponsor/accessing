@@ -14,7 +14,16 @@ final class AccessKernelBootTest extends KernelTestCase
     {
         self::bootKernel();
 
-        self::assertInstanceOf(Kernel::class, self::$kernel);
+        $kernel = self::$kernel;
+        self::assertInstanceOf(Kernel::class, $kernel);
         self::assertTrue(static::getContainer()->has('router'));
+        self::assertStringContainsString('accessing-test-cache-', $kernel->getCacheDir());
+    }
+
+    public function testProductionKernelUsesFrameworkCacheDirectory(): void
+    {
+        $kernel = new Kernel('prod', false);
+
+        self::assertStringContainsString('/var/cache/prod', str_replace('\\', '/', $kernel->getCacheDir()));
     }
 }

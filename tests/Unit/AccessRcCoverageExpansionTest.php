@@ -13,6 +13,7 @@ use App\Accessing\Context\AccessCurrentContext;
 use App\Accessing\DTO\AccessPageViewDTO;
 use App\Accessing\DTO\AccessSecondFactorEnrollmentDTO;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\Factory\Rendering\AccessPageViewFactory;
 use App\Accessing\Policy\Lifecycle\AccessLifecyclePolicy;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
@@ -44,6 +45,28 @@ final class AccessRcCoverageExpansionTest extends TestCase
             self::assertSame(0, $diagnostics->execute([]));
             self::assertStringContainsString('Accessing diagnostics', $diagnostics->getDisplay());
             self::assertStringContainsString('fake', $diagnostics->getDisplay());
+
+            $_SERVER['APP_ENV'] = ['invalid'];
+            $_SERVER['DATABASE_URL'] = '   ';
+            $_SERVER['MAILER_DSN'] = 'smtp://configured';
+            unset($_SERVER['ACCESSING_PHONE_VERIFICATION_PROVIDER'], $_ENV['ACCESSING_PHONE_VERIFICATION_PROVIDER']);
+            $fallbackDiagnostics = new CommandTester(new AccessDiagnosticsCommand());
+            self::assertSame(0, $fallbackDiagnostics->execute([]));
+            self::assertStringContainsString('unknown', $fallbackDiagnostics->getDisplay());
+            self::assertStringContainsString('not-set', $fallbackDiagnostics->getDisplay());
+
+            unset($_SERVER['APP_ENV']);
+            $_ENV['APP_ENV'] = 'env-only';
+            $environmentDiagnostics = new CommandTester(new AccessDiagnosticsCommand());
+            self::assertSame(0, $environmentDiagnostics->execute([]));
+            self::assertStringContainsString('env-only', $environmentDiagnostics->getDisplay());
+
+            $boolLabel = new \ReflectionMethod(AccessDiagnosticsCommand::class, 'boolLabel');
+            $diagnosticsCommand = new AccessDiagnosticsCommand();
+            self::assertSame('no', $boolLabel->invoke($diagnosticsCommand, ''));
+            self::assertSame('no', $boolLabel->invoke($diagnosticsCommand, '   '));
+            self::assertSame('yes', $boolLabel->invoke($diagnosticsCommand, 'configured'));
+            self::assertSame('yes', $boolLabel->invoke($diagnosticsCommand, ' configured '));
         } finally {
             $_SERVER = $server;
             $_ENV = $env;
@@ -53,7 +76,14 @@ final class AccessRcCoverageExpansionTest extends TestCase
         $users->expects(self::once())->method('findRecentUsers')->with(250)->willReturn([]);
 
         $events = $this->createMock(AccessSecurityEventRepositoryInterface::class);
-        $events->expects(self::exactly(2))->method('findRecentEvents')->willReturn([]);
+        $reportUser = new AccessEntity('report-user@example.test');
+        $events->expects(self::exactly(2))->method('findRecentEvents')->willReturnOnConsecutiveCalls(
+            [],
+            [
+                new AccessSecurityEventEntity('sign_in_succeeded', 'warning', $reportUser),
+                new AccessSecurityEventEntity('sign_in_failed', 'info'),
+            ],
+        );
 
         $identity = new CommandTester(new AccessIdentityDiagnosticsCommand($users, $events));
         self::assertSame(0, $identity->execute([]));

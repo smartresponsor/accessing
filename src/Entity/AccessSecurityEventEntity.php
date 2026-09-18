@@ -110,7 +110,13 @@ class AccessSecurityEventEntity
      */
     public function setEventType(AccessSecurityEventType|string $eventType): self
     {
-        $this->eventType = trim($eventType instanceof AccessSecurityEventType ? $eventType->value : $eventType);
+        if ($eventType instanceof AccessSecurityEventType) {
+            $this->eventType = $eventType->value;
+
+            return $this;
+        }
+
+        $this->eventType = trim($eventType);
 
         return $this;
     }
@@ -135,10 +141,16 @@ class AccessSecurityEventEntity
     public function getSeverity(): AccessSecurityEventSeverity
     {
         $severity = $this->context['severity'] ?? null;
+        if (!is_string($severity)) {
+            return AccessSecurityEventSeverity::Info;
+        }
 
-        return is_string($severity) && AccessSecurityEventSeverity::tryFrom($severity) instanceof AccessSecurityEventSeverity
-            ? AccessSecurityEventSeverity::from($severity)
-            : AccessSecurityEventSeverity::Info;
+        $resolved = AccessSecurityEventSeverity::tryFrom($severity);
+        if (!$resolved instanceof AccessSecurityEventSeverity) {
+            return AccessSecurityEventSeverity::Info;
+        }
+
+        return $resolved;
     }
 
     /**
@@ -146,7 +158,13 @@ class AccessSecurityEventEntity
      */
     public function setSeverity(AccessSecurityEventSeverity|string $severity): self
     {
-        $this->context['severity'] = $severity instanceof AccessSecurityEventSeverity ? $severity->value : trim($severity);
+        if ($severity instanceof AccessSecurityEventSeverity) {
+            $this->context['severity'] = $severity->value;
+
+            return $this;
+        }
+
+        $this->context['severity'] = trim($severity);
 
         return $this;
     }

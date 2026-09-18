@@ -33,6 +33,13 @@ final class AccessSupportingComponentsCoverageTest extends TestCase
         self::assertSame('mixed.case@example.test', (string) $email);
 
         try {
+            new AccessEmailAddress('   ');
+            self::fail('Expected an empty email address to be rejected.');
+        } catch (\InvalidArgumentException $exception) {
+            self::assertSame('A valid email address is required.', $exception->getMessage());
+        }
+
+        try {
             new AccessPhoneNumber('not-a-number');
             self::fail('Expected an empty-digit phone number to be rejected.');
         } catch (\InvalidArgumentException $exception) {

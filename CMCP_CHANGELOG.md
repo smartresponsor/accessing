@@ -191,3 +191,23 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Canon040 method/line thresholds remain measurable coverage debt, but they are warning-level in the executable Gating policy and no longer block repository integration or publication.
 
 ### Growth workstream kept out of RC
+
+## 2026-09-18 — Canon040 closure and RC verification
+
+### Material coverage closure
+- Reconciled the stabilized concurrent coverage-hardening wave without touching the pre-existing local `.gating/` deletions.
+- Added behavior-focused unit/integration coverage and branch-explicit, behavior-preserving production refactors in Access entities, lifecycle policy, mobile token handling, and value objects.
+- Added a two-phase coverage workflow: standard PHPUnit method/line measurement plus Xdebug path-instrumented branch measurement, merged only after validating identical method and line populations.
+
+### Final verification evidence
+- PHPUnit: PASS, 261 tests / 2926 assertions; 124 non-failing PHPUnit notices remain.
+- Canon040 coverage: PASS — methods 87.18% (605/694), branches 77.23% (1801/2332), lines 82.25% (3096/3764).
+- PHPStan: PASS, 0 errors across 262 files.
+- PHP-CS-Fixer dry run: PASS, 264 files, 0 fixable.
+- Vendor-based Gating: PASS, 36 rules, 0 failed, 1 warning, 3 skipped.
+- Canon042 remains the only warning because repository-owned behavioral/UI coverage evidence is not yet generated.
+- Doctrine mapping metadata/migrations were not structurally changed by this wave; prior PostgreSQL schema-parity evidence remains applicable. The current schema-parity wrapper invocation exceeded the short Console MCP call window, so no new wrapper exit code is claimed.
+
+### Integration boundary
+- The two pre-existing deletions under `.gating/` are explicitly excluded from this integration commit.
+- The worktree stayed stable across repeated status checks during final verification; no further concurrent writes were observed.

@@ -142,11 +142,13 @@ final class AccessPasskeyRegistrationServiceTest extends TestCase
             $this->createMock(AccessSecurityEventServiceInterface::class),
         );
 
-        try {
-            $service->complete($user, $config, [], 'Phone');
-            self::fail('Missing registration challenge must be rejected.');
-        } catch (\DomainException $exception) {
-            self::assertSame('Passkey registration response is missing its challenge.', $exception->getMessage());
+        foreach ([[], ['challenge' => '']] as $payload) {
+            try {
+                $service->complete($user, $config, $payload, 'Phone');
+                self::fail('Missing or empty registration challenge must be rejected.');
+            } catch (\DomainException $exception) {
+                self::assertSame('Passkey registration response is missing its challenge.', $exception->getMessage());
+            }
         }
 
         $foreign = new AccessEntity('foreign-registration@example.test');

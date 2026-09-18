@@ -56,6 +56,7 @@ final class AccessAdditionalRepositoryCoverageTest extends AccessDatabaseTestCas
             true,
             'Repository Auth',
         );
+        $identities->save($identity);
         $identities->save($identity, true);
         self::assertSame($identity, $identities->findOneByProviderAndSubject(' GOOGLE ', 'subject-123'));
         self::assertNull($identities->findOneByProviderAndSubject('google', 'missing-subject'));
@@ -96,9 +97,12 @@ final class AccessAdditionalRepositoryCoverageTest extends AccessDatabaseTestCas
             $now->modify('+15 minutes'),
             $now->modify('+1 hour'),
         );
+        $sessionRepository->save($session);
         $sessionRepository->save($session, true);
         self::assertSame($session, $sessionRepository->findOneByAccessTokenHash(hash('sha256', 'access-token')));
+        self::assertNull($sessionRepository->findOneByAccessTokenHash(hash('sha256', 'missing-access')));
         self::assertSame($session, $sessionRepository->findOneByRefreshTokenHash(hash('sha256', 'refresh-token')));
+        self::assertNull($sessionRepository->findOneByRefreshTokenHash(hash('sha256', 'missing-refresh')));
         self::assertNull($sessionRepository->findOneByPreviousRefreshTokenHash(hash('sha256', 'refresh-token')));
 
         $session->rotate(

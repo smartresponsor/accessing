@@ -74,14 +74,18 @@
                     "stan":  "phpstan analyse",
                     "phpstan":  "@stan",
                     "test":  "vendor/bin/phpunit --testsuite Accessing",
+                    "test:coverage:branches":  "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage/summary.txt --path-coverage",
+                    "test:coverage:methods":  "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage/line-summary.txt",
                     "test:coverage":  [
                                               "@putenv XDEBUG_MODE=coverage",
                                               "@php -r \"if (!is_dir('var/coverage')) { mkdir('var/coverage', 0777, true); }\"",
-                                              "vendor/bin/phpunit --testsuite Accessing --coverage-text=var/coverage/summary.txt --path-coverage"
+                                              "@test:coverage:methods",
+                                              "@test:coverage:branches",
+                                              "@php bin/merge-coverage.php"
                                           ],
                     "gating:check":  "php vendor/bin/gating check --target=. --profile=config/access_gating_profile.yaml --rule-set=config/access_gating_rules.yaml --policy-root=vendor/gating/gate/.gating --severity-config=vendor/gating/gate/.gating/config/severity.yaml",
-                    "test:object-identity":  "vendor/bin/simple-phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
-                    "test:panther":  "vendor/bin/simple-phpunit --testsuite Panther",
+                    "test:object-identity":  "vendor/bin/phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
+                    "test:panther":  "vendor/bin/phpunit --testsuite Panther",
                     "pipeline:local:full":  [
                                                 "@lint",
                                                 "@cs:check",

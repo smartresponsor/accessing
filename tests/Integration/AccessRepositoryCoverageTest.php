@@ -31,11 +31,13 @@ final class AccessRepositoryCoverageTest extends AccessDatabaseTestCase
         $repository->save($second, true);
 
         self::assertSame($first, $repository->findById((int) $first->getId()));
+        self::assertNull($repository->findById(999999));
         self::assertSame($first, $repository->findOneByEmail('repo-one@example.test'));
         self::assertSame($second, $repository->findOneByEmailAddress(' REPO-TWO@EXAMPLE.TEST '));
         self::assertNull($repository->findOneByEmailAddress('missing@example.test'));
         self::assertCount(1, $repository->findRecentUsers(1));
 
+        $repository->remove($second);
         $repository->remove($second, true);
         self::assertNull($repository->findOneByEmailAddress('repo-two@example.test'));
     }
@@ -111,6 +113,7 @@ final class AccessRepositoryCoverageTest extends AccessDatabaseTestCase
             AccessVerificationChallengeType::PasswordRecovery,
         ] as $index => $type) {
             $challenge = new AccessVerificationChallengeEntity($user, $type, 'target-'.$index, 'token-'.$index, $future);
+            $challenges->save($challenge);
             $challenges->save($challenge, true);
             self::assertSame($challenge, $challenges->findLatestActiveForUser($user, $type));
         }

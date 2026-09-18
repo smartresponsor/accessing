@@ -16,6 +16,7 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use App\Accessing\ValueObject\AccessVerificationChallengeType;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\RateLimiter\Storage\InMemoryStorage;
 
@@ -127,6 +128,60 @@ final class AccessVerificationChallengeServiceCoverageTest extends TestCase
         self::assertSame(5, $challenge->getAttemptCount());
     }
 
+    public function testWrongCodeBelowAttemptLimitAndMissingPhoneChallengeRemainNonTerminal(): void
+    {
+        $user = new AccessEntity('verification-branches@example.test');
+        $challenge = new AccessVerificationChallengeEntity(
+            $user,
+            AccessVerificationChallengeType::PasswordRecovery,
+            $user->getEmailAddress(),
+            hash_hmac('sha256', '123456', 'test-secret'),
+            new \DateTimeImmutable('+15 minutes'),
+        );
+        $repository = $this->createMock(AccessVerificationChallengeRepositoryInterface::class);
+        $repository->method('findLatestActiveForUser')->willReturnOnConsecutiveCalls($challenge, null);
+        $repository->expects(self::once())->method('save')->with($challenge, true);
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::never())->method('record');
+        $service = $this->service(
+            $repository,
+            $this->createMock(AccessRepositoryInterface::class),
+            $events,
+            $this->createMock(AccessPhoneVerificationProviderInterface::class),
+            $this->createMock(AccessSecurityNotificationServiceInterface::class),
+        );
+
+        self::assertFalse($service->consumePasswordRecovery($user, 'wrong'));
+        self::assertFalse($challenge->isCompleted());
+        self::assertFalse($service->completePhoneVerification($user, '000000'));
+    }
+
+    public function testAcceptedResendIssuesEmailVerification(): void
+    {
+        $user = new AccessEntity('resend-accepted@example.test');
+        $repository = $this->createMock(AccessVerificationChallengeRepositoryInterface::class);
+        $repository->expects(self::once())->method('save');
+        $notifications = $this->createMock(AccessSecurityNotificationServiceInterface::class);
+        $notifications->expects(self::once())->method('sendEmailVerificationCode');
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::once())->method('record')->with(
+            AccessSecurityEventType::EmailVerificationRequested,
+            AccessSecurityEventSeverity::Info,
+            $user,
+            null,
+            ['channel' => 'email', 'purpose' => 'verification'],
+        );
+        $service = $this->service(
+            $repository,
+            $this->createMock(AccessRepositoryInterface::class),
+            $events,
+            $this->createMock(AccessPhoneVerificationProviderInterface::class),
+            $notifications,
+        );
+
+        self::assertNotNull($service->resendEmailVerification($user));
+    }
+
     public function testResendRateLimitReturnsNullAndRecordsSecurityEvent(): void
     {
         $user = new AccessEntity('resend-limit@example.test');
@@ -161,6 +216,45 @@ final class AccessVerificationChallengeServiceCoverageTest extends TestCase
         );
 
         self::assertNull($service->resendEmailVerification($user));
+    }
+
+    public function testResendRateLimitUsesPersistedUserIdAndClientIp(): void
+    {
+        $user = new AccessEntity('persisted-resend@example.test');
+        $id = new \ReflectionProperty(AccessEntity::class, 'id');
+        $id->setValue($user, 42);
+
+        $storage = new InMemoryStorage();
+        $factory = new RateLimiterFactory([
+            'id' => 'verification_resend_persisted_coverage',
+            'policy' => 'fixed_window',
+            'limit' => 1,
+            'interval' => '1 hour',
+        ], $storage);
+        $factory->create('42|203.0.113.5')->consume();
+
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::once())->method('record')->with(
+            AccessSecurityEventType::RateLimitExceeded,
+            AccessSecurityEventSeverity::Warning,
+            $user,
+            self::isInstanceOf(Request::class),
+            ['flow' => 'verification_resend'],
+        );
+        $service = new AccessVerificationChallengeService(
+            $this->createMock(AccessVerificationChallengeRepositoryInterface::class),
+            $this->createMock(AccessRepositoryInterface::class),
+            $events,
+            $this->createMock(AccessPhoneVerificationProviderInterface::class),
+            $this->createMock(AccessSecurityNotificationServiceInterface::class),
+            $factory,
+            'test-secret',
+            15,
+            30,
+        );
+        $request = Request::create('/access/verify/resend', 'POST', server: ['REMOTE_ADDR' => '203.0.113.5']);
+
+        self::assertNull($service->resendEmailVerification($user, $request));
     }
 
     private function service(

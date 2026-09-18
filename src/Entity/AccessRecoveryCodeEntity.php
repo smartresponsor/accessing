@@ -137,11 +137,15 @@ class AccessRecoveryCodeEntity
      */
     public function getLastFourCharacters(): string
     {
-        if (null !== $this->lastFourCharacters && '' !== $this->lastFourCharacters) {
-            return $this->lastFourCharacters;
+        if (null === $this->lastFourCharacters) {
+            return strtoupper(substr($this->codeHash, -4));
         }
 
-        return strtoupper(substr($this->codeHash, -4));
+        if ('' === $this->lastFourCharacters) {
+            return strtoupper(substr($this->codeHash, -4));
+        }
+
+        return $this->lastFourCharacters;
     }
 
     /**

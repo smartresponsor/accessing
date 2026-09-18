@@ -115,6 +115,41 @@ final class AccessMobileTokenServiceTest extends TestCase
         self::assertFalse($session->isRefreshActive($now));
     }
 
+    public function testRotateRejectsUnknownAndHashCollisionLikePreviousRefreshLookupsWithoutMutation(): void
+    {
+        $now = new \DateTimeImmutable('2026-09-16T12:00:00+00:00');
+        $clock = $this->createMock(ClockInterface::class);
+        $clock->method('now')->willReturn($now);
+        $repository = $this->createMock(AccessMobileSessionRepositoryInterface::class);
+        $repository->method('findOneByRefreshTokenHash')->willReturn(null);
+        $repository->method('findOneByPreviousRefreshTokenHash')->willReturnOnConsecutiveCalls(
+            null,
+            new AccessMobileSessionEntity(
+                new AccessEntity('previous-mismatch@example.test'),
+                'session-id',
+                'access-token',
+                'actual-previous',
+                'device',
+                $now,
+                $now->modify('+15 minutes'),
+                $now->modify('+1 hour'),
+            ),
+        );
+        $repository->expects(self::never())->method('save');
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::never())->method('record');
+        $service = new AccessMobileTokenService($repository, $clock, $events, 900, 3600);
+
+        foreach (['unknown-refresh', 'different-refresh'] as $token) {
+            try {
+                $service->rotate($token);
+                self::fail('Unknown or mismatched previous refresh token must fail closed.');
+            } catch (\DomainException $exception) {
+                self::assertSame('Mobile refresh token is invalid.', $exception->getMessage());
+            }
+        }
+    }
+
     public function testInvalidTtlConfigurationIsRejected(): void
     {
         $this->expectException(\InvalidArgumentException::class);

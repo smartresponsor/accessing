@@ -67,6 +67,45 @@ final class AccessVerificationDeliveryFailureTest extends TestCase
         self::assertSame([false, true], $saved);
     }
 
+    public function testPasswordRecoveryDeliveryFailureAlsoTerminalizesChallenge(): void
+    {
+        $saved = [];
+        $repository = $this->createMock(AccessVerificationChallengeRepositoryInterface::class);
+        $repository->expects(self::exactly(2))
+            ->method('save')
+            ->willReturnCallback(static function (AccessVerificationChallengeEntity $challenge) use (&$saved): void {
+                $saved[] = $challenge->isCompleted();
+            });
+        $notification = $this->createMock(AccessSecurityNotificationServiceInterface::class);
+        $notification->method('sendPasswordRecoveryCode')->willThrowException(new \RuntimeException('mail provider failure'));
+        $events = $this->createMock(AccessSecurityEventServiceInterface::class);
+        $events->expects(self::once())->method('record')->with(
+            AccessSecurityEventType::NotificationDeliveryFailed,
+            self::anything(),
+            self::isInstanceOf(AccessEntity::class),
+            null,
+            ['channel' => 'email', 'purpose' => 'recovery'],
+        );
+        $service = new AccessVerificationChallengeService(
+            $repository,
+            $this->createMock(AccessRepositoryInterface::class),
+            $events,
+            $this->createMock(AccessPhoneVerificationProviderInterface::class),
+            $notification,
+            new RateLimiterFactory(['id' => 'test', 'policy' => 'fixed_window', 'limit' => 10, 'interval' => '1 minute'], new InMemoryStorage()),
+            'test-secret',
+            15,
+            30,
+        );
+
+        try {
+            $service->issuePasswordRecovery(new AccessEntity('recovery-delivery@example.test'));
+            self::fail('Expected password recovery delivery exception.');
+        } catch (AccessNotificationDeliveryException) {
+        }
+        self::assertSame([false, true], $saved);
+    }
+
     public function testPhoneDeliveryFailureAlsoTerminalizesChallenge(): void
     {
         $saved = [];

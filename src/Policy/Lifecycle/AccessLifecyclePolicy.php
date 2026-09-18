@@ -32,7 +32,11 @@ final class AccessLifecyclePolicy
             return true;
         }
 
-        return in_array($to, self::TRANSITIONS[$from] ?? [], true);
+        if (!array_key_exists($from, self::TRANSITIONS)) {
+            return false;
+        }
+
+        return in_array($to, self::TRANSITIONS[$from], true);
     }
 
     /**

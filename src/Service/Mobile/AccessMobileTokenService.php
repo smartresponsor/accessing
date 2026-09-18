@@ -29,7 +29,10 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
         private int $accessingMobileAccessTtlSeconds = 900,
         private int $accessingMobileRefreshTtlSeconds = 2592000,
     ) {
-        if ($accessingMobileAccessTtlSeconds < 60 || $accessingMobileRefreshTtlSeconds <= $accessingMobileAccessTtlSeconds) {
+        if ($accessingMobileAccessTtlSeconds < 60) {
+            throw new \InvalidArgumentException('Mobile token TTL configuration is invalid.');
+        }
+        if ($accessingMobileRefreshTtlSeconds <= $accessingMobileAccessTtlSeconds) {
             throw new \InvalidArgumentException('Mobile token TTL configuration is invalid.');
         }
     }
@@ -63,7 +66,13 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
     public function authenticate(string $accessToken): AccessEntity
     {
         $session = $this->repository->findOneByAccessTokenHash(hash('sha256', trim($accessToken)));
-        if (!$session instanceof AccessMobileSessionEntity || !$session->hasAccessToken($accessToken) || !$session->isAccessActive($this->clock->now())) {
+        if (!$session instanceof AccessMobileSessionEntity) {
+            throw new \DomainException('Mobile access token is invalid.');
+        }
+        if (!$session->hasAccessToken($accessToken)) {
+            throw new \DomainException('Mobile access token is invalid.');
+        }
+        if (!$session->isAccessActive($this->clock->now())) {
             throw new \DomainException('Mobile access token is invalid.');
         }
 
@@ -81,22 +90,27 @@ final readonly class AccessMobileTokenService implements AccessMobileTokenServic
 
         if (!$session instanceof AccessMobileSessionEntity) {
             $reusedSession = $this->repository->findOneByPreviousRefreshTokenHash($refreshTokenHash);
-            if ($reusedSession instanceof AccessMobileSessionEntity && $reusedSession->hasPreviousRefreshToken($refreshToken)) {
-                $reusedSession->markRefreshReuseDetected($now);
-                $this->repository->save($reusedSession, true);
-                $this->securityEventService->record(
-                    AccessSecurityEventType::MobileRefreshReuseDetected,
-                    AccessSecurityEventSeverity::Warning,
-                    $reusedSession->getUser(),
-                    null,
-                    ['sessionId' => $reusedSession->getSessionId()],
-                );
+            if ($reusedSession instanceof AccessMobileSessionEntity) {
+                if ($reusedSession->hasPreviousRefreshToken($refreshToken)) {
+                    $reusedSession->markRefreshReuseDetected($now);
+                    $this->repository->save($reusedSession, true);
+                    $this->securityEventService->record(
+                        AccessSecurityEventType::MobileRefreshReuseDetected,
+                        AccessSecurityEventSeverity::Warning,
+                        $reusedSession->getUser(),
+                        null,
+                        ['sessionId' => $reusedSession->getSessionId()],
+                    );
+                }
             }
 
             throw new \DomainException('Mobile refresh token is invalid.');
         }
 
-        if (!$session->hasRefreshToken($refreshToken) || !$session->isRefreshActive($now)) {
+        if (!$session->hasRefreshToken($refreshToken)) {
+            throw new \DomainException('Mobile refresh token is invalid.');
+        }
+        if (!$session->isRefreshActive($now)) {
             throw new \DomainException('Mobile refresh token is invalid.');
         }
 

@@ -131,10 +131,10 @@ final class AccessMobilePendingAuthEntity
     private static function required(string $value): string
     {
         $value = trim($value);
-        if ('' === $value) {
-            throw new \InvalidArgumentException('Pending mobile authentication value cannot be empty.');
+        if ('' !== $value) {
+            return $value;
         }
 
-        return $value;
+        throw new \InvalidArgumentException('Pending mobile authentication value cannot be empty.');
     }
 }

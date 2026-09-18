@@ -158,7 +158,10 @@ final class AccessExternalIdentityEntity implements ObjectIdentifiedInterface, O
         }
 
         $value = trim($value);
+        if ('' === $value) {
+            return null;
+        }
 
-        return '' === $value ? null : $value;
+        return $value;
     }
 }

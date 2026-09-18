@@ -19,7 +19,11 @@ final readonly class AccessEmailAddress
     {
         $normalized = mb_strtolower(trim($value));
 
-        if ('' === $normalized || !filter_var($normalized, FILTER_VALIDATE_EMAIL)) {
+        if ('' === $normalized) {
+            throw new \InvalidArgumentException('A valid email address is required.');
+        }
+
+        if (!filter_var($normalized, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException('A valid email address is required.');
         }
 

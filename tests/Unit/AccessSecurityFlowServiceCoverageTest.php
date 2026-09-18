@@ -148,6 +148,118 @@ final class AccessSecurityFlowServiceCoverageTest extends TestCase
         self::assertSame(['access.recover_request', 'access.recover_reset'], array_map(static fn (AccessPageViewDTO $view): string => $view->view, $views));
     }
 
+    public function testGuestPostSignInRendersAndInvalidSecondFactorRendersError(): void
+    {
+        $views = [];
+        $rendered = $this->service(views: $views)->signIn($this->requestWithSession('/access/signin'));
+        self::assertSame(200, self::response($rendered)->getStatusCode());
+        self::assertSame('access.signin', $views[0]->view);
+
+        $user = new AccessEntity('invalid-factor@example.test');
+        $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $authentication->method('getPendingSecondFactorUserId')->willReturn(91);
+        $users = $this->createMock(AccessRepositoryInterface::class);
+        $users->method('findById')->with(91)->willReturn($user);
+        $secondFactor = $this->createMock(AccessSecondFactorServiceInterface::class);
+        $secondFactor->expects(self::once())->method('verifyChallenge')->with($user, '000000')->willReturn(false);
+        $code = new AccessVerificationCodeDTO();
+        $code->code = '000000';
+        $request = $this->requestWithSession('/access/second-factor');
+        $views = [];
+        $response = $this->service(
+            authentication: $authentication,
+            users: $users,
+            secondFactor: $secondFactor,
+            formData: $code,
+            submitted: true,
+            valid: true,
+            views: $views,
+        )->secondFactorChallenge($request);
+        self::assertSame(200, self::response($response)->getStatusCode());
+        self::assertSame(['The second factor code was not accepted.'], self::flashes($request, 'danger'));
+    }
+
+    public function testRecoveryCoversIssuedChallengeDeliveryFailureResetFailureAndSafetyErrors(): void
+    {
+        $requestData = new AccessRecoveryRequestDTO();
+        $requestData->emailAddress = 'recover-branches@example.test';
+        $challenge = new \App\Accessing\DTO\AccessIssuedChallengeDTO(
+            new \App\Accessing\Entity\AccessVerificationChallengeEntity(),
+            '654321',
+        );
+        $recovery = $this->createMock(AccessRecoveryServiceInterface::class);
+        $recovery->method('requestPasswordRecovery')->willReturn($challenge);
+        $request = $this->requestWithSession('/access/recover');
+        $response = $this->service(recovery: $recovery, formData: $requestData, submitted: true, valid: true)
+            ->requestRecovery($request);
+        self::assertSame(302, self::response($response)->getStatusCode());
+        self::assertNotSame([], self::flashes($request, 'secondary'));
+
+        $deliveryFailure = $this->createMock(AccessRecoveryServiceInterface::class);
+        $deliveryFailure->method('requestPasswordRecovery')->willThrowException(new \App\Accessing\Exception\AccessNotificationDeliveryException());
+        $failureRequest = $this->requestWithSession('/access/recover');
+        self::assertSame(302, self::response($this->service(recovery: $deliveryFailure, formData: $requestData, submitted: true, valid: true)
+            ->requestRecovery($failureRequest))->getStatusCode());
+        self::assertNotSame([], self::flashes($failureRequest, 'warning'));
+
+        $resetData = new AccessRecoveryResetDTO();
+        $resetData->emailAddress = 'recover-branches@example.test';
+        $resetData->code = '123456';
+        $resetData->newPassword = 'ReplacementPassword!123';
+
+        $falseRecovery = $this->createMock(AccessRecoveryServiceInterface::class);
+        $falseRecovery->method('resetPassword')->willReturn(false);
+        $views = [];
+        $falseRequest = $this->requestWithSession('/access/recover/reset');
+        self::assertSame(200, self::response($this->service(recovery: $falseRecovery, formData: $resetData, submitted: true, valid: true, views: $views)
+            ->resetRecovery($falseRequest))->getStatusCode());
+        self::assertNotSame([], self::flashes($falseRequest, 'danger'));
+
+        foreach ([
+            new \App\Accessing\Exception\AccessCompromisedPasswordException(),
+            new \App\Accessing\Exception\AccessPasswordSafetyUnavailableException(),
+        ] as $exception) {
+            $throwing = $this->createMock(AccessRecoveryServiceInterface::class);
+            $throwing->method('resetPassword')->willThrowException($exception);
+            $views = [];
+            $errorRequest = $this->requestWithSession('/access/recover/reset');
+            $errorResponse = $this->service(recovery: $throwing, formData: $resetData, submitted: true, valid: true, views: $views)
+                ->resetRecovery($errorRequest);
+            self::assertSame(200, self::response($errorResponse)->getStatusCode());
+        }
+    }
+
+    public function testPasskeyCompletionSuccessAndConfiguredRelyingPartyPaths(): void
+    {
+        $user = new AccessEntity('passkey-success@example.test');
+        $passkeys = $this->createMock(AccessPasskeyAuthenticationServiceInterface::class);
+        $passkeys->expects(self::once())->method('complete')->willReturn($user);
+        $authentication = $this->createMock(AccessAuthenticationServiceInterface::class);
+        $authentication->expects(self::once())->method('completePasskeySignIn')->with($user, self::isInstanceOf(Request::class));
+        $request = Request::create(
+            'https://request.example.test/access/passkey/complete',
+            'POST',
+            content: json_encode(['credential' => ['id' => 'credential']], JSON_THROW_ON_ERROR),
+        );
+        $response = $this->service(
+            authentication: $authentication,
+            passkeys: $passkeys,
+            relyingPartyId: 'rp.example.test',
+            relyingPartyOrigin: 'https://origin.example.test/',
+        )->passkeyAuthenticationComplete($request);
+        self::assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
+        self::assertSame('/product/index', $payload['redirect'] ?? null);
+
+        $options = $this->createMock(AccessPasskeyAuthenticationServiceInterface::class);
+        $options->expects(self::once())->method('issueOptions')->with(
+            self::callback(static fn (\App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO $config): bool => 'rp.example.test' === $config->id && 'https://origin.example.test' === $config->origin),
+        )->willReturn(new AccessPasskeyAuthenticationOptionsDTO('configured-challenge', 'rp.example.test', []));
+        self::assertSame(200, $this->service(passkeys: $options, relyingPartyId: ' rp.example.test ', relyingPartyOrigin: ' https://origin.example.test/ ')
+            ->passkeyAuthenticationOptions(Request::create('https://request.example.test/access/passkey/options'))->getStatusCode());
+    }
+
     public function testSubmittedRegistrationAndSignInHappyPaths(): void
     {
         $registrationData = new AccessRegistrationRequestDTO();
@@ -224,6 +336,8 @@ final class AccessSecurityFlowServiceCoverageTest extends TestCase
         bool $submitted = false,
         bool $valid = false,
         array &$views = [],
+        string $relyingPartyId = '',
+        string $relyingPartyOrigin = '',
     ): AccessSecurityFlowService {
         $security = $this->createMock(Security::class);
         $security->method('getUser')->willReturn($user);
@@ -264,7 +378,25 @@ final class AccessSecurityFlowServiceCoverageTest extends TestCase
             ], new InMemoryStorage()),
             new AccessPageViewFactory(),
             $responder,
+            $relyingPartyId,
+            $relyingPartyOrigin,
         );
+    }
+
+    private static function response(mixed $value): Response
+    {
+        self::assertInstanceOf(Response::class, $value);
+
+        return $value;
+    }
+
+    /** @return array<int|string, mixed> */
+    private static function flashes(Request $request, string $type): array
+    {
+        $session = $request->getSession();
+        self::assertInstanceOf(Session::class, $session);
+
+        return $session->getFlashBag()->peek($type);
     }
 
     private function requestWithSession(string $path): Request
