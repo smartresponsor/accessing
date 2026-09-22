@@ -10,9 +10,9 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Password\AccessCompromisedPasswordProviderInterface;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ValueObject\AccessPasswordSafetyStatus;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
@@ -25,7 +25,7 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
      */
     public function __construct(
         private UserPasswordHasherInterface $passwordHasher,
-        private EntityManagerInterface $entityManager,
+        private AccessPersistenceRepositoryInterface $persistenceRepository,
         private AccessCompromisedPasswordProviderInterface $compromisedPasswordProvider,
     ) {
     }
@@ -39,7 +39,7 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
         $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
         $credential = new AccessCredentialEntity($user, $passwordHash);
         $user->setCredential($credential);
-        $this->entityManager->persist($credential);
+        $this->persistenceRepository->persist($credential);
 
         return $credential;
     }
@@ -62,7 +62,7 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
 
         if (!$credential instanceof AccessCredentialEntity) {
             $this->createCredential($user, $plainPassword);
-            $this->entityManager->flush();
+            $this->persistenceRepository->flush();
 
             return;
         }
@@ -70,8 +70,8 @@ final readonly class AccessCredentialService implements AccessCredentialServiceI
         $this->assertPasswordIsSafe($plainPassword);
         $passwordHash = $this->passwordHasher->hashPassword($user, $plainPassword);
         $credential->updatePasswordHash($passwordHash);
-        $this->entityManager->persist($credential);
-        $this->entityManager->flush();
+        $this->persistenceRepository->persist($credential);
+        $this->persistenceRepository->flush();
     }
 
     /**

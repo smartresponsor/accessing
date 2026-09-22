@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Accessing\Command;
 
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,7 +28,7 @@ final class AccessEnsureAdminCommand extends Command
      */
     public function __construct(
         private readonly AccessRepositoryInterface $userRepository,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly AccessPersistenceRepositoryInterface $persistenceRepository,
         private readonly AccessCredentialServiceInterface $credentialService,
     ) {
         parent::__construct();
@@ -97,13 +97,13 @@ final class AccessEnsureAdminCommand extends Command
             return Command::SUCCESS;
         }
 
-        $this->entityManager->persist($user);
+        $this->persistenceRepository->persist($user);
 
         if ($isNew || $resetPassword) {
             $this->credentialService->changePassword($user, $password);
         }
 
-        $this->entityManager->flush();
+        $this->persistenceRepository->flush();
 
         $io->success(sprintf(
             '%s admin user %s%s.',

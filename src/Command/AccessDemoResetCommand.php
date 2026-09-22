@@ -7,11 +7,8 @@ namespace App\Accessing\Command;
 
 use App\Accessing\DataFixtures\AccessAdminFixtures;
 use App\Accessing\DataFixtures\AccessDemoFixtures;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader;
-use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,7 +27,7 @@ final class AccessDemoResetCommand extends Command
      * Initializes the collaborators required by this Accessing runtime responsibility.
      */
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly AccessPersistenceRepositoryInterface $persistenceRepository,
         private readonly AccessAdminFixtures $accessingAdminFixtures,
         private readonly AccessDemoFixtures $accessingDemoFixtures,
         private readonly KernelInterface $kernel,
@@ -71,8 +68,7 @@ final class AccessDemoResetCommand extends Command
             $loader = clone $this->fixturesLoader;
             $loader->addFixture($this->accessingDemoFixtures);
 
-            $executor = new ORMExecutor($this->entityManager, new ORMPurger());
-            $executor->execute($loader->getFixtures(), true);
+            $this->persistenceRepository->executeFixtures($loader->getFixtures(), true);
 
             $io->success(sprintf(
                 'Accessing demo identity for the "%s" environment has been loaded without schema reset or purge.',
@@ -111,18 +107,13 @@ final class AccessDemoResetCommand extends Command
             return Command::FAILURE;
         }
 
-        $schemaTool = new SchemaTool($this->entityManager);
-        $metadata = $this->entityManager->getMetadataFactory()->getAllMetadata();
-
-        $schemaTool->dropDatabase();
-        $schemaTool->createSchema($metadata);
+        $this->persistenceRepository->resetSchema();
 
         $loader = clone $this->fixturesLoader;
         $loader->addFixture($this->accessingAdminFixtures);
         $loader->addFixture($this->accessingDemoFixtures);
 
-        $executor = new ORMExecutor($this->entityManager, new ORMPurger());
-        $executor->execute($loader->getFixtures());
+        $this->persistenceRepository->executeFixtures($loader->getFixtures());
 
         $io->success(sprintf(
             'Accessing demo database for the "%s" environment has been rebuilt and repopulated.',

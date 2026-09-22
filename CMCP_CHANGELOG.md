@@ -211,3 +211,23 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 ### Integration boundary
 - The two pre-existing deletions under `.gating/` are explicitly excluded from this integration commit.
 - The worktree stayed stable across repeated status checks during final verification; no further concurrent writes were observed.
+
+## 2026-09-22 — Canon047 Doctrine manager ownership closure
+
+### Baseline
+- Repository was clean before this pass.
+- Full Gating baseline had exactly one blocking rule: Canon047, caused by direct `Doctrine\\ORM\\EntityManagerInterface` dependencies in `AccessDemoResetCommand`, `AccessEnsureAdminCommand`, `AccessCredentialService`, and `AccessSecondFactorService`.
+- Existing entity repositories already owned normal persistence, but schema/fixture reset and multi-aggregate unit-of-work operations still leaked the Doctrine manager into application services and commands.
+
+### Material implementation
+- Added `AccessPersistenceRepositoryInterface` and `AccessPersistenceRepository` as the repository-owned low-level Doctrine boundary.
+- Moved persist/remove/flush, schema reset, and ORM fixture execution behind that repository boundary.
+- Rewired the four Canon047 offenders and the Symfony service binding to use the repository contract.
+- Updated the directly affected unit tests to mock the persistence repository instead of `EntityManagerInterface`.
+
+### Verification
+- PHPStan: PASS, 0 errors.
+- PHPUnit: PASS, 261 tests / 2935 assertions; existing 124 non-failing notices remain.
+- Full Gating: PASS, 68 rules, 0 failed; Canon047 is PASS.
+- Canon021 and Canon051 also remain PASS, confirming the new persistence boundary did not introduce local generic CRUD or repository orchestration leakage.
+- Remaining warnings are evidence debt only: Canon040 coverage evidence stale after source changes and Canon042 behavioral/UI evidence missing.

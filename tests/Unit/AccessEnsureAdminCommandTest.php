@@ -6,9 +6,9 @@ namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Command\AccessEnsureAdminCommand;
 use App\Accessing\Entity\AccessEntity;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -22,7 +22,7 @@ final class AccessEnsureAdminCommandTest extends TestCase
         $repository->method('findOneByEmailAddress')->willReturn($user);
         $credentials = $this->createMock(AccessCredentialServiceInterface::class);
         $credentials->expects(self::never())->method('changePassword');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($user);
         $entityManager->expects(self::once())->method('flush');
 
@@ -37,7 +37,7 @@ final class AccessEnsureAdminCommandTest extends TestCase
         $repository->method('findOneByEmailAddress')->willReturn(null);
         $credentials = $this->createMock(AccessCredentialServiceInterface::class);
         $credentials->expects(self::never())->method('changePassword');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
         $tester = new CommandTester(new AccessEnsureAdminCommand($repository, $entityManager, $credentials));
@@ -53,7 +53,7 @@ final class AccessEnsureAdminCommandTest extends TestCase
         $repository->method('findOneByEmailAddress')->willReturn($user);
         $credentials = $this->createMock(AccessCredentialServiceInterface::class);
         $credentials->expects(self::once())->method('changePassword')->with($user, 'replacement-password');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($user);
         $entityManager->expects(self::once())->method('flush');
 

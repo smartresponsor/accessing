@@ -97,6 +97,7 @@ services:
   App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface: '@App\Accessing\Repository\AccessMobileSessionRepository'
   App\Accessing\RepositoryInterface\AccessMobilePendingAuthRepositoryInterface: '@App\Accessing\Repository\AccessMobilePendingAuthRepository'
   App\Accessing\RepositoryInterface\AccessRepositoryInterface: '@App\Accessing\Repository\AccessRepository'
+  App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface: '@App\Accessing\Repository\AccessPersistenceRepository'
   App\Accessing\RepositoryInterface\AccessSessionRepositoryInterface: '@App\Accessing\Repository\AccessSessionRepository'
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'

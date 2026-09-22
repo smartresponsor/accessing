@@ -8,11 +8,11 @@ use App\Accessing\Clock\AccessSystemClock;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\Service\SecondFactor\AccessSecondFactorService;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
-use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -23,7 +23,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
     public function testBeginEnrollmentCreatesFactorAndReusesExistingSecret(): void
     {
         $clock = new AccessSystemClock();
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist')->with(self::isInstanceOf(AccessSecondFactorEntity::class));
         $entityManager->expects(self::once())->method('flush');
         $service = $this->service($entityManager, $this->createMock(AccessSecurityEventServiceInterface::class), $clock);
@@ -35,7 +35,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         self::assertSame([], $enrollment->recoveryCodes);
         self::assertSame($enrollment->secret, $user->getSecondFactor()?->getSecret());
 
-        $reuseEntityManager = $this->createMock(EntityManagerInterface::class);
+        $reuseEntityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $reuseEntityManager->expects(self::never())->method('persist');
         $reuseEntityManager->expects(self::never())->method('flush');
         $reuseService = $this->service($reuseEntityManager, $this->createMock(AccessSecurityEventServiceInterface::class), $clock);
@@ -47,7 +47,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
     public function testConfirmEnrollmentHandlesMissingInvalidAndValidCodes(): void
     {
         $clock = new AccessSystemClock();
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);
         $service = $this->service($entityManager, $events, $clock);
         self::assertNull($service->confirmEnrollment(new AccessEntity('missing-factor@example.test'), '123456'));
@@ -59,7 +59,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         self::assertNull($service->confirmEnrollment($user, ''));
         self::assertNull($service->confirmEnrollment($user, '000000'));
 
-        $validEntityManager = $this->createMock(EntityManagerInterface::class);
+        $validEntityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $validEntityManager->expects(self::once())->method('flush');
         $validEvents = $this->createMock(AccessSecurityEventServiceInterface::class);
         $validEvents->expects(self::once())->method('record')->with(
@@ -95,7 +95,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         $active = new AccessRecoveryCodeEntity($user, hash_hmac('sha256', 'ABCD1234', 'test-secret'), '1234');
         $user->addRecoveryCode($active);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('flush');
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);
         $events->expects(self::once())->method('record')->with(
@@ -112,7 +112,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
     public function testVerifyChallengeRejectsUserWithoutEnabledSecondFactor(): void
     {
         $service = $this->service(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createMock(AccessPersistenceRepositoryInterface::class),
             $this->createMock(AccessSecurityEventServiceInterface::class),
             new AccessSystemClock(),
         );
@@ -130,7 +130,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         $old = new AccessRecoveryCodeEntity($user, 'old-hash', '0001');
         $user->addRecoveryCode($old);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('remove')->with($old);
         $entityManager->expects(self::once())->method('flush');
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);
@@ -147,7 +147,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
 
     public function testDisableSecondFactorWithoutEnrollmentStillFlushesAndRecordsAuditEvent(): void
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::never())->method('remove');
         $entityManager->expects(self::once())->method('flush');
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);
@@ -164,7 +164,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
 
     public function testBeginEnrollmentUsesFallbackLabelWhenEmailIsEmpty(): void
     {
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist');
         $entityManager->expects(self::once())->method('flush');
         $enrollment = $this->service(
@@ -187,7 +187,7 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         $second = new AccessRecoveryCodeEntity($user, 'hash-2', '0002');
         $user->addRecoveryCode($first)->addRecoveryCode($second);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::exactly(2))->method('remove')->with(self::isInstanceOf(AccessRecoveryCodeEntity::class));
         $entityManager->expects(self::once())->method('flush');
         $events = $this->createMock(AccessSecurityEventServiceInterface::class);
@@ -210,14 +210,14 @@ final class AccessSecondFactorServiceCoverageTest extends TestCase
         $this->expectException(\LogicException::class);
         $this->expectExceptionMessage('Second-factor secret must not be empty.');
         $this->service(
-            $this->createMock(EntityManagerInterface::class),
+            $this->createMock(AccessPersistenceRepositoryInterface::class),
             $this->createMock(AccessSecurityEventServiceInterface::class),
             $clock,
         )->beginEnrollment($user);
     }
 
     private function service(
-        EntityManagerInterface $entityManager,
+        AccessPersistenceRepositoryInterface $entityManager,
         AccessSecurityEventServiceInterface $events,
         AccessSystemClock $clock,
     ): AccessSecondFactorService {

@@ -9,9 +9,9 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Password\AccessCompromisedPasswordProviderInterface;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\Service\Credential\AccessCredentialService;
 use App\Accessing\ValueObject\AccessPasswordSafetyStatus;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -27,7 +27,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
 
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->expects(self::never())->method('hashPassword');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
         $service = new AccessCredentialService($hasher, $entityManager, $provider);
@@ -46,7 +46,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
 
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->expects(self::never())->method('hashPassword');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::never())->method('persist');
 
         $service = new AccessCredentialService($hasher, $entityManager, $provider);
@@ -59,7 +59,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
     {
         $provider = $this->createMock(AccessCompromisedPasswordProviderInterface::class);
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $service = new AccessCredentialService($hasher, $entityManager, $provider);
 
         $withoutCredential = new AccessEntity('missing-credential@example.test');
@@ -85,7 +85,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
         $user->setCredential($credential);
         $hasher = $this->createMock(UserPasswordHasherInterface::class);
         $hasher->expects(self::once())->method('hashPassword')->with($user, 'replacement-password')->willReturn('new-hash');
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist')->with($credential);
         $entityManager->expects(self::once())->method('flush');
 
@@ -108,7 +108,7 @@ final class AccessCredentialPasswordSafetyTest extends TestCase
             ->with($user, 'replacement-password')
             ->willReturn('password-hash');
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('persist');
         $entityManager->expects(self::once())->method('flush');
 
