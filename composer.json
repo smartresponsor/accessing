@@ -83,7 +83,7 @@
                                               "@test:coverage:branches",
                                               "@php bin/merge-coverage.php"
                                           ],
-                    "gating:check":  "php vendor/bin/gating check --target=. --profile=config/access_gating_profile.yaml --rule-set=config/access_gating_rules.yaml --policy-root=vendor/gating/gate/.gating --severity-config=vendor/gating/gate/.gating/config/severity.yaml",
+                    "gating:check":  "@gate",
                     "test:object-identity":  "vendor/bin/phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
                     "test:panther":  "vendor/bin/phpunit --testsuite Panther",
                     "pipeline:local:full":  [
@@ -101,7 +101,14 @@
                                       ],
                     "test:docker":  "docker compose -f deploy/docker/compose.yaml --env-file deploy/docker/.env --profile app run --rm php",
                     "schema:validate":  "php bin/console doctrine:schema:validate --env=test",
-                    "schema:parity":  "php deploy/docker/bin/run-postgres-tests.php --schema-parity"
+                    "schema:parity":  "php deploy/docker/bin/run-postgres-tests.php --schema-parity",
+                    "gate":  "@php vendor/bin/gating check --target=.",
+                    "quality":  [
+                                    "@cs:check",
+                                    "@phpstan",
+                                    "@test",
+                                    "@gate"
+                                ]
                 },
     "extra":  {
                   "public-dir":  "public",

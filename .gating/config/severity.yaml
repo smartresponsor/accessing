@@ -1,6 +1,0 @@
-severity:
-  default: error
-  rules:
-    inventory.component_surface: info
-    release.evidence_manifest: warning
-

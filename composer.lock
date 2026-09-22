@@ -10569,7 +10569,7 @@
             "dist": {
                 "type": "path",
                 "url": "../Gating",
-                "reference": "a71a2189bddfefad1b69a9e067be0299c52b080c"
+                "reference": "f06bdc7eb99c59c5478c5af23224121092c466d2"
             },
             "require": {
                 "php": "^8.4",
@@ -10590,7 +10590,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Gating\\Gate\\": "src/"
+                    "App\\Gating\\": "src/"
                 }
             },
             "scripts": {
