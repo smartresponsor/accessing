@@ -10,6 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'access_mobile_pending_auth')]
+#[ORM\Index(name: 'idx_access_mobile_pending_auth_user', columns: ['user_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_pending_auth_token_hash', columns: ['token_hash'])]
 /**
  * Defines the mobile pending auth entity type and its canonical responsibility within the Accessing component.
  */
@@ -22,7 +24,7 @@ final class AccessMobilePendingAuthEntity
     #[ORM\ManyToOne(targetEntity: AccessEntity::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private AccessEntity $user;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $tokenHash;
     #[ORM\Column(enumType: AccessMobilePendingPurpose::class)]
     private AccessMobilePendingPurpose $purpose;

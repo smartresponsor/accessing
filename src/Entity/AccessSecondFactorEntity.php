@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessSecondFactorRepository::class)]
 #[ORM\Table(name: 'access_second_factor')]
+#[ORM\UniqueConstraint(name: 'uniq_access_second_factor_user', columns: ['user_id'])]
 /**
  * Defines the second factor entity type and its canonical responsibility within the Accessing component.
  */

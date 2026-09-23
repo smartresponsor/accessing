@@ -12,6 +12,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_session')]
 #[ORM\Index(name: 'idx_access_session_expires_at', columns: ['expires_at'])]
 #[ORM\Index(name: 'idx_access_session_revoked_at', columns: ['revoked_at'])]
+#[ORM\Index(name: 'idx_access_session_user', columns: ['user_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_session_identifier', columns: ['session_identifier'])]
 /**
  * Defines the session entity type and its canonical responsibility within the Accessing component.
  */
@@ -26,7 +28,7 @@ class AccessSessionEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?AccessEntity $user = null;
 
-    #[ORM\Column(length: 128, unique: true)]
+    #[ORM\Column(length: 128)]
     private string $sessionIdentifier = '';
 
     #[ORM\Column(length: 45, nullable: true)]

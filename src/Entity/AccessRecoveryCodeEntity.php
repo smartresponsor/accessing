@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessRecoveryCodeRepository::class)]
 #[ORM\Table(name: 'access_recovery_code')]
+#[ORM\Index(name: 'idx_access_recovery_code_user', columns: ['user_id'])]
 #[ORM\Index(name: 'idx_access_recovery_code_consumed_at', columns: ['consumed_at'])]
 /**
  * Defines the recovery code entity type and its canonical responsibility within the Accessing component.

@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AccessPasskeyChallengeRepository::class)]
 #[ORM\Table(name: 'access_passkey_challenge')]
 #[ORM\UniqueConstraint(name: 'uniq_access_passkey_challenge_hash', columns: ['challenge_hash'])]
+#[ORM\Index(name: 'idx_access_passkey_challenge_user', columns: ['user_id'])]
 /**
  * Defines the passkey challenge entity type and its canonical responsibility within the Accessing component.
  */

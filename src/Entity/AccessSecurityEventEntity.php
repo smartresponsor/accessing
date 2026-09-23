@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_security_event')]
 #[ORM\Index(name: 'idx_access_security_event_type', columns: ['event_type'])]
 #[ORM\Index(name: 'idx_access_security_event_occurred_at', columns: ['occurred_at'])]
+#[ORM\Index(name: 'idx_access_security_event_user', columns: ['user_id'])]
 /**
  * Defines the security event entity type and its canonical responsibility within the Accessing component.
  */

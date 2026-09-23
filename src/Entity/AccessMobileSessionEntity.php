@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'access_mobile_session')]
+#[ORM\Index(name: 'idx_access_mobile_session_user', columns: ['user_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_session_id', columns: ['session_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_refresh_token_hash', columns: ['refresh_token_hash'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_access_token_hash', columns: ['access_token_hash'])]
 /**
  * Defines the mobile session entity type and its canonical responsibility within the Accessing component.
  */
@@ -21,11 +25,11 @@ final class AccessMobileSessionEntity
     #[ORM\ManyToOne(targetEntity: AccessEntity::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private AccessEntity $user;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $sessionId;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $accessTokenHash;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $refreshTokenHash;
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $previousRefreshTokenHash = null;

@@ -12,6 +12,7 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestTrait;
 
 #[ORM\Entity(repositoryClass: AccessResetPasswordRequestRepository::class)]
 #[ORM\Table(name: 'access_reset_password_request')]
+#[ORM\Index(name: 'idx_access_reset_password_request_user', columns: ['user_id'])]
 /**
  * Defines the reset password request entity type and its canonical responsibility within the Accessing component.
  */

@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AccessCredentialRepository::class)]
 #[ORM\Table(name: 'access_credential')]
+#[ORM\UniqueConstraint(name: 'uniq_access_credential_user', columns: ['user_id'])]
 /**
  * Defines the credential entity type and its canonical responsibility within the Accessing component.
  */

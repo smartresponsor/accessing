@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AccessPasskeyCredentialRepository::class)]
 #[ORM\Table(name: 'access_passkey_credential')]
 #[ORM\UniqueConstraint(name: 'uniq_access_passkey_credential_id', columns: ['credential_id'])]
+#[ORM\Index(name: 'idx_access_passkey_credential_user', columns: ['user_id'])]
 /**
  * Defines the passkey credential entity type and its canonical responsibility within the Accessing component.
  */

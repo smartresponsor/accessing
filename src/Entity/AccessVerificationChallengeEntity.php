@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_verification_challenge')]
 #[ORM\Index(name: 'idx_access_verification_challenge_type', columns: ['channel_type'])]
 #[ORM\Index(name: 'idx_access_verification_challenge_expires_at', columns: ['expires_at'])]
+#[ORM\Index(name: 'idx_access_verification_challenge_user', columns: ['user_id'])]
 /**
  * Defines the verification challenge entity type and its canonical responsibility within the Accessing component.
  */
