@@ -2,7 +2,7 @@
     "name":  "accessing/access",
     "description":  "Accessing process app",
     "type":  "symfony-bundle",
-    "license":  "proprietary",
+    "license":  "PolyForm-Noncommercial-1.0.0",
     "require":  {
                     "php":  "^8.4",
                     "ext-ctype":  "*",

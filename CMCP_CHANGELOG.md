@@ -254,3 +254,16 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - PHP-CS-Fixer dry run: PASS, 266 files, 0 fixable.
 - PHPStan: PASS, 0 errors across 264 files.
 - PHPUnit: PASS, 261 tests / 2935 assertions; 124 existing non-failing PHPUnit notices remain.
+
+## 2026-09-24 — Licensing reconciliation and publication readiness
+
+### Reconciliation
+- Reviewed the remaining dirty worktree after the Canon055 commit.
+- Rejected the copied Gating-owner README under Accessing/.gating as non-value because that directory is a consumer-generated artifact surface; restored the repository-local artifact README from HEAD.
+- Retained the coherent licensing change set: composer.json now declares PolyForm-Noncommercial-1.0.0, with repository LICENSE and NOTICE files providing the matching human-facing terms and required notice.
+- Preserved composer.prod.json as proprietary; the production/commercial distribution contract remains intentionally distinct from the development/noncommercial package surface.
+
+### Verification
+- composer validate --strict --check-lock: PASS.
+- Gating: PASS — 9 rules, 0 failed, 0 warning, 1 skipped; Canon055 remains PASS.
+
