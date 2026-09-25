@@ -231,3 +231,26 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Full Gating: PASS, 68 rules, 0 failed; Canon047 is PASS.
 - Canon021 and Canon051 also remain PASS, confirming the new persistence boundary did not introduce local generic CRUD or repository orchestration leakage.
 - Remaining warnings are evidence debt only: Canon040 coverage evidence stale after source changes and Canon042 behavioral/UI evidence missing.
+
+## 2026-09-24 — Canon055 platform/consumer terminology closure
+
+### Reconnaissance and canon mapping
+- Re-read Accessing root manifests, Composer/Gating configuration, current worktree state, and the mandatory Objecting/Cruding/Viewing/Interfacing/Gating contour available through Console MCP.
+- Consulted Canonization textual Canon055 directly: consumer/domain aliases such as SmartResponsor must not be used as platform/shared ecosystem identity in current human-facing documentation; explicit consumer/domain context and machine identifiers remain allowed.
+- RC-critical workstream: remove current Canon055 documentation ambiguity and generated-artifact scan noise without widening Accessing into authorization, generic CRUD, Objecting, Viewing, or Interfacing responsibilities.
+- Growth workstream remains post-RC identity/access maturity (adaptive-risk authentication, broader federation/social login, richer security UX) and is not required for this Canon055 correctness closure.
+
+### Material implementation
+- Clarified the legacy Smartresponsor namespace mention in ARCHITECTURE_MANIFEST.md as consumer-domain legacy namespace vocabulary.
+- Clarified the smartresponsor/accessing Composer identifier in FULL_MANIFEST.md as a consumer package machine identifier.
+- Marked the Vaulting smartresponsor/vaulting references in both market-analysis documents as explicit consumer/domain package references.
+- Moved two ignored historical local Gating snapshots from var/ into the excluded .gating/ artifact surface so current-document scanning no longer treats generated historical copies as live Accessing documentation.
+- Preserved unrelated pre-existing worktree changes in .gating/README.md, composer.json, LICENSE, and NOTICE.
+
+### Verification
+- Gating: PASS — 9 rules, 0 failed, 0 warning, 1 skipped; Canon055 PASS.
+- composer validate --strict --check-lock: PASS.
+- PHP lint: PASS.
+- PHP-CS-Fixer dry run: PASS, 266 files, 0 fixable.
+- PHPStan: PASS, 0 errors across 264 files.
+- PHPUnit: PASS, 261 tests / 2935 assertions; 124 existing non-failing PHPUnit notices remain.
