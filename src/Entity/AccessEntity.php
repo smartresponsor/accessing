@@ -20,6 +20,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\Entity(repositoryClass: AccessRepository::class)]
 #[ORM\Table(name: 'access')]
 #[ORM\UniqueConstraint(name: 'uniq_access_email', columns: ['email'])]
+/**
+ * Defines the entity type and its canonical responsibility within the Accessing component.
+ */
 class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface, ObjectIdentifiedInterface, ObjectAuditedInterface
 {
     use ObjectIdentityEmbeddableTrait;
@@ -29,7 +32,7 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180)]
     private string $email = '';
 
     /** @var list<string> */
@@ -78,6 +81,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
     #[ORM\OneToMany(targetEntity: AccessSessionEntity::class, mappedBy: 'user', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $userSessions;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(?string $email = null, ?string $displayName = null)
     {
         $this->initializeObjectIdentity();
@@ -96,21 +102,33 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         $this->initializeObjectAudit();
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get email operation within the canonical Accessing component workflow.
+     */
     public function getEmail(): string
     {
         return $this->email;
     }
 
+    /**
+     * Executes the get email address operation within the canonical Accessing component workflow.
+     */
     public function getEmailAddress(): string
     {
         return $this->getEmail();
     }
 
+    /**
+     * Executes the set email operation within the canonical Accessing component workflow.
+     */
     public function setEmail(string $email): self
     {
         $this->email = mb_strtolower(trim($email));
@@ -119,6 +137,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get user identifier operation within the canonical Accessing component workflow.
+     */
     public function getUserIdentifier(): string
     {
         return '' !== $this->email ? $this->email : 'user';
@@ -142,25 +163,40 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get password operation within the canonical Accessing component workflow.
+     */
     public function getPassword(): string
     {
         return $this->credential?->getPasswordHash() ?? '';
     }
 
+    /**
+     * Executes the get password hash operation within the canonical Accessing component workflow.
+     */
     public function getPasswordHash(): string
     {
         return $this->getPassword();
     }
 
+    /**
+     * Executes the erase credentials operation within the canonical Accessing component workflow.
+     */
     public function eraseCredentials(): void
     {
     }
 
+    /**
+     * Executes the get display name operation within the canonical Accessing component workflow.
+     */
     public function getDisplayName(): ?string
     {
         return $this->displayName;
     }
 
+    /**
+     * Executes the set display name operation within the canonical Accessing component workflow.
+     */
     public function setDisplayName(?string $displayName): self
     {
         $this->displayName = null !== $displayName ? trim($displayName) : null;
@@ -169,11 +205,17 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get phone number operation within the canonical Accessing component workflow.
+     */
     public function getPhoneNumber(): ?string
     {
         return $this->phoneNumber;
     }
 
+    /**
+     * Executes the set phone number operation within the canonical Accessing component workflow.
+     */
     public function setPhoneNumber(?string $phoneNumber): self
     {
         $this->phoneNumber = null !== $phoneNumber ? trim($phoneNumber) : null;
@@ -182,26 +224,41 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the change phone number operation within the canonical Accessing component workflow.
+     */
     public function changePhoneNumber(?string $phoneNumber): self
     {
         return $this->setPhoneNumber($phoneNumber);
     }
 
+    /**
+     * Executes the get totp secret operation within the canonical Accessing component workflow.
+     */
     public function getTotpSecret(): ?string
     {
         return $this->secondFactor?->getSecret();
     }
 
+    /**
+     * Executes the get email verified at operation within the canonical Accessing component workflow.
+     */
     public function getEmailVerifiedAt(): ?\DateTimeImmutable
     {
         return $this->emailVerifiedAt;
     }
 
+    /**
+     * Executes the is email verified operation within the canonical Accessing component workflow.
+     */
     public function isEmailVerified(): bool
     {
         return $this->emailVerifiedAt instanceof \DateTimeImmutable;
     }
 
+    /**
+     * Executes the mark email verified operation within the canonical Accessing component workflow.
+     */
     public function markEmailVerified(?\DateTimeImmutable $verifiedAt = null): self
     {
         $this->emailVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
@@ -210,16 +267,25 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get phone verified at operation within the canonical Accessing component workflow.
+     */
     public function getPhoneVerifiedAt(): ?\DateTimeImmutable
     {
         return $this->phoneVerifiedAt;
     }
 
+    /**
+     * Executes the is phone verified operation within the canonical Accessing component workflow.
+     */
     public function isPhoneVerified(): bool
     {
         return $this->phoneVerifiedAt instanceof \DateTimeImmutable;
     }
 
+    /**
+     * Executes the mark phone verified operation within the canonical Accessing component workflow.
+     */
     public function markPhoneVerified(?\DateTimeImmutable $verifiedAt = null): self
     {
         $this->phoneVerifiedAt = $verifiedAt ?? new \DateTimeImmutable();
@@ -228,16 +294,25 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the is second factor enabled operation within the canonical Accessing component workflow.
+     */
     public function isSecondFactorEnabled(): bool
     {
         return $this->secondFactor?->isEnabled() ?? false;
     }
 
+    /**
+     * Executes the get second factor operation within the canonical Accessing component workflow.
+     */
     public function getSecondFactor(): ?AccessSecondFactorEntity
     {
         return $this->secondFactor;
     }
 
+    /**
+     * Executes the set second factor operation within the canonical Accessing component workflow.
+     */
     public function setSecondFactor(?AccessSecondFactorEntity $secondFactor): self
     {
         $this->secondFactor = $secondFactor;
@@ -251,11 +326,17 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get credential operation within the canonical Accessing component workflow.
+     */
     public function getCredential(): ?AccessCredentialEntity
     {
         return $this->credential;
     }
 
+    /**
+     * Executes the set credential operation within the canonical Accessing component workflow.
+     */
     public function setCredential(?AccessCredentialEntity $credential): self
     {
         $this->credential = $credential;
@@ -275,6 +356,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this->recoveryCodes;
     }
 
+    /**
+     * Executes the add recovery code operation within the canonical Accessing component workflow.
+     */
     public function addRecoveryCode(AccessRecoveryCodeEntity $recoveryCode): self
     {
         if (!$this->recoveryCodes->contains($recoveryCode)) {
@@ -293,6 +377,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this->verificationChallenges;
     }
 
+    /**
+     * Executes the add verification challenge operation within the canonical Accessing component workflow.
+     */
     public function addVerificationChallenge(AccessVerificationChallengeEntity $verificationChallenge): self
     {
         if (!$this->verificationChallenges->contains($verificationChallenge)) {
@@ -311,6 +398,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this->userSessions;
     }
 
+    /**
+     * Executes the add user session operation within the canonical Accessing component workflow.
+     */
     public function addUserSession(AccessSessionEntity $userSession): self
     {
         if (!$this->userSessions->contains($userSession)) {
@@ -323,6 +413,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the is locked operation within the canonical Accessing component workflow.
+     */
     public function isLocked(): bool
     {
         if ($this->lockedUntil instanceof \DateTimeImmutable && $this->lockedUntil <= new \DateTimeImmutable()) {
@@ -332,11 +425,17 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this->locked;
     }
 
+    /**
+     * Executes the get locked until operation within the canonical Accessing component workflow.
+     */
     public function getLockedUntil(): ?\DateTimeImmutable
     {
         return $this->lockedUntil;
     }
 
+    /**
+     * Executes the lock operation within the canonical Accessing component workflow.
+     */
     public function lock(): self
     {
         $this->locked = true;
@@ -345,6 +444,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the lock until operation within the canonical Accessing component workflow.
+     */
     public function lockUntil(\DateTimeImmutable $lockedUntil): self
     {
         $this->locked = true;
@@ -354,6 +456,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the unlock operation within the canonical Accessing component workflow.
+     */
     public function unlock(): self
     {
         $this->locked = false;
@@ -364,16 +469,25 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get failed login count operation within the canonical Accessing component workflow.
+     */
     public function getFailedLoginCount(): int
     {
         return $this->failedLoginCount;
     }
 
+    /**
+     * Executes the get failed sign in count operation within the canonical Accessing component workflow.
+     */
     public function getFailedSignInCount(): int
     {
         return $this->failedLoginCount;
     }
 
+    /**
+     * Executes the increase failed login count operation within the canonical Accessing component workflow.
+     */
     public function increaseFailedLoginCount(): self
     {
         ++$this->failedLoginCount;
@@ -382,11 +496,17 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the register failed sign in attempt operation within the canonical Accessing component workflow.
+     */
     public function registerFailedSignInAttempt(): self
     {
         return $this->increaseFailedLoginCount();
     }
 
+    /**
+     * Executes the reset failed login count operation within the canonical Accessing component workflow.
+     */
     public function resetFailedLoginCount(): self
     {
         $this->failedLoginCount = 0;
@@ -395,6 +515,9 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the mark successful sign in operation within the canonical Accessing component workflow.
+     */
     public function markSuccessfulSignIn(): self
     {
         $this->failedLoginCount = 0;
@@ -406,16 +529,25 @@ class AccessEntity implements UserInterface, PasswordAuthenticatedUserInterface,
         return $this;
     }
 
+    /**
+     * Executes the get registered at operation within the canonical Accessing component workflow.
+     */
     public function getRegisteredAt(): \DateTimeImmutable
     {
         return $this->getCreatedAt();
     }
 
+    /**
+     * Executes the get last sign in at operation within the canonical Accessing component workflow.
+     */
     public function getLastSignInAt(): ?\DateTimeImmutable
     {
         return $this->lastSignInAt;
     }
 
+    /**
+     * Executes the get updated at operation within the canonical Accessing component workflow.
+     */
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->getModifiedAt() ?? $this->getCreatedAt();

@@ -10,7 +10,7 @@
 - retained `getRegisteredAt()` and `getUpdatedAt()` as compatibility aliases over Objecting audit;
 - retained security-domain fields such as lock state, failed sign-in count, verification timestamps, and last sign-in timestamp.
 
-## Decision M1 — account lock versus Objecting state
+## Decision M1 вЂ” account lock versus Objecting state
 
 `locked` and `lockedUntil` remain Accessing security-domain fields.
 
@@ -18,7 +18,7 @@ They must not be replaced mechanically by `object_active`, `object_enabled`, or 
 
 Optional future projection: administrative account suppression may use Objecting `object_enabled`, while authentication lockout remains separate.
 
-## Decision M2 — session creation timestamp
+## Decision M2 вЂ” session creation timestamp
 
 `AccessSessionEntity.createdAt` currently represents both persistence creation and session issuance through `getIssuedAt()`.
 
@@ -29,7 +29,7 @@ Options:
 
 No destructive cleanup is applied until session persistence and token semantics are reviewed.
 
-## Decision M3 — event records and identity breadth
+## Decision M3 вЂ” event records and identity breadth
 
 Security events, verification challenges, passkey challenges, recovery codes, reset requests, and sessions require Objecting identity only when independently addressed across component boundaries.
 

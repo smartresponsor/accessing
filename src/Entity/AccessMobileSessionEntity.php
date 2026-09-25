@@ -9,6 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'access_mobile_session')]
+#[ORM\Index(name: 'idx_access_mobile_session_user', columns: ['user_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_session_id', columns: ['session_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_refresh_token_hash', columns: ['refresh_token_hash'])]
+#[ORM\UniqueConstraint(name: 'uniq_access_mobile_session_access_token_hash', columns: ['access_token_hash'])]
+/**
+ * Defines the mobile session entity type and its canonical responsibility within the Accessing component.
+ */
 final class AccessMobileSessionEntity
 {
     #[ORM\Id]
@@ -18,11 +25,11 @@ final class AccessMobileSessionEntity
     #[ORM\ManyToOne(targetEntity: AccessEntity::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private AccessEntity $user;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $sessionId;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $accessTokenHash;
-    #[ORM\Column(length: 64, unique: true)]
+    #[ORM\Column(length: 64)]
     private string $refreshTokenHash;
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $previousRefreshTokenHash = null;
@@ -39,6 +46,9 @@ final class AccessMobileSessionEntity
     #[ORM\Column(name: 'refresh_reuse_detected_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $refreshReuseDetectedAt = null;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(AccessEntity $user, string $sessionId, string $accessToken, string $refreshToken, string $deviceName, \DateTimeImmutable $now, \DateTimeImmutable $accessExpiresAt, \DateTimeImmutable $refreshExpiresAt)
     {
         if ($accessExpiresAt <= $now || $refreshExpiresAt <= $accessExpiresAt) {
@@ -54,66 +64,105 @@ final class AccessMobileSessionEntity
         $this->refreshExpiresAt = $refreshExpiresAt;
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the get device name operation within the canonical Accessing component workflow.
+     */
     public function getDeviceName(): string
     {
         return $this->deviceName;
     }
 
+    /**
+     * Executes the get created at operation within the canonical Accessing component workflow.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get session id operation within the canonical Accessing component workflow.
+     */
     public function getSessionId(): string
     {
         return $this->sessionId;
     }
 
+    /**
+     * Executes the get access expires at operation within the canonical Accessing component workflow.
+     */
     public function getAccessExpiresAt(): \DateTimeImmutable
     {
         return $this->accessExpiresAt;
     }
 
+    /**
+     * Executes the get refresh expires at operation within the canonical Accessing component workflow.
+     */
     public function getRefreshExpiresAt(): \DateTimeImmutable
     {
         return $this->refreshExpiresAt;
     }
 
+    /**
+     * Executes the has access token operation within the canonical Accessing component workflow.
+     */
     public function hasAccessToken(string $token): bool
     {
         return hash_equals($this->accessTokenHash, self::hash($token));
     }
 
+    /**
+     * Executes the has refresh token operation within the canonical Accessing component workflow.
+     */
     public function hasRefreshToken(string $token): bool
     {
         return hash_equals($this->refreshTokenHash, self::hash($token));
     }
 
+    /**
+     * Executes the has previous refresh token operation within the canonical Accessing component workflow.
+     */
     public function hasPreviousRefreshToken(string $token): bool
     {
         return null !== $this->previousRefreshTokenHash && hash_equals($this->previousRefreshTokenHash, self::hash($token));
     }
 
+    /**
+     * Executes the is access active operation within the canonical Accessing component workflow.
+     */
     public function isAccessActive(\DateTimeImmutable $now): bool
     {
         return null === $this->revokedAt && $this->accessExpiresAt > $now;
     }
 
+    /**
+     * Executes the is refresh active operation within the canonical Accessing component workflow.
+     */
     public function isRefreshActive(\DateTimeImmutable $now): bool
     {
         return null === $this->revokedAt && null === $this->refreshReuseDetectedAt && $this->refreshExpiresAt > $now;
     }
 
+    /**
+     * Executes the rotate operation within the canonical Accessing component workflow.
+     */
     public function rotate(string $accessToken, string $refreshToken, \DateTimeImmutable $now, \DateTimeImmutable $accessExpiresAt, \DateTimeImmutable $refreshExpiresAt): void
     {
         if (!$this->isRefreshActive($now)) {
@@ -126,22 +175,34 @@ final class AccessMobileSessionEntity
         $this->refreshExpiresAt = $refreshExpiresAt;
     }
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(\DateTimeImmutable $now): void
     {
         $this->revokedAt ??= $now;
     }
 
+    /**
+     * Executes the mark refresh reuse detected operation within the canonical Accessing component workflow.
+     */
     public function markRefreshReuseDetected(\DateTimeImmutable $now): void
     {
         $this->refreshReuseDetectedAt ??= $now;
         $this->revoke($now);
     }
 
+    /**
+     * Executes the hash operation within the canonical Accessing component workflow.
+     */
     private static function hash(string $token): string
     {
         return hash('sha256', self::required($token));
     }
 
+    /**
+     * Executes the required operation within the canonical Accessing component workflow.
+     */
     private static function required(string $value): string
     {
         $value = trim($value);

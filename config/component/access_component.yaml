@@ -1,0 +1,42 @@
+component:
+  schema_version: 1
+  name: accessing
+  title: Accessing
+  package: accessing/access
+  status: rc
+  namespace: App\Accessing
+  responsibility: "access and identity-facing application surfaces"
+  export_contract:
+    services: config/component/access_services.yaml
+    routes: config/component/access_routes.yaml
+    api_platform: config/component/access_api_platform.yaml
+    doctrine: config/component/access_doctrine.yaml
+    messenger: config/component/access_messenger.yaml
+    security: config/component/access_security.yaml
+    env: config/component/access_env.yaml
+    smoke: config/component/access_smoke.yaml
+  host_policy:
+    business_logic_owner: component
+    composition_owner: host_application
+    glue_layer_goal: near_zero
+    transport_contracts: dto_api_resource_first
+    entities_as_transport_contracts: false
+
+  symfony_bundle:
+    class: App\Accessing\AccessingBundle
+    extension: App\Accessing\DependencyInjection\AccessingExtension
+    services_loaded_by_extension: config/component/access_services.yaml
+    routes_import_required_by_host: config/component/access_routes.yaml
+
+# Accessing owns its integration contract here.
+# Administering reads this via AccessConfigurationToolProvider::integrationContract().
+# The legacy contract in Administering/src/Contract/Accessing/ is now replaced by a real adapter.
+# This is the single source of truth вЂ” do not duplicate in Administering's component.yaml.
+integration:
+  owns: authentication_session_identity
+
+  # Subject identity вЂ” used by Rolling to build ACL subject strings
+  subject_prefix: 'accessing:user:'
+
+  # Administration/workbench contracts were evacuated from Accessing.
+  # Accessing now exports only access-domain identity metadata here.

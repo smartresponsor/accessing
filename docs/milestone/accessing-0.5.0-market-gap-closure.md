@@ -12,7 +12,7 @@ Enterprise SAML and SCIM are separately gated future scope and are not part of t
 
 ## Execution order
 
-### M0 — finish 0.4.1 security hardening
+### M0 вЂ” finish 0.4.1 security hardening
 
 - Validate and complete `accessing-0.4.1-security-bugfix-hardening.md`.
 - Preserve the current dirty tree; no reset, checkout, clean, overwrite, or revert.
@@ -22,7 +22,7 @@ Enterprise SAML and SCIM are separately gated future scope and are not part of t
 
 Exit: all release-blocking security paths are deterministic, tested, and observable.
 
-### M1 — compromised-password detection
+### M1 вЂ” compromised-password detection
 
 - Add a privacy-preserving provider contract that transmits only a SHA-1 prefix and evaluates suffix counts locally.
 - Enforce the check before registration, password change, API recovery reset, and token-based reset.
@@ -34,7 +34,7 @@ Exit: all release-blocking security paths are deterministic, tested, and observa
 
 Exit: every product password mutation uses one Symfony-oriented credential service and one stable failure taxonomy.
 
-### M2 — Passkeys/WebAuthn
+### M2 вЂ” Passkeys/WebAuthn
 
 - Add WebAuthn credential persistence and migrations under `App\Accessing\`.
 - Implement registration options, attestation verification, authentication options, assertion verification, credential naming, revocation, and sign-counter handling.
@@ -43,7 +43,7 @@ Exit: every product password mutation uses one Symfony-oriented credential servi
 
 Exit: a host application can enable, enroll, authenticate, recover, and revoke passkeys without custom Accessing patches.
 
-### M3 — social login
+### M3 вЂ” social login
 
 - Implement Google first, then GitHub and Apple.
 - Persist provider subject identifiers separately from email addresses.
@@ -55,7 +55,7 @@ Exit: a host application can enable, enroll, authenticate, recover, and revoke p
 
 Exit: social sign-in and deliberate account linking are safe and authorization-neutral.
 
-### M4 — adaptive authentication and Administering export
+### M4 вЂ” adaptive authentication and Administering export
 
 - Add explicit signals for device continuity, IP/network change, velocity, repeated failures, and recovery-sensitive actions.
 - Produce deterministic risk decisions that request stronger authentication; do not make authorization decisions.
@@ -83,7 +83,7 @@ Exit: hosts can apply step-up authentication and export security events without 
 - Functional/API tests for stable error codes and UI feedback.
 - Dependency audit and migration validation before M2/M3 release.
 
-## Repository assessment — 2026-07-11
+## Repository assessment вЂ” 2026-07-11
 
 This assessment is based on the current dirty working tree and does not assume that uncommitted changes are released. The current tree remains authoritative and must not be reset, reverted, cleaned, or overwritten.
 
@@ -108,7 +108,7 @@ Confirmed boundary separation:
 
 ### Current implementation status
 
-#### M0 — security hardening: complete in the current working tree
+#### M0 вЂ” security hardening: complete in the current working tree
 
 Present in the current tree:
 
@@ -131,7 +131,7 @@ M0 release verification completed:
 - production reset tokens and verification/recovery codes are excluded from flash output;
 - all active limiter surfaces are exercised through their API or HTML entry paths.
 
-#### M1 — compromised-password defence: complete in the current working tree
+#### M1 вЂ” compromised-password defence: complete in the current working tree
 
 Present in the current tree:
 
@@ -152,7 +152,7 @@ M1 acceptance verification completed:
 - privacy and outbound-service availability requirements are documented for host applications;
 - dependency audit and the complete local pipeline pass.
 
-#### M2 — Passkeys/WebAuthn: backend ceremonies implemented; release acceptance pending
+#### M2 вЂ” Passkeys/WebAuthn: backend ceremonies implemented; release acceptance pending
 
 The current tree now contains a provider-neutral passkey credential entity, Doctrine repository, lifecycle service, relying-party configuration validation, sign-counter and revocation invariants, typed security-event taxonomy, focused unit coverage, and a host-owned schema contract. Registration/authentication ceremony verification, API/Twig surfaces, browser integration, and third-party WebAuthn library selection remain pending.
 
@@ -166,13 +166,13 @@ Required delivery slices:
 6. host configuration documentation, WebAuthn library selection, and browser-capability fallback;
 7. integration, functional, and browser tests.
 
-#### M3 — social identity: not implemented
+#### M3 вЂ” social identity: not implemented
 
 No Google/GitHub/Apple OAuth client, provider-subject persistence, callback/state/nonce/PKCE flow, or deliberate account-linking surface was found.
 
 The first releasable slice is Google only. GitHub and Apple follow after the linking contract is proven. Email equality must never be sufficient for silent linking; linking requires an authenticated local session or fresh credential/passkey proof.
 
-#### M4 — adaptive authentication and security-event export: not implemented
+#### M4 вЂ” adaptive authentication and security-event export: not implemented
 
 The current tree records security events and applies deterministic limiters, but it has no explicit device continuity model, network-change signal, velocity analysis, risk decision object, step-up decision service, or versioned Accessing-to-Administering export contract.
 
@@ -180,12 +180,12 @@ Accessing must remain the source of truth for authentication events. Administeri
 
 ### Revised release sequencing
 
-1. **0.4.1** — complete M0 gates, persistence verification, secret policy, and release-blocking hardening.
-2. **0.5.0** — complete and release M1 compromised-password defence across every password mutation path.
-3. **0.6.0** — deliver M2 passkeys/WebAuthn as an independently operable host feature.
-4. **0.7.0** — deliver M3 Google social sign-in and safe linking; add GitHub/Apple only after the provider-neutral contract is stable.
-5. **0.8.0** — deliver M4 deterministic adaptive authentication and optional Administering export.
-6. **Later evaluation** — push-based second factor may be assessed only after passkeys, social identity, and adaptive step-up are stable; enterprise SAML/SCIM remains separately gated scope.
+1. **0.4.1** вЂ” complete M0 gates, persistence verification, secret policy, and release-blocking hardening.
+2. **0.5.0** вЂ” complete and release M1 compromised-password defence across every password mutation path.
+3. **0.6.0** вЂ” deliver M2 passkeys/WebAuthn as an independently operable host feature.
+4. **0.7.0** вЂ” deliver M3 Google social sign-in and safe linking; add GitHub/Apple only after the provider-neutral contract is stable.
+5. **0.8.0** вЂ” deliver M4 deterministic adaptive authentication and optional Administering export.
+6. **Later evaluation** вЂ” push-based second factor may be assessed only after passkeys, social identity, and adaptive step-up are stable; enterprise SAML/SCIM remains separately gated scope.
 
 ### Cross-cutting risks
 
@@ -205,7 +205,7 @@ This milestone is complete only when:
 - every externally visible capability is installable by a host without repository-specific patches;
 - the milestone document and market analysis are updated to reflect released code rather than planned or dirty-tree-only implementation.
 
-## Repository assessment — 2026-07-12
+## Repository assessment вЂ” 2026-07-12
 
 The repository is clean on `master`, so this assessment is based on committed code rather than an uncommitted implementation wave.
 

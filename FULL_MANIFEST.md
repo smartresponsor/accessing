@@ -3,7 +3,7 @@
 Product name: Accessing
 Canonical route/resource root: Access
 Core access subject entity: AccessEntity
-Package name: smartresponsor/accessing
+Consumer package machine identifier: smartresponsor/accessing
 
 Accessing is a single Symfony 8 application brick responsible for the access lifecycle across the ecosystem.
 It must remain a single-root Symfony-oriented application with App\Accessing\ => src/ and no alternative root namespaces.

@@ -53,6 +53,69 @@ final class AccessMobilePendingAuthServiceTest extends TestCase
         $service->resolve($issued->token, AccessMobilePendingPurpose::EmailVerification);
     }
 
+    public function testRejectsTtlBelowCanonicalMinimum(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Mobile pending-auth TTL must be at least 60 seconds.');
+
+        new AccessMobilePendingAuthService(
+            $this->createMock(AccessMobilePendingAuthRepositoryInterface::class),
+            $this->createMock(ClockInterface::class),
+            59,
+        );
+    }
+
+    public function testRejectsRepositoryEntityWhoseHashDoesNotMatchPlainToken(): void
+    {
+        $now = new \DateTimeImmutable('2026-07-12T00:00:00+00:00');
+        $pending = new AccessMobilePendingAuthEntity(
+            new AccessEntity('token-mismatch@example.test', 'Mismatch'),
+            'stored-token',
+            AccessMobilePendingPurpose::EmailVerification,
+            'iPhone',
+            $now,
+            $now->modify('+10 minutes'),
+        );
+        $clock = $this->createMock(ClockInterface::class);
+        $clock->method('now')->willReturn($now);
+        $repository = $this->createMock(AccessMobilePendingAuthRepositoryInterface::class);
+        $repository->method('findOneByTokenHash')->willReturn($pending);
+
+        $this->expectException(\DomainException::class);
+        (new AccessMobilePendingAuthService($repository, $clock))->resolve(
+            'different-token',
+            AccessMobilePendingPurpose::EmailVerification,
+        );
+    }
+
+    public function testRejectsExpiredTokenAndConsumePropagatesInvalidTokenFailure(): void
+    {
+        $now = new \DateTimeImmutable('2026-07-12T00:00:00+00:00');
+        $pending = new AccessMobilePendingAuthEntity(
+            new AccessEntity('expired-pending@example.test'),
+            'expired-token',
+            AccessMobilePendingPurpose::EmailVerification,
+            'iPhone',
+            $now->modify('-20 minutes'),
+            $now->modify('-10 minutes'),
+        );
+        $clock = $this->createMock(ClockInterface::class);
+        $clock->method('now')->willReturn($now);
+        $repository = $this->createMock(AccessMobilePendingAuthRepositoryInterface::class);
+        $repository->method('findOneByTokenHash')->willReturn($pending);
+        $service = new AccessMobilePendingAuthService($repository, $clock);
+
+        try {
+            $service->resolve('expired-token', AccessMobilePendingPurpose::EmailVerification);
+            self::fail('Expired pending token must be rejected.');
+        } catch (\DomainException) {
+        }
+
+        $repository->method('findOneByTokenHash')->willReturn(null);
+        $this->expectException(\DomainException::class);
+        $service->consume('missing-token', AccessMobilePendingPurpose::EmailVerification);
+    }
+
     public function testRejectsPurposeMismatchWithoutConsumingToken(): void
     {
         $now = new \DateTimeImmutable('2026-07-12T00:00:00+00:00');

@@ -13,6 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'access_verification_challenge')]
 #[ORM\Index(name: 'idx_access_verification_challenge_type', columns: ['channel_type'])]
 #[ORM\Index(name: 'idx_access_verification_challenge_expires_at', columns: ['expires_at'])]
+#[ORM\Index(name: 'idx_access_verification_challenge_user', columns: ['user_id'])]
+/**
+ * Defines the verification challenge entity type and its canonical responsibility within the Accessing component.
+ */
 class AccessVerificationChallengeEntity
 {
     #[ORM\Id]
@@ -83,16 +87,25 @@ class AccessVerificationChallengeEntity
         }
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): ?AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the set user operation within the canonical Accessing component workflow.
+     */
     public function setUser(AccessEntity $user): self
     {
         $this->user = $user;
@@ -100,6 +113,9 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get challenge type operation within the canonical Accessing component workflow.
+     */
     public function getChallengeType(): AccessVerificationChallengeType
     {
         return match ($this->channelType) {
@@ -109,6 +125,9 @@ class AccessVerificationChallengeEntity
         };
     }
 
+    /**
+     * Executes the set challenge type operation within the canonical Accessing component workflow.
+     */
     public function setChallengeType(AccessVerificationChallengeType|string $challengeType): self
     {
         $value = $challengeType instanceof AccessVerificationChallengeType ? $challengeType->value : trim($challengeType);
@@ -122,21 +141,33 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get channel type operation within the canonical Accessing component workflow.
+     */
     public function getChannelType(): string
     {
         return $this->channelType;
     }
 
+    /**
+     * Executes the set channel type operation within the canonical Accessing component workflow.
+     */
     public function setChannelType(string $channelType): self
     {
         return $this->setChallengeType($channelType);
     }
 
+    /**
+     * Executes the get token operation within the canonical Accessing component workflow.
+     */
     public function getToken(): string
     {
         return $this->token;
     }
 
+    /**
+     * Executes the set token operation within the canonical Accessing component workflow.
+     */
     public function setToken(string $token): self
     {
         $this->token = trim($token);
@@ -144,16 +175,25 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get code hash operation within the canonical Accessing component workflow.
+     */
     public function getCodeHash(): string
     {
         return $this->token;
     }
 
+    /**
+     * Executes the get target operation within the canonical Accessing component workflow.
+     */
     public function getTarget(): string
     {
         return $this->target;
     }
 
+    /**
+     * Executes the set target operation within the canonical Accessing component workflow.
+     */
     public function setTarget(string $target): self
     {
         $this->target = trim($target);
@@ -161,21 +201,33 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the is completed operation within the canonical Accessing component workflow.
+     */
     public function isCompleted(): bool
     {
         return $this->completed;
     }
 
+    /**
+     * Executes the get consumed at operation within the canonical Accessing component workflow.
+     */
     public function getConsumedAt(): ?\DateTimeImmutable
     {
         return $this->completedAt;
     }
 
+    /**
+     * Executes the consume operation within the canonical Accessing component workflow.
+     */
     public function consume(?\DateTimeImmutable $consumedAt = null): self
     {
         return $this->markCompleted($consumedAt);
     }
 
+    /**
+     * Executes the mark completed operation within the canonical Accessing component workflow.
+     */
     public function markCompleted(?\DateTimeImmutable $completedAt = null): self
     {
         $this->completed = true;
@@ -184,16 +236,25 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get completed at operation within the canonical Accessing component workflow.
+     */
     public function getCompletedAt(): ?\DateTimeImmutable
     {
         return $this->completedAt;
     }
 
+    /**
+     * Executes the get expires at operation within the canonical Accessing component workflow.
+     */
     public function getExpiresAt(): \DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
+    /**
+     * Executes the set expires at operation within the canonical Accessing component workflow.
+     */
     public function setExpiresAt(\DateTimeImmutable $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
@@ -201,21 +262,33 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get created at operation within the canonical Accessing component workflow.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get requested at operation within the canonical Accessing component workflow.
+     */
     public function getRequestedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get requested ip address operation within the canonical Accessing component workflow.
+     */
     public function getRequestedIpAddress(): ?string
     {
         return $this->requestedIpAddress;
     }
 
+    /**
+     * Executes the register attempt operation within the canonical Accessing component workflow.
+     */
     public function registerAttempt(): self
     {
         ++$this->attemptCount;
@@ -223,11 +296,17 @@ class AccessVerificationChallengeEntity
         return $this;
     }
 
+    /**
+     * Executes the get attempt count operation within the canonical Accessing component workflow.
+     */
     public function getAttemptCount(): int
     {
         return $this->attemptCount;
     }
 
+    /**
+     * Executes the has reached attempt limit operation within the canonical Accessing component workflow.
+     */
     public function hasReachedAttemptLimit(int $maximumAttempts = 5): bool
     {
         return $this->attemptCount >= $maximumAttempts;

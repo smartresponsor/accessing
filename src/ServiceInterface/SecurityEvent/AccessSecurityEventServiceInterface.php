@@ -11,6 +11,9 @@ use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the security event service interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessSecurityEventServiceInterface
 {
     /** @param array<string, scalar|array<array-key, mixed>|null> $context */

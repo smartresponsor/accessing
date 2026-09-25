@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Config;
 
+use App\Accessing\DTO\Config\AccessEnvironmentConfigDTO;
 use App\Accessing\Form\Config\AccessEnvironmentConfigType;
-use App\Accessing\Value\Config\AccessEnvironmentConfigData;
 use App\Configuring\ServiceInterface\Config\ConfigToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ConfigVariableToolServiceInterface;
 use App\Configuring\ServiceInterface\Config\ManagedConfigVariablesProviderInterface;
@@ -19,6 +19,9 @@ use Symfony\Component\Yaml\Yaml;
  */
 final readonly class AccessEnvironmentConfigService implements ConfigToolServiceInterface, ManagedConfigVariablesProviderInterface, ConfigVariableToolServiceInterface
 {
+    /**
+     * Executes the descriptor operation within the canonical Accessing component workflow.
+     */
     public function descriptor(): ConfigToolDescriptor
     {
         return new ConfigToolDescriptor(
@@ -39,8 +42,8 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
                 'userLockMinutes',
             ],
             sensitiveFields: [],
-            readableFiles: ['config/component/runtime.yaml'],
-            writableFiles: ['config/component/runtime.yaml'],
+            readableFiles: ['config/component/access_runtime.yaml'],
+            writableFiles: ['config/component/access_runtime.yaml'],
             metadata: [
                 'section' => 'Configuration',
                 'kind' => 'environment',
@@ -54,33 +57,36 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
     /** @return iterable<ConfigVariable> */
     public function managedVariables(): iterable
     {
-        yield ConfigVariable::yaml('accessing_mailer_sender', 'config/component/runtime.yaml')
+        yield ConfigVariable::yaml('accessing_mailer_sender', 'config/component/access_runtime.yaml')
             ->withLabel('Mailer sender')
             ->required();
-        yield ConfigVariable::yaml('accessing_phone_verification_provider', 'config/component/runtime.yaml')
+        yield ConfigVariable::yaml('accessing_phone_verification_provider', 'config/component/access_runtime.yaml')
             ->withLabel('Phone verification provider')
             ->required()
             ->withConstraints(['choices' => ['fake', 'null']]);
-        yield ConfigVariable::yaml('accessing_session_max_idle_days', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_session_max_idle_days', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Session max idle days')
             ->required();
-        yield ConfigVariable::yaml('accessing_recovery_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_recovery_code_ttl_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Recovery code TTL minutes')
             ->required();
-        yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_verification_code_ttl_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('Verification code TTL minutes')
             ->required();
-        yield ConfigVariable::yaml('accessing_user_lock_threshold', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_user_lock_threshold', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('User lock threshold')
             ->required();
-        yield ConfigVariable::yaml('accessing_user_lock_minutes', 'config/component/runtime.yaml', ConfigVariableType::INT)
+        yield ConfigVariable::yaml('accessing_user_lock_minutes', 'config/component/access_runtime.yaml', ConfigVariableType::INT)
             ->withLabel('User lock minutes')
             ->required();
     }
 
+    /**
+     * Executes the load data operation within the canonical Accessing component workflow.
+     */
     public function loadData(): object
     {
-        $data = new AccessEnvironmentConfigData();
+        $data = new AccessEnvironmentConfigDTO();
         $runtime = $this->runtimeManifest();
 
         $data->mailerSender = self::stringValue($runtime['accessing_mailer_sender'] ?? null, $data->mailerSender);
@@ -94,6 +100,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return $data;
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
@@ -107,6 +116,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
+    /**
+     * Executes the apply operation within the canonical Accessing component workflow.
+     */
     public function apply(object $data, array $context = []): array
     {
         $payload = $this->assertData($data);
@@ -185,10 +197,13 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
-    private function assertData(object $data): AccessEnvironmentConfigData
+    /**
+     * Executes the assert data operation within the canonical Accessing component workflow.
+     */
+    private function assertData(object $data): AccessEnvironmentConfigDTO
     {
-        if (!$data instanceof AccessEnvironmentConfigData) {
-            throw new \InvalidArgumentException('Accessing environment config expects AccessEnvironmentConfigData.');
+        if (!$data instanceof AccessEnvironmentConfigDTO) {
+            throw new \InvalidArgumentException('Accessing environment config expects AccessEnvironmentConfigDTO.');
         }
 
         return $data;
@@ -203,9 +218,12 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return is_array($parsed) ? self::stringKeyMap($parsed) : [];
     }
 
+    /**
+     * Executes the runtime manifest path operation within the canonical Accessing component workflow.
+     */
     private function runtimeManifestPath(): string
     {
-        return dirname(__DIR__, 3).'/config/component/runtime.yaml';
+        return dirname(__DIR__, 3).'/config/component/access_runtime.yaml';
     }
 
     /** @param array<string, mixed> $manifest */
@@ -242,7 +260,7 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
     /**
      * @return array<string, mixed>
      */
-    private function runtimePatch(AccessEnvironmentConfigData $data): array
+    private function runtimePatch(AccessEnvironmentConfigDTO $data): array
     {
         return [
             'accessing_mailer_sender' => $data->mailerSender,
@@ -255,6 +273,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         ];
     }
 
+    /**
+     * Executes the string value operation within the canonical Accessing component workflow.
+     */
     private static function stringValue(mixed $value, string $default): string
     {
         if (is_string($value)) {
@@ -268,6 +289,9 @@ final readonly class AccessEnvironmentConfigService implements ConfigToolService
         return $default;
     }
 
+    /**
+     * Executes the int value operation within the canonical Accessing component workflow.
+     */
     private static function intValue(mixed $value, int $default): int
     {
         if (is_int($value)) {

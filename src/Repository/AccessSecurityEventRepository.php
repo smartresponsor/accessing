@@ -16,11 +16,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 final class AccessSecurityEventRepository extends ServiceEntityRepository implements AccessSecurityEventRepositoryInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AccessSecurityEventEntity::class);
     }
 
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessSecurityEventEntity $securityEvent, bool $flush = false): void
     {
         $user = $securityEvent->getUser();
@@ -41,10 +47,13 @@ final class AccessSecurityEventRepository extends ServiceEntityRepository implem
         }
     }
 
+    /**
+     * Executes the find recent events operation within the canonical Accessing component workflow.
+     */
     public function findRecentEvents(int $limit = 50): array
     {
         $query = $this->createQueryBuilder('securityEvent')
-            ->orderBy('securityEvent.occurredAt', 'DESC')
+            ->orderBy('securityEvent.occurredAt', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery();
 
@@ -54,12 +63,15 @@ final class AccessSecurityEventRepository extends ServiceEntityRepository implem
         return $results;
     }
 
+    /**
+     * Executes the find recent events for user operation within the canonical Accessing component workflow.
+     */
     public function findRecentEventsForUser(AccessEntity $user, int $limit = 50): array
     {
         $query = $this->createQueryBuilder('securityEvent')
             ->andWhere('securityEvent.user = :user')
             ->setParameter('user', $user)
-            ->orderBy('securityEvent.occurredAt', 'DESC')
+            ->orderBy('securityEvent.occurredAt', \SortDirection::Descending)
             ->setMaxResults($limit)
             ->getQuery();
 

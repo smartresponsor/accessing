@@ -12,12 +12,18 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
+/**
+ * Defines the authentication entry point type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessAuthenticationEntryPoint implements AuthenticationEntryPointInterface
 {
     use TargetPathTrait;
 
     private const SIGN_IN_PATH = '/access/signin';
 
+    /**
+     * Executes the start operation within the canonical Accessing component workflow.
+     */
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         if ($request->hasSession() && $request->isMethodSafe()) {

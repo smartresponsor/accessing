@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
+use App\Accessing\Clock\AccessSystemClock;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
-use App\Accessing\Service\Clock\AccessSystemClock;
+use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\Service\SecondFactor\AccessSecondFactorService;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -26,7 +26,7 @@ final class AccessSecondFactorRateLimiterTest extends TestCase
         $secondFactor->confirm();
         $user->setSecondFactor($secondFactor);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::once())->method('flush');
 
         $limiter = new RateLimiterFactory([
@@ -61,7 +61,7 @@ final class AccessSecondFactorRateLimiterTest extends TestCase
         $secondFactor->confirm();
         $user->setSecondFactor($secondFactor);
 
-        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager = $this->createMock(AccessPersistenceRepositoryInterface::class);
         $entityManager->expects(self::never())->method('flush');
 
         $limiter = new RateLimiterFactory([

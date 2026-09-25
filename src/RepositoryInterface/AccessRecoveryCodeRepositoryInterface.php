@@ -8,8 +8,14 @@ namespace App\Accessing\RepositoryInterface;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 
+/**
+ * Defines the recovery code repository interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessRecoveryCodeRepositoryInterface
 {
+    /**
+     * Executes the save operation within the canonical Accessing component workflow.
+     */
     public function save(AccessRecoveryCodeEntity $recoveryCode, bool $flush = false): void;
 
     /**
@@ -17,5 +23,8 @@ interface AccessRecoveryCodeRepositoryInterface
      */
     public function findActiveForUser(AccessEntity $user): array;
 
+    /**
+     * Executes the cleanup consumed before operation within the canonical Accessing component workflow.
+     */
     public function cleanupConsumedBefore(\DateTimeImmutable $before): int;
 }

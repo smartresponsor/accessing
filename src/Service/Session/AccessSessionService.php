@@ -15,8 +15,14 @@ use App\Accessing\ValueObject\AccessSecurityEventType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+/**
+ * Defines the session service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessSessionService implements AccessSessionServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessSessionRepositoryInterface $userSessionRepository,
         private AccessSecurityEventServiceInterface $securityEventService,

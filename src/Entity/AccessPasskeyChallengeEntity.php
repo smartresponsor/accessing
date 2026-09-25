@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AccessPasskeyChallengeRepository::class)]
 #[ORM\Table(name: 'access_passkey_challenge')]
 #[ORM\UniqueConstraint(name: 'uniq_access_passkey_challenge_hash', columns: ['challenge_hash'])]
+#[ORM\Index(name: 'idx_access_passkey_challenge_user', columns: ['user_id'])]
+/**
+ * Defines the passkey challenge entity type and its canonical responsibility within the Accessing component.
+ */
 final class AccessPasskeyChallengeEntity
 {
     #[ORM\Id]
@@ -43,6 +47,9 @@ final class AccessPasskeyChallengeEntity
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $consumedAt = null;
 
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         string $plainChallenge,
         AccessPasskeyCeremonyPurpose $purpose,
@@ -73,26 +80,41 @@ final class AccessPasskeyChallengeEntity
         $this->user = $user;
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): ?AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the get purpose operation within the canonical Accessing component workflow.
+     */
     public function getPurpose(): AccessPasskeyCeremonyPurpose
     {
         return $this->purpose;
     }
 
+    /**
+     * Executes the get challenge hash operation within the canonical Accessing component workflow.
+     */
     public function getChallengeHash(): string
     {
         return $this->challengeHash;
     }
 
+    /**
+     * Executes the is usable operation within the canonical Accessing component workflow.
+     */
     public function isUsable(
         string $plainChallenge,
         AccessPasskeyCeremonyPurpose $purpose,
@@ -108,6 +130,9 @@ final class AccessPasskeyChallengeEntity
             && hash_equals($this->origin, rtrim(trim($origin), '/'));
     }
 
+    /**
+     * Executes the consume operation within the canonical Accessing component workflow.
+     */
     public function consume(\DateTimeImmutable $consumedAt): void
     {
         if (null !== $this->consumedAt) {
@@ -121,16 +146,25 @@ final class AccessPasskeyChallengeEntity
         $this->consumedAt = $consumedAt;
     }
 
+    /**
+     * Executes the get created at operation within the canonical Accessing component workflow.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get expires at operation within the canonical Accessing component workflow.
+     */
     public function getExpiresAt(): \DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
+    /**
+     * Executes the get consumed at operation within the canonical Accessing component workflow.
+     */
     public function getConsumedAt(): ?\DateTimeImmutable
     {
         return $this->consumedAt;

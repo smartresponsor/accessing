@@ -6,7 +6,7 @@ namespace App\Accessing\Recorder\SecurityEvent;
 
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
-use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
+use App\Accessing\RecorderInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
@@ -15,10 +15,16 @@ use Symfony\Component\HttpFoundation\Request;
 /** @deprecated Use AccessSecurityEventServiceInterface directly. */
 final readonly class AccessSecurityEventRecorder implements AccessSecurityEventRecorderInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(private AccessSecurityEventServiceInterface $securityEventService)
     {
     }
 
+    /**
+     * Executes the record operation within the canonical Accessing component workflow.
+     */
     public function record(
         AccessSecurityEventType $eventType,
         AccessSecurityEventSeverity $severity,

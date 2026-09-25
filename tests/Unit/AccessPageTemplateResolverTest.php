@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Resolver\Rendering\AccessPageTemplateResolver;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AccessPageTemplateResolverTest extends TestCase
 {
-    /**
-     * @dataProvider mappedViews
-     */
+    #[DataProvider('mappedViews')]
     public function testItMapsPageViewsToCanonicalInterfacingTemplates(string $view, string $expectedTemplate): void
     {
         $resolver = new AccessPageTemplateResolver();

@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Passkey;
 
-use App\Accessing\Dto\AccessPasskeyAuthenticationOptions;
-use App\Accessing\Dto\AccessPasskeyRelyingPartyConfig;
+use App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO;
+use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyChallengeServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyCredentialServiceInterface;
@@ -17,10 +16,17 @@ use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInter
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use App\Accessing\ValueObject\AccessSecurityEventSeverity;
 use App\Accessing\ValueObject\AccessSecurityEventType;
+use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAssertionVerifierInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Defines the passkey authentication service type and its canonical responsibility within the Accessing component.
+ */
 final readonly class AccessPasskeyAuthenticationService implements AccessPasskeyAuthenticationServiceInterface
 {
+    /**
+     * Initializes the collaborators required by this Accessing runtime responsibility.
+     */
     public function __construct(
         private AccessPasskeyChallengeServiceInterface $challengeService,
         private AccessPasskeyAssertionVerifierInterface $assertionVerifier,
@@ -30,12 +36,15 @@ final readonly class AccessPasskeyAuthenticationService implements AccessPasskey
     ) {
     }
 
-    public function issueOptions(AccessPasskeyRelyingPartyConfig $relyingParty, ?AccessEntity $user = null): AccessPasskeyAuthenticationOptions
+    /**
+     * Executes the issue options operation within the canonical Accessing component workflow.
+     */
+    public function issueOptions(AccessPasskeyRelyingPartyConfigDTO $relyingParty, ?AccessEntity $user = null): AccessPasskeyAuthenticationOptionsDTO
     {
         $issued = $this->challengeService->issue(AccessPasskeyCeremonyPurpose::Authentication, $relyingParty->id, $relyingParty->origin, $user);
         $credentials = $user instanceof AccessEntity ? $this->credentialRepository->findActiveForUser($user) : [];
 
-        return new AccessPasskeyAuthenticationOptions(
+        return new AccessPasskeyAuthenticationOptionsDTO(
             $issued['challenge'],
             $relyingParty->id,
             array_map(static fn (AccessPasskeyCredentialEntity $credential): array => [
@@ -46,7 +55,10 @@ final readonly class AccessPasskeyAuthenticationService implements AccessPasskey
         );
     }
 
-    public function complete(AccessPasskeyRelyingPartyConfig $relyingParty, array $credentialResponse, ?Request $request = null): AccessEntity
+    /**
+     * Executes the complete operation within the canonical Accessing component workflow.
+     */
+    public function complete(AccessPasskeyRelyingPartyConfigDTO $relyingParty, array $credentialResponse, ?Request $request = null): AccessEntity
     {
         $challenge = $credentialResponse['challenge'] ?? null;
         $credentialId = $credentialResponse['credentialId'] ?? null;

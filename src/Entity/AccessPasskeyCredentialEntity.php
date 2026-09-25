@@ -10,6 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: AccessPasskeyCredentialRepository::class)]
 #[ORM\Table(name: 'access_passkey_credential')]
 #[ORM\UniqueConstraint(name: 'uniq_access_passkey_credential_id', columns: ['credential_id'])]
+#[ORM\Index(name: 'idx_access_passkey_credential_user', columns: ['user_id'])]
+/**
+ * Defines the passkey credential entity type and its canonical responsibility within the Accessing component.
+ */
 final class AccessPasskeyCredentialEntity
 {
     #[ORM\Id]
@@ -87,36 +91,57 @@ final class AccessPasskeyCredentialEntity
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the get id operation within the canonical Accessing component workflow.
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * Executes the get user operation within the canonical Accessing component workflow.
+     */
     public function getUser(): AccessEntity
     {
         return $this->user;
     }
 
+    /**
+     * Executes the get credential id operation within the canonical Accessing component workflow.
+     */
     public function getCredentialId(): string
     {
         return $this->credentialId;
     }
 
+    /**
+     * Executes the get user handle operation within the canonical Accessing component workflow.
+     */
     public function getUserHandle(): string
     {
         return $this->userHandle;
     }
 
+    /**
+     * Executes the get public key operation within the canonical Accessing component workflow.
+     */
     public function getPublicKey(): string
     {
         return $this->publicKey;
     }
 
+    /**
+     * Executes the get credential record operation within the canonical Accessing component workflow.
+     */
     public function getCredentialRecord(): ?string
     {
         return $this->credentialRecord;
     }
 
+    /**
+     * Executes the update credential record operation within the canonical Accessing component workflow.
+     */
     public function updateCredentialRecord(string $credentialRecord): void
     {
         if ('' === trim($credentialRecord)) {
@@ -132,11 +157,17 @@ final class AccessPasskeyCredentialEntity
         return $this->transports;
     }
 
+    /**
+     * Executes the get sign count operation within the canonical Accessing component workflow.
+     */
     public function getSignCount(): int
     {
         return $this->signCount;
     }
 
+    /**
+     * Executes the advance sign count operation within the canonical Accessing component workflow.
+     */
     public function advanceSignCount(int $nextSignCount): void
     {
         if ($nextSignCount <= $this->signCount) {
@@ -147,11 +178,17 @@ final class AccessPasskeyCredentialEntity
         $this->lastUsedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the mark used without counter operation within the canonical Accessing component workflow.
+     */
     public function markUsedWithoutCounter(): void
     {
         $this->lastUsedAt = new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the rename operation within the canonical Accessing component workflow.
+     */
     public function rename(string $name): void
     {
         $name = trim($name);
@@ -162,26 +199,41 @@ final class AccessPasskeyCredentialEntity
         $this->name = mb_substr($name, 0, 120);
     }
 
+    /**
+     * Executes the get name operation within the canonical Accessing component workflow.
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * Executes the get created at operation within the canonical Accessing component workflow.
+     */
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
+    /**
+     * Executes the get last used at operation within the canonical Accessing component workflow.
+     */
     public function getLastUsedAt(): ?\DateTimeImmutable
     {
         return $this->lastUsedAt;
     }
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(): void
     {
         $this->revokedAt ??= new \DateTimeImmutable();
     }
 
+    /**
+     * Executes the is active operation within the canonical Accessing component workflow.
+     */
     public function isActive(): bool
     {
         return null === $this->revokedAt;

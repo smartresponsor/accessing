@@ -7,6 +7,9 @@ namespace App\Accessing\ServiceInterface\Passkey;
 use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 
+/**
+ * Defines the passkey credential service interface type and its canonical responsibility within the Accessing component.
+ */
 interface AccessPasskeyCredentialServiceInterface
 {
     /** @param list<string> $transports */
@@ -21,7 +24,13 @@ interface AccessPasskeyCredentialServiceInterface
         ?string $credentialRecord = null,
     ): AccessPasskeyCredentialEntity;
 
+    /**
+     * Executes the record successful assertion operation within the canonical Accessing component workflow.
+     */
     public function recordSuccessfulAssertion(string $credentialId, int $signCount, ?string $credentialRecord = null): AccessPasskeyCredentialEntity;
 
+    /**
+     * Executes the revoke operation within the canonical Accessing component workflow.
+     */
     public function revoke(AccessEntity $user, string $credentialId): bool;
 }
