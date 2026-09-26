@@ -267,3 +267,50 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - composer validate --strict --check-lock: PASS.
 - Gating: PASS — 9 rules, 0 failed, 0 warning, 1 skipped; Canon055 remains PASS.
 
+## 2026-09-25 — Autonomous RC reconnaissance and acceptance pass
+
+### Factual baseline
+- Task: `engine-20260925220459-accessing-87b0d6`; branch `refactor/accessing-canonical-structure` at `bc6d1e60c77348c93081f97e36556170f4c5b16e`, synchronized with its upstream at reconnaissance time.
+- The starting worktree contained one pre-existing modification: `.gating/README.md`. Its diff replaced the Accessing consumer-artifact README with Gating owner-side documentation. It was initially isolated as pre-existing work; subsequent Gating-boundary review proved it to be a regression of the consumer-artifact contract, so it was reconciled back to the tracked Accessing content before integration.
+- Read the root Accessing manifests, product/bounding/architecture contracts, source/config manifests, current security/passkey milestone documentation, Composer manifest/scripts, and the required Objecting/Cruding/Viewing/Interfacing/Gating/Canonization contract contour.
+- Market baseline rechecked against current Symfony Security and ZITADEL authentication/passkey/MFA/session documentation. RC expectations remain deterministic authentication/recovery/session/security behavior; federation/social breadth and adaptive-authentication growth remain separate from RC correctness.
+
+### Canonization mapping consulted
+- `Canon017DocumentationMatchesRuntimeRule`: current documentation must match implemented runtime; Accessing market docs now describe passkeys/WebAuthn as implemented with release/UX acceptance remaining, matching current code/dependency evidence.
+- `Canon018ComposerIdentityMappingRule`: `accessing/access` maps to `App\\Accessing\\ => src/` and `Access*` subject vocabulary.
+- `Canon021CrudingOwnsGenericCrudRule`: Accessing must not reintroduce generic CRUD routing/controllers/services; EasyAdmin remains the permitted admin-surface exception.
+- `Canon022StandaloneApplicationDependencyBaselineRule`, `Canon023DevelopmentComposerSymlinkRule`, and `Canon024ProductionComposerBundleRule`: verify the standalone direct baseline, local development path/symlink wiring, and path-independent production manifest.
+- `Canon029MandatoryPhpQualityToolingRule`: PHP-CS-Fixer/PHPStan dependencies, config, and reproducible scripts are required.
+- `Canon030DoctrineSchemaParityRule`: current Entity metadata plus the full migration chain must reproduce a synchronized clean schema through the repository parity command.
+- `Canon040PhpTestCoverageRule`: lines >= 80%, methods >= 80%, branches >= 70% using php-code-coverage evidence.
+- `Canon042BehavioralUiCoverageRule`: standalone user-visible behavior requires reproducible inventory-backed behavioral/UI evidence; raw Panther/Playwright counts are not substitute percentages.
+- `Canon047RepositoryOwnsDoctrineManagerRule` and `Canon051RepositoryHasNoOrchestrationDependencyRule`: Doctrine-manager access stays in repositories while repositories remain free of application orchestration dependencies.
+- `Canon055PlatformIdentityTerminologyRule`: shared platform documentation must use neutral platform identity; consumer aliases are allowed only when explicitly scoped or used as machine identifiers.
+
+### Workstreams
+- RC-critical: execute the full deterministic quality/schema/dependency contour against the current tree, inspect any failures against the consulted Canonization evidence contracts, repair only factual in-scope defects, and re-run affected gates.
+- Growth: social identity/federation breadth, richer self-service/passkey UX, adaptive authentication, and additional enterprise identity capabilities remain post-RC unless a current correctness failure proves they are required.
+
+### Material implementation
+- Repaired `bin/cmcp-coverage.ps1`: the bounded CMCP runner now delegates to the repository-owned `composer test:coverage` workflow instead of producing line/method-only evidence. This preserves one canonical coverage implementation and generates the required methods/branches/lines summary through `bin/merge-coverage.php`.
+- Reconciled the pre-existing `.gating/README.md` replacement back to the tracked Accessing consumer-artifact content. After reconciliation the path has no worktree or staged diff; no owner-side Gating documentation is being integrated into Accessing.
+- Investigated the unusual production Tabling VCS locator before changing it. `composer.prod.json` and the actual Tabling `origin` both use `git@github.com:smartresponsor/tabling-.git`; no speculative rename was made.
+
+### Fresh verification evidence
+- `composer validate --strict --check-lock`: PASS.
+- `composer audit --format=summary`: PASS; no security vulnerability advisories found.
+- Gating: PASS — 9 rules, 0 failed, 0 warning, 1 skipped; secret scan covered 811 files.
+- PHP-CS-Fixer dry run: PASS — 266 files, 0 fixable.
+- PHPStan: PASS — 264 files, 0 errors.
+- PHPUnit: PASS — 261 tests / 2935 assertions; 124 existing non-failing PHPUnit notices remain.
+- Canon040 fresh coverage via the repaired bounded runner: PASS — methods 86.71% (607/700), branches 77.12% (1803/2338), lines 82.20% (3098/3769). The two coverage runs used identical method/line populations and `merge-coverage.php` produced the canonical summary.
+- Canon047 targeted scan: direct `EntityManagerInterface` and `ManagerRegistry` usage remains confined to `src/Repository/**`.
+- Canon051 targeted scan: no repository imports of Controller/Handler/Service/Mailer/Notifier/RequestStack/Session/MessageBus orchestration types were found.
+- Canon021 targeted scan: no `Crud`-named PHP source candidate was found in `src/`.
+- Forbidden `App\\Accessing\\Domain` source namespace scan: no hit.
+
+### Residual verification state
+- A fresh `schema:parity` invocation exceeded the synchronous Console MCP execution window and returned no final exit; it is therefore not claimed as a fresh PASS or FAIL. No Doctrine Entity, mapping, migration, or persistence configuration changed in this execution window, so the previously proven PostgreSQL parity remains structurally applicable to the current schema.
+- Canon042 inventory-backed behavioral/UI evidence is still not freshly established in this window. The repository contains opt-in Panther and Playwright sign-in smoke coverage, but raw browser-test presence is not equivalent to Canon042 inventory percentages.
+- Managed PHP runtime probe found no healthy existing server on the default managed port. No restart was performed because this pass made no browser/UI behavior change and the runtime policy is reuse-existing-first.
+
