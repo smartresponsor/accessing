@@ -327,3 +327,46 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Final quality evidence: Composer strict/lock validation PASS; PHP lint PASS for all changed PHP files; PHPStan PASS across 265 files; PHP-CS-Fixer dry run PASS across 267 files; current Accessing Gating profile PASS — 9 rules, 0 failed, 0 warning, 1 skipped. The current 9-rule profile does not independently execute Canon042, so Canon042 closure is based on the textual Canon contract plus the repository-owned producer/evidence execution rather than a fabricated Gating verdict.
 - Visual evidence: GREEN. Playwright captured `var/Accessing/2026-09-25/engine-20260925220459-accessing-87b0d6/signin.png` from the restored standalone sign-in surface.
 
+## 2026-09-26 — Autonomous RC regression check (engine-20260926081755-accessing-42a06a)
+
+### Factual baseline
+- Branch `refactor/accessing-canonical-structure` at `d3043f418667ab2dd66f0bf75ce33fe2f7cfc5c9`, synchronized with `origin/refactor/accessing-canonical-structure` at reconnaissance time.
+- Starting worktree has one modification: `.gating/README.md`. Its diff replaces the Accessing consumer-artifact README with Gating owner documentation.
+- Re-read Accessing root manifests and Composer/security/runtime surfaces, plus the required Objecting/Cruding/Viewing/Interfacing/Gating/Canonization contour.
+- Market/OSS baseline: Symfony voters centralize reusable permissions; OPA/Cerbos/Permit demonstrate policy-decision/enforcement separation, contextual authorization, and deny-by-default. Accessing remains bounded to authentication/access lifecycle and does not grow into a rich authorization policy engine for RC.
+
+### Canonization mapping consulted
+- Canon017: current documentation must match runtime/boundary.
+- Canon018: `accessing/access` maps to `App\\Accessing\\ => src/` and `Access*` vocabulary.
+- Canon021: generic CRUD remains owned by Cruding.
+- Canon022/023/024: standalone dependency baseline, local symlink development wiring, path-independent production manifest.
+- Canon029: repository-owned PHP-CS-Fixer/PHPStan tooling.
+- Canon030: clean migration chain must reproduce Doctrine metadata.
+- Canon040: >=80% lines, >=80% methods, >=70% branches from php-code-coverage evidence.
+- Canon042: inventory-backed functional/behavioral/UI/critical evidence.
+- Canon047/051: Doctrine manager stays in repositories; repositories do not orchestrate application services.
+- Canon055: neutral platform terminology for shared architecture.
+
+### Workstreams
+- RC-critical: restore the Accessing-owned `.gating/` consumer-artifact boundary regression, then re-run deterministic acceptance gates against the current tree.
+- Growth: federation breadth, adaptive authentication, richer self-service/passkey UX, and external policy-engine integration remain post-RC unless a current correctness failure proves otherwise.
+
+### Material risks and gates
+- Preserve unrelated/local work; do not reset, stash, clean, or delete.
+- Reuse existing runtime first; browser/UI execution is applicability-driven because the expected repair is documentation/artifact-boundary only.
+- Gates: Composer validation, Gating, lint, PHP-CS-Fixer, PHPStan, PHPUnit; schema/coverage/behavioral evidence will be refreshed only if current source/schema/UI changes or gate freshness requires it.
+
+### Material implementation and verification
+- Restored the Accessing-owned `.gating/README.md` consumer-artifact wording after the worktree had copied Gating owner documentation into that generated-consumer surface. The textual diff is now empty; the path may remain marked modified by Git worktree normalization and is intentionally excluded from this task commit.
+- The first aggregate `composer quality` attempt proved PHP-CS-Fixer GREEN but exposed an execution-environment failure in PHPStan: the default PHPStan cache attempted to write under `C:\\Users\\Admin\\AppData\\Local\\Temp` and failed with errno 28 (no space left on device).
+- Added repository-owned `parameters.tmpDir: var/phpstan` to `phpstan.neon`, keeping generated PHPStan cache in the repository-local ignored var tree instead of depending on the global user temp volume.
+- Fresh `composer stan`: PASS — 265/265 analyzed, 0 errors.
+- Fresh Composer strict/lock validation: PASS.
+- Fresh PHP lint: PASS.
+- PHP-CS-Fixer dry run from the aggregate quality attempt: PASS — 267 files, 0 fixable.
+- Fresh Gating: PASS — 9 rules, 0 failed, 0 warning, 1 skipped; 819 files scanned by the secret-leak rule.
+- Fresh PHPUnit acceptance is NOT_VERIFIED in this execution window. One async run progressed through most of the 265-test corpus without assertion/error output but lost process supervision before a footer/exit code; a subsequent independent repository-check start was correctly refused by runtime policy with `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` (`RESOURCE_PRESSURE_WATCH`, `ENGINE_BACKLOG_HIGH`). No test PASS or FAIL is inferred from that incomplete run.
+- No PHP production source, Doctrine mapping/migration, browser UI, route, form, or user-flow implementation changed in this pass. The prior fresh Canon030/040/042 and GREEN visual evidence therefore remain structurally applicable, but this execution does not claim a replacement PHPUnit acceptance verdict.
+
+
+
