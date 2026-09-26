@@ -1,3 +1,6 @@
+imports:
+  - { resource: '../vendor/interfacing/interface/config/services/interfacing.yaml' }
+
 parameters:
   accessing.product_name: 'Accessing'
   accessing.mailer_sender.default: 'no-reply@accessing.local'
@@ -102,7 +105,29 @@ services:
   App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface: '@App\Accessing\Repository\AccessSecurityEventRepository'
   App\Accessing\RepositoryInterface\AccessVerificationChallengeRepositoryInterface: '@App\Accessing\Repository\AccessVerificationChallengeRepository'
 
+  App\Accessing\Controller\Api\Access\AccessApiController:
+    public: true
+    tags: ['controller.service_arguments']
+
+  App\Accessing\Service\Http\Access\AccessSignInService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessRegisterService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessSecurityFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessSurfaceFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Access\AccessResetPasswordFlowService:
+    public: true
+    tags: ['controller.service_arguments']
   App\Accessing\Service\Http\Access\AccessGoogleOAuthFlowService:
+    public: true
+    tags: ['controller.service_arguments']
+  App\Accessing\Service\Http\Api\Access\AccessApiFlowService:
     public: true
     tags: ['controller.service_arguments']
 

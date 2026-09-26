@@ -2,8 +2,13 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/Playwright',
+  webServer: {
+    command: 'php -S 127.0.0.1:8011 -t public public/index.php',
+    url: 'http://127.0.0.1:8011/access/signin',
+    reuseExistingServer: true,
+  },
   use: {
-    baseURL: 'http://127.0.0.1:8000',
+    baseURL: 'http://127.0.0.1:8011',
     headless: true,
   },
 });

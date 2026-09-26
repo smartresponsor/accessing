@@ -86,6 +86,11 @@
                     "gating:check":  "@gate",
                     "test:object-identity":  "vendor/bin/phpunit tests/Unit/Entity/AccessEntityObjectingContractTest.php",
                     "test:panther":  "vendor/bin/phpunit --testsuite Panther",
+                    "test:behavioral-coverage":  [
+                                                     "@test",
+                                                     "npm run test:e2e",
+                                                     "@php tools/coverage/access-behavioral-ui-coverage.php"
+                                                 ],
                     "pipeline:local:full":  [
                                                 "@lint",
                                                 "@cs:check",

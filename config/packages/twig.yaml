@@ -1,4 +1,6 @@
 twig:
   file_name_pattern: '*.twig'
+  paths:
+    '%kernel.project_dir%/vendor/interfacing/interface/templates': Interfacing
   globals:
     accessing_product_name: '%accessing.product_name%'
