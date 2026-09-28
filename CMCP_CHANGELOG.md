@@ -1,5 +1,34 @@
 # CMCP Execution Journal
 
+## 2026-09-27 — CanonScanning remediation (engine-20260928023347-accessing-846155)
+
+### Baseline
+- Rechecked after concurrent integration: branch `refactor/accessing-canonical-structure` is now at `517135626b2e5f7766b25764cb0ae5cd7dfad844`, synchronized with upstream; the previously dirty OpenAPI/failure/Gating-boundary work is already committed upstream.
+- The supplied CanonScanning report remains the failure baseline for the pre-integration fingerprint: Canon052 failed on copied owner-side Gating content under consumer `.gating/`; Canon042 warned because its evidence producer name resolved to a Composer array rather than a directly executable package script.
+- The consumer `.gating/` boundary is now restored in current HEAD; only the Canon042 Composer producer declaration remains modified in this execution window.
+- Fresh upstream Inspecting evidence was consumed before mutation; structural findings remain observations unless promoted by an applicable canon/gate.
+
+### Canonization mapping consulted
+- Canon052: consumer `.gating/` is artifact-only; executable policy/engine belongs to the Gating package.
+- Canon042: behavioral/UI evidence must identify a repository-owned producer script that is reproducibly declared in Composer/npm metadata.
+- Canon056/058/061/063 and Canon064/066 were rechecked because current HEAD contains the preceding external API/failure-contract remediation.
+- Objecting, Cruding, Viewing, and Interfacing dependency/boundary contracts were read as mandatory application contour.
+
+### Workstreams
+- RC-critical: make Canon042 producer provenance executable, regenerate evidence, re-run full Gating and deterministic quality gates, then re-run Inspecting because the repository fingerprint changed.
+- Growth: federation breadth, adaptive authentication, richer passkey/self-service UX, and enterprise identity capabilities remain post-RC.
+
+### Verification
+- Canon042 producer execution: PASS; fresh `var/coverage/behavioral-ui.json` generated successfully from the now directly declared Composer script.
+- Composer validate `--strict --check-lock`: PASS.
+- Repository Gating profile: PASS, 9 rules, 0 failed, 0 warning, 1 skipped. Gating execution rewrites only `.gating/README.md` with owner text as a side effect; the tracked Accessing artifact README was restored afterward.
+- PHP lint: PASS.
+- PHP-CS-Fixer dry run: PASS, 267 files, 0 fixable.
+- PHPStan: PASS, 265 files, 0 errors.
+- PHPUnit: PASS, 265 tests / 2950 assertions; 124 existing non-failing notices.
+- Post-mutation Inspecting execution was requested twice through Console MCP but both calls exceeded the Code Mode call window without returning a persisted report reference; no Inspecting PASS/FAIL is inferred.
+- No runtime/browser/UI source changed in this bounded remediation; new visual evidence is not applicable.
+
 ## 2026-09-27 — External API canon remediation (engine-20260928021825-accessing-408f64)
 
 ### Baseline
