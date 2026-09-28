@@ -37,9 +37,11 @@
                     "configuring/config":  "dev-master",
                     "interfacing/interface":  "dev-master",
                     "league/oauth2-google":  "^4.0",
+                    "nelmio/api-doc-bundle":  "^5.0",
                     "objecting/object":  "dev-master",
                     "easycorp/easyadmin-bundle":  "^5.0",
                     "cruding/crud":  "dev-master",
+                    "failing/failure":  "dev-master",
                     "collectioning/collection":  "dev-master",
                     "tabling/table":  "dev-master",
                     "viewing/view":  "dev-master"
@@ -184,6 +186,14 @@
                              "options":  {
                                              "symlink":  true,
                                              "versions":  {"viewing/view": "dev-master"}
+                                         }
+                         },
+                         {
+                             "type":  "path",
+                             "url":  "../Failing",
+                             "options":  {
+                                             "symlink":  true,
+                                             "versions":  {"failing/failure": "dev-master"}
                                          }
                          },
                          {

@@ -1,5 +1,46 @@
 # CMCP Execution Journal
 
+## 2026-09-27 — External API canon remediation (engine-20260928021825-accessing-408f64)
+
+### Baseline
+- Branch `refactor/accessing-canonical-structure` at `b00d7606a0ffef722e90e6d87c6a828889a3e33c`, synchronized with upstream at reconnaissance time.
+- Starting worktree contained one pre-existing `.gating/README.md` regression that copied Gating-owner documentation into the Accessing consumer artifact surface.
+- CanonScanning RED evidence identifies Canon052 consumer `.gating/` topology pollution, Canon056 missing canonical OpenAPI contract, and Canon063 unbounded HTTP methods in the platform route inventory.
+- Upstream Inspecting evidence for fingerprint `929a42177dbbd6b55f9a5d85a34322afa409e3605fdae3d38f3dd4e476886463` is reused as the pre-remediation baseline.
+
+### Canonization mapping consulted
+- Canon052: consumer `.gating/` is artifact-only; executable Gating engine/policy does not belong there.
+- Canon056: first-party runtime API paths and canonical OpenAPI paths mirror bidirectionally.
+- Canon058/059: canonical OpenAPI source is subject-prefixed YAML under `config/openapi/` and is the sole parity denominator.
+- Canon061: OpenAPI owners declare direct runtime `nelmio/api-doc-bundle`.
+- Canon063: ordinary external API routes declare bounded HTTP methods and mirror METHOD + path against OpenAPI.
+
+### Workstreams
+- RC-critical: repair deterministic API contract evidence, restore the consumer-artifact boundary where non-destructive, re-run Gating/Inspecting, and publish coherent in-scope changes.
+- Growth: federation breadth, adaptive authentication, richer passkey/self-service UX, and enterprise identity capabilities remain post-RC.
+
+### Risk / verification
+- Destructive operations are forbidden; removing any already-tracked copied Gating engine tree under `.gating/` is not performed through destructive file deletion in this execution window.
+- No browser/UI behavior is intentionally changed; visual/runtime verification is applicability-driven.
+- Required gates after mutation: Composer validation/lock consistency, Gating, affected PHP/YAML/tests, and Inspecting.
+
+### Implementation and verification
+- Restored the consumer `.gating/` boundary non-destructively by moving the misplaced Gating owner snapshot to ignored `var/cmcp-gating-owner-snapshot-20260927` and recreating only the canonical artifact README; `.gating/` now scans as one file with no executable namespace content.
+- Added explicit HTTP methods to all 15 platform Access API route declarations and added `config/openapi/access_openapi.yaml` with matching METHOD + path operations.
+- Added direct `nelmio/api-doc-bundle` ownership dependency and current Canon022 `failing/failure` baseline in development/production manifests; development root repository closure now exposes `../Failing` with symlink/dev-master and the standalone runtime registers Failing and Nelmio bundles.
+- Composer scoped update completed and wrote the lock; dependency resolution is healthy and reported no security advisories.
+- Composer strict/check-lock validation: PASS.
+- PHP lint for changed PHP: PASS.
+- PHPStan: PASS, 265/265, 0 errors.
+- PHP-CS-Fixer dry run: PASS, 267 files, 0 fixable.
+- PHPUnit: PASS, 265 tests / 2950 assertions; 124 existing non-failing notices remain.
+- Local repository Gating profile: PASS, 9 rules / 0 failed / 0 warning / 1 skipped. This profile does not represent the entire new Canon056-063 catalog and is not misreported as a full CanonScanning verdict.
+- Post-mutation Inspecting report `D--PhpstormProjects-www-Accessing-20260928-022859.json`: PHPStan 0 errors; 30 structural review findings (3 high constructor-dependency observations, 27 medium). These are pre-existing design observations and are not canon-promoted blockers for this bounded contract remediation.
+- `schema:validate --env=test`: mapping PASS, local test database schema stale. A clean repository `schema:parity` run was started but the synchronous Console call exceeded its execution window; a follow-up async start was not admitted while the execution plane was in STABILITY_RECOVERING. No Entity/mapping/migration changed in this task, so no schema change is claimed or introduced.
+- No user-observable UI/browser flow changed, so new visual evidence is not applicable to this remediation.
+
+
+
 Task: `engine-20260710212647-accessing-b5dcd8`
 Component: `Accessing`
 Branch: `refactor/accessing-canonical-structure`

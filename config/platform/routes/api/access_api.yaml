@@ -1,5 +1,6 @@
 api.access.signin:
   path: /api/access/signin
+  methods: [POST]
   routeKey: api.access.signin
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -7,6 +8,7 @@ api.access.signin:
 
 api.access.refresh:
   path: /api/access/refresh
+  methods: [POST]
   routeKey: api.access.refresh
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -14,6 +16,7 @@ api.access.refresh:
 
 api.access.register:
   path: /api/access/register
+  methods: [POST]
   routeKey: api.access.register
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -21,6 +24,7 @@ api.access.register:
 
 api.access.logout:
   path: /api/access/logout
+  methods: [POST]
   routeKey: api.access.logout
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -28,6 +32,7 @@ api.access.logout:
 
 api.access.session:
   path: /api/access/session
+  methods: [GET]
   routeKey: api.access.session
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -35,6 +40,7 @@ api.access.session:
 
 api.access.verification.resend:
   path: /api/access/verification/resend
+  methods: [POST]
   routeKey: api.access.verification.resend
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -42,6 +48,7 @@ api.access.verification.resend:
 
 api.access.verification.confirm:
   path: /api/access/verification/confirm
+  methods: [POST]
   routeKey: api.access.verification.confirm
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -49,6 +56,7 @@ api.access.verification.confirm:
 
 api.access.second_factor.challenge:
   path: /api/access/second/factor/challenge
+  methods: [POST]
   routeKey: api.access.second_factor.challenge
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -56,6 +64,7 @@ api.access.second_factor.challenge:
 
 api.access.second_factor.verify:
   path: /api/access/second/factor/verify
+  methods: [POST]
   routeKey: api.access.second_factor.verify
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -63,6 +72,7 @@ api.access.second_factor.verify:
 
 api.access.passkey.registration.options:
   path: /api/access/passkeys/registration/options
+  methods: [POST]
   routeKey: api.access.passkey.registration.options
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -70,6 +80,7 @@ api.access.passkey.registration.options:
 
 api.access.passkey.registration.complete:
   path: /api/access/passkeys/registration/complete
+  methods: [POST]
   routeKey: api.access.passkey.registration.complete
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -77,6 +88,7 @@ api.access.passkey.registration.complete:
 
 api.access.passkey.authentication.options:
   path: /api/access/passkeys/authentication/options
+  methods: [POST]
   routeKey: api.access.passkey.authentication.options
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -84,6 +96,7 @@ api.access.passkey.authentication.options:
 
 api.access.passkey.authentication.complete:
   path: /api/access/passkeys/authentication/complete
+  methods: [POST]
   routeKey: api.access.passkey.authentication.complete
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -91,6 +104,7 @@ api.access.passkey.authentication.complete:
 
 api.access.recovery.request:
   path: /api/access/recovery/request
+  methods: [POST]
   routeKey: api.access.recovery.request
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
@@ -98,6 +112,7 @@ api.access.recovery.request:
 
 api.access.recovery.reset:
   path: /api/access/recovery/reset
+  methods: [POST]
   routeKey: api.access.recovery.reset
   object: access.api
   service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService

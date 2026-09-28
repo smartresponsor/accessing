@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b3e335dc3ce2d053deff01b3e8d484e",
+    "content-hash": "15a88ae6e2e8a87b0d871056b99d9adc",
     "packages": [
         {
             "name": "brick/math",
@@ -71,7 +71,7 @@
             "dist": {
                 "type": "path",
                 "url": "../Collectioning",
-                "reference": "a0ecf44f22fd9109f8b5511b4584194255270523"
+                "reference": "82194f4f9f67bb53a2536c5a15e1d924f0ec8991"
             },
             "require": {
                 "doctrine/doctrine-bundle": "^3.2",
@@ -86,6 +86,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^13.3"
             },
@@ -121,10 +122,19 @@
                 ],
                 "cs:fix": [
                     "php-cs-fixer fix"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test",
+                    "@gate"
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "description": "Symfony collection-query primitive for filtering, sorting, pagination, projection, counts and realtime collection invalidation.",
             "transport-options": {
@@ -134,16 +144,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.4.4",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/198166618906cb2de69b95d7d47e5fa8aa1b2b95",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95",
+                "url": "https://api.github.com/repos/composer/semver/zipball/f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
+                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
                 "shasum": ""
             },
             "require": {
@@ -185,7 +195,7 @@
                     "homepage": "http://robbast.nl"
                 }
             ],
-            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "description": "Version comparison library that offers utilities, version constraint parsing and validation.",
             "keywords": [
                 "semantic",
                 "semver",
@@ -195,7 +205,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.4"
+                "source": "https://github.com/composer/semver/tree/3.5.0"
             },
             "funding": [
                 {
@@ -207,7 +217,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-20T19:15:30+00:00"
+            "time": "2026-09-24T14:38:51+00:00"
         },
         {
             "name": "configuring/config",
@@ -215,13 +225,14 @@
             "dist": {
                 "type": "path",
                 "url": "../Configuring",
-                "reference": "805fc205ef43a93301e84637e9477e96e7fa15dc"
+                "reference": "524d0792bedb143545e8d7196d52473aa41df3fc"
             },
             "require": {
                 "php": "^8.4"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.94",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^11.5"
             },
@@ -245,10 +256,18 @@
                 ],
                 "stan": [
                     "phpstan analyse src --memory-limit=1G"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
+                    "@cs:check",
+                    "@stan",
+                    "@gate"
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "description": "Neutral Smart Responsor contract package for producer configuration tools and component contracts.",
             "transport-options": {
@@ -262,12 +281,13 @@
             "dist": {
                 "type": "path",
                 "url": "../Cruding",
-                "reference": "d43603fa05e6d603e26a820da5f14528891ee7b7"
+                "reference": "1c291877721e7db57be69e5f9577534b023c279c"
             },
             "require": {
                 "collectioning/collection": "dev-master",
                 "doctrine/doctrine-bundle": "^3.2",
                 "doctrine/orm": "^3.0",
+                "failing/failure": "dev-master",
                 "php": "^8.4",
                 "symfony/config": "^8.1",
                 "symfony/dependency-injection": "^8.1",
@@ -285,6 +305,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^12.0",
                 "symfony/dotenv": "^8.1"
@@ -314,6 +335,9 @@
                     "@php -r \"if (!is_dir('var/coverage')) { mkdir('var/coverage', 0777, true); }\"",
                     "@php -d xdebug.mode=coverage vendor/bin/phpunit --path-coverage --coverage-text=var/coverage/summary.txt"
                 ],
+                "validate:prod": [
+                    "composer validate --strict --no-check-all composer.prod.json"
+                ],
                 "cs:check": [
                     "@php vendor/bin/php-cs-fixer fix --dry-run --diff"
                 ],
@@ -332,10 +356,8 @@
                     "@php tools/smoke/cruding-config-declarative-only-smoke.php",
                     "@php tools/smoke/cruding-config-driven-operation-token-router-smoke.php",
                     "@php tools/smoke/cruding-direct-entity-fqcn-canon-smoke.php",
-                    "@php tools/smoke/cruding-dto-suffix-smoke.php",
                     "@php tools/smoke/cruding-phpdoc-coverage-smoke.php",
                     "@php tools/smoke/cruding-service-layout-smoke.php",
-                    "@php tools/smoke/cruding-service-role-suffix-smoke.php",
                     "@php tools/smoke/cruding-entrypoint-contract-finalization-smoke.php",
                     "@php tools/smoke/cruding-entrypoint-migration-contract-smoke.php",
                     "@php tools/smoke/cruding-entrypoint-operation-method-parity-smoke.php",
@@ -360,10 +382,19 @@
                     "@canon:cruding",
                     "@smoke:cruding",
                     "@test"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test",
+                    "@gate"
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "description": "Universal CRUD route processor bundle for Symfony host applications.",
             "transport-options": {
@@ -459,16 +490,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "4.4.4",
+            "version": "4.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "fb9e0ffe15e1590e24dc61c0c0a23f9a33ee42ce"
+                "reference": "c435cd7ea33e17d2a89288caf994cf3d4549b879"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/fb9e0ffe15e1590e24dc61c0c0a23f9a33ee42ce",
-                "reference": "fb9e0ffe15e1590e24dc61c0c0a23f9a33ee42ce",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/c435cd7ea33e17d2a89288caf994cf3d4549b879",
+                "reference": "c435cd7ea33e17d2a89288caf994cf3d4549b879",
                 "shasum": ""
             },
             "require": {
@@ -484,9 +515,9 @@
                 "phpstan/phpstan": "2.1.30",
                 "phpstan/phpstan-phpunit": "2.0.7",
                 "phpstan/phpstan-strict-rules": "^2",
-                "phpunit/phpunit": "11.5.50",
-                "slevomat/coding-standard": "8.27.1",
-                "squizlabs/php_codesniffer": "4.0.1",
+                "phpunit/phpunit": "11.5.56",
+                "slevomat/coding-standard": "8.31.1",
+                "squizlabs/php_codesniffer": "4.0.4",
                 "symfony/cache": "^6.3.8|^7.0|^8.0",
                 "symfony/console": "^5.4|^6.3|^7.0|^8.0"
             },
@@ -545,7 +576,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/4.4.4"
+                "source": "https://github.com/doctrine/dbal/tree/4.5.0"
             },
             "funding": [
                 {
@@ -561,7 +592,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-21T14:34:40+00:00"
+            "time": "2026-09-24T16:11:26+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -1073,27 +1104,25 @@
         },
         {
             "name": "doctrine/lexer",
-            "version": "3.0.1",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/lexer.git",
-                "reference": "31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd"
+                "reference": "e96fe45e92a54233726014a7cc7340abf29bb14c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/lexer/zipball/31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd",
-                "reference": "31ad66abc0fc9e1a1f2d9bc6a42668d2fbbcd6dd",
+                "url": "https://api.github.com/repos/doctrine/lexer/zipball/e96fe45e92a54233726014a7cc7340abf29bb14c",
+                "reference": "e96fe45e92a54233726014a7cc7340abf29bb14c",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.1"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^12",
-                "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10.5",
-                "psalm/plugin-phpunit": "^0.18.3",
-                "vimeo/psalm": "^5.21"
+                "doctrine/coding-standard": "^14",
+                "phpstan/phpstan": "^2",
+                "phpunit/phpunit": "^10.5.58 || ^12.5.4"
             },
             "type": "library",
             "autoload": {
@@ -1130,7 +1159,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/lexer/issues",
-                "source": "https://github.com/doctrine/lexer/tree/3.0.1"
+                "source": "https://github.com/doctrine/lexer/tree/3.0.2"
             },
             "funding": [
                 {
@@ -1146,7 +1175,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-05T11:56:58+00:00"
+            "time": "2026-06-14T20:44:06+00:00"
         },
         {
             "name": "doctrine/migrations",
@@ -1253,16 +1282,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "3.7.1",
+            "version": "3.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "037807a39697890dcede8b766c5efe8a1b4855fe"
+                "reference": "6b47a02cd1d7119ef4d8f90ca6d49651accef1a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/037807a39697890dcede8b766c5efe8a1b4855fe",
-                "reference": "037807a39697890dcede8b766c5efe8a1b4855fe",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/6b47a02cd1d7119ef4d8f90ca6d49651accef1a3",
+                "reference": "6b47a02cd1d7119ef4d8f90ca6d49651accef1a3",
                 "shasum": ""
             },
             "require": {
@@ -1286,7 +1315,7 @@
                 "doctrine/coding-standard": "^14.0",
                 "phpbench/phpbench": "^1.0",
                 "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan": "2.1.23",
+                "phpstan/phpstan": "2.2.14",
                 "phpstan/phpstan-deprecation-rules": "^2",
                 "phpunit/phpunit": "^10.5.0 || ^11.5",
                 "psr/log": "^1 || ^2 || ^3",
@@ -1337,9 +1366,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/3.7.1"
+                "source": "https://github.com/doctrine/orm/tree/3.7.2"
             },
-            "time": "2026-09-14T05:45:59+00:00"
+            "time": "2026-09-23T05:28:00+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -1492,16 +1521,16 @@
         },
         {
             "name": "easycorp/easyadmin-bundle",
-            "version": "v5.5.1",
+            "version": "v5.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyCorp/EasyAdminBundle.git",
-                "reference": "77b2a6b13c7050cd5412b3ce2b86e909682b97c3"
+                "reference": "e02a2b6b38630e53b40a6342b6efbe34b8dda3e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/77b2a6b13c7050cd5412b3ce2b86e909682b97c3",
-                "reference": "77b2a6b13c7050cd5412b3ce2b86e909682b97c3",
+                "url": "https://api.github.com/repos/EasyCorp/EasyAdminBundle/zipball/e02a2b6b38630e53b40a6342b6efbe34b8dda3e3",
+                "reference": "e02a2b6b38630e53b40a6342b6efbe34b8dda3e3",
                 "shasum": ""
             },
             "require": {
@@ -1590,7 +1619,7 @@
             ],
             "support": {
                 "issues": "https://github.com/EasyCorp/EasyAdminBundle/issues",
-                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v5.5.1"
+                "source": "https://github.com/EasyCorp/EasyAdminBundle/tree/v5.6.0"
             },
             "funding": [
                 {
@@ -1598,7 +1627,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-08-11T06:28:56+00:00"
+            "time": "2026-09-17T19:03:00+00:00"
         },
         {
             "name": "egulias/email-validator",
@@ -1666,6 +1695,74 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "failing/failure",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../Failing",
+                "reference": "9bc085b96f2ebc670202849da85c37f5bd8a7c6c"
+            },
+            "require": {
+                "php": "^8.4",
+                "symfony/config": "^8.1",
+                "symfony/dependency-injection": "^8.1",
+                "symfony/event-dispatcher": "^8.1",
+                "symfony/http-foundation": "^8.1",
+                "symfony/http-kernel": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.95",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^12.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "App\\Failing\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "App\\Failing\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "guard:architecture": [
+                    "@php tools/guard/failing-anti-wheel-guard.php"
+                ],
+                "validate:prod": [
+                    "composer validate --strict --no-check-all composer.prod.json"
+                ],
+                "cs:check": [
+                    "@php vendor/bin/php-cs-fixer fix --dry-run --diff"
+                ],
+                "cs:fix": [
+                    "@php vendor/bin/php-cs-fixer fix"
+                ],
+                "test": [
+                    "phpunit"
+                ],
+                "phpstan": [
+                    "@php vendor/bin/phpstan analyse src tests --level=max"
+                ],
+                "check:failing": [
+                    "@validate:prod",
+                    "@guard:architecture",
+                    "@cs:check",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "PolyForm-Noncommercial-1.0.0"
+            ],
+            "description": "Consumer-agnostic failure contract, runtime inventory, and RFC 9457 integration for Symfony applications.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2004,7 +2101,7 @@
             "dist": {
                 "type": "path",
                 "url": "../Interfacing",
-                "reference": "02c5ccf77ad1986f2187e8d91f8a422e86af0d97"
+                "reference": "0f3353dc5a4d06bd2c2b04fa46b918e8e42f4c84"
             },
             "require": {
                 "collectioning/collection": "dev-master",
@@ -2040,6 +2137,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95.4",
+                "gating/gate": "dev-master",
                 "phpstan/extension-installer": "^1.4.3",
                 "phpstan/phpstan": "^2.2.2",
                 "phpstan/phpstan-phpunit": "^2.0.16",
@@ -2131,10 +2229,19 @@
                 ],
                 "canon:interfacing:seal": [
                     "php tools/qa/interfacing-seal-report.php"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
+                    "@cs:check",
+                    "@stan",
+                    "@test",
+                    "@gate"
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "description": "Interfacing Symfony package bundle",
             "transport-options": {
@@ -2366,12 +2473,191 @@
             "time": "2026-01-02T08:56:05+00:00"
         },
         {
+            "name": "nelmio/api-doc-bundle",
+            "version": "v5.12.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nelmio/NelmioApiDocBundle.git",
+                "reference": "2c5a8c50daf159a8ccba0c03edeade57b7843fef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nelmio/NelmioApiDocBundle/zipball/2c5a8c50daf159a8ccba0c03edeade57b7843fef",
+                "reference": "2c5a8c50daf159a8ccba0c03edeade57b7843fef",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "phpdocumentor/reflection-docblock": "^5.0 || ^6.0",
+                "phpdocumentor/type-resolver": "^1.8.2 || ^2.0",
+                "psr/cache": "^1.0 || ^2.0 || ^3.0",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "symfony/config": "^6.4 || ^7.2 || ^8.0",
+                "symfony/console": "^6.4 || ^7.2 || ^8.0",
+                "symfony/dependency-injection": "^6.4 || ^7.2 || ^8.0",
+                "symfony/deprecation-contracts": "^2.1 || ^3",
+                "symfony/framework-bundle": "^6.4 || ^7.2 || ^8.0",
+                "symfony/http-foundation": "^6.4 || ^7.2 || ^8.0",
+                "symfony/http-kernel": "^6.4 || ^7.2 || ^8.0",
+                "symfony/options-resolver": "^6.4 || ^7.2 || ^8.0",
+                "symfony/property-info": "^6.4.15 || ^7.2 || ^8.0",
+                "symfony/routing": "^6.4 || ^7.2 || ^8.0",
+                "symfony/type-info": "^7.2 || ^8.0",
+                "zircote/swagger-php": "^5.7.8 || ^6.0"
+            },
+            "conflict": {
+                "symfony/property-info": "6.4.32 || 7.3.10 || 7.4.4 || 8.0.4"
+            },
+            "require-dev": {
+                "api-platform/core": "^3.4.6 || ^4.0.9",
+                "doctrine/inflector": "^2.0",
+                "friendsofphp/php-cs-fixer": "^3.52",
+                "friendsofsymfony/rest-bundle": "^3.2.0",
+                "jms/serializer": "^3.32",
+                "jms/serializer-bundle": "^5.5",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpstan/phpstan-symfony": "^2.0",
+                "phpunit/phpunit": "^10.5",
+                "symfony/asset": "^6.4 || ^7.2 || ^8.0",
+                "symfony/browser-kit": "^6.4 || ^7.2 || ^8.0",
+                "symfony/cache": "^6.4 || ^7.2 || ^8.0",
+                "symfony/dom-crawler": "^6.4 || ^7.2 || ^8.0",
+                "symfony/expression-language": "^6.4 || ^7.2 || ^8.0",
+                "symfony/finder": "^6.4 || ^7.2 || ^8.0",
+                "symfony/form": "^6.4 || ^7.2 || ^8.0",
+                "symfony/phpunit-bridge": "^6.4 || ^7.2 || ^8.0",
+                "symfony/security-csrf": "^6.4 || ^7.2 || ^8.0",
+                "symfony/security-http": "^6.4 || ^7.2 || ^8.0",
+                "symfony/serializer": "^6.4 || ^7.2 || ^8.0",
+                "symfony/translation": "^6.4 || ^7.2 || ^8.0",
+                "symfony/twig-bundle": "^6.4 || ^7.2 || ^8.0",
+                "symfony/uid": "^6.4 || ^7.2 || ^8.0",
+                "symfony/validator": "^6.4 || ^7.2 || ^8.0",
+                "willdurand/hateoas-bundle": "^2.7 || ^3.0",
+                "willdurand/negotiation": "^3.0"
+            },
+            "suggest": {
+                "api-platform/core": "For using an API oriented framework.",
+                "friendsofsymfony/rest-bundle": "For using the parameters annotations.",
+                "jms/serializer-bundle": "For describing your models.",
+                "symfony/asset": "For using the Swagger UI.",
+                "symfony/cache": "For using a PSR-6 compatible cache implementation with the API doc generator.",
+                "symfony/form": "For describing your form type models.",
+                "symfony/monolog-bundle": "For using a PSR-3 compatible logger implementation with the API PHP describer.",
+                "symfony/security-csrf": "For using csrf protection tokens in forms.",
+                "symfony/serializer": "For describing your models.",
+                "symfony/twig-bundle": "For using the Swagger UI.",
+                "symfony/validator": "For describing the validation constraints in your models.",
+                "willdurand/hateoas-bundle": "For extracting HATEOAS metadata."
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-4.x": "4.x-dev",
+                    "dev-5.x": "5.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nelmio\\ApiDocBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://github.com/nelmio/NelmioApiDocBundle/contributors"
+                }
+            ],
+            "description": "Generates documentation for your REST API from attributes",
+            "keywords": [
+                "api",
+                "doc",
+                "documentation",
+                "rest"
+            ],
+            "support": {
+                "issues": "https://github.com/nelmio/NelmioApiDocBundle/issues",
+                "source": "https://github.com/nelmio/NelmioApiDocBundle/tree/v5.12.2"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/DjordyKoert",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-09-14T11:12:11+00:00"
+        },
+        {
+            "name": "nikic/php-parser",
+            "version": "v5.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/PHP-Parser.git",
+                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/9e33da9553fe7786f0962b35f4e4ecf01be89def",
+                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-tokenizer": "*",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "ircmaxell/php-yacc": "^0.0.7",
+                "phpunit/phpunit": "^9.0"
+            },
+            "bin": [
+                "bin/php-parse"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PhpParser\\": "lib/PhpParser"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov"
+                }
+            ],
+            "description": "A PHP parser written in PHP",
+            "keywords": [
+                "parser",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/nikic/PHP-Parser/issues",
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.9.0"
+            },
+            "time": "2026-09-13T18:51:52+00:00"
+        },
+        {
             "name": "objecting/object",
             "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../Objecting",
-                "reference": "24d40b48ae0882f9e137c4526250c6b368f407bb"
+                "reference": "4f25833b58ac64fb61b9a3d734d7d546f13ca4ab"
             },
             "require": {
                 "doctrine/orm": "^3.3",
@@ -2384,6 +2670,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": ">=3.95 <4.0",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.0",
                 "phpunit/phpunit": "^11.0 || ^12.0"
             },
@@ -2455,6 +2742,12 @@
                     "@test:backend-adoption",
                     "@test:backend-handoff",
                     "@test:backend-adoption-packet"
+                ],
+                "cs:check": [
+                    "php-cs-fixer fix --dry-run --diff --verbose"
+                ],
+                "cs:fix": [
+                    "php-cs-fixer fix --verbose"
                 ],
                 "phpstan": [
                     "phpstan analyse src tests tools --memory-limit=1G"
@@ -2540,10 +2833,19 @@
                 ],
                 "test:internal-types": [
                     "@php tools/test/objecting_internal_type_resolution_check.php"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
+                    "@cs:check",
+                    "@phpstan",
+                    "@test",
+                    "@gate"
                 ]
             },
             "license": [
-                "MIT"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "authors": [
                 {
@@ -2629,20 +2931,25 @@
         },
         {
             "name": "phpdocumentor/reflection-common",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionCommon.git",
-                "reference": "1d01c49d4ed62f25aa84a747ad35d5a16924662b"
+                "reference": "ee15a5a2022c8383906b225055e9496a6a5e6e3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/1d01c49d4ed62f25aa84a747ad35d5a16924662b",
-                "reference": "1d01c49d4ed62f25aa84a747ad35d5a16924662b",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionCommon/zipball/ee15a5a2022c8383906b225055e9496a6a5e6e3b",
+                "reference": "ee15a5a2022c8383906b225055e9496a6a5e6e3b",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2 || ^8.0"
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "^9.5",
+                "vimeo/psalm": "^4.25"
             },
             "type": "library",
             "extra": {
@@ -2666,7 +2973,7 @@
                 }
             ],
             "description": "Common reflection classes used by phpdocumentor to reflect the code structure",
-            "homepage": "http://www.phpdoc.org",
+            "homepage": "https://www.phpdoc.org",
             "keywords": [
                 "FQSEN",
                 "phpDocumentor",
@@ -2676,9 +2983,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpDocumentor/ReflectionCommon/issues",
-                "source": "https://github.com/phpDocumentor/ReflectionCommon/tree/2.x"
+                "source": "https://github.com/phpDocumentor/ReflectionCommon/tree/2.2.1"
             },
-            "time": "2020-06-27T09:03:43+00:00"
+            "time": "2025-11-10T21:21:55+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -2805,16 +3112,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "2.3.3",
+            "version": "2.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "fb19eedd2bb67ff8cf7a5502ad329e701d6398a3"
+                "reference": "1427af4647235b4a73b13940b1f1258d3584f36e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/fb19eedd2bb67ff8cf7a5502ad329e701d6398a3",
-                "reference": "fb19eedd2bb67ff8cf7a5502ad329e701d6398a3",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/1427af4647235b4a73b13940b1f1258d3584f36e",
+                "reference": "1427af4647235b4a73b13940b1f1258d3584f36e",
                 "shasum": ""
             },
             "require": {
@@ -2846,9 +3153,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.3"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/2.3.6"
             },
-            "time": "2026-07-08T07:01:06+00:00"
+            "time": "2026-09-27T20:07:45+00:00"
         },
         {
             "name": "psr/cache",
@@ -3315,6 +3622,68 @@
                 "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
             "time": "2024-09-11T13:17:53+00:00"
+        },
+        {
+            "name": "radebatz/type-info-extras",
+            "version": "1.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DerManoMann/type-info-extras.git",
+                "reference": "519056728bcd4b4bd883c3ee5d78774d0384e757"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DerManoMann/type-info-extras/zipball/519056728bcd4b4bd883c3ee5d78774d0384e757",
+                "reference": "519056728bcd4b4bd883c3ee5d78774d0384e757",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "phpstan/phpdoc-parser": "^2.0",
+                "symfony/type-info": "^7.3.8 || ^7.4.1 || ^8.0 || ^8.1-@dev"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.70",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Radebatz\\TypeInfoExtras\\": "src"
+                },
+                "exclude-from-classmap": [
+                    "/tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Rademacher",
+                    "email": "mano@radebatz.org"
+                }
+            ],
+            "description": "Extras for symfony/type-info",
+            "homepage": "http://radebatz.net/mano/",
+            "keywords": [
+                "component",
+                "symfony",
+                "type-info",
+                "types"
+            ],
+            "support": {
+                "issues": "https://github.com/DerManoMann/type-info-extras/issues",
+                "source": "https://github.com/DerManoMann/type-info-extras/tree/1.0.8"
+            },
+            "time": "2026-09-08T08:46:24+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -8709,16 +9078,16 @@
         },
         {
             "name": "symfony/ux-twig-component",
-            "version": "v3.4.0",
+            "version": "v3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-twig-component.git",
-                "reference": "520e1da46bbb5974a2cf5839369aec3c8fc1a6f0"
+                "reference": "e47eb29a7880da340210c6dc90b66e221b5ec549"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/520e1da46bbb5974a2cf5839369aec3c8fc1a6f0",
-                "reference": "520e1da46bbb5974a2cf5839369aec3c8fc1a6f0",
+                "url": "https://api.github.com/repos/symfony/ux-twig-component/zipball/e47eb29a7880da340210c6dc90b66e221b5ec549",
+                "reference": "e47eb29a7880da340210c6dc90b66e221b5ec549",
                 "shasum": ""
             },
             "require": {
@@ -8727,7 +9096,8 @@
                 "symfony/deprecation-contracts": "^2.2|^3.0",
                 "symfony/event-dispatcher": "^7.4|^8.0",
                 "symfony/property-access": "^7.4|^8.0",
-                "twig/twig": "^3.10.3"
+                "twig/html-extra": "^3.29|^4.0",
+                "twig/twig": "^3.24|^4.0"
             },
             "conflict": {
                 "symfony/config": "<6.4"
@@ -8741,8 +9111,7 @@
                 "symfony/framework-bundle": "^7.4|^8.0",
                 "symfony/stimulus-bundle": "^2.9.1|^3.0",
                 "symfony/twig-bundle": "^7.4|^8.0",
-                "twig/extra-bundle": "^3.10.3",
-                "twig/html-extra": "^3.10.3"
+                "twig/extra-bundle": "^3.24|^4.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -8774,7 +9143,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-twig-component/tree/v3.4.0"
+                "source": "https://github.com/symfony/ux-twig-component/tree/v3.5.1"
             },
             "funding": [
                 {
@@ -8794,7 +9163,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-28T06:36:17+00:00"
+            "time": "2026-09-18T12:02:28+00:00"
         },
         {
             "name": "symfony/validator",
@@ -9322,7 +9691,7 @@
             "dist": {
                 "type": "path",
                 "url": "../Tabling",
-                "reference": "7b9be0a8127b1f3d976062873c9ad4582a7f5e55"
+                "reference": "e42a781348a0150f25e9775b6faf2a67f80cf69a"
             },
             "require": {
                 "collectioning/collection": "dev-master",
@@ -9334,6 +9703,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^13.3"
             },
@@ -9373,11 +9743,15 @@
                     "@test:coverage",
                     "@phpstan",
                     "@cs:check",
-                    "@validate:prod"
+                    "@validate:prod",
+                    "@gate"
+                ],
+                "gate": [
+                    "@php vendor/bin/gating check --target=."
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
             "description": "Symfony backend table-definition primitive for provider-neutral columns, filters, actions and security.",
             "transport-options": {
@@ -9387,16 +9761,16 @@
         },
         {
             "name": "twig/extra-bundle",
-            "version": "v3.24.0",
+            "version": "v3.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/twig-extra-bundle.git",
-                "reference": "6a621fcb1f28aa9ea7b34a99047ae0cdf5b834c9"
+                "reference": "aaa2993e19293a99240c4c61aa461d743b0dd569"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/twig-extra-bundle/zipball/6a621fcb1f28aa9ea7b34a99047ae0cdf5b834c9",
-                "reference": "6a621fcb1f28aa9ea7b34a99047ae0cdf5b834c9",
+                "url": "https://api.github.com/repos/twigphp/twig-extra-bundle/zipball/aaa2993e19293a99240c4c61aa461d743b0dd569",
+                "reference": "aaa2993e19293a99240c4c61aa461d743b0dd569",
                 "shasum": ""
             },
             "require": {
@@ -9445,7 +9819,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/twig-extra-bundle/tree/v3.24.0"
+                "source": "https://github.com/twigphp/twig-extra-bundle/tree/v3.29.0"
             },
             "funding": [
                 {
@@ -9457,20 +9831,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-07T08:07:38+00:00"
+            "time": "2026-09-11T08:59:50+00:00"
         },
         {
             "name": "twig/html-extra",
-            "version": "v3.28.0",
+            "version": "v3.29.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/html-extra.git",
-                "reference": "760893ed7bdd0a381e4e00004c6f6e26ad3881d7"
+                "reference": "7147611979df81edb78baf7d003860b72e335c3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/760893ed7bdd0a381e4e00004c6f6e26ad3881d7",
-                "reference": "760893ed7bdd0a381e4e00004c6f6e26ad3881d7",
+                "url": "https://api.github.com/repos/twigphp/html-extra/zipball/7147611979df81edb78baf7d003860b72e335c3f",
+                "reference": "7147611979df81edb78baf7d003860b72e335c3f",
                 "shasum": ""
             },
             "require": {
@@ -9513,7 +9887,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/html-extra/tree/v3.28.0"
+                "source": "https://github.com/twigphp/html-extra/tree/v3.29.0"
             },
             "funding": [
                 {
@@ -9525,20 +9899,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-25T06:50:01+00:00"
+            "time": "2026-09-06T20:35:36+00:00"
         },
         {
             "name": "twig/twig",
-            "version": "v3.28.0",
+            "version": "v3.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "597c12ed286fb9d1701a36684ce6e0cbe28ebc8b"
+                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/597c12ed286fb9d1701a36684ce6e0cbe28ebc8b",
-                "reference": "597c12ed286fb9d1701a36684ce6e0cbe28ebc8b",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8c737079b726af72ff8ef3c595be9f6a810ea1ef",
+                "reference": "8c737079b726af72ff8ef3c595be9f6a810ea1ef",
                 "shasum": ""
             },
             "require": {
@@ -9593,7 +9967,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.28.0"
+                "source": "https://github.com/twigphp/Twig/tree/v3.30.0"
             },
             "funding": [
                 {
@@ -9605,7 +9979,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-07-03T20:44:34+00:00"
+            "time": "2026-09-25T13:20:01+00:00"
         },
         {
             "name": "viewing/view",
@@ -9613,10 +9987,14 @@
             "dist": {
                 "type": "path",
                 "url": "../Viewing",
-                "reference": "5288a67908ef149cfdcaf1d9ae04d339c8913fdd"
+                "reference": "3faba854b38eafa31900cd3fa763260207a2d596"
             },
             "require": {
+                "collectioning/collection": "dev-master",
+                "cruding/crud": "dev-master",
+                "easycorp/easyadmin-bundle": "^5.5",
                 "interfacing/interface": "dev-master",
+                "objecting/object": "dev-master",
                 "php": "^8.4",
                 "psr/log": "^3.0",
                 "symfony/config": "^8.1",
@@ -9628,14 +10006,19 @@
                 "symfony/routing": "^8.1",
                 "symfony/twig-bundle": "^8.1",
                 "symfony/yaml": "^8.1",
+                "tabling/table": "dev-master",
                 "twig/twig": "^3.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.95",
+                "gating/gate": "dev-master",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^12.0",
                 "squizlabs/php_codesniffer": "^3.10",
+                "symfony/browser-kit": "^8.1",
+                "symfony/css-selector": "^8.1",
                 "symfony/framework-bundle": "^8.1",
+                "symfony/panther": "^2.4",
                 "symfony/var-dumper": "^8.1"
             },
             "type": "symfony-bundle",
@@ -9657,7 +10040,18 @@
             },
             "scripts": {
                 "test": [
-                    "phpunit"
+                    "@php -d sys_temp_dir=var vendor/bin/phpunit"
+                ],
+                "test:coverage": [
+                    "@php -d sys_temp_dir=var -d xdebug.mode=coverage vendor/bin/phpunit --path-coverage --coverage-text=coverage.txt"
+                ],
+                "test:behavioral-coverage": [
+                    "php tool/behavioral-coverage.php"
+                ],
+                "diagnose:coverage-paths": [
+                    "@php -d xdebug.mode=coverage bin/cmcp-candidate-paths.php",
+                    "@php -d xdebug.mode=coverage bin/cmcp-classifier-paths.php",
+                    "@php -d xdebug.mode=coverage bin/cmcp-route-paths.php"
                 ],
                 "validate:prod": [
                     "composer validate --strict --no-check-all composer.prod.json"
@@ -9669,15 +10063,18 @@
                     "php-cs-fixer fix --dry-run --diff"
                 ],
                 "gate": [
-                    "@test",
+                    "@php vendor/bin/gating check --target=."
+                ],
+                "quality": [
                     "@phpstan",
-                    "@php-cs-fixer"
+                    "@test",
+                    "@gate"
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
-            "description": "Smart Responsor Viewing/View component: central Symfony view boundary for neutral controller payloads, template fallback, and JSON fallback.",
+            "description": "Viewing/View component: central Symfony view boundary for neutral controller payloads, template fallback, and JSON fallback.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -9905,6 +10302,95 @@
                 "source": "https://github.com/webmozarts/assert/tree/2.4.1"
             },
             "time": "2026-06-15T15:31:57+00:00"
+        },
+        {
+            "name": "zircote/swagger-php",
+            "version": "6.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zircote/swagger-php.git",
+                "reference": "f998f7e712658fba61f86fccbdcf8e301a982175"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/f998f7e712658fba61f86fccbdcf8e301a982175",
+                "reference": "f998f7e712658fba61f86fccbdcf8e301a982175",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.19 || ^5.0",
+                "php": ">=8.2",
+                "phpstan/phpdoc-parser": "^2.0",
+                "psr/log": "^1.1 || ^2.0 || ^3.0",
+                "radebatz/type-info-extras": "^1.0.2",
+                "symfony/console": "^6.4 || ^7.0 || ^8.0",
+                "symfony/deprecation-contracts": "^2 || ^3",
+                "symfony/finder": "^5.0 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/yaml": "^5.4 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "conflict": {
+                "symfony/process": ">=6, <6.4.14"
+            },
+            "require-dev": {
+                "doctrine/annotations": "^2.0",
+                "friendsofphp/php-cs-fixer": "3.95.23",
+                "phpstan/phpstan": "2.2.12",
+                "phpunit/phpunit": "^11.5 || >=12.5.22",
+                "rector/rector": "2.6.5"
+            },
+            "bin": [
+                "bin/openapi"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenApi\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Robert Allen",
+                    "email": "zircote@gmail.com"
+                },
+                {
+                    "name": "Bob Fanger",
+                    "email": "bfanger@gmail.com",
+                    "homepage": "https://bfanger.nl"
+                },
+                {
+                    "name": "Martin Rademacher",
+                    "email": "mano@radebatz.net",
+                    "homepage": "https://radebatz.net"
+                }
+            ],
+            "description": "Generate interactive documentation for your RESTful API using PHP attributes (preferred) or PHPDoc annotations",
+            "homepage": "https://github.com/zircote/swagger-php",
+            "keywords": [
+                "api",
+                "json",
+                "rest",
+                "service discovery"
+            ],
+            "support": {
+                "issues": "https://github.com/zircote/swagger-php/issues",
+                "source": "https://github.com/zircote/swagger-php/tree/6.11.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/zircote",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-09-26T07:11:30+00:00"
         }
     ],
     "packages-dev": [
@@ -10569,7 +11055,7 @@
             "dist": {
                 "type": "path",
                 "url": "../Gating",
-                "reference": "957e9d5ade835d089d11e13560cd1f1d24632ac6"
+                "reference": "54f203f7b2fb85ca213137f9ca4d9ce53617d8da"
             },
             "require": {
                 "php": "^8.4",
@@ -10633,9 +11119,9 @@
                 ]
             },
             "license": [
-                "proprietary"
+                "PolyForm-Noncommercial-1.0.0"
             ],
-            "description": "Smart Responsor Symfony-oriented executable ecosystem gate.",
+            "description": "Symfony-oriented executable gate for the multi-domain SaaS platform ecosystem.",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -10700,63 +11186,6 @@
                 }
             ],
             "time": "2026-08-11T10:17:44+00:00"
-        },
-        {
-            "name": "nikic/php-parser",
-            "version": "v5.9.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/9e33da9553fe7786f0962b35f4e4ecf01be89def",
-                "reference": "9e33da9553fe7786f0962b35f4e4ecf01be89def",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "ext-tokenizer": "*",
-                "php": ">=7.4"
-            },
-            "require-dev": {
-                "ircmaxell/php-yacc": "^0.0.7",
-                "phpunit/phpunit": "^9.0"
-            },
-            "bin": [
-                "bin/php-parse"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "5.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PhpParser\\": "lib/PhpParser"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Popov"
-                }
-            ],
-            "description": "A PHP parser written in PHP",
-            "keywords": [
-                "parser",
-                "php"
-            ],
-            "support": {
-                "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.9.0"
-            },
-            "time": "2026-09-13T18:51:52+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -13580,6 +14009,7 @@
         "collectioning/collection": 20,
         "configuring/config": 20,
         "cruding/crud": 20,
+        "failing/failure": 20,
         "gating/gate": 20,
         "interfacing/interface": 20,
         "objecting/object": 20,

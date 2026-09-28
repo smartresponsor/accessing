@@ -1,0 +1,64 @@
+openapi: 3.1.0
+info:
+  title: Accessing API
+  version: 1.0.0
+paths:
+  /api/access/signin:
+    post:
+      responses:
+        '200': {description: Access sign-in result.}
+  /api/access/refresh:
+    post:
+      responses:
+        '200': {description: Access token refresh result.}
+  /api/access/register:
+    post:
+      responses:
+        '200': {description: Access registration result.}
+  /api/access/logout:
+    post:
+      responses:
+        '200': {description: Access logout result.}
+  /api/access/session:
+    get:
+      responses:
+        '200': {description: Current access session.}
+  /api/access/verification/resend:
+    post:
+      responses:
+        '200': {description: Verification resend result.}
+  /api/access/verification/confirm:
+    post:
+      responses:
+        '200': {description: Verification confirmation result.}
+  /api/access/second/factor/challenge:
+    post:
+      responses:
+        '200': {description: Second-factor challenge result.}
+  /api/access/second/factor/verify:
+    post:
+      responses:
+        '200': {description: Second-factor verification result.}
+  /api/access/passkeys/registration/options:
+    post:
+      responses:
+        '200': {description: Passkey registration options.}
+  /api/access/passkeys/registration/complete:
+    post:
+      responses:
+        '200': {description: Passkey registration completion result.}
+  /api/access/passkeys/authentication/options:
+    post:
+      responses:
+        '200': {description: Passkey authentication options.}
+  /api/access/passkeys/authentication/complete:
+    post:
+      responses:
+        '200': {description: Passkey authentication completion result.}
+  /api/access/recovery/request:
+    post:
+      responses:
+        '200': {description: Access recovery request result.}
+  /api/access/recovery/reset:
+    post:
+      responses:
