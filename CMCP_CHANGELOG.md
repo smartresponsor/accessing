@@ -440,3 +440,46 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 
 
 
+
+## 2026-09-28 — Canon052 consumer Gating topology remediation (engine-20260928093524-accessing-ef8bfb)
+
+### Factual baseline
+- Branch `refactor/accessing-canonical-structure` at `4ef982d6548da361b3af256ee9df6b6c25bcc0ec`, synchronized with `origin/refactor/accessing-canonical-structure` at reconnaissance time.
+- Starting tracked worktree state contained one modification: `.gating/README.md`, replacing the Accessing consumer-artifact README with Gating owner documentation.
+- Upstream CanonScanning RED evidence for fingerprint `9c1d4688c65a06df7ed6e3d9e5cff50327e0309f4620e260018927ef136fb4e5` identified a single failed rule: `Canon052GatingIntegrationRule`. Composer development/production integration is otherwise canonical; failure evidence is the copied executable/policy owner tree under consumer `.gating/`.
+- Fresh Inspecting evidence for the same fingerprint was consumed without a redundant pre-remediation rerun. It contains observational design/maintainability findings and a timed-out Semgrep analyzer; none is promoted by the current RED envelope into this Canon052 remediation front.
+
+### Canonization mapping consulted
+- `Canon052GatingIntegrationRule.md`: canonical PHP consumers require `gating/gate` as a `dev-master` development dependency, a symlinked `../Gating` path repository, standard `gate` and aggregate `quality` scripts, packaged production dependency without a local path repository, and an artifact-only consumer `.gating/` surface.
+- Gating mirror `src/Rule/Canon/Canon052GatingIntegrationRule.php`: consumer `.gating/` permits only README plus report/reports/evidence/cache/checksum/checksums/artifact/artifacts trees.
+- Mandatory dependency contour re-read: Objecting, Cruding, Viewing, and Interfacing remain application dependencies; Canonization and Gating remain read-and-comply tooling/canon sources.
+
+### Workstreams
+- RC-critical: restore the consumer-artifact README, preserve the accidentally copied Gating owner snapshot under the allowed generated-artifact surface instead of deleting it, then re-run deterministic Canon052/Gating and repository quality checks.
+- Growth: richer passkey/MFA/session UX, federation breadth, adaptive/step-up authentication, and external policy-engine integration remain post-RC unless future correctness evidence makes them mandatory.
+
+### Safety and verification plan
+- No reset, stash, clean, overwrite, or deletion. Misplaced ignored generated content is preserved by path relocation only.
+- No PHP/runtime/UI behavior is changed; Panther/Playwright and new screenshots are therefore not applicability-required for this remediation.
+- Re-run Gating after topology repair, then Composer validation and available deterministic static/test gates; inspect final worktree, branch/upstream, and integration state before completion.
+
+### Material implementation and verification
+- Restored the tracked Accessing consumer-artifact `.gating/README.md` content.
+- Preserved the accidentally copied ignored Gating owner snapshot by relocating its top-level engine/policy/config/source/test/tool/vendor content under the Canon052-allowed `.gating/artifacts/` surface; no snapshot content was deleted.
+- Added `bin/cmcp-canon-check.ps1`, a repository-local deterministic verifier that discovers the installed `gating/gate` catalog dynamically, builds the current `canon.*` rule set under ignored `var/cmcp/`, executes Gating against Accessing, and returns acceptance based only on the CanonScanning-equivalent `canon.*` result set.
+- First full diagnostic Gating pass confirmed `canon.052.gating_integration` PASS. It also surfaced a separate generic `database.table_prefix` finding for historical table `access`; this generic finding is outside the supplied 68-rule CanonScanning RED envelope and was not promoted into a schema rename without separate canon evidence. `Canon054` remained PASS.
+- Final scoped canon verifier: PASS — 68 canon rules, 0 failed; Canon052 PASS. Applicability SKIPs match the current profile/evidence contract.
+- Composer validate `--strict --check-lock`: PASS.
+- Fresh Inspecting was not duplicated because no `src/` code in the inspected scope changed; the supplied Inspecting fingerprint remains applicable to source architecture findings.
+- Lint/CS/PHPStan/PHPUnit admission is currently deferred by Console MCP runtime capacity: `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` due solely to `ENGINE_BACKLOG_HIGH`, with resource pressure and stability both NORMAL. No heavy process was started and no PASS/FAIL is inferred.
+
+### Final deterministic acceptance
+- Composer `validate --strict --check-lock`: PASS after adding the explicit `canon:check` script alias.
+- Full Canonization verifier `bin/cmcp-canon-check.ps1`: PASS — 68 `canon.*` rules, 0 failed; `Canon052` PASS.
+- PHPStan `composer stan`: PASS — 265/265 analyzed, 0 errors.
+- PHP-CS-Fixer `composer cs:check`: PASS — 267 files, 0 fixable.
+- PHP syntax check: PASS through the direct Console MCP allowed check with exit code 0. An earlier Composer-worker lint attempt lost supervision after emitting only successful syntax lines; it is superseded by the direct deterministic PASS.
+- PHPUnit: PASS through the direct Console MCP allowed check — 266 tests, 2950 assertions, 124 existing PHPUnit notices, 1 skipped, exit code 0. An earlier Composer-worker run lost supervision near completion and is superseded by this deterministic PASS.
+- Repository diff whitespace check: PASS.
+- The `canon:check` Composer alias is intentionally not added to aggregate `quality`; CanonScanning remains the fleet-wide/nightly producer, avoiding duplicate full-canon execution in ordinary local quality runs.
+- No browser/UI/runtime behavior changed in tracked source. New Panther/Playwright execution and screenshots are not applicable to this topology/tooling-only remediation; prior GREEN visual evidence remains historical rather than re-claimed as new evidence.
