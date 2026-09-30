@@ -1,5 +1,40 @@
 # CMCP Execution Journal
 
+## 2026-09-29 — Canon052 remediation (engine-20260930013857-accessing-d4edf6)
+
+### Factual baseline
+- Branch `refactor/accessing-canonical-structure` at `f49e3be35f6bd3700f022f187976eaebec9d55ac`, synchronized with `origin/refactor/accessing-canonical-structure`; starting worktree clean.
+- Supplied CanonScanning fingerprint `e42320d06435e993f3a184fa83ca315301614e2ddfbc1351ccb62f5e625ed30e` is RED only on `canon.052.gating_integration`.
+- Composer development and production Gating dependency contracts are already canonical; failure evidence is copied Gating owner engine/policy/source material under consumer `.gating/`.
+- Fresh Inspecting evidence was consumed without a redundant pre-remediation run: 30 PHP-structure findings (3 high, 27 medium) plus a Semgrep timeout. These are observational architecture findings and are not the current Canon052 RED front.
+
+### Canonization mapping consulted
+- Canon052: every canonical PHP consumer installs `gating/gate` as `dev-master`, exposes `../Gating` as a symlinked development path repository, exposes `gate` and aggregate `quality`, declares packaged Gating in `composer.prod.json`, and keeps consumer `.gating/` artifact-only.
+- Gating mirror permits consumer `.gating/` only for README plus report/reports/evidence/cache/checksum/checksums/artifact/artifacts trees; executable policy/source does not belong there.
+- Accessing manifests preserve one `App\\Accessing\\ => src/` Symfony tree, no Domain/Port/Adapter taxonomy, Cruding ownership of generic CRUD, and the access-lifecycle boundary.
+- Mandatory application contour checked: Objecting, Cruding, Viewing, Interfacing; mandatory read-and-comply contour checked: Canonization and Gating.
+
+### Market/maturity opening mixin
+- Current mature auth products treat passkeys/WebAuthn, MFA enrollment/challenge, recovery, and session-state handling as baseline access-lifecycle capabilities. This supports keeping Accessing focused on authentication/access lifecycle rather than expanding RC scope into a broad authorization-policy engine.
+- RC fragility is verification/integration drift, not feature absence: deterministic package/canon integration must stay reproducible before growth work.
+
+### Workstreams
+- RC-critical: verify whether the supplied Canon052 RED still exists on the current HEAD, remediate only if reproduced, then close deterministic acceptance.
+- Growth: deeper decomposition of large access flow services, passkey/MFA/session UX, and broader observability remain post-RC unless a deterministic gate promotes them to correctness work.
+
+### Safety and verification plan
+- No reset, stash, clean, overwrite, or deletion. The attempted index-only untrack was refused because the reported owner files are already absent from the current working tree; no repository content was changed by that attempt.
+- No product PHP/UI behavior changed; Panther/Playwright/screenshots are therefore not applicability-required for this verification-only pass.
+- Verify Canon052 first, then Composer validation and the available aggregate deterministic gates; inspect final Git/upstream state and publish the journal change when factual.
+
+### Material execution outcome
+- The supplied RED report is stale relative to the current repository state: the reported copied Gating owner paths under `.gating/` are absent, while `.gating/README.md` correctly documents the artifact-only consumer boundary.
+- Fresh `composer canon:check`: PASS — 68 canon rules, 0 failures; `canon.052.gating_integration` PASS.
+- Fresh `composer validate --strict --check-lock`: PASS.
+- Aggregate `composer quality` was requested but Console MCP correctly refused to start new heavy work under `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` / `ENGINE_BACKLOG_HIGH`. No PHP-CS-Fixer/PHPStan/PHPUnit/Gating result is inferred from that refusal.
+- Because no PHP, configuration, schema, route, form, template, or browser behavior changed, the current task required no product patch and no new visual evidence. The material correction is factual RC reconciliation: do not re-apply an already-landed Canon052 remediation to a newer clean tree.
+
+
 ## 2026-09-29 — Inspecting remediation (engine-20260929230734-accessing-f99e72)
 
 ### Baseline
