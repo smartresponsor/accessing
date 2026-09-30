@@ -16,6 +16,7 @@ use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Factory\Rendering\AccessPageViewFactory;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
+use App\Accessing\Service\Http\Access\AccessHttpFlowSupportService;
 use App\Accessing\Service\Http\Access\AccessSecurityFlowService;
 use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
@@ -360,10 +361,8 @@ final class AccessSecurityFlowServiceCoverageTest extends TestCase
         });
 
         return new AccessSecurityFlowService(
-            $security,
+            new AccessHttpFlowSupportService($security, $urls, $kernel),
             $forms,
-            $urls,
-            $kernel,
             $registration ?? $this->createMock(AccessRegistrationServiceInterface::class),
             $authentication ?? $this->createMock(AccessAuthenticationServiceInterface::class),
             $users ?? $this->createMock(AccessRepositoryInterface::class),

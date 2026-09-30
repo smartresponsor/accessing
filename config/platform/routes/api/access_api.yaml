@@ -75,7 +75,7 @@ api.access.passkey.registration.options:
   methods: [POST]
   routeKey: api.access.passkey.registration.options
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiPasskeyFlowService
   action: passkeyRegistrationOptions
 
 api.access.passkey.registration.complete:
@@ -83,7 +83,7 @@ api.access.passkey.registration.complete:
   methods: [POST]
   routeKey: api.access.passkey.registration.complete
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiPasskeyFlowService
   action: passkeyRegistrationComplete
 
 api.access.passkey.authentication.options:
@@ -91,7 +91,7 @@ api.access.passkey.authentication.options:
   methods: [POST]
   routeKey: api.access.passkey.authentication.options
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiPasskeyFlowService
   action: passkeyAuthenticationOptions
 
 api.access.passkey.authentication.complete:
@@ -99,7 +99,7 @@ api.access.passkey.authentication.complete:
   methods: [POST]
   routeKey: api.access.passkey.authentication.complete
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiPasskeyFlowService
   action: passkeyAuthenticationComplete
 
 api.access.recovery.request:
@@ -107,7 +107,7 @@ api.access.recovery.request:
   methods: [POST]
   routeKey: api.access.recovery.request
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiRecoveryFlowService
   action: requestRecovery
 
 api.access.recovery.reset:
@@ -115,5 +115,5 @@ api.access.recovery.reset:
   methods: [POST]
   routeKey: api.access.recovery.reset
   object: access.api
-  service: App\Accessing\Service\Http\Api\Access\AccessApiFlowService
+  service: App\Accessing\Service\Http\Api\Access\AccessApiRecoveryFlowService
   action: resetRecovery

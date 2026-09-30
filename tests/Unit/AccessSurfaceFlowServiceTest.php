@@ -12,6 +12,7 @@ use App\Accessing\Factory\Rendering\AccessPageViewFactory;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
+use App\Accessing\Service\Http\Access\AccessHttpFlowSupportService;
 use App\Accessing\Service\Http\Access\AccessSurfaceFlowService;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
@@ -176,10 +177,8 @@ final class AccessSurfaceFlowServiceTest extends TestCase
         });
 
         return new AccessSurfaceFlowService(
-            $security,
+            new AccessHttpFlowSupportService($security, $urls, $kernel),
             $formFactory,
-            $urls,
-            $kernel,
             $events,
             new AccessHomeSurfaceContractFactory('Accessing'),
             $verification,

@@ -1,5 +1,43 @@
 # CMCP Execution Journal
 
+## 2026-09-29 — Inspecting remediation (engine-20260929230734-accessing-f99e72)
+
+### Baseline
+- Branch `refactor/accessing-canonical-structure` at `79d465a2d785bedb6cc35680267a5499f1d97ac4`, synchronized with upstream at reconnaissance time.
+- Initial worktree contained one modification: `.gating/README.md`, again containing Gating-owner documentation instead of the Accessing consumer artifact-only wording.
+- Read the root manifests/instructions, Composer development and production manifests, current RED Inspecting report, relevant HTTP flow services/tests/docs, and the mandatory Objecting/Cruding/Viewing/Interfacing plus Gating/Canonization/Inspecting contour.
+- Fresh Inspecting baseline: 30 findings (3 high, 27 medium); high findings are constructor-dependency concentration in AccessSecurityFlowService, AccessSurfaceFlowService, and AccessApiFlowService.
+- Deterministic baseline: `composer gate` GREEN; `composer canon:check` RED only on Canon052.
+
+### Canonization mapping consulted
+- Canon001 Technical Role First: preserve role-first Symfony source trees.
+- Canon002 Interface Tree Mirrors Implementation: preserve mirrored typed interface paths.
+- Canon007 PSR-4 Identity: keep path/namespace/type/import identity literal.
+- Canon018 Composer Identity Mapping: `accessing/access` maps to `App\\Accessing\\` with `Access*` subject vocabulary.
+- Canon022 Standalone Application Dependency Baseline: preserve the complete direct runtime baseline.
+- Canon052 Gating Integration: consumer `.gating/` is artifact-only; executable Gating policy remains in the Gating package.
+
+### Workstreams
+- RC-critical: restore Canon052 GREEN first, then remediate applicable high-severity Inspecting dependency concentration without changing public access behavior.
+- Growth: deeper API-flow decomposition, richer passkey/MFA DX, and observability improvements remain post-RC unless needed for correctness.
+
+### Risks and verification
+- Direct unit construction of flow services makes constructor refactors high-churn; prefer focused extraction backed by existing tests.
+- No unrelated work is reset/stashed/cleaned/deleted.
+- Planned verification: canon check, targeted affected tests, lint/CS/PHPStan/full PHPUnit/Gating, fresh Inspecting, then final Git state and publication.
+
+### Material execution outcome
+- Restored Canon052 from RED to GREEN by returning the consumer `.gating/` surface to artifact-only semantics; the discovered Gating-owner snapshot was preserved non-destructively under ignored `.gating/artifacts/`.
+- Added `AccessHttpFlowSupportService` and moved shared current-user, access-required, flash, demo-code, and redirect HTTP mechanics out of both page flow services.
+- Split passkey and recovery API responsibilities into `AccessApiPasskeyFlowService` and `AccessApiRecoveryFlowService`; route/service configuration now dispatches those six API operations directly to the focused services.
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20260930-005701.json`: 28 findings, 0 high / 28 medium. Baseline was 30 findings, 3 high / 27 medium. `AccessApiFlowService` reduced from 1021 to 773 lines and from 14 to 11 constructor dependencies.
+- Inspecting Semgrep analyzer exceeded its own 60-second timeout; no Semgrep PASS is inferred. PHP-structure completed and contains all 28 residual medium findings.
+- Deterministic verification: PHPUnit 265/265 with 2962 assertions; PHP-CS-Fixer GREEN; PHPStan GREEN; Gating GREEN; Canonization 68 rules with 0 failures; behavioral/UI coverage evidence regenerated; fresh coverage GREEN at 82.26% lines (3153/3833), 87.04% methods (618/710), and 77.12% branches (1854/2404).
+- Browser behavior: Playwright 4/4 passed for sign-in, registration, recovery request, and password reset request. Panther suite executed but its sole test was skipped by repository configuration.
+- Visual evidence: ATTENTION. Central screenshot artifact was captured under `D:\PhpstormProjects\www\var\Accessing\2026-09-29\run-23-36-58\screenshots\web\unspecified\page-attention.png`; page returned HTTP 200, while the visual probe also reported pre-existing 404s for three Interfacing CSS assets and `/mandala.svg`.
+- Residual growth backlog: remaining 28 medium Inspecting observations, including 11/10/11 constructor-dependency reviews for the three main flow services and further API-flow cohesion/long-method cleanup.
+
+
 ## 2026-09-27 — CanonScanning remediation (engine-20260928023347-accessing-846155)
 
 ### Baseline

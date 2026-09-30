@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Http\Api\Access;
 
 use App\Accessing\Authenticator\AccessBearerAuthenticator;
-use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\DTO\AccessRegistrationRequestDTO;
 use App\Accessing\DTO\AccessSignInResultDTO;
 use App\Accessing\DTO\Api\Access\AccessApiErrorDTO;
@@ -24,9 +23,6 @@ use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;
-use App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface;
-use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Accessing\ValueObject\AccessMobilePendingPurpose;
@@ -54,16 +50,11 @@ final readonly class AccessApiFlowService
         private AccessApiJsonResponder $responder,
         private Security $security,
         private ?AccessRepositoryInterface $accessRepository = null,
-        private ?AccessRecoveryServiceInterface $recoveryService = null,
         private ?AccessVerificationChallengeServiceInterface $verificationChallengeService = null,
         private ?AccessSecondFactorServiceInterface $secondFactorService = null,
         private ?RateLimiterFactory $accessingSignUpLimiter = null,
         private ?AccessMobileTokenServiceInterface $mobileTokenService = null,
         private ?AccessMobilePendingAuthServiceInterface $mobilePendingAuthService = null,
-        private ?AccessPasskeyRegistrationServiceInterface $passkeyRegistrationService = null,
-        private ?AccessPasskeyAuthenticationServiceInterface $passkeyAuthenticationService = null,
-        private string $accessingPasskeyRelyingPartyId = '',
-        private string $accessingPasskeyOrigin = '',
     ) {
     }
 
@@ -553,145 +544,6 @@ final readonly class AccessApiFlowService
     }
 
     /**
-     * Executes the passkey registration options operation within the canonical Accessing component workflow.
-     */
-    public function passkeyRegistrationOptions(Request $request): JsonResponse
-    {
-        $user = $this->authenticatedUser();
-        if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
-        }
-        if (null === $this->passkeyRegistrationService) {
-            return $this->unavailableResponse('passkey_registration_unavailable', 'Passkey registration is temporarily unavailable.');
-        }
-
-        return new JsonResponse($this->passkeyRegistrationService->issueOptions($user, $this->passkeyRelyingParty($request))->toArray());
-    }
-
-    /**
-     * Executes the passkey registration complete operation within the canonical Accessing component workflow.
-     */
-    public function passkeyRegistrationComplete(Request $request): JsonResponse
-    {
-        $user = $this->authenticatedUser();
-        if (!$user instanceof AccessEntity) {
-            return $this->unauthorizedResponse('passkey_registration_requires_session', 'An authenticated access session is required to register a passkey.');
-        }
-        if (null === $this->passkeyRegistrationService) {
-            return $this->unavailableResponse('passkey_registration_unavailable', 'Passkey registration is temporarily unavailable.');
-        }
-
-        $fieldErrors = [];
-        $payload = $this->decodeJsonPayload($request, $fieldErrors);
-        $name = $this->stringField($payload, 'name', $fieldErrors);
-        $credential = $this->arrayField($payload, 'credential', $fieldErrors);
-        if ([] !== $fieldErrors) {
-            return $this->invalidRequestResponse($fieldErrors);
-        }
-
-        try {
-            $registered = $this->passkeyRegistrationService->complete($user, $this->passkeyRelyingParty($request), $credential, $name, $request);
-        } catch (\DomainException $exception) {
-            return $this->responder->error(new AccessApiErrorDTO('passkey_registration_failed', $exception->getMessage()), Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
-        return new JsonResponse([
-            'status' => 'passkey_registered',
-            'credential' => [
-                'id' => $registered->getCredentialId(),
-                'name' => $registered->getName(),
-                'transports' => $registered->getTransports(),
-            ],
-        ], Response::HTTP_CREATED);
-    }
-
-    /**
-     * Executes the passkey authentication options operation within the canonical Accessing component workflow.
-     */
-    public function passkeyAuthenticationOptions(Request $request): JsonResponse
-    {
-        if (null === $this->passkeyAuthenticationService) {
-            return $this->unavailableResponse('passkey_authentication_unavailable', 'Passkey authentication is temporarily unavailable.');
-        }
-
-        return new JsonResponse($this->passkeyAuthenticationService->issueOptions($this->passkeyRelyingParty($request))->toArray());
-    }
-
-    /**
-     * Executes the passkey authentication complete operation within the canonical Accessing component workflow.
-     */
-    public function passkeyAuthenticationComplete(Request $request): JsonResponse
-    {
-        if (null === $this->passkeyAuthenticationService) {
-            return $this->unavailableResponse('passkey_authentication_unavailable', 'Passkey authentication is temporarily unavailable.');
-        }
-
-        $fieldErrors = [];
-        $payload = $this->decodeJsonPayload($request, $fieldErrors);
-        $credential = $this->arrayField($payload, 'credential', $fieldErrors);
-        if ([] !== $fieldErrors) {
-            return $this->invalidRequestResponse($fieldErrors);
-        }
-
-        try {
-            $user = $this->passkeyAuthenticationService->complete($this->passkeyRelyingParty($request), $credential, $request);
-        } catch (\DomainException $exception) {
-            return $this->responder->error(new AccessApiErrorDTO('passkey_authentication_failed', $exception->getMessage()), Response::HTTP_UNAUTHORIZED);
-        }
-
-        return $this->mobileAuthenticatedResponse($user, $this->deviceName($request));
-    }
-
-    /**
-     * Executes the request recovery operation within the canonical Accessing component workflow.
-     */
-    public function requestRecovery(Request $request): JsonResponse
-    {
-        $fieldErrors = [];
-        $email = $this->readEmailRequest($request, $fieldErrors);
-
-        if ([] !== $fieldErrors) {
-            return $this->invalidRequestResponse($fieldErrors);
-        }
-
-        if (null === $this->recoveryService) {
-            return $this->unavailableResponse('recovery_unavailable', 'Access recovery is temporarily unavailable.');
-        }
-
-        try {
-            $this->recoveryService->requestPasswordRecovery($email, $request);
-        } catch (AccessNotificationDeliveryException $exception) {
-            return $this->unavailableResponse('notification_delivery_unavailable', $exception->getMessage());
-        }
-
-        return $this->responder->session(
-            new AccessApiSessionDTO('recovery_requested', null, null, null, null, false, false),
-            Response::HTTP_ACCEPTED,
-        );
-    }
-
-    /**
-     * Executes the reset recovery operation within the canonical Accessing component workflow.
-     */
-    public function resetRecovery(Request $request): JsonResponse
-    {
-        $fieldErrors = [];
-        $payload = $this->decodeJsonPayload($request, $fieldErrors);
-
-        return $this->completeRecoveryPayload($payload, $fieldErrors);
-    }
-
-    /**
-     * @param array<string, list<string>> $fieldErrors
-     */
-    private function readEmailRequest(Request $request, array &$fieldErrors): string
-    {
-        $payload = $this->decodeJsonPayload($request, $fieldErrors);
-
-        return $this->stringField($payload, 'email', $fieldErrors);
-    }
-
-    /**
      * Executes the pending second factor user operation within the canonical Accessing component workflow.
      */
     private function pendingSecondFactorUser(Request $request): ?AccessEntity
@@ -802,57 +654,6 @@ final readonly class AccessApiFlowService
     }
 
     /**
-     * @param array<string, mixed>        $payload
-     * @param array<string, list<string>> $fieldErrors
-     */
-    private function completeRecoveryPayload(array $payload, array $fieldErrors): JsonResponse
-    {
-        $email = $this->stringField($payload, 'email', $fieldErrors);
-        $code = $this->stringField($payload, 'code', $fieldErrors);
-        $password = $this->stringField($payload, 'password', $fieldErrors);
-
-        if ([] !== $fieldErrors) {
-            return $this->invalidRequestResponse($fieldErrors);
-        }
-
-        if (null === $this->recoveryService) {
-            return $this->responder->error(
-                new AccessApiErrorDTO(
-                    'recovery_unavailable',
-                    'Access recovery is temporarily unavailable.',
-                ),
-                Response::HTTP_SERVICE_UNAVAILABLE,
-            );
-        }
-
-        try {
-            $completed = $this->recoveryService->resetPassword($email, $code, $password);
-        } catch (AccessCompromisedPasswordException $exception) {
-            return $this->responder->error(
-                new AccessApiErrorDTO('password_compromised', $exception->getMessage()),
-                Response::HTTP_UNPROCESSABLE_ENTITY,
-            );
-        } catch (AccessPasswordSafetyUnavailableException $exception) {
-            return $this->responder->error(
-                new AccessApiErrorDTO('password_safety_unavailable', $exception->getMessage()),
-                Response::HTTP_SERVICE_UNAVAILABLE,
-            );
-        }
-
-        if ($completed) {
-            return $this->responder->session(
-                new AccessApiSessionDTO('recovery_completed', null, null, null, null, false, false),
-                Response::HTTP_ACCEPTED,
-            );
-        }
-
-        return $this->responder->error(
-            new AccessApiErrorDTO('invalid_recovery', 'Access recovery was rejected.'),
-            Response::HTTP_UNPROCESSABLE_ENTITY,
-        );
-    }
-
-    /**
      * Executes the unauthenticated session operation within the canonical Accessing component workflow.
      */
     private function unauthenticatedSession(): AccessApiSessionDTO
@@ -934,59 +735,6 @@ final readonly class AccessApiFlowService
             $requiresVerification,
             $requiresSecondFactor,
         );
-    }
-
-    /**
-     * Executes the authenticated user operation within the canonical Accessing component workflow.
-     */
-    private function authenticatedUser(): ?AccessEntity
-    {
-        $user = $this->security->getUser();
-
-        return $user instanceof AccessEntity ? $user : null;
-    }
-
-    /**
-     * Executes the passkey relying party operation within the canonical Accessing component workflow.
-     */
-    private function passkeyRelyingParty(Request $request): AccessPasskeyRelyingPartyConfigDTO
-    {
-        $relyingPartyId = '' !== trim($this->accessingPasskeyRelyingPartyId) ? trim($this->accessingPasskeyRelyingPartyId) : $request->getHost();
-        $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
-
-        return new AccessPasskeyRelyingPartyConfigDTO(
-            $relyingPartyId,
-            'SmartResponsor Access',
-            $origin,
-        );
-    }
-
-    /**
-     * @param array<string, mixed>        $payload
-     * @param array<string, list<string>> $fieldErrors
-     *
-     * @return array<string, mixed>
-     */
-    private function arrayField(array $payload, string $field, array &$fieldErrors): array
-    {
-        $value = $payload[$field] ?? null;
-        if (!is_array($value)) {
-            $fieldErrors[$field][] = sprintf('The "%s" field must be a JSON object.', $field);
-
-            return [];
-        }
-
-        $result = [];
-        foreach ($value as $key => $item) {
-            if (!is_string($key)) {
-                $fieldErrors[$field][] = sprintf('The "%s" field must be a JSON object.', $field);
-
-                return [];
-            }
-            $result[$key] = $item;
-        }
-
-        return $result;
     }
 
     /**

@@ -13,6 +13,8 @@ use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
+use App\Accessing\Service\Http\Api\Access\AccessApiPasskeyFlowService;
+use App\Accessing\Service\Http\Api\Access\AccessApiRecoveryFlowService;
 use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
@@ -249,14 +251,7 @@ final class AccessApiFlowServiceTest extends TestCase
             ->with('demo@example.test', '123456', 'new-secret-password')
             ->willReturn(true);
 
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recoveryService,
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recoveryService);
 
         $response = $service->resetRecovery(Request::create(
             '/api/access/recovery/reset',
@@ -281,14 +276,7 @@ final class AccessApiFlowServiceTest extends TestCase
             ->method('resetPassword')
             ->willReturn(false);
 
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recoveryService,
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recoveryService);
 
         $response = $service->resetRecovery(Request::create(
             '/api/access/recovery/reset',
@@ -308,13 +296,7 @@ final class AccessApiFlowServiceTest extends TestCase
 
     public function testResetRecoveryReturnsUnavailableWhenServiceIsMissing(): void
     {
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder());
 
         $response = $service->resetRecovery(Request::create(
             '/api/access/recovery/reset',
@@ -337,14 +319,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $recoveryService = $this->createMock(AccessRecoveryServiceInterface::class);
         $recoveryService->expects(self::never())->method('resetPassword');
 
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recoveryService,
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recoveryService);
 
         $response = $service->resetRecovery(Request::create(
             '/api/access/recovery/reset',
@@ -364,9 +339,9 @@ final class AccessApiFlowServiceTest extends TestCase
         self::assertSame(['The "password" field is required.'], $fieldErrors['password'] ?? null);
     }
 
-    public function testAccessApiFlowContainsNoObfuscatedRecoveryDispatch(): void
+    public function testRecoveryApiFlowContainsNoObfuscatedRecoveryDispatch(): void
     {
-        $source = file_get_contents(__DIR__.'/../../src/Service/Http/Api/Access/AccessApiFlowService.php');
+        $source = file_get_contents(__DIR__.'/../../src/Service/Http/Api/Access/AccessApiRecoveryFlowService.php');
 
         self::assertIsString($source);
         self::assertStringNotContainsString('base64_decode', $source);
@@ -419,14 +394,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $recoveryService = $this->createMock(AccessRecoveryServiceInterface::class);
         $recoveryService->method('resetPassword')->willThrowException(new AccessCompromisedPasswordException());
 
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recoveryService,
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recoveryService);
 
         $response = $service->resetRecovery($this->recoveryResetRequest());
         $payload = $this->decodeResponse($response);
@@ -440,14 +408,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $recoveryService = $this->createMock(AccessRecoveryServiceInterface::class);
         $recoveryService->method('resetPassword')->willThrowException(new AccessPasswordSafetyUnavailableException());
 
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recoveryService,
-        );
+        $service = new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recoveryService);
 
         $response = $service->resetRecovery($this->recoveryResetRequest());
         $payload = $this->decodeResponse($response);
@@ -538,14 +499,7 @@ final class AccessApiFlowServiceTest extends TestCase
 
     public function testRequestRecoveryCoversValidationUnavailableDeliveryFailureAndSuccess(): void
     {
-        $base = fn (?AccessRecoveryServiceInterface $recovery): AccessApiFlowService => new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
-            new AccessApiJsonResponder(),
-            $this->createMock(Security::class),
-            recoveryService: $recovery,
-        );
+        $base = fn (?AccessRecoveryServiceInterface $recovery): AccessApiRecoveryFlowService => new AccessApiRecoveryFlowService(new AccessApiJsonResponder(), $recovery);
 
         self::assertSame(422, $base($this->createMock(AccessRecoveryServiceInterface::class))
             ->requestRecovery(Request::create('/api/access/recovery', 'POST', content: '{}'))->getStatusCode());
@@ -582,10 +536,7 @@ final class AccessApiFlowServiceTest extends TestCase
 
     public function testPasskeyAuthenticationOptionsCoversUnavailableAndSuccess(): void
     {
-        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiPasskeyFlowService => new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
             passkeyAuthenticationService: $passkeys,
@@ -607,10 +558,7 @@ final class AccessApiFlowServiceTest extends TestCase
     {
         $security = $this->createMock(Security::class);
         $security->method('getUser')->willReturn(null);
-        $withoutUser = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $withoutUser = new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $security,
         );
@@ -619,10 +567,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $user = new AccessEntity('passkey-options@example.test', 'Passkey Options');
         $userSecurity = $this->createMock(Security::class);
         $userSecurity->method('getUser')->willReturn($user);
-        $missingService = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $missingService = new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $userSecurity,
         );
@@ -639,10 +584,7 @@ final class AccessApiFlowServiceTest extends TestCase
                 300000,
             ),
         );
-        $service = new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $service = new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $userSecurity,
             passkeyRegistrationService: $passkeys,
@@ -658,10 +600,7 @@ final class AccessApiFlowServiceTest extends TestCase
         $user = new AccessEntity('passkey-complete@example.test', 'Passkey Complete');
         $security = $this->createMock(Security::class);
         $security->method('getUser')->willReturn($user);
-        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyRegistrationServiceInterface $passkeys): AccessApiPasskeyFlowService => new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $security,
             passkeyRegistrationService: $passkeys,
@@ -710,10 +649,7 @@ final class AccessApiFlowServiceTest extends TestCase
             new \DateTimeImmutable('+30 days'),
             'session-id',
         ));
-        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiFlowService => new AccessApiFlowService(
-            $this->createMock(AccessAuthenticationServiceInterface::class),
-            $this->createMock(AccessRegistrationServiceInterface::class),
-            $this->createMock(AccessCurrentContextProviderInterface::class),
+        $base = fn (?\App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface $passkeys): AccessApiPasskeyFlowService => new AccessApiPasskeyFlowService(
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
             mobileTokenService: $tokens,
