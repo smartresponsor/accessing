@@ -1,5 +1,138 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Inspecting RC acceptance (engine-20261003181223-accessing-73e5d0)
+
+### Factual baseline and maturity split
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP on `refactor/accessing-canonical-structure`; the starting tree is a mixed concurrent worktree with 129 status entries and is preserved without reset, stash, clean, or destructive reconciliation.
+- Read the supplied historical Inspecting RED (30 findings: 3 high, 27 medium), current Accessing manifests/source, and the required Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contour.
+- Mature IAM baseline inside Accessing remains password/passkey authentication, MFA, recovery, session lifecycle, throttling/lockout, and auditable security events. Broader federation/SSO, adaptive risk-based step-up, and richer enterprise self-service remain growth work rather than RC blockers absent correctness evidence.
+
+### Canonization mapping consulted
+- Canon001 preserves technical-role-first Symfony source roots; Canon002 preserves mirrored typed interface trees; Canon007 requires literal PSR-4 identity after moves; Canon018 maps `accessing/access` to `App\\Accessing\\ => src/` plus Access-prefixed subject vocabulary.
+- Canon021 keeps generic CRUD in Cruding; Canon052 keeps consumer `.gating/` artifact-only; Canon067 requires `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`.
+- Objecting retains reusable system-field ownership; Viewing retains rendering-boundary ownership; Interfacing retains passive shell/template ownership. No responsibility is moved across those boundaries in this acceptance pass.
+
+### Fresh acceptance evidence
+- Legacy tracked `App\\Accessing\\Entity\\AccessEntity` references: 0. Composer `validate --strict --check-lock`: PASS.
+- Canonization: PASS, 69 rules / 0 failures; Canon040 remains GREEN at 82.3% lines, 86.9% methods, 77.1% branches; Canon042 remains GREEN at functional 4/4, behavioral 6/6, UI 4/4, critical 3/3.
+- PHP-CS-Fixer: PASS, 270 files / 0 fixable. PHPStan: PASS, 268 files / 0 errors. PHPUnit: PASS, 265 tests / 2962 assertions; 120 non-failing notices. Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped.
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-182326.json`: 27 findings, all medium, 0 high; PHPStan analyzer 0 errors; max constructor dependencies 11. Historical RED was 30 findings with 3 high and max constructor dependencies 14.
+- The direct changed-file lint probe timed out before a verdict; no result is inferred from it. Syntax/static behavior is nevertheless covered by the green PHPStan/PHPUnit/CS acceptance contour and prior current-tree lint evidence is not re-labeled as fresh.
+- No browser-visible source was changed in this execution window, so no new runtime restart or screenshot was applicable under REUSE_EXISTING_FIRST; visual evidence is NOT_VERIFIED by applicability, not a UI failure.
+
+### Integration tail
+- Final status remains mixed with 128 dirty paths. During this execution window HEAD advanced from `6f8115316ea3a37c8cfd8bf2be43391ba022f2eb` to `c5c662c16d8deab44b1c7133d064b2dc72e1e97f` while the branch remained 0 ahead / 0 behind its upstream, proving an active concurrent writer/integrator.
+- No stage/commit/push is performed from this task: whole-file staging would absorb overlapping parallel authorized work, while reset/stash/clean/overwrite is forbidden. The source/quality objective is green; safe Git publication is blocked until the concurrent worktree stabilizes or ownership is serialized.
+
+## 2026-10-03 — Canon067 stabilization continuation (engine-20261003181400-accessing-25738a)
+
+### Factual baseline and workstreams
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP on `refactor/accessing-canonical-structure`; branch is synchronized with `origin/refactor/accessing-canonical-structure` and the current dirty tree is the in-progress Canon067 root-Entity/auth-hardening wave rather than the historical Canon052 RED fingerprint.
+- Re-read Accessing root manifests plus Objecting, Cruding, Viewing, Interfacing, Gating, and authoritative Canonization contracts. RC-critical scope remains canonical root-Entity identity, stale-reference elimination, deterministic quality evidence, and safe Git integration; federation/adaptive-auth/self-service maturity remains post-RC growth work.
+- Canon mapping applied: Canon001 technical-role-first; Canon002 mirrored interface trees; Canon007 literal PSR-4 identity; Canon018 `accessing/access` => `App\\Accessing\\` + `Access*`; Canon021 generic CRUD remains in Cruding; Canon052 consumer `.gating/` is artifact-only; Canon067 requires `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`.
+
+### Current verification
+- `composer validate --strict --check-lock`: PASS.
+- Changed/untracked PHP lint through Console MCP: PASS for the scanned changed PHP set; no syntax error reported.
+- Canonization rerun was requested but heavy-worker admission is currently deferred by `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` / `ENGINE_BACKLOG_HIGH`; no new canon verdict is inferred from that capacity refusal. The immediately preceding stabilized-tree evidence in this journal remains GREEN for Canonization (69 rules), PHPStan, PHPUnit, Gating, Playwright, coverage, and fresh Inspecting, subject to final tree-stability confirmation.
+
+### Integration safety
+- No reset, stash, clean, destructive deletion, or sibling-repository mutation was performed.
+- Final commit/push is allowed only after confirming the current dirty set is stable and coherent; whole-file staging must not silently absorb an active concurrent writer.
+
+## 2026-10-03 — Canon067/RC execution (engine-20261003175411-accessing-3c9ef6)
+
+### Factual baseline and opening maturity split
+- Resolved the target exclusively through Console MCP as `D:\PhpstormProjects\www\Accessing` on `refactor/accessing-canonical-structure`; the current tree contains a concurrent in-progress Canon067 root-Entity migration and related verification work, which this task preserves rather than resetting, stashing, cleaning, or reconstructing.
+- Supplied CanonScanning RED was historical Canon052 evidence. Fresh `composer canon:check` now passes 69 canon rules, including Canon052 and Canon067, so the live RC focus is completion/verification of the current root-Entity migration rather than reapplying the old Gating fix.
+- Mature IAM baseline inside the Accessing boundary remains passkeys/WebAuthn, MFA, recovery, session lifecycle, throttling/lockout, and security auditability. RC-critical work is deterministic identity/runtime integrity; federation/SSO breadth, adaptive step-up policy, richer self-service security UX, and authorization-policy expansion remain growth work.
+
+### Contracts and target mapping consulted
+- Read Accessing root manifests plus the required Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contracts.
+- Canon001/002 preserve technical-role-first and mirrored interface trees; Canon004 explicitly permits the Entity-domain topology; Canon067 requires `accessing/access` to own `src/Entity/Access/AccessEntity.php`; Canon052 keeps consumer `.gating/` artifact-only.
+- Objecting retains reusable system-field ownership, Cruding generic CRUD ownership, Viewing rendering-boundary ownership, and Interfacing passive shell/template ownership. The AccessEntity relocation remains inside Accessing and does not transfer those responsibilities.
+
+### Material execution and verification
+- Verified zero remaining tracked references to legacy `App\\Accessing\\Entity\\AccessEntity`; current callers/configuration resolve `App\\Accessing\\Entity\\Access\\AccessEntity`.
+- Repaired/closed formatting drift from the migration and obtained fresh deterministic evidence: PHP lint PASS; PHP-CS-Fixer PASS (270 files, 0 fixable); PHPStan PASS (268 files, 0 errors); PHPUnit PASS (265 tests, 2962 assertions; 120 existing non-failing notices); Canonization PASS (69 rules, 0 failures).
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-180433.json`: 27 findings, all medium, 0 high; PHPStan analyzer 0 errors. Supplied baseline was 30 findings with 3 high, so the high-severity constructor-dependency front is eliminated in the current tree.
+- Fresh coverage execution completed the first PHPUnit coverage pass but the synchronous execution window ended during the second path-coverage pass. A follow-up asynchronous coverage start was not admitted under `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` (`RESOURCE_PRESSURE_WATCH`, `ENGINE_BACKLOG_HIGH`); no fresh coverage PASS is inferred.
+- Existing managed Playwright port 8011 was probed before restart and was unhealthy. Because it was stale/hung, restart was permissible under REUSE_EXISTING_FIRST. The initial managed health probe still timed out, but the repository-owned Playwright runner subsequently completed successfully against the standalone surface: 4/4 tests PASS (sign-in, registration, recovery request, password-reset request), exit 0.
+- Panther suite executed successfully but its only test remains repository-configured skipped (1 skipped, 0 assertions), so it is not counted as browser proof.
+- `composer test:behavioral-coverage` PASS and regenerated `var/coverage/behavioral-ui.json` after the green Playwright run.
+
+### Remaining RC tail
+- Re-establish fresh Canon040 path-coverage evidence when execution capacity permits; the asynchronous heavy worker remains blocked by `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` / `ENGINE_BACKLOG_HIGH`, so no replacement coverage PASS is claimed.
+- Inspect the stabilized final worktree and Git/upstream state after concurrent Accessing writers finish; do not commit/publish a mixed unclassified tree.
+- No intentional user-visible UI change was made by this task; visual evidence remains NOT_VERIFIED rather than being represented by historical screenshots.
+
+## 2026-10-03 — Canon067 RC verification (engine-20261003180548-accessing-b3e807)
+
+### Factual baseline
+- Resolved the authoritative workspace through Console MCP as `D:\PhpstormProjects\www\Accessing` on branch `refactor/accessing-canonical-structure`; starting worktree is intentionally dirty with 128 entries from concurrent/in-progress Accessing remediation and is preserved without reset/stash/clean.
+- Read the authoritative task attachment, Accessing root manifests/Composer/security/OpenAPI/tooling surfaces, the supplied CanonScanning RED and Inspecting evidence, and the mandatory Objecting/Cruding/Viewing/Interfacing plus Canonization/Gating contour.
+- The supplied Canon052 RED is historical: the current remediation already contains the Canon067 root-Entity migration to `src/Entity/Access/AccessEntity.php`; an exact search finds no remaining `App\\Accessing\\Entity\\AccessEntity` references.
+- Existing concurrent work also contains a behavior-preserving decomposition of password sign-in failure handling; it is treated as current-tree work to verify, not reconstructed from an older snapshot.
+
+### Canonization mapping consulted
+- Canon001: retain technical-role-first Symfony roots.
+- Canon002: retain mirrored implementation/interface role trees.
+- Canon007: the root-Entity move is complete only when path, namespace, declared type, imports, configuration, metadata, and callers agree literally.
+- Canon018: `accessing/access` maps to `App\\Accessing\\ => src/` with `Access*` subject vocabulary.
+- Canon021: generic CRUD remains owned by Cruding; this remediation introduces no generic CRUD machinery.
+- Canon052: consumer `.gating/` remains artifact-only; historical copied owner-engine state is not the current target.
+- Canon067: `accessing/access` owns `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`.
+- Objecting retains ownership of reusable system-field packs; Accessing owns its business Entity and relations. Viewing owns rendering-boundary logic; Interfacing owns passive shell/template assets.
+
+### Market/maturity opening mixin
+- Mature IAM baselines include passkeys/WebAuthn, MFA, session lifecycle, recovery, and auditable security events; Accessing already owns these access-lifecycle concerns.
+- RC-critical workstream: finish and verify Canon067 identity migration plus the current authentication hardening refactor, eliminate stale references, and close deterministic gates.
+- Growth workstream: broader OIDC/SAML federation, adaptive/risk-based step-up authentication, and richer security self-service/observability remain post-RC unless promoted by deterministic correctness evidence.
+
+### Risks and verification plan
+- Authentication and Doctrine identity are security/data-sensitive; preserve lockout, audit-event, second-factor, session, persistence, and public-result semantics.
+- No user-observable UI change is intended; behavioral/visual evidence is applicability-driven and becomes mandatory only if current mutations affect browser-visible behavior.
+- Acceptance contour: stale-reference scan, Composer strict/lock validation, changed-PHP lint, Canonization/Gating, PHP-CS-Fixer, PHPStan, PHPUnit, Doctrine/container checks where applicable, fresh Inspecting after mutation, then final Git/upstream reconciliation.
+
+## 2026-10-03 — Canon067 continuation (engine-20261003175857-accessing-dc232a)
+
+### Factual baseline
+- Resolved the authoritative workspace through Console MCP as `D:\PhpstormProjects\www\Accessing` on branch `refactor/accessing-canonical-structure`.
+- Starting worktree is intentionally dirty with 128 status entries from concurrent/in-progress Accessing remediation, including the Canon067 root-Entity move to `src/Entity/Access/AccessEntity.php`; no reset, stash, clean, or destructive reconciliation is permitted.
+- Read Accessing AGENTS/root manifests, Composer/security/runtime surfaces, current root Entity and Objecting contract test, plus Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contract sources.
+- Fresh upstream Inspecting evidence is reusable only for the supplied pre-mutation fingerprint; because the current tree already contains material source changes, post-change verification must be refreshed where applicable.
+
+### Canonization mapping consulted
+- Canon067 requires `accessing/access` to own `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`; the current working tree implements that target topology.
+- Canon007 requires literal PSR-4 path/namespace/type/import identity across the migration.
+- Canon018 preserves `App\\Accessing\\ => src/` and `Access*` subject vocabulary.
+- Canon021 keeps generic CRUD mechanics in Cruding; this migration must not add generic CRUD surfaces.
+- Objecting retains ownership of identity/audit field packs; Accessing retains the business Entity and relations.
+- Viewing owns rendering-boundary behavior and Interfacing owns passive shell/template assets; this Canon067 remediation does not move those responsibilities.
+
+### Workstreams
+- RC-critical: finish and verify the existing Canon067 migration, identify stale old-FQCN/path references, run canon/static/test/package gates, and repair any factual in-scope failures.
+- Growth: federation breadth, adaptive/step-up authentication, richer security self-service, and additional IAM observability remain post-RC unless promoted by deterministic correctness evidence.
+
+### Risks and verification plan
+- Authentication and Doctrine mappings are security/data-sensitive; preserve semantics while moving identity only.
+- No user-observable UI change is intended; browser/visual evidence becomes applicable only if verification shows affected UI/runtime behavior.
+- Acceptance contour: current canon check, Composer strict/lock validation, stale-reference search, PHPStan, PHPUnit, Gating/quality as admitted, Doctrine/container/runtime checks where applicable, then final Git/upstream inspection.
+
+### Material execution outcome
+- Old `App\\Accessing\\Entity\\AccessEntity` references: 0 current matches; Canon067 and Canon007 both PASS after the root-Entity move.
+- Hardened `bin/cmcp-canon-check.ps1` so each run uses a unique report path and fails on a non-zero underlying Gating exit code; this removes the observed stale-report false-green path.
+- Fixed invalid inline YAML for `/access/operator/user/{id}` by quoting the parameterized path; `lint:yaml config src tests --parse-tags` now passes all 40 YAML files.
+- Composer strict/check-lock validation PASS; PHPStan PASS across 268 files; PHPUnit PASS 265 tests / 2962 assertions with 120 non-failing notices; PHP-CS-Fixer dry-run PASS; repository Gating PASS with 0 failures/warnings; Symfony test container lint PASS.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-181027.json`: 27 medium findings, 0 high, PHPStan analyzer 0 errors. Residual findings remain design/maintainability growth debt unless promoted by a deterministic rule.
+- Canon verifier re-run after fixes: PASS, 69 canon rules, Canon067 PASS, Canon040 and Canon042 evidence PASS.
+- `schema:parity` recreated the PostgreSQL test database, executed 4 migrations / 81 SQL queries, and reported mapping plus schema in sync; the wrapper again returned no final exit code after the migrations-up-to-date phase, so no wrapper PASS is invented.
+- Standalone `schema:validate --env=test` continues to report the default test database out of sync despite the repository parity contour proving the recreated PostgreSQL schema in sync; policy blocks `doctrine:schema:update --dump-sql`, so the exact default-connection diff remains an environment/configuration diagnostic tail rather than a proven metadata defect.
+- Signed commit `c5c662c` contains only the verifier hardening and YAML syntax repair and was pushed to `origin/refactor/accessing-canonical-structure`.
+- Reconciled the validated Canon067/Inspecting working wave into three additional signed commits because the guarded commit API caps explicit paths per commit: `fec17ed` (root Entity/core callers), `673b8f7` (services/interfaces plus password-sign-in decomposition), and `282b96a` (tests). The full combined tree passed Composer validation, PHPStan, and PHPUnit before integration.
+- Verified the pre-existing reset-password template resolver change against the actual Twig tree: `templates/access/reset-password/check-email.html.twig` exists and the prior nested `check/email.html.twig` path does not. Integrated that correction as signed commit `46657d8`.
+- Integrated the local `AGENTS.md` Canonization-precedence clarification as signed commit `bee3093`; it mirrors the authoritative workspace contract and introduces no runtime dependency or alternative architecture.
+
 ## 2026-09-29 — Canon052 remediation (engine-20260930013857-accessing-d4edf6)
 
 ### Factual baseline
@@ -556,3 +689,121 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Repository diff whitespace check: PASS.
 - The `canon:check` Composer alias is intentionally not added to aggregate `quality`; CanonScanning remains the fleet-wide/nightly producer, avoiding duplicate full-canon execution in ordinary local quality runs.
 - No browser/UI/runtime behavior changed in tracked source. New Panther/Playwright execution and screenshots are not applicable to this topology/tooling-only remediation; prior GREEN visual evidence remains historical rather than re-claimed as new evidence.
+
+## 2026-10-03 — Inspecting RC remediation (engine-20261003174535-accessing-f2f590)
+
+### Factual baseline
+- Re-read the current Accessing root instructions/manifests, Composer dependency graph, DI/security configuration, authentication/API flow source, focused tests, and the supplied RED Inspecting report from `20260929-030002`.
+- Branch is `refactor/accessing-canonical-structure`; starting worktree preserves pre-existing changes in `.gating/README.md`, `AGENTS.md`, and `src/Resolver/Rendering/AccessPageTemplateResolver.php`.
+- The supplied Inspecting report is partially stale relative to current source: API recovery/passkey responsibilities were already extracted and locked-account attempts are already audited/tested. `AccessAuthenticationService::attemptPasswordSignIn()` remains a live long-method candidate.
+
+### Dependency and canon contour
+- `composer.json` directly requires Objecting, Cruding, Viewing, and Interfacing and wires their local development repositories; Gating is a dev-only executable dependency.
+- Consulted Objecting system-field/lifecycle ownership, Cruding generic-CRUD ownership, Viewing rendering-boundary guidance, and Canonization textual `Canon001TechnicalRoleFirstRule` plus `Canon002InterfaceTreeMirrorsImplementationRule`.
+- Target mapping: retain technical-role-first `src/Service/...`, mirrored public service contracts under `src/ServiceInterface/...`, the single `App\\Accessing\\` namespace root, and no Domain/Port/Adapter tree.
+
+### Workstreams
+- RC-critical: reduce the still-live password sign-in orchestration long-method finding without changing event taxonomy, lockout, second-factor, session, or persistence semantics; then run deterministic gates and fresh Inspecting.
+- Growth: risk-aware/step-up MFA and continuous-session-protection policy remain post-RC maturity work rather than correctness blockers.
+
+### Risks and verification plan
+- Authentication is security-sensitive; preserve branch order and existing integration behavior exactly.
+- Do not absorb, reset, stash, delete, or overwrite unrelated pre-existing worktree changes.
+- After mutation run PHP lint, focused/full tests as admitted, static analysis/Gating, and fresh Inspecting; browser/UI evidence is applicability-driven because this refactor does not alter templates/forms/navigation.
+
+### Material implementation and acceptance
+- Extracted locked-account audit/failure handling and failed-password lockout/event handling from `AccessAuthenticationService::attemptPasswordSignIn()` into focused private helpers without changing the public service contract, lockout thresholds, event taxonomy, persistence flush semantics, or user-facing failure text.
+- Changed-file PHP lint: PASS.
+- `composer validate --strict --check-lock`: PASS.
+- `composer cs:check`: PASS, 270 files, 0 fixable.
+- `composer gate`: PASS, 10 rules, 0 failed, 0 warning, 1 skipped.
+- PHPUnit: PASS, 265 tests / 2962 assertions; 120 existing PHPUnit notices remain non-failing.
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-175736.json`: PHPStan 0 errors; 27 medium findings, 0 high. The supplied baseline had 30 findings with 3 high; the selected `attemptPasswordSignIn()` long-method finding is absent from the fresh report.
+- No browser/template/form/navigation source was changed by this remediation, so no new visual artifact is required; visual evidence for this pass is NOT_VERIFIED by applicability rather than a UI failure.
+
+### Concurrent integration state
+- After the green acceptance run, a separate concurrent canonicalization wave expanded the worktree to 128 status entries, including an Entity relocation to `src/Entity/Access/` and broad caller/test changes. The concurrent wave also updated the `AccessAuthenticationService` import to the relocated Entity while preserving the two helpers added here.
+- Because those changes are not owned by this task and are still uncommitted, this task does not stage, commit, reset, stash, clean, or publish the mixed worktree. A stable post-concurrency fingerprint is required before final Git integration can be claimed.
+
+## 2026-10-03 — Canon067 root Entity remediation (engine-20261003174647-accessing-30d605)
+
+### Factual baseline
+- Starting branch: `refactor/accessing-canonical-structure`; pre-existing worktree changes were limited to `.gating/README.md`, `AGENTS.md`, and `src/Resolver/Rendering/AccessPageTemplateResolver.php` before this run.
+- Supplied CanonScanning evidence was stale on Canon052: fresh `composer gate` passed and fresh `composer canon:check` showed Canon052 GREEN but one current hard failure, Canon067 repository root Entity.
+- `accessing/access` owned `src/Entity/AccessEntity.php`; Canon067 requires `src/Entity/Access/AccessEntity.php` for the Composer subject `access`.
+- Supplied Inspecting evidence (3 high / 27 medium) was consumed as the architecture baseline; it is observational unless promoted by canon or a deterministic failure.
+- Mandatory dependency contour read: Objecting, Cruding, Viewing, and Interfacing; mandatory normative/executable contour read: Canonization and Gating. Interfacing has no `MANIFEST.json`; Code Memory scope is not declared by this repository.
+
+### Canonization mapping consulted
+- Canon007: moved PHP type path and namespace must remain literal PSR-4 identities.
+- Canon018: `accessing/access` maps to the single `App\\Accessing\\` namespace and Access subject vocabulary.
+- Canon021: generic CRUD remains owned by Cruding; this migration adds no CRUD surface.
+- Canon047/051: repository persistence ownership and no repository orchestration dependency remain unchanged.
+- Canon052: consumer `.gating/` is artifact-only and may contain a non-executable README; the historical RED no longer reproduces.
+- Canon067: canonical root Entity for `accessing/access` is `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`.
+
+### Market/maturity opening mixin
+- Mature IAM products treat passkeys/WebAuthn, MFA, recovery, session lifecycle, and auditability as baseline authentication maturity; federation/SSO breadth, adaptive/step-up policy, and richer authorization remain separate growth concerns.
+- RC-critical workstream: restore the current deterministic Canon067 contract without changing authentication behavior, then refresh static/test/behavioral verification.
+- Growth workstream: federation breadth, adaptive authentication, self-service security UX, and policy-engine integration remain post-RC unless promoted by correctness evidence.
+
+### Material implementation and verification plan
+- Moved the root Entity to `src/Entity/Access/AccessEntity.php`, changed its namespace to `App\\Accessing\\Entity\\Access`, updated security configuration, all proven source/test FQCN consumers, and the twelve sibling Entity files that previously relied on same-namespace resolution.
+- No compatibility wrapper was introduced; the old FQCN has zero tracked matches after migration.
+
+## 2026-10-03 — Inspecting/RC continuation (engine-20261003180106-accessing-b63a19)
+
+### Factual baseline
+- Current branch is `refactor/accessing-canonical-structure`; the worktree already contains concurrent Canon067 root-Entity migration work and a behavior-preserving `AccessAuthenticationService::attemptPasswordSignIn()` decomposition. This run preserves and verifies that current tree rather than resetting, stashing, or reconstructing earlier snapshots.
+- Read the supplied RED Inspecting report `20260929-030002`: 30 structural findings (3 high, 27 medium). The report predates prior API/passkey/recovery decomposition and is therefore an initial backlog, not a current verdict.
+- Verified the required application dependency contour in `composer.json`: Objecting, Cruding, Viewing, and Interfacing are direct runtime dependencies with local development wiring; Gating is a development executable dependency. Inspecting remains external verification and is not added as an application dependency.
+
+### Canonization mapping consulted
+- Canon001: retain technical-role-first Symfony source roots.
+- Canon002: retain mirrored implementation/interface role trees.
+- Canon007: the concurrent AccessEntity move is complete only when path, namespace, type, imports, configuration, metadata, and callers agree literally.
+- Canon018: `accessing/access` maps to `App\\Accessing\\ => src/` and Access-prefixed component vocabulary.
+- Canon067: the repository root Entity is `src/Entity/Access/AccessEntity.php` declaring `AccessEntity`.
+- Objecting remains owner of reusable system-field packs; Cruding owns generic CRUD; Viewing owns rendering-boundary logic; Interfacing owns shared shell/templates. No responsibility is moved across those boundaries in this pass.
+
+### Workstreams
+- RC-critical: reconcile the current combined Canon067 + Inspecting worktree, eliminate stale root-Entity references, verify the sign-in decomposition preserves security semantics, run deterministic quality/canon gates, and then obtain fresh Inspecting evidence for the mutated repository fingerprint.
+- Growth: broader federation/SSO, adaptive or risk-based step-up authentication, richer device/session self-service, and additional IAM UX remain post-RC unless deterministic correctness evidence promotes them.
+
+### Risks and gates
+- Authentication and identity mapping are security-sensitive; preserve lockout, audit-event, second-factor, session, persistence, and public-result semantics.
+- Do not overwrite or silently absorb unrelated concurrent modifications; classify final dirty state before Git integration.
+- Required acceptance: stale-FQCN scan, Composer validation, PHP lint, PHP-CS-Fixer, PHPStan, PHPUnit/Gating/Canonization as admitted, Doctrine/container checks when applicable, and fresh Inspecting after repository mutation. Browser/visual evidence is applicability-driven because no user-observable UI behavior is intentionally changed.
+
+### Material execution and acceptance
+- Legacy `App\\Accessing\\Entity\\AccessEntity` search: 0 matches. New `src/Entity/Access/AccessEntity.php` PHP lint: PASS. Objecting identity contract: PASS, 1 test / 9 assertions.
+- Composer strict/lock validation: PASS. PHP-CS-Fixer: PASS, 270 files / 0 fixable. PHPStan: PASS, 268 files / 0 errors. PHPUnit: PASS, 265 tests / 2962 assertions with 120 existing non-failing notices. Gating: PASS, 10 rules / 0 failures / 0 warnings / 1 skipped.
+- Canonization: PASS, 69 rules / 0 failures, including Canon007, Canon018, Canon021, Canon052, and Canon067. Canon040/042 evidence reported GREEN by the current canon run.
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-181201.json`: 27 findings, all medium; 0 high; PHPStan analyzer 0 errors. The supplied RED baseline had 30 findings / 3 high; the selected `AccessAuthenticationService::attemptPasswordSignIn()` long-method finding is absent after decomposition.
+- Remaining Inspecting findings are review-level medium smells with no autofix and no applicable canon promotion. They are retained as post-RC refactoring/growth backlog rather than widened into a security-sensitive bulk refactor in the concurrent worktree.
+
+### Doctrine/runtime/UI evidence
+- `doctrine:schema:validate --env=test`: mapping PASS, database schema NOT in sync. Guarded migrations dry-run cannot establish parity in this CLI test environment because Accessing data migrations explicitly require PostgreSQL; PHPUnit itself forces `DATABASE_URL=sqlite:///:memory:`. Destructive schema parity/drop-recreate was not run because destructive operations are forbidden for this task.
+- `lint:container --env=test` did not return within the bounded Console MCP call, so no container-lint PASS is claimed.
+- A pre-existing unrelated `AccessPageTemplateResolver` path change affects UI. Existing managed runtime on port 8011 was probed first, found hung, then restarted; the affected `/access/reset/password/check/email` route subsequently returned HTTP 200 and rendered `Check email` from the corrected template path.
+- Panther executed but its sole repository test is configured skipped (1 skipped / 0 assertions), so it is not claimed as behavioral proof. Browser localhost evidence produced screenshots under the central visual artifact root and is ATTENTION because Interfacing-owned stylesheet URLs return 404; the Accessing route/template itself renders successfully.
+
+### Integration state
+- Final inspected branch: `refactor/accessing-canonical-structure`, upstream `origin/refactor/accessing-canonical-structure`, HEAD `6f8115316ea3a37c8cfd8bf2be43391ba022f2eb`, ahead 0 / behind 0.
+- Worktree remains mixed with 129 dirty paths from multiple concurrent authorized Accessing tasks. Known pre-existing/unowned paths include `.gating/README.md`, `AGENTS.md`, and `src/Resolver/Rendering/AccessPageTemplateResolver.php`; concurrent Canon067/Inspecting writers overlap `CMCP_CHANGELOG.md`, `AccessAuthenticationService.php`, Entity callers, tests, and canon tooling.
+- No stage/commit/push is performed from this task because whole-file Git mutation would commingle concurrent work; reset/stash/clean/overwrite is forbidden. Publication requires the concurrent Accessing writers to stabilize/serialize the worktree first.
+
+## 2026-10-03 — Canon067 acceptance checkpoint (engine-20261003174647-accessing-30d605)
+
+### Acceptance evidence
+- Legacy `App\\Accessing\\Entity\\AccessEntity` tracked references: 0; canonical root is `src/Entity/Access/AccessEntity.php` with `App\\Accessing\\Entity\\Access\\AccessEntity`.
+- Changed PHP lint: PASS. Composer strict/lock validation: PASS. PHP-CS-Fixer: PASS, 270 files / 0 fixable. PHPStan: PASS, 0 errors. PHPUnit: PASS, 265 tests / 2962 assertions; 120 non-failing notices remain.
+- Canonization: PASS, 69 rules / 0 failures. Canon040 coverage is fresh and GREEN: lines 82.3%, methods 86.9%, branches 77.1%. Canon042 behavioral/UI coverage is fresh and GREEN: functional 4/4, behavioral 6/6, UI 4/4, critical 3/3.
+- Playwright: PASS, 4/4 standalone user-flow checks for sign-in, registration, recovery request, and password-reset request. Panther remains repository-configured skipped and is not counted as evidence.
+- Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped.
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-180805.json`: 27 findings, all medium; 0 high; PHPStan analyzer 0 errors. Supplied baseline was 30 findings with 3 high.
+
+### Integration classification
+- Branch remains `refactor/accessing-canonical-structure`, upstream `origin/refactor/accessing-canonical-structure`, with no ahead/behind divergence at the last branch inspection.
+- Git integration is intentionally not performed from this mixed worktree: concurrent authorized Accessing tasks have uncommitted changes overlapping files required by this migration, including `src/Service/AccessAuthenticationService.php`, `CMCP_CHANGELOG.md`, and additional current-tree remediation surfaces.
+- Available guarded stage/commit operations are whole-file scoped; staging these paths would silently absorb concurrent work. Reset/stash/clean/overwrite is forbidden. Therefore safe publication requires a stabilized/serialized worktree or completion of the concurrent writers first.
