@@ -7,7 +7,7 @@ namespace App\Accessing\Service;
 
 use App\Accessing\Authenticator\AccessProgrammaticAuthenticator;
 use App\Accessing\DTO\AccessSignInResultDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
@@ -79,49 +79,11 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         }
 
         if ($user->isLocked()) {
-            $lockedUntil = $user->getLockedUntil();
-            $this->securityEventService->record(
-                AccessSecurityEventType::LockedAccountSignInAttempt,
-                AccessSecurityEventSeverity::Warning,
-                $user,
-                $request,
-                [
-                    'lockExpiresAt' => $lockedUntil?->format(\DateTimeInterface::ATOM),
-                    'reason' => 'account_locked',
-                ],
-            );
-
-            return AccessSignInResultDTO::failed(sprintf(
-                'This user is locked until %s.',
-                $lockedUntil?->format('Y-m-d H:i'),
-            ));
+            return $this->lockedAccountSignInFailure($user, $request);
         }
 
         if (!$this->credentialService->verifyPassword($user, $plainPassword)) {
-            $user->registerFailedSignInAttempt();
-
-            if ($user->getFailedSignInCount() >= $this->accessingUserLockThreshold) {
-                $user->lockUntil(new \DateTimeImmutable(sprintf('+%d minutes', $this->accessingUserLockMinutes)));
-                $this->securityEventService->record(
-                    AccessSecurityEventType::UserLocked,
-                    AccessSecurityEventSeverity::Critical,
-                    $user,
-                    $request,
-                    ['failedSignInCount' => $user->getFailedSignInCount()],
-                );
-            } else {
-                $this->securityEventService->record(
-                    AccessSecurityEventType::SignInFailed,
-                    AccessSecurityEventSeverity::Warning,
-                    $user,
-                    $request,
-                    ['failedSignInCount' => $user->getFailedSignInCount()],
-                );
-            }
-
-            $this->userRepository->save($user, true);
-
-            return AccessSignInResultDTO::failed('Invalid sign in credentials.');
+            return $this->handleFailedPasswordSignIn($user, $request);
         }
 
         if ($user->getSecondFactor()?->isEnabled()) {
@@ -139,6 +101,57 @@ final readonly class AccessAuthenticationService implements AccessAuthentication
         $this->signIn($user, $request);
 
         return AccessSignInResultDTO::authenticated($user);
+    }
+
+    /**
+     * Records a locked-account attempt and returns the stable locked-account failure result.
+     */
+    private function lockedAccountSignInFailure(AccessEntity $user, Request $request): AccessSignInResultDTO
+    {
+        $lockedUntil = $user->getLockedUntil();
+        $this->securityEventService->record(
+            AccessSecurityEventType::LockedAccountSignInAttempt,
+            AccessSecurityEventSeverity::Warning,
+            $user,
+            $request,
+            [
+                'lockExpiresAt' => $lockedUntil?->format(\DateTimeInterface::ATOM),
+                'reason' => 'account_locked',
+            ],
+        );
+
+        return AccessSignInResultDTO::failed(sprintf(
+            'This user is locked until %s.',
+            $lockedUntil?->format('Y-m-d H:i'),
+        ));
+    }
+
+    /**
+     * Records a failed password attempt, applies lockout policy, and returns the stable authentication failure result.
+     */
+    private function handleFailedPasswordSignIn(AccessEntity $user, Request $request): AccessSignInResultDTO
+    {
+        $user->registerFailedSignInAttempt();
+
+        if ($user->getFailedSignInCount() >= $this->accessingUserLockThreshold) {
+            $user->lockUntil(new \DateTimeImmutable(sprintf('+%d minutes', $this->accessingUserLockMinutes)));
+            $eventType = AccessSecurityEventType::UserLocked;
+            $severity = AccessSecurityEventSeverity::Critical;
+        } else {
+            $eventType = AccessSecurityEventType::SignInFailed;
+            $severity = AccessSecurityEventSeverity::Warning;
+        }
+
+        $this->securityEventService->record(
+            $eventType,
+            $severity,
+            $user,
+            $request,
+            ['failedSignInCount' => $user->getFailedSignInCount()],
+        );
+        $this->userRepository->save($user, true);
+
+        return AccessSignInResultDTO::failed('Invalid sign in credentials.');
     }
 
     /**

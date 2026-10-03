@@ -12,7 +12,7 @@ use App\Accessing\DTO\Api\Access\AccessApiIdentityDTO;
 use App\Accessing\DTO\Api\Access\AccessApiRegisterRequestDTO;
 use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
 use App\Accessing\DTO\Api\Access\AccessApiSignInRequestDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;

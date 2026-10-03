@@ -6,7 +6,7 @@ namespace App\Accessing\VerifierInterface\Passkey;
 
 use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 
 /**
  * Defines the passkey attestation verifier interface type and its canonical responsibility within the Accessing component.

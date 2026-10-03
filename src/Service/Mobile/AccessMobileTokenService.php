@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Mobile;
 
 use App\Accessing\DTO\AccessMobileTokenPairDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessMobileSessionEntity;
 use App\Accessing\RepositoryInterface\AccessMobileSessionRepositoryInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;

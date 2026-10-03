@@ -11,7 +11,7 @@ use App\Accessing\DTO\AccessRecoveryResetDTO;
 use App\Accessing\DTO\AccessRegistrationRequestDTO;
 use App\Accessing\DTO\AccessSignInRequestDTO;
 use App\Accessing\DTO\AccessVerificationCodeDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;

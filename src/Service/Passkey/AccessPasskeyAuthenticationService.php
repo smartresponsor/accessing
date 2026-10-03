@@ -6,7 +6,7 @@ namespace App\Accessing\Service\Passkey;
 
 use App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO;
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;

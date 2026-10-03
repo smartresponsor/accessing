@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Mobile;
 
 use App\Accessing\DTO\AccessMobileTokenPairDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 
 /**
  * Defines the mobile token service interface type and its canonical responsibility within the Accessing component.

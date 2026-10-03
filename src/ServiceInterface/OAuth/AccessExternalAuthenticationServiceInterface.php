@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\OAuth;
 
 use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use Symfony\Component\HttpFoundation\Request;
 
 /**

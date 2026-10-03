@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;

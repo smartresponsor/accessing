@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\Credential;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessCredentialEntity;
-use App\Accessing\Entity\AccessEntity;
 
 /**
  * Defines the credential service interface type and its canonical responsibility within the Accessing component.

@@ -8,7 +8,7 @@ use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
 use App\Accessing\DTO\Api\Access\AccessApiErrorDTO;
 use App\Accessing\DTO\Api\Access\AccessApiIdentityDTO;
 use App\Accessing\DTO\Api\Access\AccessApiSessionDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInterface;

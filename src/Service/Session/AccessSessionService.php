@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Session;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessSessionEntity;
 use App\Accessing\RepositoryInterface\AccessSessionRepositoryInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;

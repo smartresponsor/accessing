@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\ServiceInterface\SecurityNotification;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 
 /**
  * Defines the security notification service interface type and its canonical responsibility within the Accessing component.
