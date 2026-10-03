@@ -9,7 +9,7 @@ $policyRoot = Join-Path $gatingRoot '.gating'
 $severityConfig = Join-Path $policyRoot 'config\severity.yaml'
 $varRoot = Join-Path $repoRoot 'var\cmcp'
 $ruleSetPath = Join-Path $varRoot 'canon-rule-set.yaml'
-$reportPath = Join-Path $varRoot 'canon-report.json'
+$reportPath = Join-Path $varRoot ('canon-report-{0}.json' -f ([guid]::NewGuid().ToString('N')))
 
 if (-not (Test-Path -LiteralPath $gatingBin -PathType Leaf)) {
     throw "Installed Gating CLI is missing: $gatingBin"
@@ -57,6 +57,10 @@ $arguments = @(
 )
 
 & php @arguments | Out-Null
+$gatingExitCode = $LASTEXITCODE
+if ($gatingExitCode -ne 0) {
+    throw "Gating canon check failed with exit code $gatingExitCode."
+}
 
 if (-not (Test-Path -LiteralPath $reportPath -PathType Leaf)) {
     throw 'Gating did not produce a canon report.'
