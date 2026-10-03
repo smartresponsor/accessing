@@ -1,5 +1,34 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Inspecting remediation continuation (engine-20261003184653-accessing-38c9d6)
+
+### Reconnaissance baseline
+- Resolved `D:\PhpstormProjects\www\Accessing` through Console MCP; active branch is `integrate/accessing-master-green-20261003` with a large protected concurrent reconciliation worktree.
+- Read the authoritative task specification, Accessing AGENTS/README/Composer/runtime configuration, the historical 2026-09-29 Inspecting RED, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contracts available through the shared workspace.
+- Consulted normative Canonization rules Canon018 (Composer identity), Canon021 (Cruding generic-CRUD ownership), and Canon067 (repository root Entity). Current mapping remains `accessing/access` -> `App\\Accessing\\` plus `Access*`, no local generic CRUD engine, and `src/Entity/Access/AccessEntity.php` as the canonical root Entity.
+- Market/enterprise identity baseline: phishing-resistant passkeys/WebAuthn, MFA, explicit session lifecycle, recovery safety, throttling/lockout, and auditable security events are baseline maturity expectations. Adaptive-risk policy, broader federation/SCIM, and analytics remain growth work rather than RC blockers.
+
+### Fresh Inspecting evidence and selected RC work
+- Fresh pre-change Inspecting report: `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-184930.json` — 28 findings (3 high / 25 medium), PHPStan 0 errors. This confirms two historical long-method findings were already removed by the current reconciliation wave.
+- Selected a bounded RC-critical remediation that was not already touched by the concurrent worktree: `AccessDemoResetCommand::execute()` remained a 75-line Inspecting finding.
+- Decomposed environment rejection, non-destructive demo loading, destructive reset execution, and fixture-loader resolution into private helpers while preserving dev/test-only execution, explicit `--reset --force`, interactive cancellation, fail-closed fixture availability, admin fixture validation, schema-reset ordering, purge semantics, and user-facing outcomes.
+- Growth work is intentionally separate: no new authentication features, UI capability, federation provider, or adaptive-risk policy was added in this RC remediation.
+
+### Verification and current RC state
+- Full Accessing PHPUnit suite after the command refactor: PASS, 261 tests / 2935 assertions; 124 existing non-failing PHPUnit notices remain.
+- A second bounded remediation introduced `AccessWebFlowSupportService` for shared Symfony request/session/form/routing/current-user/environment mechanics and removed those framework collaborators from `AccessSecurityFlowService` and `AccessSurfaceFlowService` without moving business decisions out of their owning flows.
+- Full Accessing PHPUnit after that decomposition: PASS, 261 tests / 2939 assertions; the same 124 non-failing notices remain. PHPStan: PASS, 0 errors. PHP-CS-Fixer dry-run: PASS, 267 files / 0 fixable. Repository Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped. Composer strict lock validation had already passed in this run.
+- Fresh post-remediation Inspecting report: `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-191203.json` — 26 findings (1 high / 25 medium), PHPStan 0 errors. High constructor-dependency findings were reduced from three to one; the remaining high finding is the 14-dependency, 1021-line `AccessApiFlowService`, which requires real responsibility decomposition rather than a dependency bag/service locator.
+- Changed-file PHP syntax lint is PASS. The full Composer `lint` wrapper emitted only successful PHP syntax results before the Console MCP call window expired, so a completed full-lint exit code is not claimed.
+- Existing managed Symfony runtime on `127.0.0.1:8011` was reused without restart and currently serves `/access/signin` with HTTP 200.
+- Runtime/UI verification is now GREEN. The managed standalone Symfony runtime serves both `/access/signin` and `/access/reset/password/check/email`; missing controller metadata, Interfacing Twig namespace/functions, and package-owned static assets were restored without registering the full Interfacing bundle/compiler-pass surface.
+- Playwright: PASS, 2/2 tests. The reset-password route returns HTTP 200 with the canonical `Check email` heading. Browser verification reports 0 page failures, 0 asset failures, 0 console/page/network errors; all three Interfacing CSS assets plus `/mandala.svg` return HTTP 200. Central visual artifact: `D:\PhpstormProjects\www\var\Accessing\2026-10-03\run-19-11-24\screenshots\web\unspecified\page.png`.
+- Fresh current-tree release evidence: Composer strict/check-lock PASS; PHPStan PASS (265 files / 0 errors); PHPUnit PASS (261 tests / 2939 assertions, 124 non-failing notices); Gating PASS (10 rules / 0 failed / 0 warning / 1 skipped). The full pipeline wrapper completed PHP lint and PHP-CS-Fixer before its synchronous call window expired; remaining PHPStan/PHPUnit stages were then run separately with explicit exit 0.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-191959.json`: 26 findings (1 high / 25 medium), PHPStan analyzer 0 errors. The sole high remains `AccessApiFlowService` at 14 constructor dependencies; this is responsibility-decomposition debt, not a demonstrated behavioral/runtime regression.
+- Current Git branch `integrate/accessing-master-green-20261003` is six commits ahead of `origin/master`; parallel reconciliation has already integrated the web-flow cohesion wave. No destructive cleanup is permitted, and only semantically attributable runtime/UI paths are staged or published from this execution.
+- Remaining RC tail: decompose the live high-severity `AccessApiFlowService` responsibility using the already-proven passkey/recovery split direction, then refresh Inspecting and perform final branch publication/reconciliation.
+
+
 ## 2026-10-03 — Inspecting medium-debt remediation checkpoint (engine-20261003180714-accessing-0000e3)
 
 ### Factual baseline and contracts
