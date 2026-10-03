@@ -33,6 +33,18 @@ final class AccessDemoFixtures extends Fixture
      */
     public function load(ObjectManager $manager): void
     {
+        [$user, $created] = $this->ensureDemoUser($manager);
+
+        if (!$created) {
+            return;
+        }
+
+        $this->persistDemoSecurityState($manager, $user);
+    }
+
+    /** @return array{AccessEntity, bool} */
+    private function ensureDemoUser(ObjectManager $manager): array
+    {
         $user = $this->accessRepository->findOneByEmailAddress('demo@smartresponsor.local');
         $created = null === $user;
         $user ??= new AccessEntity();
@@ -55,10 +67,11 @@ final class AccessDemoFixtures extends Fixture
             $this->credentialService->changePassword($user, 'AccessingDemo123!');
         }
 
-        if (!$created) {
-            return;
-        }
+        return [$user, $created];
+    }
 
+    private function persistDemoSecurityState(ObjectManager $manager, AccessEntity $user): void
+    {
         $emailChallenge = new AccessVerificationChallengeEntity()
             ->setUser($user)
             ->setChannelType('email')
