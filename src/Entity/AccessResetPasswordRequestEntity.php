@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Repository\AccessResetPasswordRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
 use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordRequestInterface;

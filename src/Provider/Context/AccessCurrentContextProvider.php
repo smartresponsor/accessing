@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Provider\Context;
 
 use App\Accessing\Context\AccessCurrentContext;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 

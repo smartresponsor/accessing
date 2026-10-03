@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\DTO;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 
 /**
  * Defines the sign in result dto type and its canonical responsibility within the Accessing component.

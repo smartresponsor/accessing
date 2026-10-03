@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Command;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
@@ -51,14 +51,38 @@ final class AccessEnsureAdminCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $dryRun = (bool) $input->getOption('dry-run');
         $resetPassword = (bool) $input->getOption('reset-password');
         $password = $this->passwordOption($input);
-        $email = self::ADMIN_EMAIL;
-
-        $user = $this->userRepository->findOneByEmailAddress($email);
+        $user = $this->userRepository->findOneByEmailAddress(self::ADMIN_EMAIL);
         $isNew = null === $user;
 
+        $validationResult = $this->validatePasswordIntent($io, $isNew, $resetPassword, $password);
+        if (null !== $validationResult) {
+            return $validationResult;
+        }
+
+        $user = $this->configureAdministrator($user ?? new AccessEntity());
+
+        if ((bool) $input->getOption('dry-run')) {
+            $this->writeSuccess($io, true, $isNew, $resetPassword);
+
+            return Command::SUCCESS;
+        }
+
+        $this->persistenceRepository->persist($user);
+
+        if (($isNew || $resetPassword) && null !== $password) {
+            $this->credentialService->changePassword($user, $password);
+        }
+
+        $this->persistenceRepository->flush();
+        $this->writeSuccess($io, false, $isNew, $resetPassword);
+
+        return Command::SUCCESS;
+    }
+
+    private function validatePasswordIntent(SymfonyStyle $io, bool $isNew, bool $resetPassword, ?string $password): ?int
+    {
         if ($isNew && null === $password) {
             $io->error('A non-empty --password value is required when creating the administrator.');
 
@@ -77,42 +101,29 @@ final class AccessEnsureAdminCommand extends Command
             return Command::INVALID;
         }
 
-        $user ??= new AccessEntity();
-        $user
-            ->setEmail($email)
+        return null;
+    }
+
+    private function configureAdministrator(AccessEntity $user): AccessEntity
+    {
+        return $user
+            ->setEmail(self::ADMIN_EMAIL)
             ->setDisplayName('Accessing Admin')
             ->setRoles(['ROLE_ADMIN_BOOTSTRAP', 'ROLE_ALLOWED_TO_SWITCH'])
             ->unlock()
             ->resetFailedLoginCount()
             ->markEmailVerified();
+    }
 
-        if ($dryRun) {
-            $io->success(sprintf(
-                'Dry run: would %s admin user %s%s.',
-                $isNew ? 'create' : 'update',
-                $email,
-                $resetPassword ? ' and reset its password' : '',
-            ));
-
-            return Command::SUCCESS;
-        }
-
-        $this->persistenceRepository->persist($user);
-
-        if ($isNew || $resetPassword) {
-            $this->credentialService->changePassword($user, $password);
-        }
-
-        $this->persistenceRepository->flush();
-
+    private function writeSuccess(SymfonyStyle $io, bool $dryRun, bool $isNew, bool $resetPassword): void
+    {
         $io->success(sprintf(
-            '%s admin user %s%s.',
-            $isNew ? 'Created' : 'Updated',
-            $email,
+            '%s%s admin user %s%s.',
+            $dryRun ? 'Dry run: would ' : '',
+            $isNew ? ($dryRun ? 'create' : 'Created') : ($dryRun ? 'update' : 'Updated'),
+            self::ADMIN_EMAIL,
             $resetPassword ? ' and reset its password' : '',
         ));
-
-        return Command::SUCCESS;
     }
 
     /**
