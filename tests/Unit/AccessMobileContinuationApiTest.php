@@ -12,6 +12,7 @@ use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
+use App\Accessing\Service\Http\Api\Access\AccessApiSecurityContinuationFlowService;
 use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
@@ -121,8 +122,15 @@ final class AccessMobileContinuationApiTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            verificationChallengeService: $verification,
-            secondFactorService: $secondFactor,
+            securityContinuationFlowService: new AccessApiSecurityContinuationFlowService(
+                $authentication,
+                new AccessApiJsonResponder(),
+                $this->createMock(Security::class),
+                verificationChallengeService: $verification,
+                secondFactorService: $secondFactor,
+                mobileTokenService: $tokens,
+                mobilePendingAuthService: $pending,
+            ),
             mobileTokenService: $tokens,
             mobilePendingAuthService: $pending,
         );

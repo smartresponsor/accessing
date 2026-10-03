@@ -13,6 +13,7 @@ use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
 use App\Accessing\Service\Http\Api\Access\AccessApiFlowService;
+use App\Accessing\Service\Http\Api\Access\AccessApiSecurityContinuationFlowService;
 use App\Accessing\ServiceInterface\AccessAuthenticationServiceInterface;
 use App\Accessing\ServiceInterface\AccessRegistrationServiceInterface;
 use App\Accessing\ServiceInterface\Mobile\AccessMobilePendingAuthServiceInterface;
@@ -255,7 +256,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recoveryService,
+            securityContinuationFlowService: $this->continuation(recovery: $recoveryService),
         );
 
         $response = $service->resetRecovery(Request::create(
@@ -287,7 +288,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recoveryService,
+            securityContinuationFlowService: $this->continuation(recovery: $recoveryService),
         );
 
         $response = $service->resetRecovery(Request::create(
@@ -314,6 +315,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
+            securityContinuationFlowService: $this->continuation(),
         );
 
         $response = $service->resetRecovery(Request::create(
@@ -343,7 +345,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recoveryService,
+            securityContinuationFlowService: $this->continuation(recovery: $recoveryService),
         );
 
         $response = $service->resetRecovery(Request::create(
@@ -425,7 +427,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recoveryService,
+            securityContinuationFlowService: $this->continuation(recovery: $recoveryService),
         );
 
         $response = $service->resetRecovery($this->recoveryResetRequest());
@@ -446,7 +448,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recoveryService,
+            securityContinuationFlowService: $this->continuation(recovery: $recoveryService),
         );
 
         $response = $service->resetRecovery($this->recoveryResetRequest());
@@ -502,7 +504,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $security,
-            verificationChallengeService: $verificationService,
+            securityContinuationFlowService: $this->continuation(verification: $verificationService, security: $security),
         );
 
         $response = $service->resendVerification(Request::create('/api/access/verification/resend', 'POST'));
@@ -544,7 +546,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            recoveryService: $recovery,
+            securityContinuationFlowService: $this->continuation(recovery: $recovery),
         );
 
         self::assertSame(422, $base($this->createMock(AccessRecoveryServiceInterface::class))
@@ -760,7 +762,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $security,
-            verificationChallengeService: $verification,
+            securityContinuationFlowService: $this->continuation(verification: $verification, security: $security),
         );
 
         self::assertSame(422, $base($this->createMock(AccessVerificationChallengeServiceInterface::class))->confirmVerification(
@@ -810,7 +812,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            secondFactorService: $secondFactor,
+            securityContinuationFlowService: $this->continuation(authentication: $authentication, secondFactor: $secondFactor, tokens: $tokens, pending: $pending),
             mobileTokenService: $tokens,
             mobilePendingAuthService: $pending,
         );
@@ -838,6 +840,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
+            securityContinuationFlowService: $this->continuation(authentication: $authentication),
         );
         $request = Request::create('/api/access/second-factor/verify', 'POST', content: json_encode(['code' => '123456'], JSON_THROW_ON_ERROR));
         $request->setSession(new Session(new MockArraySessionStorage()));
@@ -857,7 +860,7 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            accessRepository: $repository,
+            securityContinuationFlowService: $this->continuation(authentication: $pendingAuthentication, repository: $repository),
         );
         self::assertSame(503, $unavailable->verifySecondFactor($pendingRequest)->getStatusCode());
 
@@ -869,10 +872,32 @@ final class AccessApiFlowServiceTest extends TestCase
             $this->createMock(AccessCurrentContextProviderInterface::class),
             new AccessApiJsonResponder(),
             $this->createMock(Security::class),
-            accessRepository: $repository,
-            secondFactorService: $secondFactor,
+            securityContinuationFlowService: $this->continuation(authentication: $pendingAuthentication, repository: $repository, secondFactor: $secondFactor),
         );
         self::assertSame(422, $invalid->verifySecondFactor($pendingRequest)->getStatusCode());
+    }
+
+    private function continuation(
+        ?AccessRecoveryServiceInterface $recovery = null,
+        ?AccessVerificationChallengeServiceInterface $verification = null,
+        ?\App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface $secondFactor = null,
+        ?\App\Accessing\RepositoryInterface\AccessRepositoryInterface $repository = null,
+        ?AccessMobilePendingAuthServiceInterface $pending = null,
+        ?AccessMobileTokenServiceInterface $tokens = null,
+        ?AccessAuthenticationServiceInterface $authentication = null,
+        ?Security $security = null,
+    ): AccessApiSecurityContinuationFlowService {
+        return new AccessApiSecurityContinuationFlowService(
+            $authentication ?? $this->createMock(AccessAuthenticationServiceInterface::class),
+            new AccessApiJsonResponder(),
+            $security ?? $this->createMock(Security::class),
+            accessRepository: $repository,
+            recoveryService: $recovery,
+            verificationChallengeService: $verification,
+            secondFactorService: $secondFactor,
+            mobileTokenService: $tokens,
+            mobilePendingAuthService: $pending,
+        );
     }
 
     private function registrationRequest(): Request
