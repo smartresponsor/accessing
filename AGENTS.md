@@ -27,3 +27,8 @@ Preferred supporting entities:
 - RecoveryCode
 - SecurityEvent
 - AccessSession
+## Platform Canon Precedence
+
+For work under `D:\PhpstormProjects\www`, authoritative platform rules live in the Canonization repository. Gating is the executable mirror for objectively guardable rules. This `AGENTS.md` is an agent-facing projection or local supplement and must not override or contradict Canonization.
+
+If a local instruction conflicts with current Canonization, follow Canonization and synchronize this file. Local instructions may narrow scope or add repository-specific constraints only when they remain compatible with Canonization.
