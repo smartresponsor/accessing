@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Repository;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessCredentialEntity;
-use App\Accessing\Entity\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessCredentialRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;

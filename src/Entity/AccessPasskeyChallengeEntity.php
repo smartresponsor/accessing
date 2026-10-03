@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Repository\AccessPasskeyChallengeRepository;
 use App\Accessing\ValueObject\AccessPasskeyCeremonyPurpose;
 use Doctrine\ORM\Mapping as ORM;

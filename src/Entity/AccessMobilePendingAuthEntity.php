@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Entity;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\ValueObject\AccessMobilePendingPurpose;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;

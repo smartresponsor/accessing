@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Factory\Surface;
 
 use App\Accessing\Contract\Surface\AccessHomeSurfaceContract;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 
 /**
  * Defines the home surface contract factory type and its canonical responsibility within the Accessing component.

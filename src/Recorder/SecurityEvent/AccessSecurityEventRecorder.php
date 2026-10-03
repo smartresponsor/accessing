@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Recorder\SecurityEvent;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\RecorderInterface\SecurityEvent\AccessSecurityEventRecorderInterface;
 use App\Accessing\ServiceInterface\SecurityEvent\AccessSecurityEventServiceInterface;

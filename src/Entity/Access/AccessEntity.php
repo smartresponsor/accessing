@@ -3,8 +3,13 @@
 # Copyright (c) 2025 Oleksandr Tishchenko / Marketing America Corp
 declare(strict_types=1);
 
-namespace App\Accessing\Entity;
+namespace App\Accessing\Entity\Access;
 
+use App\Accessing\Entity\AccessCredentialEntity;
+use App\Accessing\Entity\AccessRecoveryCodeEntity;
+use App\Accessing\Entity\AccessSecondFactorEntity;
+use App\Accessing\Entity\AccessSessionEntity;
+use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\Repository\AccessRepository;
 use App\Objecting\EntityInterface\ObjectAuditedInterface;
 use App\Objecting\EntityInterface\ObjectIdentifiedInterface;

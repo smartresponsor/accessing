@@ -7,7 +7,7 @@ namespace App\Accessing\Factory\Rendering;
 
 use App\Accessing\DTO\AccessPageViewDTO;
 use App\Accessing\DTO\AccessSecondFactorEnrollmentDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\FactoryInterface\Rendering\AccessPageViewFactoryInterface;
 use Symfony\Component\Form\FormView;
 
