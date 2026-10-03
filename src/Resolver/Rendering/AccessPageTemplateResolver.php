@@ -42,7 +42,7 @@ final readonly class AccessPageTemplateResolver
             'access.security_event_index' => 'access/security-event/index.html.twig',
             'access.operator_security_event_index' => 'access/operator-security-event/index.html.twig',
             'access.'.$credentialResetView.'_request' => 'access/'.$credentialResetTemplate.'/request.html.twig',
-            'access.'.$credentialResetView.'_check_email' => 'access/'.$credentialResetTemplate.'/check/email.html.twig',
+            'access.'.$credentialResetView.'_check_email' => 'access/'.$credentialResetTemplate.'/check-email.html.twig',
             'access.'.$credentialResetView.'_reset' => 'access/'.$credentialResetTemplate.'/reset.html.twig',
         ];
     }
