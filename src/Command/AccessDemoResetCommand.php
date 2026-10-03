@@ -52,30 +52,12 @@ final class AccessDemoResetCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $environment = $this->kernel->getEnvironment();
 
-        if (!in_array($environment, ['dev', 'test'], true)) {
-            $io->error(sprintf('Refusing to reset the Accessing demo database in the "%s" environment.', $environment));
-
+        if ($this->rejectUnsupportedEnvironment($environment, $io)) {
             return Command::FAILURE;
         }
 
         if (!(bool) $input->getOption('reset')) {
-            if (!$this->fixturesLoader instanceof SymfonyFixturesLoader) {
-                $io->error('Doctrine fixtures loader is not available in this environment.');
-
-                return Command::FAILURE;
-            }
-
-            $loader = clone $this->fixturesLoader;
-            $loader->addFixture($this->accessingDemoFixtures);
-
-            $this->persistenceRepository->executeFixtures($loader->getFixtures(), true);
-
-            $io->success(sprintf(
-                'Accessing demo identity for the "%s" environment has been loaded without schema reset or purge.',
-                $environment,
-            ));
-
-            return Command::SUCCESS;
+            return $this->loadDemoIdentity($environment, $io);
         }
 
         if (!(bool) $input->getOption('force')) {
@@ -93,9 +75,42 @@ final class AccessDemoResetCommand extends Command
             return Command::FAILURE;
         }
 
-        if (!$this->fixturesLoader instanceof SymfonyFixturesLoader) {
-            $io->error('Doctrine fixtures loader is not available in this environment.');
+        return $this->resetDemoDatabase($environment, $io);
+    }
 
+    private function rejectUnsupportedEnvironment(string $environment, SymfonyStyle $io): bool
+    {
+        if (in_array($environment, ['dev', 'test'], true)) {
+            return false;
+        }
+
+        $io->error(sprintf('Refusing to reset the Accessing demo database in the "%s" environment.', $environment));
+
+        return true;
+    }
+
+    private function loadDemoIdentity(string $environment, SymfonyStyle $io): int
+    {
+        $loader = $this->fixturesLoader($io);
+        if (!$loader instanceof SymfonyFixturesLoader) {
+            return Command::FAILURE;
+        }
+
+        $loader->addFixture($this->accessingDemoFixtures);
+        $this->persistenceRepository->executeFixtures($loader->getFixtures(), true);
+
+        $io->success(sprintf(
+            'Accessing demo identity for the "%s" environment has been loaded without schema reset or purge.',
+            $environment,
+        ));
+
+        return Command::SUCCESS;
+    }
+
+    private function resetDemoDatabase(string $environment, SymfonyStyle $io): int
+    {
+        $loader = $this->fixturesLoader($io);
+        if (!$loader instanceof SymfonyFixturesLoader) {
             return Command::FAILURE;
         }
 
@@ -109,10 +124,8 @@ final class AccessDemoResetCommand extends Command
 
         $this->persistenceRepository->resetSchema();
 
-        $loader = clone $this->fixturesLoader;
         $loader->addFixture($this->accessingAdminFixtures);
         $loader->addFixture($this->accessingDemoFixtures);
-
         $this->persistenceRepository->executeFixtures($loader->getFixtures());
 
         $io->success(sprintf(
@@ -121,5 +134,16 @@ final class AccessDemoResetCommand extends Command
         ));
 
         return Command::SUCCESS;
+    }
+
+    private function fixturesLoader(SymfonyStyle $io): ?SymfonyFixturesLoader
+    {
+        if (!$this->fixturesLoader instanceof SymfonyFixturesLoader) {
+            $io->error('Doctrine fixtures loader is not available in this environment.');
+
+            return null;
+        }
+
+        return clone $this->fixturesLoader;
     }
 }
