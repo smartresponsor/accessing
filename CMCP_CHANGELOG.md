@@ -1,5 +1,31 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Inspecting medium-debt remediation checkpoint (engine-20261003180714-accessing-0000e3)
+
+### Factual baseline and contracts
+- Resolved the authoritative workspace exclusively through Console MCP. Initial Git probe observed `refactor/accessing-canonical-structure` at `b0f0b7139c2824d8f8c1cf3697396997460094bd`, synchronized with upstream and initially reported clean.
+- Read the supplied historical Inspecting RED (`30 findings: 3 high / 27 medium`), Accessing AGENTS/root manifests/Composer, Canonization textual Canon007/Canon018/Canon033, and the mandatory Objecting, Cruding, Viewing, Interfacing, and Gating dependency/contract contour.
+- Market maturity baseline remains phishing-resistant passkeys/FIDO2, MFA, secure recovery, session lifecycle, lockout/throttling, and auditable security events. RC-critical work stays deterministic access-lifecycle correctness and maintainability; adaptive-risk policy/federation breadth remain growth work.
+
+### Material implementation
+- Selected the still-live medium `AccessEnsureAdminCommand::execute()` long-method observation as a low-risk RC maintainability target.
+- Decomposed password-intent validation, canonical administrator configuration, and success reporting into focused private helpers while preserving command options, dry-run semantics, password-reset guardrails, persistence ordering, and user-facing messages.
+- A concurrent Accessing writer subsequently touched the same file and added a null guard around the password write path while preserving the decomposition; this overlap is treated as protected concurrent work rather than silently absorbed.
+
+### Verification
+- Changed-PHP syntax lint: PASS for the scanned set, including `AccessEnsureAdminCommand.php`.
+- Composer `validate --strict --check-lock`: PASS.
+- PHPStan named gate: PASS, 264 files / 0 errors.
+- PHPUnit named gate: PASS, 262 tests / 2935 assertions; 124 existing notices and 1 skipped test remain non-failing.
+- Repository Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped.
+- `cs:check` is not green because PHP-CS-Fixer reports pre-existing line-ending/comment-alignment drift in other repository files; the changed command was not reported among the shown fixer candidates and unrelated format churn was not absorbed.
+- Two post-change standalone Inspecting invocations were attempted as required, but the Console MCP call timed out without a persisted verdict/reference; no fresh Inspecting PASS is inferred.
+
+### Integration safety and residual RC tail
+- During this execution window a concurrent master-reconciliation/canonicalization wave materially expanded the worktree, including `AGENTS.md`, `CMCP_CHANGELOG.md`, root-Entity migration callers/config, runtime/browser config, and the same `AccessEnsureAdminCommand.php` touched here.
+- Because whole-file staging would commingle protected concurrent work and destructive reset/stash/clean/overwrite is forbidden, this task does not stage, commit, or push the mixed tree.
+- Remaining acceptance tail for this task: obtain a fresh post-mutation Inspecting report once the execution plane returns one, re-run `cs:check` after the concurrent line-ending state stabilizes, then classify/stage only safely attributable coherent value if the worktree is serialized.
+
 Task: `engine-20260710212647-accessing-b5dcd8`
 Component: `Accessing`
 Branch: `refactor/accessing-canonical-structure`
@@ -191,6 +217,14 @@ Verify and finish the existing canonicalization refactor, resolve concrete gate/
 - Canon040 method/line thresholds remain measurable coverage debt, but they are warning-level in the executable Gating policy and no longer block repository integration or publication.
 
 ### Growth workstream kept out of RC
+
+## 2026-10-03 — Master reconciliation of verified Accessing value
+
+- Reconciled the verified current Accessing value onto a fresh `origin/master` integration branch instead of replaying the divergent feature branch's 52-commit history.
+- Applied the Canon067 root `AccessEntity` relocation with synchronized PSR-4 consumers, preserved the behavior-equivalent authentication decomposition that removed the selected Inspecting long-method finding, corrected the reset-password check-email template mapping, and documented Canonization precedence.
+- Runtime/browser verification then exposed standalone DI divergence: `config/component/access_services.yaml` correctly exported routed HTTP flow services as public `controller.service_arguments`, while root `config/services.yaml` retained only the Google OAuth controller override. The generic `App\\Accessing\\:` resource could therefore compile standalone/test routed services private. Root Symfony controller-service metadata was restored to mirror the canonical component export for actually routed controllers.
+- The integration is accepted only after fresh Composer validation, full local pipeline, Canonization, Gating, Inspecting, and runtime/browser verification on the master-derived tree.
+- Standalone controller metadata repair is now present in root `config/services.yaml`; verification below must prove the reset-password route and other routed flow services compile as public controller services in the active runtime.
 
 ## 2026-09-18 — Canon040 closure and RC verification
 
