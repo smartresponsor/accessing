@@ -9,7 +9,7 @@ use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
 use App\Accessing\DTO\AccessPasskeyAssertionResultDTO;
 use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
 use App\Accessing\DTO\AccessPasskeyAuthenticationOptionsDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessExternalIdentityEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\Entity\AccessMobileSessionEntity;

@@ -6,7 +6,7 @@ namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\DataFixtures\AccessAdminFixtures;
 use App\Accessing\DataFixtures\AccessDemoFixtures;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use Doctrine\Persistence\ObjectManager;

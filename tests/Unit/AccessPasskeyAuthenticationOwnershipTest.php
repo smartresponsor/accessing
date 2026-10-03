@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyChallengeEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use App\Accessing\RepositoryInterface\AccessPasskeyCredentialRepositoryInterface;
