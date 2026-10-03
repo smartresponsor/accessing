@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessCredentialEntity;
-use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Entity\AccessExternalIdentityEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\Entity\AccessMobileSessionEntity;

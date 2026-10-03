@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Authenticator\AccessBearerAuthenticator;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\ServiceInterface\Mobile\AccessMobileTokenServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;

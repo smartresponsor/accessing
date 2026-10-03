@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Integration;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessSecurityEventEntity;
 use App\Accessing\Entity\AccessSessionEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;

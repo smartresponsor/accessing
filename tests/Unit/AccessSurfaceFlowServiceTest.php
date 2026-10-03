@@ -7,7 +7,7 @@ namespace App\Accessing\Tests\Unit;
 use App\Accessing\Contract\Surface\AccessHomeSurfaceContract;
 use App\Accessing\DTO\AccessPageViewDTO;
 use App\Accessing\DTO\AccessSecondFactorEnrollmentDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Factory\Rendering\AccessPageViewFactory;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;

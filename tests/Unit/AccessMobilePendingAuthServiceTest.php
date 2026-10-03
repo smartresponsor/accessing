@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\RepositoryInterface\AccessMobilePendingAuthRepositoryInterface;
 use App\Accessing\Service\Mobile\AccessMobilePendingAuthService;

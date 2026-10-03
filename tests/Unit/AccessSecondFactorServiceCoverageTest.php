@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Tests\Unit;
 
 use App\Accessing\Clock\AccessSystemClock;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessRecoveryCodeEntity;
 use App\Accessing\Entity\AccessSecondFactorEntity;
 use App\Accessing\RepositoryInterface\AccessPersistenceRepositoryInterface;

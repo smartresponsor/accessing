@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Provider\PhoneVerification\AccessFakePhoneVerificationProvider;
 use App\Accessing\Provider\PhoneVerification\AccessNullPhoneVerificationProvider;
 use App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface;

@@ -12,7 +12,7 @@ use App\Accessing\DTO\AccessRegistrationRequestDTO;
 use App\Accessing\DTO\AccessSignInRequestDTO;
 use App\Accessing\DTO\AccessSignInResultDTO;
 use App\Accessing\DTO\AccessVerificationCodeDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Factory\Rendering\AccessPageViewFactory;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;

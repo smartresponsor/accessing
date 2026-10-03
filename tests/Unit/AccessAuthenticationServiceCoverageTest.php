@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Tests\Unit;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use App\Accessing\Service\AccessAuthenticationService;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;

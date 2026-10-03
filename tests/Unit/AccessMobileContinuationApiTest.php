@@ -7,7 +7,7 @@ namespace App\Accessing\Tests\Unit;
 use App\Accessing\DTO\AccessMobilePendingTokenDTO;
 use App\Accessing\DTO\AccessMobileTokenPairDTO;
 use App\Accessing\DTO\AccessSignInResultDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\Responder\Api\Access\AccessApiJsonResponder;
