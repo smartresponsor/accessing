@@ -29,16 +29,11 @@ use App\Accessing\ServiceInterface\Passkey\AccessPasskeyAuthenticationServiceInt
 use App\Accessing\ServiceInterface\Recovery\AccessRecoveryServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Defines the security flow service type and its canonical responsibility within the Accessing component.
@@ -49,10 +44,7 @@ final readonly class AccessSecurityFlowService
      * Initializes the collaborators required by this Accessing runtime responsibility.
      */
     public function __construct(
-        private Security $security,
-        private FormFactoryInterface $formFactory,
-        private UrlGeneratorInterface $urlGenerator,
-        private KernelInterface $kernel,
+        private AccessWebFlowSupportService $webFlowSupport,
         private AccessRegistrationServiceInterface $userRegistrationService,
         private AccessAuthenticationServiceInterface $userAuthenticationService,
         private AccessRepositoryInterface $userRepository,
@@ -72,15 +64,15 @@ final readonly class AccessSecurityFlowService
      */
     public function register(Request $request): Response|InterfaceTemplateRenderableInterface
     {
-        if ($this->getUser() instanceof AccessEntity) {
+        if ($this->webFlowSupport->currentUser() instanceof AccessEntity) {
             return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
-            return $this->redirectTo('access.register', [], Response::HTTP_PERMANENTLY_REDIRECT);
+            return $this->webFlowSupport->redirectTo('access.register', [], Response::HTTP_PERMANENTLY_REDIRECT);
         }
 
-        $form = $this->formFactory->create(AccessRegistrationType::class);
+        $form = $this->webFlowSupport->createForm(AccessRegistrationType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -90,7 +82,7 @@ final readonly class AccessSecurityFlowService
             $limiterKey = sprintf('%s|%s', mb_strtolower(trim($data->email)), $request->getClientIp() ?? 'unknown');
 
             if (!$this->accessingSignUpLimiter->create($limiterKey)->consume()->isAccepted()) {
-                $this->flash($request, 'warning', 'Too many registration attempts. Please wait before trying again.');
+                $this->webFlowSupport->flash($request, 'warning', 'Too many registration attempts. Please wait before trying again.');
 
                 return $this->pageResponder->respond($this->pageViewFactory->register(
                     $form->createView(),
@@ -100,19 +92,19 @@ final readonly class AccessSecurityFlowService
 
             try {
                 $this->userRegistrationService->register($data);
-                $this->flash($request, 'success', 'Your account has been created. Sign in to continue with email verification.');
+                $this->webFlowSupport->flash($request, 'success', 'Your account has been created. Sign in to continue with email verification.');
 
-                return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
+                return $this->webFlowSupport->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
             } catch (AccessNotificationDeliveryException) {
-                $this->flash($request, 'success', 'Your account has been created.');
-                $this->flash($request, 'warning', 'The verification email could not be delivered yet. Sign in now to resend it and continue activation.');
+                $this->webFlowSupport->flash($request, 'success', 'Your account has been created.');
+                $this->webFlowSupport->flash($request, 'warning', 'The verification email could not be delivered yet. Sign in now to resend it and continue activation.');
 
-                return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
+                return $this->webFlowSupport->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
             } catch (\DomainException $exception) {
                 $flashType = str_starts_with($exception->getMessage(), 'An account already exists for ')
                     ? 'account_exists'
                     : 'danger';
-                $this->flash($request, $flashType, $exception->getMessage());
+                $this->webFlowSupport->flash($request, $flashType, $exception->getMessage());
             }
         }
 
@@ -127,15 +119,15 @@ final readonly class AccessSecurityFlowService
      */
     public function signIn(Request $request): Response|InterfaceTemplateRenderableInterface
     {
-        if ($this->getUser() instanceof AccessEntity) {
+        if ($this->webFlowSupport->currentUser() instanceof AccessEntity) {
             return $this->redirectAfterSignIn();
         }
 
         if ('GET' === $request->getMethod()) {
-            return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
+            return $this->webFlowSupport->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
         }
 
-        $form = $this->formFactory->create(AccessSignInType::class);
+        $form = $this->webFlowSupport->createForm(AccessSignInType::class);
 
         return $this->pageResponder->respond($this->pageViewFactory->signIn($form->createView()));
     }
@@ -145,7 +137,7 @@ final readonly class AccessSecurityFlowService
      */
     public function signInTrailingSlash(): Response
     {
-        return $this->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
+        return $this->webFlowSupport->redirectTo('access.signin', [], Response::HTTP_PERMANENTLY_REDIRECT);
     }
 
     /**
@@ -153,11 +145,11 @@ final readonly class AccessSecurityFlowService
      */
     public function signInSubmit(Request $request): Response|InterfaceTemplateRenderableInterface
     {
-        if ($this->getUser() instanceof AccessEntity) {
+        if ($this->webFlowSupport->currentUser() instanceof AccessEntity) {
             return $this->redirectAfterSignIn();
         }
 
-        $form = $this->formFactory->create(AccessSignInType::class);
+        $form = $this->webFlowSupport->createForm(AccessSignInType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -174,14 +166,14 @@ final readonly class AccessSecurityFlowService
             }
 
             if ($result->requiresSecondFactor) {
-                $this->flash($request, 'info', 'Enter your authenticator or recovery code to finish signing in.');
+                $this->webFlowSupport->flash($request, 'info', 'Enter your authenticator or recovery code to finish signing in.');
 
-                return $this->redirectTo('access.second_factor_challenge');
+                return $this->webFlowSupport->redirectTo('access.second_factor_challenge');
             }
 
-            $this->flash($request, 'danger', $result->message);
+            $this->webFlowSupport->flash($request, 'danger', $result->message);
 
-            return $this->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
+            return $this->webFlowSupport->redirectTo('access.signin', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->signIn(
@@ -195,7 +187,7 @@ final readonly class AccessSecurityFlowService
      */
     public function passkeyAuthenticationOptions(Request $request): JsonResponse
     {
-        if ($this->getUser() instanceof AccessEntity) {
+        if ($this->webFlowSupport->currentUser() instanceof AccessEntity) {
             return new JsonResponse(['error' => 'already_authenticated'], Response::HTTP_CONFLICT);
         }
 
@@ -207,7 +199,7 @@ final readonly class AccessSecurityFlowService
      */
     public function passkeyAuthenticationComplete(Request $request): JsonResponse
     {
-        if ($this->getUser() instanceof AccessEntity) {
+        if ($this->webFlowSupport->currentUser() instanceof AccessEntity) {
             return new JsonResponse(['redirect' => $this->postSignInUrl()]);
         }
 
@@ -243,7 +235,7 @@ final readonly class AccessSecurityFlowService
         $pendingUserId = $this->userAuthenticationService->getPendingSecondFactorUserId($request->getSession());
 
         if (null === $pendingUserId) {
-            return $this->redirectTo('access.signin');
+            return $this->webFlowSupport->redirectTo('access.signin');
         }
 
         $user = $this->userRepository->findById($pendingUserId);
@@ -251,10 +243,10 @@ final readonly class AccessSecurityFlowService
         if (!$user instanceof AccessEntity) {
             $this->userAuthenticationService->clearPendingSecondFactor($request->getSession());
 
-            return $this->redirectTo('access.signin');
+            return $this->webFlowSupport->redirectTo('access.signin');
         }
 
-        $form = $this->formFactory->create(AccessVerificationCodeType::class);
+        $form = $this->webFlowSupport->createForm(AccessVerificationCodeType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -263,12 +255,12 @@ final readonly class AccessSecurityFlowService
 
             if ($this->secondFactorService->verifyChallenge($user, $data->code)) {
                 $this->userAuthenticationService->completePendingSecondFactor($user, $request);
-                $this->flash($request, 'success', 'Signed in successfully.');
+                $this->webFlowSupport->flash($request, 'success', 'Signed in successfully.');
 
                 return $this->redirectAfterSignIn();
             }
 
-            $this->flash($request, 'danger', 'The second factor code was not accepted.');
+            $this->webFlowSupport->flash($request, 'danger', 'The second factor code was not accepted.');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->secondFactorChallenge($user, $form->createView()));
@@ -280,11 +272,11 @@ final readonly class AccessSecurityFlowService
     public function signOut(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
-            $this->getUser() instanceof AccessEntity ? $this->getUser() : null,
+            $this->webFlowSupport->currentUser() instanceof AccessEntity ? $this->webFlowSupport->currentUser() : null,
             $request,
         );
 
-        return $this->redirectTo('access.signin');
+        return $this->webFlowSupport->redirectTo('access.signin');
     }
 
     /**
@@ -293,13 +285,13 @@ final readonly class AccessSecurityFlowService
     public function switchUser(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->userAuthenticationService->signOut(
-            $this->getUser() instanceof AccessEntity ? $this->getUser() : null,
+            $this->webFlowSupport->currentUser() instanceof AccessEntity ? $this->webFlowSupport->currentUser() : null,
             $request,
         );
 
-        $this->flash($request, 'info', 'Signed out. Use another user to continue.');
+        $this->webFlowSupport->flash($request, 'info', 'Signed out. Use another user to continue.');
 
-        return $this->redirectTo('access.signin');
+        return $this->webFlowSupport->redirectTo('access.signin');
     }
 
     /**
@@ -307,7 +299,7 @@ final readonly class AccessSecurityFlowService
      */
     public function requestRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
-        $form = $this->formFactory->create(AccessRecoveryRequestType::class);
+        $form = $this->webFlowSupport->createForm(AccessRecoveryRequestType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -315,16 +307,16 @@ final readonly class AccessSecurityFlowService
             $data = $form->getData();
             try {
                 $issuedChallenge = $this->recoveryService->requestPasswordRecovery($data->emailAddress, $request);
-                $this->flash($request, 'info', 'If an user exists, a password recovery code has been issued.');
+                $this->webFlowSupport->flash($request, 'info', 'If an user exists, a password recovery code has been issued.');
 
                 if (null !== $issuedChallenge) {
-                    $this->addDemoCodeFlash($request, 'Password recovery code', $issuedChallenge->plainCode);
+                    $this->webFlowSupport->addDemoCodeFlash($request, 'Password recovery code', $issuedChallenge->plainCode);
                 }
             } catch (AccessNotificationDeliveryException) {
-                $this->flash($request, 'warning', 'Password recovery delivery is temporarily unavailable. Please try again later.');
+                $this->webFlowSupport->flash($request, 'warning', 'Password recovery delivery is temporarily unavailable. Please try again later.');
             }
 
-            return $this->redirectTo('access.recover_reset');
+            return $this->webFlowSupport->redirectTo('access.recover_reset');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->requestRecovery($form->createView()));
@@ -335,7 +327,7 @@ final readonly class AccessSecurityFlowService
      */
     public function resetRecovery(Request $request): Response|InterfaceTemplateRenderableInterface
     {
-        $form = $this->formFactory->create(AccessRecoveryResetType::class);
+        $form = $this->webFlowSupport->createForm(AccessRecoveryResetType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -349,59 +341,25 @@ final readonly class AccessSecurityFlowService
                     $data->newPassword,
                 );
             } catch (AccessCompromisedPasswordException $exception) {
-                $this->flash($request, 'danger', $exception->getMessage());
+                $this->webFlowSupport->flash($request, 'danger', $exception->getMessage());
 
                 return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
             } catch (AccessPasswordSafetyUnavailableException $exception) {
-                $this->flash($request, 'warning', $exception->getMessage());
+                $this->webFlowSupport->flash($request, 'warning', $exception->getMessage());
 
                 return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
             }
 
             if ($completed) {
-                $this->flash($request, 'success', 'Password recovery completed. You can now sign in.');
+                $this->webFlowSupport->flash($request, 'success', 'Password recovery completed. You can now sign in.');
 
-                return $this->redirectTo('access.signin');
+                return $this->webFlowSupport->redirectTo('access.signin');
             }
 
-            $this->flash($request, 'danger', 'Password recovery failed. Check the email address and recovery code.');
+            $this->webFlowSupport->flash($request, 'danger', 'Password recovery failed. Check the email address and recovery code.');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->resetRecovery($form->createView()));
-    }
-
-    /**
-     * Executes the flash operation within the canonical Accessing component workflow.
-     */
-    private function flash(Request $request, string $type, string $message): void
-    {
-        $session = $request->getSession();
-
-        if (!$session instanceof FlashBagAwareSessionInterface) {
-            return;
-        }
-
-        $session->getFlashBag()->add($type, $message);
-    }
-
-    /**
-     * Executes the add demo code flash operation within the canonical Accessing component workflow.
-     */
-    private function addDemoCodeFlash(Request $request, string $label, string $code): void
-    {
-        if ('prod' === $this->kernel->getEnvironment()) {
-            return;
-        }
-
-        $this->flash($request, 'secondary', sprintf('%s: %s', $label, $code));
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
-    {
-        return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
     }
 
     /**
@@ -429,15 +387,5 @@ final readonly class AccessSecurityFlowService
         $origin = '' !== trim($this->accessingPasskeyOrigin) ? rtrim(trim($this->accessingPasskeyOrigin), '/') : $request->getSchemeAndHttpHost();
 
         return new AccessPasskeyRelyingPartyConfigDTO($relyingPartyId, 'SmartResponsor Access', $origin);
-    }
-
-    /**
-     * Executes the get user operation within the canonical Accessing component workflow.
-     */
-    private function getUser(): ?AccessEntity
-    {
-        $user = $this->security->getUser();
-
-        return $user instanceof AccessEntity ? $user : null;
     }
 }

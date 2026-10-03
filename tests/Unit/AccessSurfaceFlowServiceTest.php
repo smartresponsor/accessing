@@ -13,6 +13,7 @@ use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;
 use App\Accessing\RepositoryInterface\AccessSecurityEventRepositoryInterface;
 use App\Accessing\ResponderInterface\Rendering\AccessPageResponderInterface;
 use App\Accessing\Service\Http\Access\AccessSurfaceFlowService;
+use App\Accessing\Service\Http\Access\AccessWebFlowSupportService;
 use App\Accessing\ServiceInterface\Credential\AccessCredentialServiceInterface;
 use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterface;
 use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
@@ -175,11 +176,10 @@ final class AccessSurfaceFlowServiceTest extends TestCase
             return new Response('ok');
         });
 
+        $webFlowSupport = new AccessWebFlowSupportService($security, $formFactory, $urls, $kernel);
+
         return new AccessSurfaceFlowService(
-            $security,
-            $formFactory,
-            $urls,
-            $kernel,
+            $webFlowSupport,
             $events,
             new AccessHomeSurfaceContractFactory('Accessing'),
             $verification,

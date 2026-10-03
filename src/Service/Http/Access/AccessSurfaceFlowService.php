@@ -23,15 +23,9 @@ use App\Accessing\ServiceInterface\SecondFactor\AccessSecondFactorServiceInterfa
 use App\Accessing\ServiceInterface\Session\AccessSessionServiceInterface;
 use App\Accessing\ServiceInterface\Verification\AccessVerificationChallengeServiceInterface;
 use App\Interfacing\Contract\Template\InterfaceTemplateRenderableInterface;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * Defines the surface flow service type and its canonical responsibility within the Accessing component.
@@ -42,10 +36,7 @@ final readonly class AccessSurfaceFlowService
      * Initializes the collaborators required by this Accessing runtime responsibility.
      */
     public function __construct(
-        private Security $security,
-        private FormFactoryInterface $formFactory,
-        private UrlGeneratorInterface $urlGenerator,
-        private KernelInterface $kernel,
+        private AccessWebFlowSupportService $webFlowSupport,
         private AccessSecurityEventRepositoryInterface $securityEventRepository,
         private AccessHomeSurfaceContractFactory $surfaceContractFactory,
         private AccessVerificationChallengeServiceInterface $verificationChallengeService,
@@ -62,8 +53,8 @@ final readonly class AccessSurfaceFlowService
      */
     public function home(): Response|InterfaceTemplateRenderableInterface
     {
-        if (!$this->currentUser() instanceof AccessEntity) {
-            return $this->redirectTo('access.signin');
+        if (!$this->webFlowSupport->currentUser() instanceof AccessEntity) {
+            return $this->webFlowSupport->redirectTo('access.signin');
         }
 
         $user = $this->requireUser();
@@ -80,7 +71,7 @@ final readonly class AccessSurfaceFlowService
     public function verifyEmail(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
-        $form = $this->formFactory->create(AccessVerificationCodeType::class);
+        $form = $this->webFlowSupport->createForm(AccessVerificationCodeType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -88,21 +79,21 @@ final readonly class AccessSurfaceFlowService
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completeEmailVerification($user, $data->code)) {
-                $this->flash($request, 'success', 'Email verification completed.');
+                $this->webFlowSupport->flash($request, 'success', 'Email verification completed.');
 
-                return $this->redirectTo('access.index');
+                return $this->webFlowSupport->redirectTo('access.index');
             }
 
-            $this->flash($request, 'danger', 'That email verification code is invalid or expired.');
+            $this->webFlowSupport->flash($request, 'danger', 'That email verification code is invalid or expired.');
         }
 
         $issuedChallenge = $this->verificationChallengeService->resendEmailVerification($user, $request);
 
         if (null === $issuedChallenge) {
-            $this->flash($request, 'warning', 'Too many verification resend attempts. Please wait before trying again.');
+            $this->webFlowSupport->flash($request, 'warning', 'Too many verification resend attempts. Please wait before trying again.');
         } else {
-            $this->flash($request, 'info', 'A fresh email verification code has been issued.');
-            $this->addDemoCodeFlash($request, 'Email verification code', $issuedChallenge->plainCode);
+            $this->webFlowSupport->flash($request, 'info', 'A fresh email verification code has been issued.');
+            $this->webFlowSupport->addDemoCodeFlash($request, 'Email verification code', $issuedChallenge->plainCode);
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->verifyEmail(
@@ -117,7 +108,7 @@ final readonly class AccessSurfaceFlowService
     public function requestPhone(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
-        $form = $this->formFactory->create(AccessPhoneVerificationRequestType::class);
+        $form = $this->webFlowSupport->createForm(AccessPhoneVerificationRequestType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -125,10 +116,10 @@ final readonly class AccessSurfaceFlowService
             $data = $form->getData();
             $issuedChallenge = $this->verificationChallengeService->issuePhoneVerification($user, $data->phoneNumber, $request);
 
-            $this->flash($request, 'info', 'Phone verification code sent.');
-            $this->addDemoCodeFlash($request, 'Phone verification code', $issuedChallenge->plainCode);
+            $this->webFlowSupport->flash($request, 'info', 'Phone verification code sent.');
+            $this->webFlowSupport->addDemoCodeFlash($request, 'Phone verification code', $issuedChallenge->plainCode);
 
-            return $this->redirectTo('access.verify_phone_confirm');
+            return $this->webFlowSupport->redirectTo('access.verify_phone_confirm');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->requestPhoneVerification(
@@ -143,7 +134,7 @@ final readonly class AccessSurfaceFlowService
     public function confirmPhone(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
-        $form = $this->formFactory->create(AccessVerificationCodeType::class);
+        $form = $this->webFlowSupport->createForm(AccessVerificationCodeType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -151,12 +142,12 @@ final readonly class AccessSurfaceFlowService
             $data = $form->getData();
 
             if ($this->verificationChallengeService->completePhoneVerification($user, $data->code)) {
-                $this->flash($request, 'success', 'Phone verification completed.');
+                $this->webFlowSupport->flash($request, 'success', 'Phone verification completed.');
 
-                return $this->redirectTo('access.index');
+                return $this->webFlowSupport->redirectTo('access.index');
             }
 
-            $this->flash($request, 'danger', 'That phone verification code is invalid or expired.');
+            $this->webFlowSupport->flash($request, 'danger', 'That phone verification code is invalid or expired.');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->confirmPhoneVerification(
@@ -172,7 +163,7 @@ final readonly class AccessSurfaceFlowService
     {
         $user = $this->requireUser();
         $enrollment = $this->secondFactorService->beginEnrollment($user);
-        $form = $this->formFactory->create(AccessVerificationCodeType::class);
+        $form = $this->webFlowSupport->createForm(AccessVerificationCodeType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -181,8 +172,8 @@ final readonly class AccessSurfaceFlowService
             $confirmedEnrollment = $this->secondFactorService->confirmEnrollment($user, $data->code);
 
             if (null !== $confirmedEnrollment) {
-                $this->flash($request, 'success', 'Second factor is now enabled.');
-                $this->flash($request, 'warning', 'Save the recovery codes shown on the page now. They will not be shown again.');
+                $this->webFlowSupport->flash($request, 'success', 'Second factor is now enabled.');
+                $this->webFlowSupport->flash($request, 'warning', 'Save the recovery codes shown on the page now. They will not be shown again.');
 
                 return $this->pageResponder->respond($this->pageViewFactory->secondFactor(
                     $user,
@@ -193,7 +184,7 @@ final readonly class AccessSurfaceFlowService
                 ));
             }
 
-            $this->flash($request, 'danger', 'That authenticator code was not accepted.');
+            $this->webFlowSupport->flash($request, 'danger', 'That authenticator code was not accepted.');
         }
 
         return $this->pageResponder->respond($this->pageViewFactory->secondFactor(
@@ -219,9 +210,9 @@ final readonly class AccessSurfaceFlowService
     public function disableSecondFactor(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $this->secondFactorService->disableSecondFactor($this->requireUser());
-        $this->flash($request, 'info', 'Second factor has been disabled.');
+        $this->webFlowSupport->flash($request, 'info', 'Second factor has been disabled.');
 
-        return $this->redirectTo('access.second_factor');
+        return $this->webFlowSupport->redirectTo('access.second_factor');
     }
 
     /**
@@ -238,9 +229,9 @@ final readonly class AccessSurfaceFlowService
     public function invalidateOtherSessions(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $invalidatedCount = $this->userSessionService->invalidateOtherSessions($this->requireUser(), $request->getSession());
-        $this->flash($request, 'info', sprintf('%d other session(s) invalidated.', $invalidatedCount));
+        $this->webFlowSupport->flash($request, 'info', sprintf('%d other session(s) invalidated.', $invalidatedCount));
 
-        return $this->redirectTo('access.sessions');
+        return $this->webFlowSupport->redirectTo('access.sessions');
     }
 
     /**
@@ -259,7 +250,7 @@ final readonly class AccessSurfaceFlowService
     public function password(Request $request): Response|InterfaceTemplateRenderableInterface
     {
         $user = $this->requireUser();
-        $form = $this->formFactory->create(AccessPasswordChangeType::class);
+        $form = $this->webFlowSupport->createForm(AccessPasswordChangeType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -267,23 +258,23 @@ final readonly class AccessSurfaceFlowService
             $data = $form->getData();
 
             if (!$this->credentialService->verifyPassword($user, $data->currentPassword)) {
-                $this->flash($request, 'danger', 'The current password is incorrect.');
+                $this->webFlowSupport->flash($request, 'danger', 'The current password is incorrect.');
             } else {
                 try {
                     $this->credentialService->changePassword($user, $data->newPassword);
                 } catch (AccessCompromisedPasswordException $exception) {
-                    $this->flash($request, 'danger', $exception->getMessage());
+                    $this->webFlowSupport->flash($request, 'danger', $exception->getMessage());
 
                     return $this->pageResponder->respond($this->pageViewFactory->password($user, $form->createView()));
                 } catch (AccessPasswordSafetyUnavailableException $exception) {
-                    $this->flash($request, 'warning', $exception->getMessage());
+                    $this->webFlowSupport->flash($request, 'warning', $exception->getMessage());
 
                     return $this->pageResponder->respond($this->pageViewFactory->password($user, $form->createView()));
                 }
 
-                $this->flash($request, 'success', 'Password updated.');
+                $this->webFlowSupport->flash($request, 'success', 'Password updated.');
 
-                return $this->redirectTo('access.index');
+                return $this->webFlowSupport->redirectTo('access.index');
             }
         }
 
@@ -295,56 +286,12 @@ final readonly class AccessSurfaceFlowService
      */
     private function requireUser(): AccessEntity
     {
-        $user = $this->currentUser();
+        $user = $this->webFlowSupport->currentUser();
 
         if (!$user instanceof AccessEntity) {
             throw new AccessDeniedHttpException('User access required.');
         }
 
         return $user;
-    }
-
-    /**
-     * Executes the current user operation within the canonical Accessing component workflow.
-     */
-    private function currentUser(): ?AccessEntity
-    {
-        $user = $this->security->getUser();
-
-        return $user instanceof AccessEntity ? $user : null;
-    }
-
-    /**
-     * Executes the flash operation within the canonical Accessing component workflow.
-     */
-    private function flash(Request $request, string $type, string $message): void
-    {
-        $session = $request->getSession();
-
-        if (!$session instanceof FlashBagAwareSessionInterface) {
-            return;
-        }
-
-        $session->getFlashBag()->add($type, $message);
-    }
-
-    /**
-     * Executes the add demo code flash operation within the canonical Accessing component workflow.
-     */
-    private function addDemoCodeFlash(Request $request, string $label, string $code): void
-    {
-        if ('prod' === $this->kernel->getEnvironment()) {
-            return;
-        }
-
-        $this->flash($request, 'secondary', sprintf('%s: %s', $label, $code));
-    }
-
-    /**
-     * @param array<string, mixed> $parameters
-     */
-    private function redirectTo(string $route, array $parameters = [], int $status = Response::HTTP_FOUND): RedirectResponse
-    {
-        return new RedirectResponse($this->urlGenerator->generate($route, $parameters), $status);
     }
 }
