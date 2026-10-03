@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\OAuth;
 
 use App\Accessing\DTO\AccessExternalIdentityProfileDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessExternalIdentityEntity;
 use App\Accessing\RepositoryInterface\AccessExternalIdentityRepositoryInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;

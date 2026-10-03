@@ -6,7 +6,7 @@ namespace App\Accessing\ServiceInterface\Passkey;
 
 use App\Accessing\DTO\AccessPasskeyRegistrationOptionsDTO;
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessPasskeyCredentialEntity;
 use Symfony\Component\HttpFoundation\Request;
 

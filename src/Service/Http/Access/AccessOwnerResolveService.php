@@ -5,7 +5,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Http\Access;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\ProviderInterface\Context\AccessCurrentContextProviderInterface;
 use App\Accessing\RepositoryInterface\AccessRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

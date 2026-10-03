@@ -6,7 +6,7 @@ declare(strict_types=1);
 namespace App\Accessing\Service\Verification;
 
 use App\Accessing\DTO\AccessIssuedChallengeDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessVerificationChallengeEntity;
 use App\Accessing\Exception\AccessNotificationDeliveryException;
 use App\Accessing\ProviderInterface\PhoneVerification\AccessPhoneVerificationProviderInterface;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\SecurityNotification;
 
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\ServiceInterface\SecurityNotification\AccessSecurityNotificationServiceInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;

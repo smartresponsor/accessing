@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Accessing\ServiceInterface\Mobile;
 
 use App\Accessing\DTO\AccessMobilePendingTokenDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessMobilePendingAuthEntity;
 use App\Accessing\ValueObject\AccessMobilePendingPurpose;
 

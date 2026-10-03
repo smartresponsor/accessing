@@ -7,7 +7,7 @@ namespace App\Accessing\Verifier\Passkey;
 use App\Accessing\Codec\Passkey\AccessWebauthnCredentialRecordCodec;
 use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessPasskeyVerificationException;
 use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 use ParagonIE\ConstantTime\Base64UrlSafe;

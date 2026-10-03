@@ -8,7 +8,7 @@ namespace App\Accessing\Service\Http\Access;
 use App\Accessing\DTO\AccessPasswordChangeDTO;
 use App\Accessing\DTO\AccessPhoneVerificationRequestDTO;
 use App\Accessing\DTO\AccessVerificationCodeDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\Factory\Surface\AccessHomeSurfaceContractFactory;

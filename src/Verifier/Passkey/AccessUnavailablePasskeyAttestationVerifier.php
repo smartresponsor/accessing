@@ -6,7 +6,7 @@ namespace App\Accessing\Verifier\Passkey;
 
 use App\Accessing\DTO\AccessPasskeyAttestationResultDTO;
 use App\Accessing\DTO\AccessPasskeyRelyingPartyConfigDTO;
-use App\Accessing\Entity\AccessEntity;
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Exception\AccessPasskeyVerificationUnavailableException;
 use App\Accessing\VerifierInterface\Passkey\AccessPasskeyAttestationVerifierInterface;
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 namespace App\Accessing\Service\Credential;
 
+use App\Accessing\Entity\Access\AccessEntity;
 use App\Accessing\Entity\AccessCredentialEntity;
-use App\Accessing\Entity\AccessEntity;
 use App\Accessing\Exception\AccessCompromisedPasswordException;
 use App\Accessing\Exception\AccessPasswordSafetyUnavailableException;
 use App\Accessing\ProviderInterface\Password\AccessCompromisedPasswordProviderInterface;
