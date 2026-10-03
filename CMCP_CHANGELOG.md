@@ -1,5 +1,173 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Worktree Green integration closure
+
+- Reconciled all remaining uncommitted Accessing value on `integrate/accessing-master-green-20261003` without discarding concurrent work.
+- Product commits now present on the integration branch: `5562171` (`refactor(accessing): decompose demo fixture setup`), `7e5c3ad` (`refactor(accessing): split API security continuation flow`), and `daedfbe` (`fix(accessing): reconcile identity index migration parity`).
+- Fresh deterministic verification on the combined current tree: Composer strict/check-lock PASS; PHPStan PASS (266 files / 0 errors); PHPUnit PASS (261 tests / 2943 assertions, 124 non-failing notices); PHP-CS-Fixer dry-run PASS (268 files / 0 fixable); Gating PASS (10 rules / 0 failed / 0 warning / 1 skipped).
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-200620.json`: 27 findings, all medium, zero high, zero autofixable; historical constructor-dependency high backlog is closed.
+- PostgreSQL `schema:parity` PASS end-to-end: clean `accessing_test` recreation, four migrations through `Version20261003193000`, Doctrine mapping/schema validation in sync, and migrations up to date; wrapper exit code 0.
+- `config/bundles.php` was a non-semantic false-dirty marker; re-indexing produced no staged semantic diff and cleared it from worktree status.
+- Existing Playwright/runtime evidence remains GREEN for the browser-facing surfaces already changed on this branch; no additional UI mutation was introduced by the final fixture/API/schema reconciliation.
+- Final integration action after this journal commit: require clean worktree, verify branch divergence, then push the current integration branch to its configured remote/upstream without force.
+
+## 2026-10-03 — Inspecting high-severity closure (engine-20261003191926-accessing-f90f6e)
+
+### Baseline, market posture, and canon mapping
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP on `integrate/accessing-master-green-20261003`; preserved concurrent fixture, bundle, migration, journal, and overlapping API work rather than resetting or cleaning the tree.
+- Read the authoritative task specification, Accessing `AGENTS.md`/README/Composer/services, historical Inspecting RED, fresh pre-change Inspecting evidence, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contracts.
+- Consulted normative Canon018, Canon021, and Canon067 directly. Mapping remains `accessing/access` -> `App\\Accessing\\` plus `Access*`; generic application CRUD remains Cruding-owned; root persistence identity remains `src/Entity/Access/AccessEntity.php`. The new continuation service stays in the canonical Symfony `Service/Http/Api/Access` tree and is auto-wired by the existing `App\\Accessing\\: ../src/` service resource.
+- Mature access-management baseline for RC remains phishing-resistant passkeys/WebAuthn, MFA, explicit session/token lifecycle, safe recovery, throttling/lockout, and auditable security events. Adaptive-risk policy, broader federation/SCIM, and richer security analytics remain a separate growth workstream and are not promoted to RC requirements by current canon/gates.
+
+### Material remediation
+- Closed the final high-severity Inspecting constructor-dependency finding by extracting verification, second-factor, and recovery continuation responsibilities behind `AccessApiSecurityContinuationFlowService`, while leaving sign-in/register/session/passkey/mobile primary orchestration in `AccessApiFlowService`.
+- `AccessApiFlowService` direct constructor dependency maximum fell from 14 to 11; the continuation collaborator has 9 dependencies. Unit and mobile-continuation test wiring was updated to exercise the extracted behavior rather than masking it with a dependency bag or service locator.
+- Post-mutation Inspecting report: `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-194904.json` — PHPStan analyzer 0 errors, 27 findings all medium, 0 high, 0 autofixable, max constructor dependencies 11. Remaining medium findings are review-level cohesion/size observations and are not promoted to RC blockers by current Canonization/Gating policy.
+
+### Verification and remaining integration tail
+- PHPUnit: PASS, 261/261 tests, 2943 assertions, 124 existing non-failing notices. PHPStan: PASS, 266 files / 0 errors. PHP-CS-Fixer dry-run: PASS, 268 files / 0 fixable after formatting the new continuation file. Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped. Composer strict lock validation: PASS.
+- Existing managed Symfony runtime on `127.0.0.1:8011` was reused rather than restarted; `/access/signin` returned HTTP 200. Existing Playwright stack: PASS, 2/2 (`sign-in` reachability and reset-password check-email canonical template), with screenshot output routed through the central Accessing visual-artifact path.
+- A full `lint` pass streamed syntax-green results but the synchronous Console MCP call did not return a final exit code; PHPStan and PHPUnit subsequently parsed/executed the changed PHP successfully. `schema:parity` remains outside this remediation's owned change set: a canonical attempt timed out, and a guarded asynchronous retry was admission-blocked by current heavy-runtime capacity (`ENGINE_BACKLOG_HIGH`), so no schema verdict is invented.
+- Git publication must stage only the coherent API continuation code/test wave. Concurrent `config/bundles.php`, `src/DataFixtures/AccessDemoFixtures.php`, `migrations/Version20261003193000.php`, and pre-existing journal entries remain protected unless separate semantic ownership is established.
+
+## 2026-10-03 — RC baseline and active Inspecting remediation (engine-20261003194310-accessing-814ae6)
+
+### Factual reconnaissance
+- Resolved the live `D:\PhpstormProjects\www\Accessing` workspace exclusively through Console MCP on `integrate/accessing-master-green-20261003`; the branch starts this execution window seven commits ahead of `origin/master` with an active protected reconciliation worktree.
+- Read the authoritative task specification, Accessing AGENTS/README/root manifests, Composer/runtime/Doctrine/security configuration, historical 2026-09-29 Inspecting RED, current API/fixture/test/migration changes, and prior fresh verification evidence recorded in this journal.
+- Read the mandatory Objecting, Cruding, Viewing, Interfacing and Gating contracts plus Canonization root contract and normative `Canon018ComposerIdentityMappingRule.md`, `Canon021CrudingOwnsGenericCrudRule.md`, and `Canon067RepositoryRootEntityRule.md`.
+- Canon mapping: `accessing/access` requires `App\\Accessing\\ => src/` and `Access*`; generic application CRUD remains Cruding-owned with the documented EasyAdmin exception; Accessing owns `src/Entity/Access/AccessEntity.php`; Objecting owns reusable system-field packs while Accessing owns its entities/migrations; Viewing owns rendering policy and Interfacing owns shared shell/template assets.
+- The historical Inspecting backlog was 30 findings (3 high / 27 medium). Fresh pre-current-wave evidence already reduced this to 26 findings (1 high / 25 medium), with the remaining high centered on the 14-dependency / 1021-line `AccessApiFlowService`.
+
+### RC-critical workstream
+- Treat the live API security-continuation decomposition, demo-fixture method decomposition, adapted tests, and PostgreSQL index-name reconciliation migration as the current in-scope remediation candidate; do not overwrite or reset concurrent value.
+- Acceptance requires current-fingerprint syntax/static/test/Gating/Inspecting evidence and PostgreSQL schema parity. Runtime/UI verification is applicability-driven; the current diff does not modify browser templates/assets/navigation, so no new visual artifact is required solely for this wave.
+
+### Growth workstream
+- Keep enterprise federation/SCIM breadth, adaptive-risk policy, expanded identity-provider administration, and richer security analytics outside RC unless a correctness/operability gate promotes them. Mature identity products currently reinforce passkeys/WebAuthn, MFA, explicit session lifecycle, lockout/recovery and auditable events as baseline capabilities already within Accessing's responsibility.
+
+### Material risks
+- `CMCP_CHANGELOG.md` contains concurrent orchestration entries and must be preserved without destructive cleanup.
+- `config/bundles.php` is a pre-existing worktree marker and must not be treated as owned semantic change without an actual diff.
+- The new migration must prove empty/disposable PostgreSQL migrate -> schema parity; schema claims are not accepted from mapping inspection alone.
+
+### Gates to run
+- Changed-PHP syntax, Composer strict lock validation, PHPStan, PHPUnit, PHP-CS-Fixer dry-run, Gating, Doctrine schema parity, post-mutation Inspecting, then final Git status/divergence and coherent integration/publication where safe.
+
+## 2026-10-03 — RC reconnaissance checkpoint (engine-20261003195034-accessing-ed3716)
+
+### Baseline and responsibility mapping
+- Resolved the live `D:\PhpstormProjects\www\Accessing` workspace exclusively through Console MCP on `integrate/accessing-master-green-20261003` at `0e841d58d44ba8d2610f4397abbe5447d88480c3`; the branch is seven commits ahead of `origin/master` with an eight-path protected concurrent worktree.
+- Read the authoritative task specification, Accessing AGENTS/README/Composer/test/static-analysis surfaces, the historical 2026-09-29 Inspecting RED, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contracts.
+- Consulted textual Canon018, Canon021, and Canon067 directly. Current target mapping is `accessing/access` -> `App\\Accessing\\` plus `Access*`; generic application CRUD remains Cruding-owned; Accessing owns `src/Entity/Access/AccessEntity.php` as its canonical root Entity.
+- Composer declares Objecting, Cruding, Viewing, and Interfacing as real runtime dependencies with local path/symlink development wiring; Gating is a development executable dependency, while Inspecting remains an external quality engine rather than an application dependency.
+
+### Market/maturity split
+- Baseline IAM expectations confirmed against current Auth0 and Keycloak material: passkeys/WebAuthn, MFA/step-up, recovery, attack/brute-force protection, and explicit session/token lifecycle are baseline maturity capabilities.
+- Growth remains separate from RC: adaptive-risk policy, broader federation/SCIM, continuous-session analytics, and richer device/session UX are post-RC maturity work unless a correctness or operability gate promotes them.
+
+### RED remediation evidence and current gates
+- Historical Inspecting backlog was 30 structural findings (3 high / 27 medium): the high findings were constructor-dependency concentration in `AccessSecurityFlowService`, `AccessSurfaceFlowService`, and `AccessApiFlowService`; the same report also identified fixture/command/API long-method and cohesion debt.
+- The current protected worktree contains the active API security-continuation decomposition, demo-fixture decomposition, corresponding unit-test changes, and PostgreSQL index-name reconciliation migration. No concurrent path was reset, overwritten, staged, or silently attributed to this task.
+- Current changed/untracked PHP syntax validation is GREEN for all six PHP paths. `composer validate --strict --check-lock` is GREEN.
+- Fresh heavy acceptance could not be completed in this execution window: `schema:parity` was refused before process start by Console MCP runtime-capacity policy (`RESOURCE_PRESSURE_WATCH` / `ENGINE_BACKLOG_HIGH`), and a required standalone Inspecting invocation returned upstream HTTP 502 before a repository verdict/report reference was produced. These are execution-plane blockers, not inferred Accessing failures.
+- Existing immediately preceding repository evidence records Composer/PHP-CS-Fixer/PHPStan/PHPUnit/Gating GREEN and an Inspecting state with zero high findings after the API continuation decomposition; this run does not duplicate that evidence as a new verdict because the mandatory fresh heavy calls above did not complete.
+
+### Acceptance tail
+- Obtain one real disposable PostgreSQL `schema:parity` verdict and one post-mutation Inspecting report when heavy execution is admitted; if both are green/non-blocking, re-check final worktree/HEAD/upstream ownership and integrate only a coherent non-commingled change set.
+- No new browser-facing UI/template/navigation asset was changed by this execution window, so no new visual artifact is required solely for this checkpoint.
+
+## 2026-10-03 — Inspecting/API continuation reconciliation (engine-20261003192925-accessing-acc49f)
+
+### Baseline and canon mapping
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP on `integrate/accessing-master-green-20261003`; the branch began seven commits ahead of `origin/master` with active concurrent work preserved rather than reset or absorbed.
+- Read the authoritative Accessing AGENTS/root manifests, Composer/runtime/test surfaces, the historical Inspecting RED, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, Canonization, and Inspecting contour.
+- Consulted normative Canon018, Canon021, and Canon067: `accessing/access` maps to `App\\Accessing\\` plus `Access*`, generic application CRUD remains Cruding-owned, and the repository root Entity remains `src/Entity/Access/AccessEntity.php`.
+- RC-critical work is bounded correctness, cohesion, verification, schema parity, and integration safety. Federation/SCIM, adaptive-risk policy, and richer device/session UX remain separate growth work.
+
+### Material repair and verification
+- The active API continuation decomposition was incomplete: `src/Service/Http/Api/Access/AccessApiSecurityContinuationFlowService.php` ended after `unavailableResponse()` with an unclosed class and missing helper methods already referenced by the extracted flow. Completed the existing responsibility extraction with behavior-equivalent unauthorized/session/identity/mobile-token helpers and the closing class boundary; no new product capability was introduced.
+- Changed-PHP syntax lint: PASS for the current fixture/API continuation wave. Composer strict lock validation: PASS. PHP-CS-Fixer dry-run: PASS, 268 files / 0 fixable. PHPStan: PASS, 266 files / 0 errors. PHPUnit: PASS, 261 tests / 2943 assertions with 124 existing non-failing notices. Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-194333.json`: PHPStan analyzer 0 errors; 27 structural findings, all medium, zero high, zero autofixable. This closes the historical high-severity constructor-dependency backlog (historical RED: 30 findings / 3 high). Current maxima are complexity 12 and constructor dependencies 11; `AccessApiFlowService` is now 709 lines / 11 dependencies and the extracted continuation service is 411 lines / 9 dependencies, both medium observational debt.
+
+### Schema and concurrency checkpoint
+- `composer schema:validate` confirms Doctrine mapping is correct but the current test database schema is not synchronized with mapping, so schema acceptance is RED at this checkpoint.
+- Two canonical `schema:parity` attempts were made through Console MCP; both failed at the execution plane with upstream HTTP 502 before a repository verdict was returned. No parity PASS or FAIL is inferred from those transport failures.
+- The worktree is concurrently evolving: current protected paths include the API/fixture wave plus `tests/Unit/AccessApiFlowServiceTest.php`, `tests/Unit/AccessMobileContinuationApiTest.php`, and untracked `migrations/Version20261003193000.php`. Those concurrent additions are preserved and are not silently attributed, staged, or committed by this task without semantic ownership evidence.
+
+### Remaining acceptance tail
+- Obtain a real PostgreSQL `schema:parity` verdict once Console MCP accepts the script, then inspect final worktree/HEAD/upstream ownership and publish only a coherent non-commingled change set. No browser-facing UI artifact was changed by this repair; existing browser evidence remains outside the mutated API/schema scope.
+
+## 2026-10-03 — Inspecting/schema reconciliation (engine-20261003191531-accessing-d5d4b0)
+
+### Baseline and RC workstream
+- Resolved the live Accessing workspace exclusively through Console MCP and consumed the authoritative task specification, current repository manifests/configuration/tests, historical Inspecting RED, fresh Inspecting evidence, and the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization contracts.
+- Consulted textual Canon018, Canon021, and Canon067. Mapping remains `accessing/access` -> `App\\Accessing\\` plus `Access*`, generic CRUD remains in Cruding, and `src/Entity/Access/AccessEntity.php` remains the repository root Entity.
+- RC-critical work is the active Inspecting remediation plus deterministic/runtime/schema verification. Growth work remains adaptive risk, federation/SCIM, and other capability expansion not required for correctness or operability.
+
+### Material remediation and deterministic evidence
+- Reconciled the live concurrent API extraction instead of patching an obsolete snapshot. `AccessApiFlowService` delegates verification/second-factor/recovery continuations to `AccessApiSecurityContinuationFlowService`; demo fixture setup is decomposed into focused user/security-state phases; the canonical PostgreSQL index-name reconciliation is materialized as `Version20261003193000`.
+- The extracted continuation initially produced 17 PHPStan errors because two compressed docblocks lost generic array typing. Split the `@param`/`@return` contracts into valid PHPDoc; the follow-up PHPStan gate is GREEN, 266 files / 0 errors.
+- Changed-PHP lint is GREEN for all six current changed/untracked PHP files. Composer strict lock validation is GREEN. PHP-CS-Fixer dry-run is GREEN, 268 files / 0 fixable. PHPUnit is GREEN, 262 tests / 2943 assertions with 124 existing notices and 1 skipped. Gating is GREEN, 10 rules / 0 failed / 0 warning / 1 skipped.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-194439.json`: PHPStan analyzer 0 errors; 27 structural findings, all medium; zero high. Historical high-severity constructor-dependency findings are therefore closed. Current maxima are complexity 12 and constructor dependencies 11; `AccessApiFlowService` is 709 lines / 11 dependencies and the extracted continuation is 411 lines / 9 dependencies.
+
+### Runtime, schema, and integration state
+- Existing managed runtime `127.0.0.1:8011` was reused without restart and currently returns HTTP 200 for `/access/signin`; Visual Gallery health on `100.101.253.65:9477` is GREEN. This API/schema wave does not change browser UI, so prior Playwright/visual evidence remains applicable and no new screenshot is required solely for this wave.
+- Approved `schema:parity` reached the fresh PostgreSQL database path, recreated `accessing_test`, executed four migrations through `Version20261003193000` (81 SQL queries), and its internal `doctrine:schema:validate` reported mapping correct and database schema in sync. The outer synchronous wrapper returned no final exit code before its call window ended, so final wrapper completion/currentness is not overstated.
+- A plain `doctrine:schema:validate --env=test` outside the parity runner remains RED because it resolves a different configured test connection; that result is not used as evidence against the disposable parity database.
+- Current branch remains `integrate/accessing-master-green-20261003`, seven commits ahead of `origin/master`, with active concurrent journal/config state preserved. `config/bundles.php` has no semantic Git diff and must not be staged merely to clean the tree.
+
+### Remaining acceptance tail
+- Obtain a completed outer `schema:parity` receipt (or equivalent final migration-currentness evidence) when runtime admission permits, then stage/commit/publish only the coherent API/fixture/migration/test value and re-check final HEAD/upstream/worktree state without absorbing protected concurrent journal/config work.
+
+## 2026-10-03 — Inspecting baseline continuation (engine-20261003192413-accessing-77a6a6)
+
+### Reconnaissance baseline
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP on `integrate/accessing-master-green-20261003`; initial authoritative Git state was seven commits ahead of `origin/master` with preserved concurrent journal state and a non-semantic `config/bundles.php` worktree marker.
+- Read the task specification, Accessing `AGENTS.md`, root manifests, Composer/package surfaces, historical 2026-09-29 Inspecting RED, and the fresh pre-mutation Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-191959.json`.
+- Read the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, and Canonization root contracts. Consulted normative Canonization rules Canon018, Canon021, and Canon067: `accessing/access` maps to `App\\Accessing\\` plus `Access*`; generic application CRUD remains Cruding-owned; the canonical root entity remains `src/Entity/Access/AccessEntity.php`.
+- Fresh Inspecting baseline is 26 structural findings (1 high / 25 medium) with PHPStan analyzer at 0 errors. The sole high is the 14-dependency `AccessApiFlowService`; historical high findings in `AccessSecurityFlowService` and `AccessSurfaceFlowService` were already reduced by prior verified decomposition.
+- Market/enterprise baseline remains phishing-resistant passkeys/WebAuthn, MFA, explicit session lifecycle, recovery safety, throttling/lockout, and auditable security events. Adaptive-risk policy, broader federation/SCIM, and advanced security analytics remain growth work rather than RC prerequisites.
+
+### RC-critical work selected
+- Refactored `AccessDemoFixtures::load()` by separating demo-user reconciliation from initial demo security-state persistence. Existing fixture identity, verification, password reconciliation, persistence ordering, and created-vs-existing behavior are preserved while removing the live 61-line long-method finding candidate.
+- The fixture file passes PHP syntax validation.
+- During this execution, a separate concurrent writer began a broader `AccessApiFlowService` security-continuation decomposition plus tests/migration. Those paths are protected concurrent work and are not attributed to this task; no attempt is made to overwrite, stage, or silently absorb them.
+
+### Growth workstream
+- Keep adaptive authentication/risk scoring, enterprise federation/SCIM breadth, and richer security analytics outside the current RC remediation unless a correctness or operability gate proves them necessary.
+
+### Gates remaining
+- Run fixture/full regression, PHPStan, style, Gating, Composer validation, fresh post-mutation Inspecting, and final Git divergence/status inspection. Reuse the existing managed Symfony runtime if runtime probing is applicable; no UI file was changed by this fixture refactor, so no new visual artifact is required solely for this change.
+
+## 2026-10-03 — RC reconciliation (engine-20261003183847-accessing-740ea1)
+
+### Baseline and canon mapping
+- Resolved `D:\PhpstormProjects\www\Accessing` exclusively through Console MCP and read the authoritative Accessing manifests/docs plus the mandatory Objecting, Cruding, Viewing, Interfacing, Gating, Canonization, and Inspecting contour.
+- Applied Canon018 (`accessing/access` -> `App\\Accessing\\` / `Access*`), Canon021 (generic CRUD remains owned by Cruding), and Canon067 (`src/Entity/Access/AccessEntity.php` root Entity). Gating confirms namespace/layer/CRUD/profile constraints are currently green.
+- RC-critical work remains correctness, runtime wiring, verification, and the Inspecting remediation front. Adaptive risk, federation/SCIM, and further API decomposition remain separate growth/maturity work unless promoted by a deterministic blocker.
+
+### Material reconciliation and verification
+- Reconciled the live `AccessWebFlowSupportService` decomposition by updating stale constructor assembly in `AccessSecurityFlowServiceCoverageTest` and `AccessSurfaceFlowServiceTest`; the resulting source/test wave is now committed at `81dfd3b` (`refactor(accessing): centralize web flow framework support`).
+- Composer strict lock validation: PASS. PHPStan: PASS, 265 files / 0 errors. PHPUnit Accessing suite: PASS, 261 tests / 2939 assertions (124 existing non-failing notices). PHP-CS-Fixer dry-run: PASS, 267 files / 0 fixable. Changed-PHP syntax lint: PASS. Gating: PASS, 10 rules / 0 failed / 0 warning / 1 skipped.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-191945.json`: 26 findings (1 high / 25 medium), PHPStan 0. The historical `AccessDemoResetCommand` long-method finding is removed; constructor-dependency highs fell from three to one. The remaining high is the 14-dependency, 1021-line `AccessApiFlowService`; reducing it safely requires real responsibility decomposition rather than a dependency bag and is not hidden or waived.
+- Existing managed runtime on `127.0.0.1:8011` was reused and `/access/signin` returns HTTP 200 with the Interfacing shell/assets. Playwright `npm test`: PASS, 2/2 (`sign-in` plus reset-password check-email visual assertion); screenshot output follows the central `var/Accessing/<date>/<run-id>/screenshots/web` contract. Visual gallery health on `100.101.253.65:9477`: PASS.
+- Doctrine mapping validates, but disposable PostgreSQL `schema:parity` is RED after applying all three migrations: database schema is not in sync with current mapping. Console policy correctly blocks ad-hoc `doctrine:schema:update`, so no destructive or policy-bypassing schema mutation was attempted.
+
+### Integration state
+- The repository has active concurrent Accessing reconciliation work: runtime/config/Playwright/journal paths are changing independently while this task runs. Those paths are preserved and are not silently staged or commingled.
+- Remaining RC blocker for this execution window is PostgreSQL migration/schema parity. The residual Inspecting high is explicit architectural debt requiring a dedicated bounded decomposition pass; all currently changed user-facing browser checks are green.
+
+## 2026-10-03 — Canon067/UI acceptance continuation (engine-20261003180548-accessing-b3e807)
+
+- Reconciled the post-merge Canon067 regression on `integrate/accessing-master-green-20261003`; canonical entity remains `src/Entity/Access/AccessEntity.php`, stale product FQCN references were eliminated, and the nullable admin-password call was narrowed before the non-null credential contract.
+- Current deterministic evidence: PHPStan 0 errors; PHPUnit 262 tests / 2939 assertions with 124 existing notices and 1 skipped; repository Gating previously passed 10 rules / 0 failures / 0 warnings; Composer validation passed; changed-PHP lint passed.
+- Interfacing consumer runtime contract is now imported from `vendor/interfacing/interface/config/services/interfacing.yaml`; Twig path `@Interfacing` is explicitly mapped. The reset-password check-email route returns HTTP 200 and renders the canonical `Check email` view.
+- Playwright browser verification is GREEN: sign-in reachability plus reset-password check-email canonical-template test both pass. Reset screenshot is routed to central `../var/Accessing/2026-10-03/engine-20261003180548-accessing-b3e807/screenshots/web` for the Visual Gallery contract.
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261003-191720.json`: PHPStan analyzer 0 errors, 26 structural findings (1 high / 25 medium), 0 autofixable. The remaining high is observational constructor-dependency debt in the feature-rich API flow and is not promoted to an RC blocker by current Canonization/Gating evidence.
+- Git hygiene: `CMCP_CHANGELOG.md` also contains another active engine task's concurrent journal entry; preserve it without staging it into this task's product/runtime commit. `config/bundles.php` reports worktree modification but has no semantic diff and is likewise excluded from owned staging.
+
+
 ## 2026-10-03 — Inspecting remediation continuation (engine-20261003184653-accessing-38c9d6)
 
 ### Reconnaissance baseline
