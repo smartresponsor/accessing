@@ -1,5 +1,29 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Inspecting RC checkpoint (engine-20261003182015-accessing-cd7ae5)
+
+### Factual baseline and opening maturity split
+- Resolved the authoritative workspace exclusively through Console MCP as `D:\PhpstormProjects\www\Accessing` on `refactor/accessing-canonical-structure`.
+- Read the supplied RED Inspecting evidence (30 findings: 3 high, 27 medium), current Accessing instructions/Composer/runtime sources, and the mandatory Objecting, Cruding, Viewing, Interfacing dependency contour.
+- Mature IAM expectations within the Accessing boundary remain passkeys/WebAuthn, MFA, recovery, session lifecycle, throttling/lockout, and security-event auditability. RC-critical work is deterministic authentication/identity integrity and enforceable repository contracts; broader federation, adaptive/risk-based authentication, and richer self-service security UX remain growth work.
+
+### Canon and boundary mapping
+- Canon067 requires `accessing/access` to own `src/Entity/Access/AccessEntity.php`; the current tree satisfies this path/type contract.
+- Canon001/002/007/018 preserve technical-role-first Symfony structure, mirrored interface trees, literal PSR-4 identity, and the single `App\\Accessing\\ => src/` namespace.
+- Canon021 keeps generic CRUD in Cruding. Objecting retains reusable system-field ownership; Viewing retains rendering-boundary ownership; Interfacing remains the passive shell/template provider.
+- No Domain/Port/Adapter taxonomy or alternative root namespace is introduced.
+
+### Fresh verification
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261003-182150.json`: 27 findings, all medium, 0 high; PHPStan analyzer reports 0 errors. The supplied RED baseline's 3 high constructor-dependency findings no longer reproduce; maximum constructor dependencies are now 11 rather than 14.
+- `bin/cmcp-canon-check.ps1`: PASS — 69 canon rules, 0 failures; Canon040 coverage evidence remains GREEN at 82.3% lines / 86.9% methods / 77.1% branches and Canon042 behavioral/UI evidence remains 100% across declared functional, behavioral, UI, and critical inventories.
+- Composer validation: PASS. PHPStan: PASS across 268 files, 0 errors. Tracked PHP syntax lint: PASS.
+- A fresh synchronous PHPUnit request exceeded the Console MCP call window; the follow-up async start was not admitted because runtime capacity was `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` with `ENGINE_BACKLOG_HIGH`. No fresh PHPUnit PASS/FAIL is inferred in this execution window.
+
+### Git and residual RC tail
+- Worktree stabilized during this pass to only `.gating/README.md` reported modified; its textual diff is empty and it is not staged or rewritten.
+- Branch is ahead of `origin/refactor/accessing-canonical-structure` with no behind divergence at final inspection; publication of committed history is safe without absorbing the `.gating/README.md` status-only anomaly.
+- No user-observable UI source was changed by this execution window, so no new screenshot is applicability-required; visual evidence is NOT_VERIFIED for this pass.
+
 ## 2026-10-03 — Inspecting RC acceptance (engine-20261003181223-accessing-73e5d0)
 
 ### Factual baseline and maturity split
