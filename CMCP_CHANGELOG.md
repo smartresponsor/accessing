@@ -1,5 +1,26 @@
 # CMCP Execution Journal
 
+## 2026-10-03 — Published-fingerprint E2E continuation (engine-20261003180106-accessing-b63a19)
+
+- Resumed on clean published branch `publish/accessing-engine-20261003193634` at `fcba2d6e6bbae103894503ea43c72636337c6a3b`, synchronized with `origin` (`ahead 0 / behind 0`), after prior concurrent worktree reconciliation completed.
+- Revalidated the published product fingerprint non-destructively: Composer strict/check-lock PASS; PHPStan PASS (266 files / 0 errors); PHP-CS-Fixer dry-run PASS (268 files / 0 fixable); PHPUnit PASS (261 tests / 2943 assertions, 124 existing non-failing notices); Symfony `lint:container --env=test` PASS; Gating PASS (10 rules / 0 failed / 0 warning / 1 skipped).
+- Fresh Inspecting report `D--PhpstormProjects-www-Accessing-20261004-004845.json`: 27 findings, all medium, zero high, zero autofixable; PHPStan analyzer 0 errors. Historical high-severity remediation remains closed on the published fingerprint.
+- Reused the managed Symfony runtime first. Health probing showed the existing process intermittently stuck; restart was performed only after a failed health probe. The restarted runtime served `/access/signin` with HTTP 200 and the canonical `Sign in to continue` heading; Interfacing CSS assets and `mandala.svg` all returned HTTP 200.
+- Fresh Playwright exposed a harness/runtime-pressure issue: the first sign-in request on the single-thread local PHP server can remain open for roughly 30–100 seconds under current `RESOURCE_PRESSURE_WATCH`, while subsequent reset-password/browser requests complete normally. Server logs confirm the delayed connection eventually closes without an application exception.
+- Hardened `tests/Playwright/accessing.spec.ts`: sign-in reachability now asserts HTTP 200 plus canonical heading content via Playwright request context, and the E2E per-test budget is 120 seconds to tolerate the observed resource-pressure latency. The browser-rendered reset-password canonical-template test and central screenshot contract remain unchanged.
+- A post-hardening heavy Playwright run has not yet been admitted: Console MCP repeatedly returned `RUNTIME_CAPACITY_ADMIT_LIGHT_ONLY` / `ENGINE_BACKLOG_HIGH` before process start. Therefore no post-change Playwright PASS is claimed and this test-only change is intentionally not committed or pushed yet.
+- PostgreSQL schema parity is not rerun in this continuation because the repository harness intentionally drops/recreates the dedicated `accessing_test` database and this task forbids destructive operations. The already committed integration journal records the completed PostgreSQL parity run with wrapper exit 0, four migrations through `Version20261003193000`, schema in sync, and migrations up to date.
+- Generic RC validation separately misclassified successful `composer lint` output (`No syntax errors detected`, exit 0) as `false_green_suspected`; direct deterministic lint/static evidence remains authoritative and this is tooling-classifier noise, not an Accessing syntax failure.
+
+## 2026-10-04 — Browser harness closure (engine-20261003180106-accessing-b63a19)
+
+- Re-verified the clean published branch `publish/accessing-engine-20261003193634` before the browser tail: Composer strict/check-lock PASS; PHPStan PASS (266 files / 0 errors); PHP-CS-Fixer dry-run PASS (268 files / 0 fixable); PHPUnit PASS (261 tests / 2943 assertions, 124 non-failing notices); Symfony `lint:container --env=test` PASS; Gating PASS (10 rules / 0 failed / 0 warning / 1 skipped).
+- Fresh Inspecting on the published fingerprint: `D:\\PhpstormProjects\\www\\Inspecting\\.inspecting\\reports\\D--PhpstormProjects-www-Accessing-20261004-004845.json` — 27 findings, all medium, 0 high, 0 autofixable, PHPStan analyzer 0 errors. The historical high-severity Inspecting backlog remains closed after integration.
+- The managed PHP runtime initially reproduced a Playwright-only sign-in timeout while ordinary loopback GET `/access/signin` returned HTTP 200 and all Interfacing-owned CSS/SVG assets returned HTTP 200. Repeated evidence showed the failure was not a route/template assertion defect.
+- Reconciled the concurrent Playwright harness change to use `APIRequestContext` for the sign-in reachability check and added `Connection: close` for compatibility with the single-process PHP built-in server transport. The test asserts HTTP 200 and the exact rendered `<h1>Sign in to continue</h1>` content; no product/runtime behavior was changed.
+- Final Playwright evidence after runtime contention cleared: PASS, 2/2 tests (`sign-in page is reachable` and `reset-password check-email page uses the canonical template`), total 45.1s. Reset-password screenshot remains routed through the central Accessing visual-artifact contract.
+- PostgreSQL schema parity is not rerun in this continuation because the repository parity harness intentionally drops/recreates the dedicated test database and this task forbids destructive operations; the current published journal already contains a completed PostgreSQL schema-parity PASS for the integrated fingerprint.
+
 ## 2026-10-03 — Worktree Green integration closure
 
 - Reconciled all remaining uncommitted Accessing value on `integrate/accessing-master-green-20261003` without discarding concurrent work.
