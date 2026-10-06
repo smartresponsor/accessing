@@ -138,8 +138,13 @@
 - A plain `doctrine:schema:validate --env=test` outside the parity runner remains RED because it resolves a different configured test connection; that result is not used as evidence against the disposable parity database.
 - Current branch remains `integrate/accessing-master-green-20261003`, seven commits ahead of `origin/master`, with active concurrent journal/config state preserved. `config/bundles.php` has no semantic Git diff and must not be staged merely to clean the tree.
 
-### Remaining acceptance tail
-- Obtain a completed outer `schema:parity` receipt (or equivalent final migration-currentness evidence) when runtime admission permits, then stage/commit/publish only the coherent API/fixture/migration/test value and re-check final HEAD/upstream/worktree state without absorbing protected concurrent journal/config work.
+### 2026-10-06 acceptance closure continuation
+- Re-ran the canonical `schema:parity` contour on the current `master` fingerprint. The first run reproduced an execution-environment failure (`errno=28 No space left on device`) while Symfony attempted to write test cache beneath the Windows system TEMP volume; migration execution itself had already succeeded through `Version20261003193000`.
+- Hardened `deploy/docker/bin/run-postgres-tests.php` so child test/Symfony processes use repository-local `var/tmp/tests` for `TEMP`, `TMP`, and `TMPDIR`. This keeps disposable Accessing test-cache writes on the workspace drive without changing application/runtime product behavior.
+- Post-repair `schema:parity`: PASS / exit 0 — dedicated `accessing_test` recreated, four migrations / 81 SQL queries executed through `Version20261003193000`, Doctrine mapping correct, database schema in sync, migrations up to date, and the runner emitted `PostgreSQL schema parity completed successfully.`
+- Fresh Inspecting report `D:\PhpstormProjects\www\Inspecting\.inspecting\reports\D--PhpstormProjects-www-Accessing-20261006-115426.json`: 27 findings, all medium, zero high, zero autofixable; historical high-severity constructor-dependency remediation remains closed.
+- Composer strict/check-lock PASS; PHPStan PASS (266 files / 0 errors); Gating PASS (10 rules / 0 failed / 0 warning / 1 skipped). The browser/UI surface is unchanged by this runner-only repair, so prior GREEN visual evidence remains applicable.
+- A repository-wide `cs:fix` attempt exposed formatter-induced CRLF/comment-alignment churn across existing source/test files. That churn is recovery-only and must not be published; the validated runner+journal change is isolated separately before worktree cleanup and final publication.
 
 ## 2026-10-03 — Inspecting baseline continuation (engine-20261003192413-accessing-77a6a6)
 

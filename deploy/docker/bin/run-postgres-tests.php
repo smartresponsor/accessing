@@ -39,6 +39,12 @@ $databaseUrl = sprintf(
     rawurlencode($dbName),
 );
 
+$testTempDir = $projectDir . '/var/tmp/tests';
+if (!is_dir($testTempDir) && !mkdir($testTempDir, 0777, true) && !is_dir($testTempDir)) {
+    fwrite(STDERR, "Unable to create test temp directory at $testTempDir.\n");
+    exit(1);
+}
+
 $processEnv = norm_env(array_merge($_ENV, $_SERVER, [
     'APP_ENV' => 'test',
     'APP_DEBUG' => '1',
@@ -47,6 +53,9 @@ $processEnv = norm_env(array_merge($_ENV, $_SERVER, [
     'MAILER_DSN' => 'null://null',
     'ACCESSING_PHONE_VERIFICATION_PROVIDER' => 'fake',
     'ACCESSING_PHONE_VERIFICATION_DSN' => '',
+    'TEMP' => $testTempDir,
+    'TMP' => $testTempDir,
+    'TMPDIR' => $testTempDir,
 ]));
 
 if ($schemaParity) {
